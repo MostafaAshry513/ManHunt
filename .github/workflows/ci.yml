@@ -179,3 +179,11 @@ jobs:
           name: emulator-test-report
           path: android/app/build/reports/androidTests
           if-no-files-found: ignore
+
+      - name: Upload backend log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-backend-log
+          path: server/server.log
+          if-no-files-found: ignore

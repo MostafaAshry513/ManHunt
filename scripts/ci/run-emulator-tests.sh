@@ -4,12 +4,23 @@
 # executes its `script` input line-by-line.
 set -euo pipefail
 
-cd "$(dirname "$0")/../.."
-
-cd server
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT/server"
 HOST=0.0.0.0 PORT=8080 DB_PATH=./data/ci-emulator.db node src/server.ts > server.log 2>&1 &
 SERVER_PID=$!
-trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+
+cleanup() {
+  status=$?
+  if [ "$status" -ne 0 ]; then
+    echo "==== emulator: backend log (tail) ===="
+    tail -n 200 "$ROOT/server/server.log" || true
+    echo "==== emulator: app logcat (tail) ===="
+    adb logcat -d -v brief 2>/dev/null | grep -Ei 'manhunt|System\.out|OkHttp|AndroidRuntime|FATAL' | tail -n 400 || true
+  fi
+  kill "$SERVER_PID" 2>/dev/null || true
+  exit "$status"
+}
+trap cleanup EXIT
 
 for _ in $(seq 1 30); do
   if curl -fsS http://127.0.0.1:8080/health >/dev/null 2>&1; then
@@ -23,6 +34,11 @@ if ! curl -fsS http://127.0.0.1:8080/health; then
   cat server.log
   exit 1
 fi
+
+# Prove the emulator itself can reach the host backend before the test runs.
+echo "==== emulator -> host health ===="
+adb shell 'toybox wget -q -O - http://10.0.2.2:8080/health' || true
+echo
 
 cd ../android
 ./gradlew :app:connectedDebugAndroidTest --console=plain
