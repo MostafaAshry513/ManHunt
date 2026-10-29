@@ -101,7 +101,9 @@ class InGameSmokeTest {
         compose.onNodeWithTag("auth_submit").performClick()
 
         try {
-            waitForText("Start a game", 40_000)
+            // Section labels are rendered uppercase ("START A GAME"), so wait on
+            // the stable tag instead of the transformed text.
+            waitForTag("home_room_name", 40_000)
         } catch (failure: Throwable) {
             println("==== SCREEN AFTER REGISTRATION ATTEMPT ====")
             println(compose.onRoot().printToString())
