@@ -12,7 +12,9 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToString
 import android.Manifest
+import android.graphics.Bitmap
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -23,6 +25,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
 
 /**
  * End-to-end match on a real Android emulator in CI.
@@ -49,6 +52,18 @@ class InGameSmokeTest {
 
     private val http = OkHttpClient()
     private val base = "http://10.0.2.2:8080"
+
+    /** Full-screen PNGs pulled by scripts/ci/run-emulator-tests.sh for visual review. */
+    private fun capture(name: String) {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val bitmap = instrumentation.uiAutomation.takeScreenshot()
+        val dir = instrumentation.targetContext.getExternalFilesDir("screenshots")
+            ?: instrumentation.targetContext.filesDir
+        dir.mkdirs()
+        File(dir, "$name.png").outputStream().use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+    }
 
     private fun api(method: String, path: String, token: String? = null, body: JSONObject? = null): JSONObject {
         val request = Request.Builder()
@@ -136,11 +151,14 @@ class InGameSmokeTest {
         // Alice readies and starts through the UI.
         compose.onNodeWithTag("lobby_list").performScrollToNode(hasTestTag("ready_button"))
         waitForTag("ready_button")
+        capture("01-lobby")
         compose.onNodeWithTag("ready_button").performClick()
         compose.onNodeWithTag("lobby_list").performScrollToNode(hasTestTag("start_match"))
         waitForTag("start_match")
         compose.onNodeWithTag("start_match").performClick()
         waitForText("HUNTING", 40_000)
+        Thread.sleep(2_000)
+        capture("02-hunting")
 
         // Chat: UI message must reach the server and the opponent.
         compose.onNodeWithTag("tab_chat").performClick()
@@ -159,6 +177,7 @@ class InGameSmokeTest {
             if (!chatSeenByBob) Thread.sleep(1_000)
         }
         assertTrue("chat did not reach the opponent", chatSeenByBob)
+        capture("03-chat")
 
         // Opponent tags Alice; she confirms in the real UI.
         val state = api("GET", "/api/rooms/$roomId", bobToken)
@@ -177,5 +196,6 @@ class InGameSmokeTest {
             compose.onAllNodesWithText("You were tagged").fetchSemanticsNodes().isNotEmpty() ||
                 compose.onAllNodesWithText("Match over - Hunters win!").fetchSemanticsNodes().isNotEmpty()
         }
+        capture("04-result")
     }
 }

@@ -187,3 +187,11 @@ jobs:
           name: emulator-backend-log
           path: server/server.log
           if-no-files-found: ignore
+
+      - name: Upload emulator screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-screenshots
+          path: emulator-screenshots
+          if-no-files-found: ignore
