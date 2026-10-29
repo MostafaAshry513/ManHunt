@@ -129,6 +129,13 @@ private val arabic: Map<String, String> = mapOf(
         "يجب أن تلامس الفريسة فعليًا. يمكن الاعتراض على الادعاءات الكاذبة.",
     "Cancel" to "إلغاء",
     "Tag claim" to "ادعاء وسم",
+    "Tag claim sent - waiting for the prey to confirm" to "أُرسل ادعاء الوسم - بانتظار تأكيد الفريسة",
+    "Tag confirmed" to "تم تأكيد الوسم",
+    "Tag disputed - the admin will decide" to "تم الاعتراض على الوسم - سيقرر المشرف",
+    "confirmed" to "مؤكد",
+    "rejected" to "مرفوض",
+    "Settings saved" to "تم حفظ الإعدادات",
+    "No trails available yet" to "لا توجد مسارات متاحة بعد",
     "A hunter says they physically touched you. Confirm the tag?" to
         "يقول صياد إنه لامسك. هل تؤكد الوسم؟",
     "Confirm" to "تأكيد",
@@ -216,8 +223,10 @@ val LocalLanguage = compositionLocalOf { AppLanguage.English }
 val LocalStrings = compositionLocalOf { emptyMap<String, String>() }
 
 @Composable
-fun t(english: String): String {
-    val language = LocalLanguage.current
+fun t(english: String): String = translate(english, LocalLanguage.current)
+
+/** Non-composable translation for ViewModels that already know the current language. */
+fun translate(english: String, language: AppLanguage): String {
     if (language != AppLanguage.Arabic) return english
     return arabic[english] ?: english
 }
