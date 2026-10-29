@@ -929,6 +929,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     myUserId = repo.myUserId(),
                     sending = ui.busy,
                     onSend = vm::sendChat,
+                    error = ui.error,
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 )
             }
