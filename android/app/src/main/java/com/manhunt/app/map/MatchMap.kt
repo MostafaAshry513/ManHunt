@@ -1,5 +1,7 @@
 package com.manhunt.app.map
 
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -30,7 +32,7 @@ import com.manhunt.app.data.TrailPoint
 import com.manhunt.app.data.ZoneDto
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
@@ -38,20 +40,16 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.Polyline
 
-/** Dark CARTO/OSM basemap so the map sits inside the game's navy/cyan palette. */
-private val DarkTiles = XYTileSource(
-    "CartoDark",
-    0,
-    20,
-    256,
-    ".png",
-    arrayOf(
-        "https://a.basemaps.cartocdn.com/dark_all/",
-        "https://b.basemaps.cartocdn.com/dark_all/",
-        "https://c.basemaps.cartocdn.com/dark_all/",
-        "https://d.basemaps.cartocdn.com/dark_all/",
+/** Maps light OSM raster tiles into the app's navy/cyan dark palette. */
+private val DarkTileFilter = ColorMatrixColorFilter(
+    ColorMatrix(
+        floatArrayOf(
+            -0.1828f, -0.6151f, -0.0621f, 0f, 225f,
+            -0.1871f, -0.6294f, -0.0635f, 0f, 238f,
+            -0.1913f, -0.6437f, -0.0650f, 0f, 252f,
+            0f, 0f, 0f, 1f, 0f,
+        ),
     ),
-    "© OpenStreetMap contributors © CARTO",
 )
 
 @Composable
@@ -71,7 +69,8 @@ fun MatchMap(
     val mapView = remember {
         Configuration.getInstance().userAgentValue = context.packageName
         MapView(context).apply {
-            setTileSource(DarkTiles)
+            setTileSource(TileSourceFactory.MAPNIK)
+            overlayManager.tilesOverlay.setColorFilter(DarkTileFilter)
             setMultiTouchControls(true)
             controller.setZoom(16.0)
             controller.setCenter(GeoPoint(0.0, 0.0))
