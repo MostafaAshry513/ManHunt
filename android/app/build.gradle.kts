@@ -24,6 +24,16 @@ android {
         buildConfigField("String", "DEFAULT_SERVER_URL", "\"http://10.0.2.2:8080\"")
     }
 
+    signingConfigs {
+        if (!ciKeystorePath.isNullOrBlank()) {
+            create("ci") {
+                storeFile = file(ciKeystorePath)
+                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         debug {
             if (!ciKeystorePath.isNullOrBlank()) {
@@ -39,16 +49,6 @@ android {
         }
     }
 
-    signingConfigs {
-        if (!ciKeystorePath.isNullOrBlank()) {
-            create("ci") {
-                storeFile = file(ciKeystorePath)
-                storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("ANDROID_KEY_ALIAS")
-                keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
-            }
-        }
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
