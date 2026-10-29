@@ -31,7 +31,7 @@ fun HistoryDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(t("Match history")) },
+        title = { Text(t("Hunt history")) },
         text = {
             Column(
                 modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
@@ -40,11 +40,11 @@ fun HistoryDialog(
                 if (loading) {
                     Text(t("Loading match history..."), style = MaterialTheme.typography.bodySmall)
                 } else if (matches.isEmpty()) {
-                    Text(t("No matches played in this room yet."), style = MaterialTheme.typography.bodySmall)
+                    Text(t("No hunts in this room yet."), style = MaterialTheme.typography.bodySmall)
                 }
                 if (!loading) matches.forEach { match ->
                     val title = when {
-                        match.cancelled -> "Cancelled"
+                        match.cancelled -> t("Hunt cancelled")
                         match.winner == Teams.HUNTERS -> "Hunters won"
                         match.winner == Teams.PREY -> "Prey won"
                         else -> "In progress"

@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -65,7 +70,7 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
         if (ui.busy) return
         val name = ui.roomName.trim().ifBlank { "ManHunt" }
         if (name.length < 2) {
-            ui = ui.copy(createError = translate("Room name must be at least 2 characters", repo.language.value))
+            ui = ui.copy(createError = translate("Hunt name must be at least 2 characters", repo.language.value))
             return
         }
         ui = ui.copy(busy = true, createError = null)
@@ -82,7 +87,7 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
     fun joinRoom() {
         if (ui.busy) return
         if (ui.joinCode.length != 6) {
-            ui = ui.copy(joinError = translate("Enter the 6-character room code", repo.language.value))
+            ui = ui.copy(joinError = translate("Enter the 6-character invite code", repo.language.value))
             return
         }
         ui = ui.copy(busy = true, joinError = null)
@@ -125,24 +130,28 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                 Column(Modifier.weight(1f)) {
                     Text(t("MANHUNT"), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
                     Text(
-                        "${t("Signed in as")} ${session?.user?.username ?: "..."}",
+                        "${t("Playing as")} ${session?.user?.username ?: "..."}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                TextButton(onClick = { repo.logout() }) { Text(t("Sign out")) }
+                TextButton(onClick = { repo.logout() }) {
+                    Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(t("Sign out"))
+                }
                 IconButton(onClick = onOpenSettings, modifier = Modifier.testTag("home_settings")) {
                     Icon(Icons.Outlined.Settings, contentDescription = t("Settings"))
                 }
             }
 
             ScreenCard {
-                SectionLabel(t("Start a game"))
-                Text(t("Become the room admin"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                SectionLabel(t("Host a hunt"))
+                Text(t("You set the rules. You call the hunt."), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 OutlinedTextField(
                     value = ui.roomName,
                     onValueChange = vm::onRoomName,
-                    label = { Text(t("Room name")) },
+                    label = { Text(t("Hunt name")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("home_room_name"),
                 )
@@ -150,17 +159,21 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                     onClick = vm::createRoom,
                     enabled = !ui.busy,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_create"),
-                ) { Text(t("Create room")) }
+                ) {
+                    Icon(Icons.Outlined.AddCircle, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(t("Create hunt"))
+                }
                 ErrorBanner(ui.createError)
             }
 
             ScreenCard {
-                SectionLabel(t("Join a game"))
-                Text(t("Enter a friend's code"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                SectionLabel(t("Join a hunt"))
+                Text(t("Got an invite code?"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 OutlinedTextField(
                     value = ui.joinCode,
                     onValueChange = vm::onJoinCode,
-                    label = { Text(t("Room code")) },
+                    label = { Text(t("Invite code")) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("home_join_code"),
                 )
@@ -168,7 +181,11 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                     onClick = vm::joinRoom,
                     enabled = !ui.busy,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_join"),
-                ) { Text(t("Join room")) }
+                ) {
+                    Icon(Icons.Outlined.Login, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(t("Join hunt"))
+                }
                 ErrorBanner(ui.joinError)
             }
         }

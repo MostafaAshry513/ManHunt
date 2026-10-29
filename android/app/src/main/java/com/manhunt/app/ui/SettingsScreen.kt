@@ -35,6 +35,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
@@ -255,6 +256,7 @@ private fun UpdateTab() {
     }
     var status by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
+    val downloadProgress by manager.progress.collectAsState()
 
     ScreenCard {
         SectionLabel(t("Updates"))
@@ -297,7 +299,7 @@ private fun UpdateTab() {
                     Button(
                         onClick = {
                             busy = true
-                            status = translate("Downloading...", repo.language.value)
+                            status = null
                             scope.launch {
                                 runCatching { manager.download(update) }
                                     .onSuccess {
@@ -312,6 +314,22 @@ private fun UpdateTab() {
                         modifier = Modifier.fillMaxWidth().height(50.dp),
                     ) { Text(t("Download update")) }
                 }
+            }
+        }
+
+        downloadProgress?.let { fraction ->
+            if (fraction < 1f) {
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+                Text(
+                    "${t("Downloading...")} ${(fraction * 100).toInt()}%",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
 

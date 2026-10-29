@@ -17,6 +17,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,16 +40,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.GpsFixed
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.SportsEsports
+import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -539,13 +546,13 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     if (showEndConfirm) {
         AlertDialog(
             onDismissRequest = { showEndConfirm = false },
-            title = { Text(t("End the match?")) },
-            text = { Text(t("This finishes the match for everyone and returns the room to the lobby.")) },
+            title = { Text(t("End the hunt?")) },
+            text = { Text(t("This ends the hunt for everyone and returns the room to the lobby.")) },
             confirmButton = {
                 TextButton(onClick = {
                     showEndConfirm = false
                     vm.endMatch()
-                }) { Text(t("End match")) }
+                }) { Text(t("End hunt")) }
             },
             dismissButton = { TextButton(onClick = { showEndConfirm = false }) { Text(t("Cancel")) } },
         )
@@ -637,7 +644,13 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = requestLeave) { Text(t("Leave")) }
+                IconButton(onClick = requestLeave) {
+                    Icon(
+                        Icons.AutoMirrored.Outlined.Logout,
+                        contentDescription = t("Leave"),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Column(Modifier.weight(1f)) {
                     Text(
                         state?.room?.name ?: t("Room"),
@@ -747,37 +760,45 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 return@Surface
             }
 
+            val lobby = state.room.status == "lobby"
+            val matchCard: @Composable () -> Unit = {
+                PhaseCard(
+                    state = state,
+                    isAdmin = me?.isAdmin == true,
+                    busy = ui.busy,
+                    onStart = vm::startMatch,
+                    onOpenSettings = { showSettings = true },
+                    onPause = vm::pauseMatch,
+                    onResume = vm::resumeMatch,
+                    onEnd = { showEndConfirm = true },
+                )
+            }
+
             if (tab == 0) {
                 LazyColumn(
                 state = listState,
                 // weight, not fillMaxSize: the chat composer must keep its height (UI-01).
-                modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp).testTag("lobby_list"),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
 
-                item(key = "phase") {
-                    PhaseCard(
-                        state = state,
-                        isAdmin = me?.isAdmin == true,
-                        busy = ui.busy,
-                        onStart = vm::startMatch,
-                    )
-                }
+                if (!lobby) {
+                    item(key = "phase") { matchCard() }
 
-                if (me?.eliminated == true && phase == Phases.HUNTING) {
-                    item {
-                        ScreenCard {
-                            Text(t("You were tagged"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                            Text(
-                                "You are spectating this match. You can still chat, but you cannot tag or share new positions.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                    if (me?.eliminated == true && phase == Phases.HUNTING) {
+                        item {
+                            ScreenCard {
+                                Text(t("You were tagged"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "You are spectating this match. You can still chat, but you cannot tag or share new positions.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                         }
                     }
-                }
 
-                if (match != null && showMatchMap) {
+                    if (match != null && showMatchMap) {
                     item(key = "map") {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             MatchMap(
@@ -858,19 +879,27 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                         }
                     }
                 }
+                }
 
                 item {
                     ScreenCard {
-                        SectionLabel("${t("Players")} (${state.members.size})")
+                        SectionLabel("${t("Hunt roster")} (${state.members.size})")
                         state.members.forEach { member ->
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            if (member.team == Teams.PREY) Icons.Outlined.Pets else Icons.Outlined.GpsFixed,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(15.dp),
+                                            tint = teamColor(member.team),
+                                        )
+                                        Spacer(Modifier.width(5.dp))
                                         Text(member.username, fontWeight = FontWeight.SemiBold)
                                         if (member.isAdmin) {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
-                                                t("ADMIN"),
+                                                t("HUNTMASTER"),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.primary,
                                             )
@@ -886,14 +915,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                         if (!member.connected) {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
-                                                t("offline"),
+                                                t("out of range"),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
                                         }
                                     }
                                     Text(
-                                        t(if (member.ready) "Ready" else "Not ready"),
+                                        t(if (member.ready) "Ready" else "Gearing up"),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (member.ready) MaterialTheme.colorScheme.primary
                                         else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -906,89 +935,64 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     }
                 }
 
-                item {
-                    ScreenCard {
-                        SectionLabel(t("Your setup"))
-                        ErrorBanner(ui.error)
-                        val lobby = state.room.status == "lobby"
-                        val ready = me?.ready == true
-                        val readyBg by animateColorAsState(
-                            targetValue = if (ready) MaterialTheme.colorScheme.surfaceVariant
-                            else MaterialTheme.colorScheme.primary,
-                            animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
-                            label = "ready-bg",
-                        )
-                        val readyFg by animateColorAsState(
-                            targetValue = if (ready) MaterialTheme.colorScheme.onSurfaceVariant
-                            else MaterialTheme.colorScheme.onPrimary,
-                            animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
-                            label = "ready-fg",
-                        )
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            FilterChip(
-                                selected = me?.team == Teams.PREY,
-                                onClick = { vm.setTeam(Teams.PREY) },
-                                label = { Text(t("Prey")) },
-                                enabled = lobby,
-                                modifier = Modifier.heightIn(min = 48.dp),
+                if (lobby) {
+                    item {
+                        ScreenCard {
+                            SectionLabel(t("Choose your side"))
+                            ErrorBanner(ui.error)
+                            val ready = me?.ready == true
+                            val readyBg by animateColorAsState(
+                                targetValue = if (ready) MaterialTheme.colorScheme.surfaceVariant
+                                else MaterialTheme.colorScheme.primary,
+                                animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
+                                label = "ready-bg",
                             )
-                            FilterChip(
-                                selected = me?.team == Teams.HUNTERS,
-                                onClick = { vm.setTeam(Teams.HUNTERS) },
-                                label = { Text(t("Hunters")) },
-                                enabled = lobby,
-                                modifier = Modifier.heightIn(min = 48.dp),
+                            val readyFg by animateColorAsState(
+                                targetValue = if (ready) MaterialTheme.colorScheme.onSurfaceVariant
+                                else MaterialTheme.colorScheme.onPrimary,
+                                animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
+                                label = "ready-fg",
                             )
-                        }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                TeamChoiceCard(
+                                    team = Teams.PREY,
+                                    selected = me?.team == Teams.PREY,
+                                    enabled = !ui.busy,
+                                    onClick = { vm.setTeam(Teams.PREY) },
+                                    modifier = Modifier.weight(1f).testTag("team_prey"),
+                                )
+                                TeamChoiceCard(
+                                    team = Teams.HUNTERS,
+                                    selected = me?.team == Teams.HUNTERS,
+                                    enabled = !ui.busy,
+                                    onClick = { vm.setTeam(Teams.HUNTERS) },
+                                    modifier = Modifier.weight(1f).testTag("team_hunters"),
+                                )
+                            }
 
-                        Button(
-                            onClick = vm::toggleReady,
-                            enabled = lobby && !ui.busy,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("ready_button"),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = readyBg,
-                                contentColor = readyFg,
-                            ),
-                        ) {
-                            Text(
-                                when {
-                                    !lobby -> t("Match in progress")
-                                    me?.ready == true -> t("Cancel ready")
-                                    else -> t("I'm ready")
-                                }
-                            )
-                        }
-
-                        if (me?.isAdmin == true && lobby) {
-                            OutlinedButton(
-                                onClick = { showSettings = true },
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                            ) { Text(t("Match settings")) }
-                        }
-
-                        if (me?.isAdmin == true && phase == Phases.HUNTING) {
-                            OutlinedButton(
-                                onClick = vm::pauseMatch,
+                            Button(
+                                onClick = vm::toggleReady,
                                 enabled = !ui.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                            ) { Text(t("Pause match")) }
-                        }
-                        if (me?.isAdmin == true && phase == Phases.PAUSED) {
-                            OutlinedButton(
-                                onClick = vm::resumeMatch,
-                                enabled = !ui.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                            ) { Text(t("Resume match")) }
-                        }
-
-                        if (me?.isAdmin == true && (phase == Phases.HUNTING || phase == Phases.PAUSED)) {
-                            OutlinedButton(
-                                onClick = { showEndConfirm = true },
-                                enabled = !ui.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-                            ) { Text(t("End match")) }
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp).testTag("ready_button"),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = readyBg,
+                                    contentColor = readyFg,
+                                ),
+                            ) {
+                                Icon(
+                                    if (ready) Icons.Outlined.Close else Icons.Outlined.CheckCircle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(t(if (ready) "Stand down" else "Ready to hunt"))
+                            }
                         }
                     }
+                    item(key = "phase") { matchCard() }
                 }
 
                 }
@@ -1009,7 +1013,61 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun PhaseCard(state: RoomState, isAdmin: Boolean, busy: Boolean, onStart: () -> Unit) {
+private fun TeamChoiceCard(
+    team: String,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val color = teamColor(team)
+    val icon = if (team == Teams.PREY) Icons.Outlined.Pets else Icons.Outlined.GpsFixed
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.heightIn(min = 128.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = if (selected) color.copy(alpha = 0.18f)
+        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        contentColor = if (selected) color else MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(
+            if (selected) 3.dp else 2.dp,
+            color.copy(alpha = if (selected) 1f else 0.55f),
+        ),
+    ) {
+        Column(
+            Modifier.fillMaxSize().padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(36.dp), tint = color)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                t(teamLabel(team)),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                t(if (team == Teams.PREY) "Hide. Survive." else "Track. Tag."),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhaseCard(
+    state: RoomState,
+    isAdmin: Boolean,
+    busy: Boolean,
+    onStart: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
+    onEnd: () -> Unit,
+) {
     val match = state.match
     var tick by remember { mutableIntStateOf(0) }
     LaunchedEffect(match?.id, match?.phase) {
@@ -1029,7 +1087,7 @@ private fun PhaseCard(state: RoomState, isAdmin: Boolean, busy: Boolean, onStart
 
     ScreenCard {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            SectionLabel(t("Match"))
+            SectionLabel(t("The hunt"))
             Spacer(Modifier.weight(1f))
             val color: Color = when (phase) {
                 Phases.HUNTING -> MaterialTheme.colorScheme.tertiary
@@ -1056,15 +1114,15 @@ private fun PhaseCard(state: RoomState, isAdmin: Boolean, busy: Boolean, onStart
 
         Text(
             when (phase) {
-                Phases.LOBBY -> if (isAdmin) t("Set teams, then start when everyone is ready.")
-                else t("Waiting for the admin to start.")
+                Phases.LOBBY -> if (isAdmin) t("Pick a side. Ready up. The huntmaster starts the hunt.")
+                else t("The huntmaster is setting the rules.")
                 Phases.HEAD_START -> "${t("Prey are hiding. Hunting starts in")} ${remaining(target, offset)}"
                 Phases.HUNTING ->
-                    "${t("Hunting.")} ${remaining(target, offset)} · ${t("Prey alive")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}"
-                Phases.PAUSED -> t("Match paused by the admin. The clock is stopped.")
+                    "${t("Hunting.")} ${remaining(target, offset)} · ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}"
+                Phases.PAUSED -> t("The hunt is paused. The clock is stopped.")
                 Phases.FINISHED ->
-                    "${t("Match over")} - ${if (match?.winner == Teams.HUNTERS) t("Hunters win") else t("Prey win")}"
-                Phases.CANCELLED -> t("Match cancelled")
+                    "${t("Hunt over")} - ${if (match?.winner == Teams.HUNTERS) t("Hunters win") else t("Prey win")}"
+                Phases.CANCELLED -> t("Hunt cancelled")
                 else -> t("In progress")
             },
             style = MaterialTheme.typography.bodyMedium,
@@ -1074,9 +1132,9 @@ private fun PhaseCard(state: RoomState, isAdmin: Boolean, busy: Boolean, onStart
             (match.phase == Phases.FINISHED || match.phase == Phases.CANCELLED)) {
             Text(
                 when {
-                    match.phase == Phases.CANCELLED -> t("Last match: cancelled")
-                    match.winner == Teams.HUNTERS -> "${t("Last match")}: ${t("Hunters won")}"
-                    else -> "${t("Last match")}: ${t("Prey won")}"
+                    match.phase == Phases.CANCELLED -> t("Last hunt: cancelled")
+                    match.winner == Teams.HUNTERS -> "${t("Last hunt")}: ${t("Hunters won")}"
+                    else -> "${t("Last hunt")}: ${t("Prey won")}"
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1085,17 +1143,65 @@ private fun PhaseCard(state: RoomState, isAdmin: Boolean, busy: Boolean, onStart
 
         if (isAdmin && state.room.status == "lobby") {
             val blockers = startBlockers(state)
-            OutlinedButton(
+            Button(
                 onClick = onStart,
                 enabled = blockers.isEmpty() && !busy,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("start_match"),
-            ) { Text(t("Start match")) }
+                modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp).testTag("start_match"),
+            ) {
+                Icon(Icons.Outlined.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(t("Begin the hunt"))
+            }
+            OutlinedButton(
+                onClick = onOpenSettings,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+            ) {
+                Icon(Icons.Outlined.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(t("Hunt rules"))
+            }
             if (blockers.isNotEmpty()) {
                 Text(
                     blockers.joinToString(" - "),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+        }
+
+        if (isAdmin && state.room.status != "lobby") {
+            if (phase == Phases.HUNTING) {
+                OutlinedButton(
+                    onClick = onPause,
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                ) {
+                    Icon(Icons.Outlined.Pause, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(t("Pause hunt"))
+                }
+            }
+            if (phase == Phases.PAUSED) {
+                OutlinedButton(
+                    onClick = onResume,
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                ) {
+                    Icon(Icons.Outlined.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(t("Resume hunt"))
+                }
+            }
+            if (phase == Phases.HUNTING || phase == Phases.PAUSED) {
+                OutlinedButton(
+                    onClick = onEnd,
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                ) {
+                    Icon(Icons.Outlined.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(t("End hunt"))
+                }
             }
         }
 
@@ -1134,9 +1240,9 @@ private fun startBlockers(state: RoomState): List<String> {
     }
     val prey = state.members.count { it.team == Teams.PREY }
     val hunters = state.members.count { it.team == Teams.HUNTERS }
-    if (prey == 0) blockers += t("No prey")
-    if (hunters == 0) blockers += t("No hunters")
+    if (prey == 0) blockers += t("No prey yet")
+    if (hunters == 0) blockers += t("No hunters yet")
     val notReady = state.members.count { !it.ready }
-    if (notReady > 0) blockers += "$notReady ${t("not ready")}"
+    if (notReady > 0) blockers += "$notReady ${t("still gearing up")}"
     return blockers
 }

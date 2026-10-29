@@ -122,12 +122,13 @@ export class RoomService {
     if (count >= MAX_PLAYERS) throw conflict('Room is full', 'room_full');
 
     const now = this.now();
+    const team = this.balancedTeam(room.id);
     tx(this.db, () => {
       run(this.db,
         `INSERT INTO room_members (room_id, user_id, team, is_ready, eliminated, joined_at, last_seen_at)
-         VALUES (?, ?, 'prey', 0, 0, ?, ?)`,
-        room.id, userId, now, now);
-      this.audit(room.id, userId, 'room.joined', {});
+         VALUES (?, ?, ?, 0, 0, ?, ?)`,
+        room.id, userId, team, now, now);
+      this.audit(room.id, userId, 'room.joined', { team });
       this.systemMessage(room.id, `${this.username(userId)} joined the room`);
     });
 
@@ -827,6 +828,16 @@ export class RoomService {
     return get<MemberRow>(this.db,
       `SELECT m.*, u.username FROM room_members m JOIN users u ON u.id = m.user_id
         WHERE m.room_id = ? AND m.user_id = ?`, roomId, userId);
+  }
+
+  /** Fill the side with fewer players; ties go to prey. Keeps 2-team rooms even. */
+  private balancedTeam(roomId: string): 'prey' | 'hunters' {
+    const row = get<{ prey: number; hunters: number }>(this.db,
+      `SELECT
+         SUM(CASE WHEN team = 'prey' THEN 1 ELSE 0 END) AS prey,
+         SUM(CASE WHEN team = 'hunters' THEN 1 ELSE 0 END) AS hunters
+       FROM room_members WHERE room_id = ?`, roomId);
+    return (row?.prey ?? 0) <= (row?.hunters ?? 0) ? 'prey' : 'hunters';
   }
 
   private members(roomId: string): MemberRow[] {
