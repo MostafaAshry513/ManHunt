@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -179,7 +180,10 @@ fun RoomSettingsDialog(
                 val durationSec = (duration.toIntOrNull() ?: 60) * 60
                 val intervalSec = (interval.toIntOrNull() ?: 5) * 60
 
-                if (mode == "zone" && (centerLat == null || centerLng == null)) {`n                    error = "Place the zone centre on the map first"`n                    return@TextButton`n                }
+                if (mode == "zone" && (centerLat == null || centerLng == null)) {
+                    error = "Place the zone centre on the map first"
+                    return@TextButton
+                }
 
                 val payload = buildJsonObject {
                     put("headStartSec", headStartSec)
