@@ -474,6 +474,10 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var lastSeen by rememberSaveable { mutableIntStateOf(0) }
     val unread = (ui.messages.size - lastSeen).coerceAtLeast(0)
+
+    LaunchedEffect(tab, ui.messages.size) {
+        if (tab == 1) lastSeen = ui.messages.size
+    }
     var showTagPicker by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }

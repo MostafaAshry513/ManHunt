@@ -9,7 +9,7 @@ import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 /** Manual composition root: one instance for the process. */
-class AppContainer(context: Context) {
+class AppContainer(context: Context, transport: com.manhunt.app.data.HttpTransport? = null) {
     private val store = SessionStore(context.applicationContext)
 
     val httpClient: OkHttpClient = OkHttpClient.Builder()
@@ -19,7 +19,7 @@ class AppContainer(context: Context) {
         .pingInterval(20, TimeUnit.SECONDS)
         .build()
 
-    private val api = ApiClient(OkHttpTransport(httpClient), { store.serverUrl })
+    private val api = ApiClient(transport ?: OkHttpTransport(httpClient), { store.serverUrl })
     val repository = ManHuntRepository(api, store)
     val serverUrl: String get() = store.serverUrl
 }
@@ -30,5 +30,10 @@ object Graph {
 
     fun install(context: Context) {
         if (!::container.isInitialized) container = AppContainer(context)
+    }
+
+    /** Test entry point: real UI and repository, fake transport. */
+    fun installForTest(context: Context, transport: com.manhunt.app.data.HttpTransport) {
+        container = AppContainer(context, transport)
     }
 }

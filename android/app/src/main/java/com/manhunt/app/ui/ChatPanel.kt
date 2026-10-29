@@ -33,6 +33,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
@@ -59,13 +60,19 @@ fun ChatPanel(
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
     val listState = rememberLazyListState()
-    val newestFirst = remember(messages) { messages.asReversed() }
     var knownCount by remember { mutableIntStateOf(messages.size) }
 
+    // Open at the newest message.
+    LaunchedEffect(Unit) {
+        if (messages.isNotEmpty()) listState.scrollToItem(messages.lastIndex)
+    }
+
+    // Follow new messages only when the reader is already near the bottom.
     LaunchedEffect(messages.size) {
-        val nearBottom = listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset < 24
-        if (messages.size > knownCount && nearBottom) {
-            listState.animateScrollToItem(0)
+        if (messages.size > knownCount) {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            val nearBottom = lastVisible >= messages.lastIndex - 1 || messages.size <= 6
+            if (nearBottom) listState.animateScrollToItem(messages.lastIndex)
         }
         knownCount = messages.size
     }
@@ -82,13 +89,12 @@ fun ChatPanel(
         } else {
             LazyColumn(
                 state = listState,
-                reverseLayout = true,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(
-                    items = newestFirst,
+                    items = messages,
                     key = { it.id.toString() + "-" + it.createdAt + "-" + it.body.hashCode() },
                 ) { message ->
                     MessageBubble(
@@ -196,7 +202,7 @@ private fun Composer(
         OutlinedTextField(
             value = draft,
             onValueChange = onDraftChange,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).testTag("chat_input"),
             placeholder = { Text(t("Message")) },
             maxLines = 4,
             shape = RoundedCornerShape(22.dp),
@@ -208,7 +214,7 @@ private fun Composer(
         FilledIconButton(
             onClick = onSend,
             enabled = draft.isNotBlank() && !sending,
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier.size(48.dp).testTag("chat_send"),
         ) {
             Icon(Icons.AutoMirrored.Filled.Send, contentDescription = t("Send message"))
         }
