@@ -158,7 +158,7 @@ class InGameSmokeTest {
         waitForTag("start_match")
         compose.onNodeWithTag("start_match").performClick()
         waitForText("HUNTING", 40_000)
-        Thread.sleep(2_000)
+        Thread.sleep(5_000)
         capture("02-hunting")
 
         // Chat: UI message must reach the server and the opponent.
