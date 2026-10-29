@@ -52,4 +52,6 @@ adb shell 'ping -c 1 -W 3 10.0.2.2' || true
 echo
 
 cd ../android
-./gradlew :app:connectedDebugAndroidTest --console=plain
+./gradlew :app:connectedDebugAndroidTest \
+  -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true \
+  --console=plain
