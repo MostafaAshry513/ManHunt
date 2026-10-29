@@ -7,8 +7,11 @@ class ManHuntApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         // OSM tile policy requires a distinct, stable User-Agent identifying the app.
-        // Replace the contact with a real address before any public release.
-        Configuration.getInstance().userAgentValue = "ManHunt/0.1 (dev build)"
+        // One declaration, version read at runtime so it never drifts across releases.
+        val versionName = runCatching {
+            packageManager.getPackageInfo(packageName, 0).versionName
+        }.getOrDefault("dev")
+        Configuration.getInstance().userAgentValue = "ManHunt/$versionName"
         Configuration.getInstance().osmdroidBasePath =
             java.io.File(cacheDir, "osmdroid").apply { mkdirs() }
         Configuration.getInstance().osmdroidTileCache =

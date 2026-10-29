@@ -33,7 +33,6 @@ private val arabic: Map<String, String> = mapOf(
     "Save server" to "حفظ الخادم",
 
     // Home
-    "Signed in as" to "مسجّل الدخول باسم",
     "Sign out" to "تسجيل الخروج",
     "Start a game" to "ابدأ لعبة",
     "Become the room admin" to "كن مشرف الغرفة",
@@ -109,36 +108,18 @@ private val arabic: Map<String, String> = mapOf(
     "PAUSED" to "متوقفة",
     "FINISHED" to "انتهت",
     "CANCELLED" to "أُلغيت",
-    "Set teams, then start when everyone is ready." to "حدّد الفرق ثم ابدأ عندما يكون الجميع مستعدًا.",
-    "Waiting for the admin to start." to "بانتظار المشرف ليبدأ.",
     "In progress" to "جارٍ التنفيذ",
     "Match cancelled" to "أُلغيت المباراة",
-    "Match over" to "انتهت المباراة",
     "Hunters win" to "فاز الصيادون",
     "Prey win" to "فازت الفرائس",
-    "Prey alive" to "الفرائس الأحياء",
-    "Last match" to "آخر مباراة",
-    "Last match: cancelled" to "آخر مباراة: أُلغيت",
     "Zone" to "المنطقة",
     "m" to "م",
     "Zone shrinks in" to "تتقلص المنطقة خلال",
     "Players" to "اللاعبون",
-    "Your setup" to "إعدادك",
     "Need" to "تحتاج",
     "players" to "لاعبين",
-    "No prey" to "لا توجد فرائس",
-    "No hunters" to "لا يوجد صيادون",
-    "not ready" to "غير مستعد",
     "Prey" to "الفريسة",
     "Hunters" to "الصيادون",
-    "Cancel ready" to "إلغاء الاستعداد",
-    "I'm ready" to "أنا مستعد",
-    "Match in progress" to "المباراة جارية",
-    "Match settings" to "إعدادات المباراة",
-    "Start match" to "ابدأ المباراة",
-    "Pause match" to "إيقاف المباراة مؤقتًا",
-    "Resume match" to "استئناف المباراة",
-    "End match" to "إنهاء المباراة",
     "Prey positions are the latest reports" to "مواقع الفرائس بحسب آخر البلاغات",
     "Sharing your position" to "تتم مشاركة موقعك",
     "Open the app to resume sharing" to "افتح التطبيق لاستئناف المشاركة",
@@ -146,8 +127,6 @@ private val arabic: Map<String, String> = mapOf(
     "Waiting for GPS" to "بانتظار إشارة GPS",
     "Map" to "الخريطة",
     "No report" to "لا يوجد بلاغ",
-    "Unverified" to "غير موثّق",
-    "Stale" to "قديم",
     "Some prey reports are stale (older than two intervals)." to
         "بعض بلاغات الفرائس قديمة (أقدم من فترتين).",
     "Room" to "الغرفة",
@@ -158,20 +137,14 @@ private val arabic: Map<String, String> = mapOf(
     "Hide trails" to "إخفاء المسارات",
     "Tag prey" to "وسم الفريسة",
     "Ready" to "مستعد",
-    "Not ready" to "غير مستعد",
-    "offline" to "غير متصل",
     "TAGGED" to "تم وسمه",
-    "ADMIN" to "مشرف",
-    "No report" to "لا بلاغ",
     "Stale" to "قديم",
     "Unverified" to "غير موثّق",
     "Tagged" to "تم وسمه",
-    "Some prey reports are stale (older than two intervals)." to "بعض بلاغات الفرائس قديمة (أقدم من فترتين).",
     "Zone shrinks in %02d:%02d" to "تتقلص المنطقة خلال %02d:%02d",
     "Zone: %d m radius" to "المنطقة: نصف قطر %d م",
 
     // Dialogs
-    "Tag a prey" to "وسم فريسة",
     "No eligible prey" to "لا توجد فرائس متاحة",
     "Who did you touch?" to "من الذي لامسته؟",
     "You must be physically touching the prey. False claims can be disputed." to
@@ -185,8 +158,6 @@ private val arabic: Map<String, String> = mapOf(
     "rejected" to "مرفوض",
     "Settings saved" to "تم حفظ الإعدادات",
     "No trails available yet" to "لا توجد مسارات متاحة بعد",
-    "A hunter says they physically touched you. Confirm the tag?" to
-        "يقول صياد إنه لامسك. هل تؤكد الوسم؟",
     "Confirm" to "تأكيد",
     "Dispute" to "اعتراض",
     "Disputed tag" to "وسم متنازع عليه",
@@ -195,26 +166,43 @@ private val arabic: Map<String, String> = mapOf(
     "says they physically touched you. Confirm the tag?" to "يقول إنه لامسك فعليًا. هل تؤكد الوسم؟",
     "Confirm tag" to "تأكيد الوسم",
     "Reject" to "رفض",
-    "End the match?" to "إنهاء المباراة؟",
-    "This finishes the match for everyone and returns the room to the lobby." to
-        "سينتهي هذا المباراة للجميع وتعود الغرفة إلى الردهة.",
-    "Match history" to "سجل المباريات",
-    "No matches played in this room yet." to "لم تُلعب أي مباراة في هذه الغرفة بعد.",
     "Loading match history..." to "جارٍ تحميل سجل المباريات...",
     "Close" to "إغلاق",
     "Dismiss" to "إغلاق",
     "Hunters won" to "فاز الصيادون",
     "Prey won" to "فازت الفرائس",
     "Uploaded" to "مرفوع",
-    "Match over - Hunters win!" to "انتهت المباراة - فاز الصيادون!",
-    "Match over - Prey win!" to "انتهت المباراة - فازت الفرائس!",
-    "Head start over - hunting is live." to "انتهت البداية المسبقة - بدأت المطاردة.",
     "Prey are hiding. Hunting starts in" to "الفرائس تختبئ. تبدأ المطاردة خلال",
     "Hunting." to "المطاردة.",
-    "Match paused by the admin. The clock is stopped." to "أوقف المشرف المباراة مؤقتًا. الساعة متوقفة.",
     "You were tagged" to "تم وسمك",
     "You are spectating this match. You can still chat, but you cannot tag or share new positions." to
         "أنت تشاهد المباراة الآن. يمكنك الدردشة، لكن لا يمكنك الوسم أو مشاركة مواقع جديدة.",
+
+    // Errors / dialogs / fallbacks
+    "Try again" to "أعد المحاولة",
+    "Loading" to "جارٍ التحميل",
+    "Back" to "رجوع",
+    "You are abandoning this hunt. It runs without you." to "أنت تتخلى عن هذه المطاردة. ستستمر بدونك.",
+    "A hunter" to "صياد",
+    "a prey" to "فريسة",
+
+    // Hunt rules dialog
+    "Applies to the next match. Rules are enforced by the server." to
+        "تُطبَّق على المطاردة القادمة. يفرض الخادم القواعد.",
+    "Prey head start (minutes)" to "مهلة الفرائس (دقائق)",
+    "Match duration (minutes)" to "مدة المطاردة (دقائق)",
+    "Location report interval (minutes)" to "تباعد إرسال الموقع (دقائق)",
+    "Hunters can see trails" to "يستطيع الصيادون رؤية المسارات",
+    "Play area" to "منطقة اللعب",
+    "Open" to "مفتوحة",
+    "Zone radius (metres)" to "نصف قطر المنطقة (أمتار)",
+    "Tap the map to move the zone centre" to "المس الخريطة لنقل مركز المنطقة",
+    "Enable GPS or tap the map to place the zone" to "شغّل GPS أو المس الخريطة لوضع المنطقة",
+    "Place the zone centre on the map first" to "ضع مركز المنطقة على الخريطة أولًا",
+    "Shrink over time" to "تتقلص مع الوقت",
+    "Every (min)" to "كل (دقيقة)",
+    "By (m)" to "بمقدار (متر)",
+    "Save" to "حفظ",
 
     // Chat
     "No messages yet. Say hello." to "لا رسائل بعد. ألقِ التحية.",
@@ -268,6 +256,30 @@ private val arabic: Map<String, String> = mapOf(
     // Safety screen
     "Before you play" to "قبل أن تبدأ",
     "ManHunt is a real-world game. Read this once." to "ManHunt لعبة في العالم الحقيقي. اقرأ هذا مرة واحدة.",
+    "While you are on the Prey team in an active match, your phone sends its position " +
+        "to the server at the interval the room admin set (5 minutes by default). " +
+        "Only players on the Hunters team can see it, and only during the hunting phase. " +
+        "A permanent notification is shown while tracking is active. Tracking stops when " +
+        "the match ends." to
+        "في المرحلة النشطة وأنت تشارك في فريق الفرائس، يرسل هاتفك موقعه إلى الخادم بالتباعد الذي يحدده حكم المطاردة (5 دقائق افتراضيًا). " +
+            "لا يرى موقعك إلا اللاعبون في فريق الصيادين، وفقط أثناء مرحلة المطاردة. " +
+            "يظهر إشعار دائم أثناء تفعيل التتبع، ويتوقف التتبع عند انتهاء المطاردة.",
+    "Precise reports are kept for 30 days by default and then deleted. Match summaries " +
+        "are kept without byte-level GPS trails." to
+        "تُحفظ البلاغات الدقيقة 30 يومًا افتراضيًا ثم تُحذف. وتُحفظ ملخصات المطاردات دون مسارات GPS الدقيقة.",
+    "• Respect property and local law. Never trespass.\n" +
+        "• Stay out of roads, traffic and hazardous ground.\n" +
+        "• Never run while looking at your phone.\n" +
+        "• Stop immediately if conditions or people make it unsafe.\n" +
+        "• Respect people who are not playing." to
+        "• احترم الممتلكات والقانون المحلي ولا تدخل أراضي غير مسموح بها.\n" +
+            "• ابعد عن الطرق وحركة المرور والأماكن الخطرة.\n" +
+            "• لا تركض وأنت تنظر إلى هاتفك.\n" +
+            "• توقف فورًا إذا أصبحت الظروف أو الناس غير آمنة.\n" +
+            "• احترم من لا يلعبون.",
+    "ManHunt is a game. It is not an emergency, rescue or child-tracking service, and " +
+        "GPS can be inaccurate, delayed or missing. Do not rely on it to find a person in danger." to
+        "ManHunt لعبة وليست خدمة طوارئ أو إنقاذ أو تتبع أطفال، وقد يكون الإسناد الموقعي GPS غير دقيق أو متأخر أو غائبًا. لا تعتمد عليه لإيجاد شخص في خطر.",
     "Your location" to "موقعك",
     "Stay safe" to "ابقَ آمنًا",
     "Not a safety service" to "ليست خدمة أمان",

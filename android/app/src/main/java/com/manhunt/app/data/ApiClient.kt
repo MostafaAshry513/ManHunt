@@ -155,7 +155,14 @@ class ApiClient(
         if (response.body.isBlank()) {
             throw ApiException("invalid_response", "Server returned an empty response", response.code)
         }
-        json.decodeFromString<T>(response.body)
+        // A schema drift (field type change, malformed value) must surface as an error
+        // banner like every other failure - never as a raw SerializationException that
+        // kills the process (ViewModels only catch ApiException).
+        try {
+            json.decodeFromString<T>(response.body)
+        } catch (e: Exception) {
+            throw ApiException("invalid_response", "Unexpected server response", response.code)
+        }
     }
 
     private fun parseUser(raw: String): UserDto =

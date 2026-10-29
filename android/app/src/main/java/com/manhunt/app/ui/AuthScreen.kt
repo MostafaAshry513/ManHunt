@@ -164,14 +164,15 @@ fun AuthScreen() {
                 ScreenCard {
                     Text(t("Server address"), style = MaterialTheme.typography.titleSmall)
                     Text(
-                        "Use your PC's LAN IP on a real phone, or 10.0.2.2 on an emulator.",
+                        t("Use your PC's LAN IP on a real phone, or 10.0.2.2 on an emulator."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     OutlinedTextField(
                         value = ui.serverUrl,
                         onValueChange = vm::onServerUrl,
-                        label = { Text(t("http://192.168.1.20:8080")) },
+                        // Format hint, not copy: a placeholder must never leak a private LAN address.
+                        label = { Text("http://server:8080") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )

@@ -29,7 +29,6 @@ import com.manhunt.app.i18n.t
 import com.manhunt.app.data.LatLng
 import com.manhunt.app.data.ZoneDto
 import com.manhunt.app.map.MatchMap
-import com.manhunt.app.i18n.t
 import com.manhunt.app.data.RoomState
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -64,7 +63,7 @@ fun RoomSettingsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(t("Match settings")) },
+        title = { Text(t("Hunt rules")) },
         text = {
             Column(
                 modifier = Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()),
@@ -125,22 +124,25 @@ fun RoomSettingsDialog(
                             zone = ZoneDto(
                                 centerLat = centerLat!!,
                                 centerLng = centerLng!!,
-                                radiusM = radius.toDoubleOrNull() ?: 800.0,
+                                radiusM = radius.toDoubleOrNull() ?: (settings.zone?.radiusM ?: 800.0),
                             ),
                             showPrey = false,
+                            // ownLocation is the zone centre candidate here - focus
+                            // without drawing a "You" marker on top of it.
+                            showOwnMarker = false,
                             onTap = {
                                 centerLat = it.lat
                                 centerLng = it.lng
                             },
                         )
                         Text(
-                            "Tap the map to move the zone centre",
+                            t("Tap the map to move the zone centre"),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     } else {
                         Text(
-                            "Enable GPS or tap the map to place the zone",
+                            t("Enable GPS or tap the map to place the zone"),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -171,14 +173,16 @@ fun RoomSettingsDialog(
                     }
                 }
 
-                error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                error?.let { Text(t(it), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             }
         },
         confirmButton = {
             TextButton(onClick = {
-                val headStartSec = (headStart.toIntOrNull() ?: 5) * 60
-                val durationSec = (duration.toIntOrNull() ?: 60) * 60
-                val intervalSec = (interval.toIntOrNull() ?: 5) * 60
+                // A cleared field keeps the room's current value - silently inserting
+                // hidden defaults was surprising; the server re-validates everything.
+                val headStartSec = (headStart.toIntOrNull() ?: (settings.headStartSec / 60)) * 60
+                val durationSec = (duration.toIntOrNull() ?: (settings.durationSec / 60)) * 60
+                val intervalSec = (interval.toIntOrNull() ?: (settings.locationIntervalSec / 60)) * 60
 
                 if (mode == "zone" && (centerLat == null || centerLng == null)) {
                     error = "Place the zone centre on the map first"
@@ -195,12 +199,12 @@ fun RoomSettingsDialog(
                         putJsonObject("zone") {
                             put("centerLat", centerLat!!)
                             put("centerLng", centerLng!!)
-                            put("radiusM", (radius.toDoubleOrNull() ?: 800.0))
+                            put("radiusM", radius.toDoubleOrNull() ?: (settings.zone?.radiusM ?: 800.0))
                         }
                         putJsonObject("shrink") {
                             put("enabled", shrink)
-                            put("intervalSec", (shrinkInterval.toIntOrNull() ?: 2) * 60)
-                            put("stepM", shrinkStep.toDoubleOrNull() ?: 25.0)
+                            put("intervalSec", (shrinkInterval.toIntOrNull() ?: (settings.shrink.intervalSec / 60)) * 60)
+                            put("stepM", shrinkStep.toDoubleOrNull() ?: settings.shrink.stepM)
                             put("minRadiusM", settings.shrink.minRadiusM)
                             put("warningSec", settings.shrink.warningSec)
                         }
