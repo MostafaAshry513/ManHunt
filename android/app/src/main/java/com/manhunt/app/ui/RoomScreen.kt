@@ -682,7 +682,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                }
 
                 item(key = "phase") { PhaseCard(state, me?.isAdmin == true) }
 

@@ -172,19 +172,11 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
             cd server
-            HOST=0.0.0.0 DB_PATH=./data/ci-emulator.db node src/server.ts > server.log 2>&1 &
-            SERVER_PID=$!
-            for i in $(seq 1 40); do
-              if curl -fsS http://127.0.0.1:8080/health > /dev/null; then break; fi
-              sleep 1
-            done
+            nohup env HOST=0.0.0.0 DB_PATH=./data/ci-emulator.db node src/server.ts > server.log 2>&1 &
+            sleep 10
+            curl -fsS http://127.0.0.1:8080/health
             cd ../android
             ./gradlew :app:connectedDebugAndroidTest --console=plain
-            RC=$?
-            kill $SERVER_PID || true
-            echo "--- backend log ---"
-            tail -n 40 ../server/server.log || true
-            exit $RC
 
       - name: Upload instrumented test report
         if: always()
