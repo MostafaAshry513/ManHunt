@@ -11,7 +11,12 @@ location visibility and chat, so clients can restart or lose signal safely.
 |---|---|
 | ![Chat in dark mode](docs/screenshots/02-chat-dark.png) | ![Arabic RTL chat](docs/screenshots/03-chat-arabic-rtl.png) |
 
-Rendered from the real Compose UI by `ScreenshotTest` (Robolectric), not mockups.
+![Hunting map with zone and trail](docs/screenshots/04-hunting-map.png)
+
+All images are rendered from the real Compose UI by `ScreenshotTest` / `GameScreenshotTest`
+(Robolectric). The hunting view is the production `MatchMap` composable with a zone, a
+reported trail, prey markers and OSM attribution; base map tiles are not downloaded in the
+headless renderer, so the tile layer is blank in this capture.
 
 ## Download
 
@@ -135,4 +140,4 @@ All project docs live in [docs/](docs/). Highlights:
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Third-party skill files keep their own licenses (Apache-2.0, MIT, CC BY-SA 4.0) in `.opencode/skills/`.
+MIT ï¿½ see [LICENSE](LICENSE). Third-party skill files keep their own licenses (Apache-2.0, MIT, CC BY-SA 4.0) in `.opencode/skills/`.
