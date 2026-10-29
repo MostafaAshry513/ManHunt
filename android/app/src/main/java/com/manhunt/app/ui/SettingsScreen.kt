@@ -206,12 +206,12 @@ private fun AppearanceTab(
             steps = 4,
         )
         Text(
-            "Preview: the room, chat and buttons scale together.",
+            t("Preview: the room, chat and buttons scale together."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            "Hunters see prey positions every few minutes.",
+            t("Hunters see prey positions every few minutes."),
             style = MaterialTheme.typography.bodyMedium,
         )
     }
