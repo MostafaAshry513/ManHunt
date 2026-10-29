@@ -14,7 +14,11 @@ cleanup() {
   # Pull whatever the instrumentation test captured before the emulator dies.
   local shots="$ROOT/emulator-screenshots"
   rm -rf "$shots"; mkdir -p "$shots"
-  adb pull /sdcard/Android/data/com.manhunt.app/files/screenshots/. "$shots" >/dev/null 2>&1 || true
+  echo "==== emulator: screenshot paths ===="
+  adb logcat -d -v brief 2>/dev/null | grep 'ManHuntTest.*screenshot' | tail -n 10 || true
+  adb shell ls -l /sdcard/Android/data/com.manhunt.app/files/screenshots 2>&1 || true
+  adb pull /sdcard/Android/data/com.manhunt.app/files/screenshots/. "$shots" 2>&1 || true
+  ls -l "$shots" 2>&1 || true
   if [ "$status" -ne 0 ]; then
     echo "==== emulator: backend log (tail) ===="
     tail -n 200 "$ROOT/server/server.log" || true
