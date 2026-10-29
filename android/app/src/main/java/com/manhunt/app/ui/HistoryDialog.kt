@@ -45,9 +45,9 @@ fun HistoryDialog(
                 if (!loading) matches.forEach { match ->
                     val title = when {
                         match.cancelled -> t("Hunt cancelled")
-                        match.winner == Teams.HUNTERS -> "Hunters won"
-                        match.winner == Teams.PREY -> "Prey won"
-                        else -> "In progress"
+                        match.winner == Teams.HUNTERS -> t("Hunters won")
+                        match.winner == Teams.PREY -> t("Prey won")
+                        else -> t("In progress")
                     }
                     Text(title, fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodyMedium)
                     Text(

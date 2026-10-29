@@ -80,13 +80,20 @@ fun AppRoot() {
         // Edge-to-edge: keep every screen inside the status bar, cutout, nav bar and IME.
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
+                // Screen slides must mirror with the layout, or Arabic navigation animates
+                // in the "wrong" direction while the UI itself is fully mirrored.
+                val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
                 AnimatedContent(
                     targetState = route,
                     transitionSpec = {
                         (fadeIn(tween(Motion.EMPHASIZED, easing = Motion.EaseOutExpo)) +
-                            slideInHorizontally(tween(Motion.EMPHASIZED, easing = Motion.EaseOutExpo)) { it / 14 }) togetherWith
+                            slideInHorizontally(tween(Motion.EMPHASIZED, easing = Motion.EaseOutExpo)) {
+                                if (isRtl) -(it / 14) else it / 14
+                            }) togetherWith
                             (fadeOut(tween(Motion.QUICK, easing = Motion.EaseInOut)) +
-                                slideOutHorizontally(tween(Motion.STANDARD, easing = Motion.EaseInOut)) { -it / 20 })
+                                slideOutHorizontally(tween(Motion.STANDARD, easing = Motion.EaseInOut)) {
+                                    if (isRtl) it / 20 else -(it / 20)
+                                })
                     },
                     label = "screen",
                 ) { current ->

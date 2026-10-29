@@ -82,7 +82,7 @@ fun ChatPanel(
         if (messages.isEmpty()) {
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
-                    "No messages yet. Say hello.",
+                    t("No messages yet. Say hello."),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

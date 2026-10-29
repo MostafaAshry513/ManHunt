@@ -10,13 +10,8 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -72,6 +67,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -296,10 +292,15 @@ class RoomViewModel(
                 repo.confirmTag(tag.id)
                 ui = ui.copy(busy = false, notice = msg("Tag confirmed"))
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                // Keep the dialog alive: the prey must still answer this claim.
+                ui = ui.copy(busy = false, error = e.message, pendingTag = tag)
             }
             refresh(silent = true)
         }
+    }
+
+    fun dismissPendingTag() {
+        ui = ui.copy(pendingTag = null)
     }
 
     fun disputeIncomingTag() {
@@ -310,7 +311,7 @@ class RoomViewModel(
                 repo.disputeTag(tag.id)
                 ui = ui.copy(busy = false, notice = msg("Tag disputed - the admin will decide"))
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                ui = ui.copy(busy = false, error = e.message, pendingTag = tag)
             }
             refresh(silent = true)
         }
@@ -335,10 +336,14 @@ class RoomViewModel(
                     notice = "${msg("Disputed tag")}: ${translate(decision, repo.language.value)}",
                 )
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                ui = ui.copy(busy = false, error = e.message, pendingDispute = tag)
             }
             refresh(silent = true)
         }
+    }
+
+    fun dismissPendingDispute() {
+        ui = ui.copy(pendingDispute = null)
     }
 
     fun loadHistory() {
@@ -509,19 +514,34 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
 
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    var lastSeen by rememberSaveable { mutableIntStateOf(-1) }
-    val unread = if (lastSeen < 0) 0 else (ui.messages.size - lastSeen).coerceAtLeast(0)
+    // Unread is tracked by message id, not list length: the server window caps the
+    // visible list at 50 messages, so in a busy room the size stops changing and a
+    // length-based badge would silently stay at zero.
+    var lastReadId by rememberSaveable { mutableLongStateOf(-1L) }
+    val newestId = ui.messages.maxOfOrNull { it.id } ?: -1L
+    val unread = if (lastReadId < 0) 0 else ui.messages.count { it.id > lastReadId }
     val listState = rememberLazyListState()
 
-    // When a match starts, ends or changes phase, bring the phase card back into view.
-    LaunchedEffect(ui.state?.match?.id, ui.state?.match?.phase) {
-        listState.scrollToItem(0)
+    // On real phase/status transitions bring the new focal card into view: hunt card
+    // is the LAST lobby item, phase card the FIRST match item. Skipped on first load.
+    var lastScrollKey by remember { mutableStateOf<Any?>(null) }
+    LaunchedEffect(ui.state?.room?.status, ui.state?.match?.id, ui.state?.match?.phase) {
+        val key = listOf(ui.state?.room?.status, ui.state?.match?.id, ui.state?.match?.phase)
+        if (lastScrollKey != null && lastScrollKey != key) {
+            if (ui.state?.room?.status == "lobby") {
+                val last = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
+                listState.scrollToItem(last)
+            } else {
+                listState.scrollToItem(0)
+            }
+        }
+        lastScrollKey = key
     }
 
-    LaunchedEffect(tab, ui.messages.size) {
+    LaunchedEffect(tab, newestId) {
         // Seed the marker on first load so already-read history is not shown as unread,
         // then keep it pinned while the reader is on the Chat tab.
-        if (lastSeen < 0 || tab == 1) lastSeen = ui.messages.size
+        if (lastReadId < 0 || tab == 1) lastReadId = newestId
     }
     var showTagPicker by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
@@ -532,7 +552,17 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         AlertDialog(
             onDismissRequest = { showLeaveConfirm = false },
             title = { Text(t("Leave the room?")) },
-            text = { Text(t("You will leave the room and lose your spot in the lobby.")) },
+            text = {
+                Text(
+                    t(
+                        if (state?.room?.status == "active") {
+                            "You are abandoning this hunt. It runs without you."
+                        } else {
+                            "You will leave the room and lose your spot in the lobby."
+                        }
+                    )
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     showLeaveConfirm = false
@@ -560,10 +590,10 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
     if (me?.isAdmin == true) {
         ui.pendingDispute?.let { tag ->
-            val hunter = state?.members?.firstOrNull { it.userId == tag.hunterId }?.username ?: "A hunter"
-            val prey = state?.members?.firstOrNull { it.userId == tag.preyId }?.username ?: "a prey"
+            val hunter = state?.members?.firstOrNull { it.userId == tag.hunterId }?.username ?: t("A hunter")
+            val prey = state?.members?.firstOrNull { it.userId == tag.preyId }?.username ?: t("a prey")
             AlertDialog(
-                onDismissRequest = { },
+                onDismissRequest = vm::dismissPendingDispute,
                 title = { Text(t("Disputed tag")) },
                 text = {
                     Text(
@@ -598,9 +628,9 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
 
     ui.pendingTag?.let { tag ->
-        val hunter = state?.members?.firstOrNull { it.userId == tag.hunterId }?.username ?: "A hunter"
+        val hunter = state?.members?.firstOrNull { it.userId == tag.hunterId }?.username ?: t("A hunter")
         AlertDialog(
-            onDismissRequest = { },
+            onDismissRequest = vm::dismissPendingTag,
             title = { Text(t("Tag claim")) },
             text = { Text("$hunter ${t("says they physically touched you. Confirm the tag?")}") },
             confirmButton = { TextButton(onClick = vm::confirmIncomingTag) { Text(t("Confirm")) } },
@@ -628,7 +658,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                         }) { Text(target.username) }
                     }
                     Text(
-                        "You must be physically touching the prey. False claims can be disputed.",
+                        t("You must be physically touching the prey. False claims can be disputed."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -714,7 +744,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     modifier = Modifier.testTag("tab_chat"),
                     onClick = {
                         tab = 1
-                        lastSeen = ui.messages.size
+                        lastReadId = ui.messages.maxOfOrNull { it.id } ?: -1L
                     },
                     icon = {
                         BadgedBox(badge = {
@@ -747,14 +777,26 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
             if (state == null) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        ManHuntLoader(size = 36.dp)
-                        Spacer(Modifier.height(14.dp))
-                        Text(
-                            t("Connecting to room"),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    if (ui.error != null && !ui.loading) {
+                        // Load failed (room gone, wrong server, 5xx): state it inside a
+                        // card with a way back, instead of spinning forever.
+                        ScreenCard(Modifier.padding(horizontal = 16.dp)) {
+                            ErrorBanner(ui.error)
+                            Button(
+                                onClick = { vm.refresh() },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) { Text(t("Try again")) }
+                        }
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            ManHuntLoader(size = 36.dp)
+                            Spacer(Modifier.height(14.dp))
+                            Text(
+                                t("Connecting to room"),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
                 return@Surface
@@ -783,6 +825,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
             ) {
 
                 if (!lobby) {
+                    if (ui.error != null) {
+                        item(key = "match_error") {
+                            // Mid-match actions (tag, pause, resume, end, settings) report
+                            // here - during a match there is no lobby card to carry ui.error.
+                            ScreenCard { ErrorBanner(ui.error) }
+                        }
+                    }
+
                     item(key = "phase") { matchCard() }
 
                     if (me?.eliminated == true && phase == Phases.HUNTING) {
@@ -922,12 +972,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                             )
                                         }
                                     }
-                                    Text(
-                                        t(if (member.ready) "Ready" else "Gearing up"),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = if (member.ready) MaterialTheme.colorScheme.primary
-                                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
+                                    if (lobby) {
+                                        Text(
+                                            t(if (member.ready) "Ready" else "Gearing up"),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = if (member.ready) MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
                                 }
                                 TeamPill(member.team)
                             }

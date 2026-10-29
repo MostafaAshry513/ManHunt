@@ -44,7 +44,9 @@ class GameScreenshotTest {
 
     @Test
     fun captureHuntingMap() {
-        Configuration.getInstance().userAgentValue = "ManHunt/0.6 (preview)"
+        // Test-process-only value sourced from the build so it can't drift from the
+        // shipped User-Agent (which ManHuntApplication derives from versionName).
+        Configuration.getInstance().userAgentValue = "ManHunt/${com.manhunt.app.BuildConfig.VERSION_NAME} (preview)"
 
         val zone = ZoneDto(centerLat = 51.5007, centerLng = -0.1246, radiusM = 420.0)
         val now = 1_700_000_000_000L

@@ -2,6 +2,9 @@ package com.manhunt.app.map
 
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.Outline
+import android.view.View
+import android.view.ViewOutlineProvider
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -30,7 +33,6 @@ import com.manhunt.app.data.LatLng
 import com.manhunt.app.data.PreyLocationStatus
 import com.manhunt.app.data.TrailPoint
 import com.manhunt.app.data.ZoneDto
-import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -40,17 +42,11 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.Polyline
 
-/** Maps light OSM raster tiles into the app's navy/cyan dark palette. */
-private val DarkTileFilter = ColorMatrixColorFilter(
-    ColorMatrix(
-        floatArrayOf(
-            -0.1828f, -0.6151f, -0.0621f, 0f, 225f,
-            -0.1871f, -0.6294f, -0.0635f, 0f, 238f,
-            -0.1913f, -0.6437f, -0.0650f, 0f, 252f,
-            0f, 0f, 0f, 1f, 0f,
-        ),
-    ),
-)
+/**
+ * Dark-tile color filter. The raw matrix and its 0..255-scale contract live in
+ * [DARK_TILE_MATRIX]; apply it through [ColorMatrixColorFilter] only.
+ */
+private val DarkTileFilter = ColorMatrixColorFilter(ColorMatrix(DARK_TILE_MATRIX))
 
 @Composable
 fun MatchMap(
@@ -61,16 +57,38 @@ fun MatchMap(
     showPrey: Boolean,
     trails: Map<String, List<TrailPoint>> = emptyMap(),
     onTap: (LatLng) -> Unit = {},
+    showOwnMarker: Boolean = true,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var centered by remember { mutableStateOf(false) }
 
+    // Known trade-offs from the 0.8.1 review pass, deferred to a perf pass:
+    // 1) This composable sits in the room screen's LazyColumn - scrolling it out of
+    //    the viewport disposes the MapView (osmdroid destroys its tile providers)
+    //    and scrolling back rebuilds it from scratch. Acceptable at the current
+    //    list size; fix by hoisting the MapView lifetime above the list.
+    // 2) update() below rebuilds every overlay on each recomposition/location tick.
+    //    Cheap at current overlay counts; add a data-signature guard if trails grow.
+
     val mapView = remember {
-        Configuration.getInstance().userAgentValue = "ManHunt/0.8.0 (com.manhunt.app)"
+        // The osmdroid User-Agent is set once in ManHuntApplication.onCreate.
         MapView(context).apply {
+            // The Compose Box clips its corners, but the embedded View is drawn by
+            // the interop pipeline — clip at the View level too so the round shape
+            // is unconditional on every device.
+            clipToOutline = true
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) {
+                    val radius = 20f * view.resources.displayMetrics.density
+                    outline.setRoundRect(0, 0, view.width, view.height, radius)
+                }
+            }
             setTileSource(TileSourceFactory.MAPNIK)
             overlayManager.tilesOverlay.setColorFilter(DarkTileFilter)
+            // The built-in +/− buttons are unthemed, draw above all overlays, and
+            // consume the taps meant for MapEventsOverlay ("tap to move the zone").
+            setBuiltInZoomControls(false)
             setMultiTouchControls(true)
             controller.setZoom(16.0)
             controller.setCenter(GeoPoint(0.0, 0.0))
@@ -161,20 +179,27 @@ fun MatchMap(
                     }
                 }
 
-                ownLocation?.let { me ->
-                    view.overlays.add(
-                        Marker(view).apply {
-                            position = GeoPoint(me.lat, me.lng)
-                            title = "You"
-                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        },
-                    )
+                if (showOwnMarker) {
+                    ownLocation?.let { me ->
+                        view.overlays.add(
+                            Marker(view).apply {
+                                position = GeoPoint(me.lat, me.lng)
+                                title = "You"
+                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                            },
+                        )
+                    }
                 }
 
                 if (!centered) {
+                    // Center on the first thing that will actually be drawn: own
+                    // position, else a prey report ONLY when prey are visible on
+                    // this map (centering on hidden prey would leak their location),
+                    // else the zone centre.
                     val focus = ownLocation?.let { GeoPoint(it.lat, it.lng) }
-                        ?: prey.firstOrNull { it.lat != null && it.lng != null }
-                            ?.let { GeoPoint(it.lat!!, it.lng!!) }
+                        ?: prey.firstOrNull {
+                            showPrey && !it.stale && !it.eliminated && it.lat != null && it.lng != null
+                        }?.let { GeoPoint(it.lat!!, it.lng!!) }
                         ?: zone?.let { GeoPoint(it.centerLat, it.centerLng) }
                     if (focus != null) {
                         view.controller.setCenter(focus)
