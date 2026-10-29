@@ -68,6 +68,9 @@ class ApiClient(
     suspend fun matchSummary(token: String, matchId: String): MatchSummary =
         get("/api/matches/$matchId", token)
 
+    /** Public endpoint: no token required. */
+    suspend fun latestUpdate(): AppUpdate = request("GET", "/api/app/latest", null, null)
+
     suspend fun latestLocations(token: String, matchId: String): LatestLocations =
         get("/api/matches/$matchId/locations", token)
 

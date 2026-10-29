@@ -27,9 +27,11 @@ import com.manhunt.app.data.LatLng
 import com.manhunt.app.data.PreyLocationStatus
 import com.manhunt.app.data.TrailPoint
 import com.manhunt.app.data.ZoneDto
+import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.Polyline
@@ -42,6 +44,7 @@ fun MatchMap(
     zone: ZoneDto?,
     showPrey: Boolean,
     trails: Map<String, List<TrailPoint>> = emptyMap(),
+    onTap: (LatLng) -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -82,6 +85,15 @@ fun MatchMap(
             factory = { mapView },
             update = { view ->
                 view.overlays.clear()
+                view.overlays.add(
+                    MapEventsOverlay(object : MapEventsReceiver {
+                        override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
+                            onTap(LatLng(p.latitude, p.longitude))
+                            return true
+                        }
+                        override fun longPressHelper(p: GeoPoint): Boolean = false
+                    }),
+                )
 
                 zone?.let { z ->
                     view.overlays.add(

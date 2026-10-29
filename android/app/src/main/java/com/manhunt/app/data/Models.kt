@@ -159,6 +159,17 @@ data class TagDto(
 data class ReportLocationResponse(val ok: Boolean = true, val flagged: Boolean = false)
 
 @Serializable
+data class AppUpdate(
+    val versionCode: Int = 0,
+    val versionName: String = "",
+    val url: String = "/app.apk",
+    val sha256: String = "",
+    val size: Long = 0,
+    val publishedAt: String? = null,
+    val notes: String? = null,
+)
+
+@Serializable
 data class TrailPoint(
     val lat: Double,
     val lng: Double,

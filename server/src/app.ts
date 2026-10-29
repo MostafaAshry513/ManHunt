@@ -112,6 +112,18 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     return { ok: true, now: clock(), service: 'manhunt', version: '0.1.0' };
   });
 
+  // Update channel: written by scripts/ci/pull-latest-apk.ps1 after a CI build.
+  app.get('/api/app/latest', async (_req, reply) => {
+    try {
+      const manifest = await readFile(resolve(process.cwd(), 'data', 'app-latest.json'), 'utf8');
+      return reply.type('application/json').send(manifest);
+    } catch {
+      return reply.code(404).send({
+        error: { code: 'no_update_channel', message: 'No update manifest has been published yet' },
+      });
+    }
+  });
+
   // Simple install page + APK download for testers.
   const apkPath = process.env.APK_PATH ?? resolve(
     process.cwd(), '..', 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk',

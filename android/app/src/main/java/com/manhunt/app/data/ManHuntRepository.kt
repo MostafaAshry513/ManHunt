@@ -124,6 +124,8 @@ class ManHuntRepository(
 
     suspend fun matchSummary(matchId: String): MatchSummary = api.matchSummary(token(), matchId)
 
+    suspend fun latestUpdate(): AppUpdate = api.latestUpdate()
+
     suspend fun reportLocation(matchId: String, lat: Double, lng: Double, accuracy: Float?, recordedAt: Long) {
         api.reportLocation(token(), matchId, lat, lng, accuracy, recordedAt)
     }

@@ -12,3 +12,5 @@ coverage/
 .gradle/
 .kotlin/
 *.log
+
+keys/
