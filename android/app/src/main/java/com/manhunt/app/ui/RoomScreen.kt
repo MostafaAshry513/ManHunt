@@ -89,6 +89,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.manhunt.app.Graph
 import com.manhunt.app.i18n.t
+import com.manhunt.app.i18n.translate
 import com.manhunt.app.data.ApiException
 import com.manhunt.app.data.ChatMessage
 import com.manhunt.app.data.LatestLocations
@@ -140,6 +141,8 @@ class RoomViewModel(
 
     private var started = false
     private var pollJob: kotlinx.coroutines.Job? = null
+
+    private fun msg(english: String): String = translate(english, repo.language.value)
 
     private val socket = RoomSocket(Graph.container.httpClient) { event ->
         when (event) {
@@ -271,7 +274,7 @@ class RoomViewModel(
         viewModelScope.launch {
             try {
                 repo.requestTag(roomId, preyId)
-                ui = ui.copy(busy = false, notice = "Tag claim sent - waiting for the prey to confirm")
+                ui = ui.copy(busy = false, notice = msg("Tag claim sent - waiting for the prey to confirm"))
             } catch (e: ApiException) {
                 ui = ui.copy(busy = false, error = e.message)
             }
@@ -284,7 +287,7 @@ class RoomViewModel(
         viewModelScope.launch {
             try {
                 repo.confirmTag(tag.id)
-                ui = ui.copy(busy = false, notice = "Tag confirmed")
+                ui = ui.copy(busy = false, notice = msg("Tag confirmed"))
             } catch (e: ApiException) {
                 ui = ui.copy(busy = false, error = e.message)
             }
@@ -298,7 +301,7 @@ class RoomViewModel(
         viewModelScope.launch {
             try {
                 repo.disputeTag(tag.id)
-                ui = ui.copy(busy = false, notice = "Tag disputed - the admin will decide")
+                ui = ui.copy(busy = false, notice = msg("Tag disputed - the admin will decide"))
             } catch (e: ApiException) {
                 ui = ui.copy(busy = false, error = e.message)
             }
@@ -320,7 +323,10 @@ class RoomViewModel(
         viewModelScope.launch {
             try {
                 repo.resolveTag(tag.id, decision)
-                ui = ui.copy(busy = false, notice = "Disputed tag $decision")
+                ui = ui.copy(
+                    busy = false,
+                    notice = "${msg("Disputed tag")}: ${translate(decision, repo.language.value)}",
+                )
             } catch (e: ApiException) {
                 ui = ui.copy(busy = false, error = e.message)
             }
@@ -357,7 +363,7 @@ class RoomViewModel(
             ui = ui.copy(
                 trails = collected,
                 trailsVisible = true,
-                notice = if (collected.isEmpty()) "No trails available yet" else null,
+                notice = if (collected.isEmpty()) msg("No trails available yet") else null,
             )
         }
     }
@@ -367,7 +373,7 @@ class RoomViewModel(
         ui = ui.copy(busy = true, error = null)
         viewModelScope.launch {
             try {
-                ui = ui.copy(state = repo.updateSettings(roomId, patch), busy = false, notice = "Settings saved")
+                ui = ui.copy(state = repo.updateSettings(roomId, patch), busy = false, notice = msg("Settings saved"))
             } catch (e: ApiException) {
                 ui = ui.copy(busy = false, error = e.message)
             }

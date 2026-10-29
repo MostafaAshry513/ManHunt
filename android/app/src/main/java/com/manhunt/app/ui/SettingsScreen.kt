@@ -65,6 +65,7 @@ import com.manhunt.app.data.UpdateManager
 import com.manhunt.app.Graph
 import com.manhunt.app.i18n.AppLanguage
 import com.manhunt.app.i18n.t
+import com.manhunt.app.i18n.translate
 
 private enum class SettingsTab(val label: String, val icon: ImageVector) {
     Appearance("Appearance", Icons.Outlined.Palette),
@@ -268,9 +269,9 @@ private fun UpdateTab() {
                         .onSuccess {
                             latest = it
                             status = if (it.versionCode > com.manhunt.app.BuildConfig.VERSION_CODE) {
-                                "${t("Update available")}: ${it.versionName}"
+                                "${translate("Update available", repo.language.value)}: ${it.versionName}"
                             } else {
-                                t("You are up to date")
+                                translate("You are up to date", repo.language.value)
                             }
                         }
                         .onFailure { status = it.message }
@@ -293,12 +294,12 @@ private fun UpdateTab() {
                 Button(
                     onClick = {
                         busy = true
-                        status = t("Downloading...")
+                        status = translate("Downloading...", repo.language.value)
                         scope.launch {
                             runCatching { manager.download(update) }
                                 .onSuccess {
                                     downloaded = it
-                                    status = t("Verified. Tap Install update.")
+                                    status = translate("Verified. Tap Install update.", repo.language.value)
                                 }
                                 .onFailure { status = it.message }
                             busy = false

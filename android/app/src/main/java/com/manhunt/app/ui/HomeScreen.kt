@@ -39,6 +39,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.manhunt.app.Graph
 import com.manhunt.app.i18n.t
+import com.manhunt.app.i18n.translate
 import com.manhunt.app.data.ApiException
 import com.manhunt.app.data.ManHuntRepository
 import kotlinx.coroutines.launch
@@ -64,7 +65,7 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
         if (ui.busy) return
         val name = ui.roomName.trim().ifBlank { "ManHunt" }
         if (name.length < 2) {
-            ui = ui.copy(createError = "Room name must be at least 2 characters")
+            ui = ui.copy(createError = translate("Room name must be at least 2 characters", repo.language.value))
             return
         }
         ui = ui.copy(busy = true, createError = null)
@@ -81,7 +82,7 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
     fun joinRoom() {
         if (ui.busy) return
         if (ui.joinCode.length != 6) {
-            ui = ui.copy(joinError = "Enter the 6-character room code")
+            ui = ui.copy(joinError = translate("Enter the 6-character room code", repo.language.value))
             return
         }
         ui = ui.copy(busy = true, joinError = null)
