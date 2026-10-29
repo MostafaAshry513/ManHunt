@@ -7,7 +7,10 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -35,8 +39,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,10 +51,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
@@ -88,20 +93,52 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))
                 }
                 Text(
-                    "Settings",
+                    t("Settings"),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                 )
             }
 
-            ScrollableTabRow(selectedTabIndex = tab, edgePadding = 0.dp) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(0.dp),
+            ) {
                 SettingsTab.entries.forEachIndexed { index, entry ->
-                    Tab(
-                        selected = tab == index,
-                        onClick = { tab = index },
-                        icon = { Icon(entry.icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
-                        text = { Text(t(entry.label)) },
-                    )
+                    val selected = tab == index
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { tab = index }
+                            .padding(vertical = 6.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            entry.icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = if (selected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(3.dp))
+                        Text(
+                            t(entry.label),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = if (selected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Box(
+                            Modifier
+                                .width(20.dp)
+                                .height(2.dp)
+                                .background(
+                                    if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+                                    RoundedCornerShape(1.dp),
+                                ),
+                        )
+                    }
                 }
             }
 
@@ -219,7 +256,7 @@ private fun UpdateTab() {
     ScreenCard {
         SectionLabel(t("Updates"))
         Text(
-            "Installed ${com.manhunt.app.BuildConfig.VERSION_NAME} (${com.manhunt.app.BuildConfig.VERSION_CODE})",
+            "${t("Installed")} ${com.manhunt.app.BuildConfig.VERSION_NAME} (${com.manhunt.app.BuildConfig.VERSION_CODE})",
             style = MaterialTheme.typography.bodyMedium,
         )
         Button(
@@ -231,9 +268,9 @@ private fun UpdateTab() {
                         .onSuccess {
                             latest = it
                             status = if (it.versionCode > com.manhunt.app.BuildConfig.VERSION_CODE) {
-                                "Update ${it.versionName} is available"
+                                "${t("Update available")}: ${it.versionName}"
                             } else {
-                                "You are up to date"
+                                t("You are up to date")
                             }
                         }
                         .onFailure { status = it.message }
@@ -256,12 +293,12 @@ private fun UpdateTab() {
                 Button(
                     onClick = {
                         busy = true
-                        status = "Downloading…"
+                        status = t("Downloading...")
                         scope.launch {
                             runCatching { manager.download(update) }
                                 .onSuccess {
                                     downloaded = it
-                                    status = "Verified. Tap Install update."
+                                    status = t("Verified. Tap Install update.")
                                 }
                                 .onFailure { status = it.message }
                             busy = false
@@ -284,7 +321,7 @@ private fun UpdateTab() {
             Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Text(
-            "Updates install over the current app (same signing key); Android will ask you to confirm once.",
+            t("Updates install over the current app (same signing key); Android will ask you to confirm once."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -301,9 +338,9 @@ private fun PermissionsTab() {
             hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
         PermissionRow(
             icon = Icons.Outlined.LocationOn,
-            title = "Precise location",
+            title = t("Precise location"),
             granted = granted,
-            explanation = "Required while you play as Prey in an active match.",
+            explanation = t("Required while you play as Prey in an active match."),
             onOpenSettings = { openAppSettings(context) },
         )
     }
@@ -317,9 +354,9 @@ private fun PermissionsTab() {
         }
         PermissionRow(
             icon = Icons.Outlined.Notifications,
-            title = "Tracking notice",
+            title = t("Tracking notice"),
             granted = granted,
-            explanation = "Android requires a visible notification while location tracking is active.",
+            explanation = t("Android requires a visible notification while location tracking is active."),
             onOpenSettings = { openAppSettings(context) },
         )
     }
@@ -338,12 +375,12 @@ private fun PermissionRow(
         Column(Modifier.weight(1f).padding(start = 12.dp)) {
             Text(title, style = MaterialTheme.typography.titleMedium)
             Text(
-                if (granted) "Allowed" else "Not allowed",
+                if (granted) t("Allowed") else t("Not allowed"),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
             )
         }
-        OutlinedButton(onClick = onOpenSettings) { Text(if (granted) "Manage" else "Allow") }
+        OutlinedButton(onClick = onOpenSettings) { Text(t(if (granted) "Manage" else "Allow")) }
     }
     Text(
         explanation,
@@ -362,7 +399,7 @@ private fun AccountTab(username: String, serverUrl: String, onSignOut: () -> Uni
         SectionLabel(t("Server"))
         Text(serverUrl, style = MaterialTheme.typography.bodyMedium)
         Text(
-            "To change the server, sign out and edit it on the sign-in screen.",
+            t("To change the server, sign out and edit it on the sign-in screen."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

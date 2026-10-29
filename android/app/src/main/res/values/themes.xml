@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.ManHunt" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Dark launch window so the first frame does not flash white on slow devices. -->
+    <style name="Theme.ManHunt" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0B1220</item>
+        <item name="android:statusBarColor">#0B1220</item>
+        <item name="android:navigationBarColor">#0B1220</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
 </resources>

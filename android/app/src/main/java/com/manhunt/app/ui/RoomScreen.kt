@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
@@ -497,6 +498,12 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var lastSeen by rememberSaveable { mutableIntStateOf(-1) }
     val unread = if (lastSeen < 0) 0 else (ui.messages.size - lastSeen).coerceAtLeast(0)
+    val listState = rememberLazyListState()
+
+    // When a match starts, ends or changes phase, bring the phase card back into view.
+    LaunchedEffect(ui.state?.match?.id, ui.state?.match?.phase) {
+        listState.scrollToItem(0)
+    }
 
     LaunchedEffect(tab, ui.messages.size) {
         // Seed the marker on first load so already-read history is not shown as unread,
@@ -622,7 +629,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 TextButton(onClick = requestLeave) { Text(t("Leave")) }
                 Column(Modifier.weight(1f)) {
                     Text(
-                        state?.room?.name ?: "Room",
+                        state?.room?.name ?: t("Room"),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
@@ -654,7 +661,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                     ),
                             )
                             Text(
-                                if (ui.connected) "Live" else "Polling",
+                                t(if (ui.connected) "Live" else "Polling"),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -720,7 +727,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                         ManHuntLoader(size = 36.dp)
                         Spacer(Modifier.height(14.dp))
                         Text(
-                            "Connecting to room",
+                            t("Connecting to room"),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -731,12 +738,20 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
             if (tab == 0) {
                 LazyColumn(
+                state = listState,
                 // weight, not fillMaxSize: the chat composer must keep its height (UI-01).
                 modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
 
-                item(key = "phase") { PhaseCard(state, me?.isAdmin == true) }
+                item(key = "phase") {
+                    PhaseCard(
+                        state = state,
+                        isAdmin = me?.isAdmin == true,
+                        busy = ui.busy,
+                        onStart = vm::startMatch,
+                    )
+                }
 
                 if (me?.eliminated == true && phase == Phases.HUNTING) {
                     item {
@@ -767,13 +782,15 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    when {
-                                        me?.team == Teams.HUNTERS -> "Prey positions are the latest reports"
-                                        activePhase && hasLocation && resumed -> "Sharing your position"
-                                        activePhase && hasLocation -> "Open the app to resume sharing"
-                                        activePhase -> "Location off"
-                                        else -> "Map"
-                                    },
+                                    t(
+                                        when {
+                                            me?.team == Teams.HUNTERS -> "Prey positions are the latest reports"
+                                            activePhase && hasLocation && resumed -> "Sharing your position"
+                                            activePhase && hasLocation -> "Open the app to resume sharing"
+                                            activePhase -> "Location off"
+                                            else -> "Map"
+                                        }
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.weight(1f),
@@ -793,7 +810,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 }
                                 if (me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
                                     TextButton(onClick = vm::toggleTrails) {
-                                        Text(if (ui.trailsVisible) "Hide trails" else "Trails")
+                                        Text(t(if (ui.trailsVisible) "Hide trails" else "Trails"))
                                     }
                                     TextButton(onClick = { showTagPicker = true }) { Text(t("Tag prey")) }
                                 }
@@ -804,11 +821,11 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                         Text(p.username, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
                                         val label = when {
-                                            !p.hasReport -> "No report"
-                                            p.eliminated -> "Tagged"
-                                            p.flagged -> "Unverified"
-                                            p.stale -> "Stale"
-                                            else -> "Live"
+                                            !p.hasReport -> t("No report")
+                                            p.eliminated -> t("Tagged")
+                                            p.flagged -> t("Unverified")
+                                            p.stale -> t("Stale")
+                                            else -> t("Live")
                                         }
                                         val tint = when {
                                             !p.hasReport || p.stale -> MaterialTheme.colorScheme.tertiary
@@ -822,7 +839,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                             }
                             if (ui.locations?.prey?.any { it.stale } == true) {
                                 Text(
-                                    "Some prey reports are stale (older than two intervals).",
+                                    t("Some prey reports are stale (older than two intervals)."),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.tertiary,
                                 )
@@ -833,7 +850,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
                 item {
                     ScreenCard {
-                        SectionLabel(t("Players (${state.members.size})"))
+                        SectionLabel("${t("Players")} (${state.members.size})")
                         state.members.forEach { member ->
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
@@ -842,7 +859,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                         if (member.isAdmin) {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
-                                                "ADMIN",
+                                                t("ADMIN"),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.primary,
                                             )
@@ -850,7 +867,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                         if (member.eliminated && state.room.status != "lobby") {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
-                                                "TAGGED",
+                                                t("TAGGED"),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.error,
                                             )
@@ -858,14 +875,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                         if (!member.connected) {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
-                                                "offline",
+                                                t("offline"),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
                                         }
                                     }
                                     Text(
-                                        if (member.ready) "Ready" else "Not ready",
+                                        t(if (member.ready) "Ready" else "Not ready"),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = if (member.ready) MaterialTheme.colorScheme.primary
                                         else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -936,20 +953,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 onClick = { showSettings = true },
                                 modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
                             ) { Text(t("Match settings")) }
-
-                            val blockers = startBlockers(state)
-                            OutlinedButton(
-                                onClick = vm::startMatch,
-                                enabled = blockers.isEmpty() && !ui.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("start_match"),
-                            ) { Text(t("Start match")) }
-                            if (blockers.isNotEmpty()) {
-                                Text(
-                                    blockers.joinToString(" - "),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
                         }
 
                         if (me?.isAdmin == true && phase == Phases.HUNTING) {
@@ -995,7 +998,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun PhaseCard(state: RoomState, isAdmin: Boolean) {
+private fun PhaseCard(state: RoomState, isAdmin: Boolean, busy: Boolean, onStart: () -> Unit) {
     val match = state.match
     var tick by remember { mutableIntStateOf(0) }
     LaunchedEffect(match?.id, match?.phase) {
@@ -1042,27 +1045,59 @@ private fun PhaseCard(state: RoomState, isAdmin: Boolean) {
 
         Text(
             when (phase) {
-                Phases.LOBBY -> if (isAdmin) "Set teams, then start when everyone is ready." else "Waiting for the admin to start."
-                Phases.HEAD_START -> "Prey are hiding. Hunting starts in ${remaining(target, offset)}"
-                Phases.HUNTING -> "Hunting. ${remaining(target, offset)} left. Prey alive: ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}"
-                Phases.PAUSED -> "Match paused by the admin. The clock is stopped."
-                Phases.FINISHED -> "Match over - ${if (match?.winner == Teams.HUNTERS) "Hunters win" else "Prey win"}"
-                Phases.CANCELLED -> "Match cancelled"
-                else -> "In progress"
+                Phases.LOBBY -> if (isAdmin) t("Set teams, then start when everyone is ready.")
+                else t("Waiting for the admin to start.")
+                Phases.HEAD_START -> "${t("Prey are hiding. Hunting starts in")} ${remaining(target, offset)}"
+                Phases.HUNTING ->
+                    "${t("Hunting.")} ${remaining(target, offset)} · ${t("Prey alive")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}"
+                Phases.PAUSED -> t("Match paused by the admin. The clock is stopped.")
+                Phases.FINISHED ->
+                    "${t("Match over")} - ${if (match?.winner == Teams.HUNTERS) t("Hunters win") else t("Prey win")}"
+                Phases.CANCELLED -> t("Match cancelled")
+                else -> t("In progress")
             },
             style = MaterialTheme.typography.bodyMedium,
         )
 
+        if (phase == Phases.LOBBY && match != null &&
+            (match.phase == Phases.FINISHED || match.phase == Phases.CANCELLED)) {
+            Text(
+                when {
+                    match.phase == Phases.CANCELLED -> t("Last match: cancelled")
+                    match.winner == Teams.HUNTERS -> "${t("Last match")}: ${t("Hunters won")}"
+                    else -> "${t("Last match")}: ${t("Prey won")}"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        if (isAdmin && state.room.status == "lobby") {
+            val blockers = startBlockers(state)
+            OutlinedButton(
+                onClick = onStart,
+                enabled = blockers.isEmpty() && !busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("start_match"),
+            ) { Text(t("Start match")) }
+            if (blockers.isNotEmpty()) {
+                Text(
+                    blockers.joinToString(" - "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
         match?.zone?.let { zone ->
             Text(
-                "Zone: ${zone.radiusM.toInt()} m radius",
+                "${t("Zone")}: ${zone.radiusM.toInt()} ${t("m")}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             zone.nextShrinkAt?.let { next ->
                 val secs = ((next - (System.currentTimeMillis() + offset)) / 1000).coerceAtLeast(0)
                 Text(
-                    "Zone shrinks in %02d:%02d".format(secs / 60, secs % 60),
+                    "${t("Zone shrinks in")} %02d:%02d".format(secs / 60, secs % 60),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary,
                 )
