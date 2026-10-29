@@ -817,7 +817,8 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                     t(
                                         when {
                                             me?.team == Teams.HUNTERS -> "Prey positions are the latest reports"
-                                            activePhase && hasLocation && resumed -> "Sharing your position"
+                                            activePhase && hasLocation && resumed && ownLocation != null -> "Sharing your position"
+                                            activePhase && hasLocation && resumed -> "Waiting for GPS"
                                             activePhase && hasLocation -> "Open the app to resume sharing"
                                             activePhase -> "Location off"
                                             else -> "Map"

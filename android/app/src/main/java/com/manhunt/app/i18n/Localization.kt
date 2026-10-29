@@ -143,6 +143,7 @@ private val arabic: Map<String, String> = mapOf(
     "Sharing your position" to "تتم مشاركة موقعك",
     "Open the app to resume sharing" to "افتح التطبيق لاستئناف المشاركة",
     "Location off" to "الموقع متوقف",
+    "Waiting for GPS" to "بانتظار إشارة GPS",
     "Map" to "الخريطة",
     "No report" to "لا يوجد بلاغ",
     "Unverified" to "غير موثّق",
