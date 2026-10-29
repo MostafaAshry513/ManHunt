@@ -9,7 +9,9 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import android.Manifest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -34,6 +36,15 @@ class InGameSmokeTest {
     @get:Rule
     val compose = createAndroidComposeRule<MainActivity>()
 
+    // The room requests these permissions on entering a match; granting them up
+    // front keeps the system dialogs from covering the Compose hierarchy.
+    @get:Rule
+    val permissions: GrantPermissionRule = GrantPermissionRule.grant(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.POST_NOTIFICATIONS,
+    )
+
     private val http = OkHttpClient()
     private val base = "http://10.0.2.2:8080"
 
@@ -47,7 +58,11 @@ class InGameSmokeTest {
             .apply { if (token != null) header("Authorization", "Bearer $token") }
             .build()
         http.newCall(request).execute().use { response ->
-            return JSONObject(response.body?.string().orEmpty().ifBlank { "{}" })
+            val raw = response.body?.string().orEmpty()
+            if (!response.isSuccessful) {
+                throw AssertionError("$method $path failed with HTTP ${response.code}: $raw")
+            }
+            return JSONObject(raw.ifBlank { "{}" })
         }
     }
 
@@ -77,12 +92,18 @@ class InGameSmokeTest {
         waitForTag("auth_username")
         compose.onNodeWithTag("auth_username").performTextInput(aliceName)
         compose.onNodeWithTag("auth_password").performTextInput("password123")
+
+        // The app opens on "Sign in"; switch to registration first. Without this
+        // a brand-new username gets HTTP 401 and never reaches Home.
+        waitForText("New here? Create an account")
+        compose.onAllNodesWithText("New here? Create an account")[0].performClick()
+        waitForText("Create your account")
         compose.onNodeWithTag("auth_submit").performClick()
 
         try {
             waitForText("Start a game", 40_000)
         } catch (failure: Throwable) {
-            println("==== SCREEN AFTER LOGIN ATTEMPT ====")
+            println("==== SCREEN AFTER REGISTRATION ATTEMPT ====")
             println(compose.onRoot().printToString())
             throw failure
         }
@@ -100,6 +121,11 @@ class InGameSmokeTest {
         val bobToken = bob.getString("token")
         val joined = api("POST", "/api/rooms/join", bobToken, JSONObject().put("code", code))
         val roomId = joined.getJSONObject("room").getString("id")
+
+        // Default head start is 5 minutes; the test must reach HUNTING quickly.
+        val alice = api("POST", "/api/auth/login", body = JSONObject().put("username", aliceName).put("password", "password123"))
+        api("PATCH", "/api/rooms/$roomId/settings", alice.getString("token"), JSONObject().put("headStartSec", 0))
+
         api("POST", "/api/rooms/$roomId/team", bobToken, JSONObject().put("team", "hunters"))
         api("POST", "/api/rooms/$roomId/ready", bobToken, JSONObject().put("ready", true))
 
