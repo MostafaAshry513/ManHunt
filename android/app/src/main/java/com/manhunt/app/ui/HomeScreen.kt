@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -123,7 +124,7 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                     )
                 }
                 TextButton(onClick = { repo.logout() }) { Text(t("Sign out")) }
-                IconButton(onClick = onOpenSettings) {
+                IconButton(onClick = onOpenSettings, modifier = Modifier.testTag("home_settings")) {
                     Icon(Icons.Outlined.Settings, contentDescription = t("Settings"))
                 }
             }
@@ -138,12 +139,12 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                     onValueChange = vm::onRoomName,
                     label = { Text(t("Room name")) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("home_room_name"),
                 )
                 Button(
                     onClick = vm::createRoom,
                     enabled = !ui.busy,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_create"),
                 ) { Text(t("Create room")) }
             }
 
@@ -155,12 +156,12 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                     onValueChange = vm::onJoinCode,
                     label = { Text(t("Room code")) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("home_join_code"),
                 )
                 Button(
                     onClick = vm::joinRoom,
                     enabled = !ui.busy,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_join"),
                 ) { Text(t("Join room")) }
             }
         }

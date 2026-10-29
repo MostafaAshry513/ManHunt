@@ -94,7 +94,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                         selected = tab == index,
                         onClick = { tab = index },
                         icon = { Icon(entry.icon, contentDescription = null, modifier = Modifier.size(20.dp)) },
-                        text = { Text(entry.label) },
+                        text = { Text(t(entry.label)) },
                     )
                 }
             }
