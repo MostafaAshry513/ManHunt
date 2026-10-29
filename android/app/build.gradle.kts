@@ -42,6 +42,8 @@ android {
         }
         release {
             isMinifyEnabled = false
+            // Real phones must reach the public server out of the box; debug keeps 10.0.2.2 for CI.
+            buildConfigField("String", "DEFAULT_SERVER_URL", "\"http://74.208.99.178\"")
             if (!ciKeystorePath.isNullOrBlank()) {
                 signingConfig = signingConfigs.getByName("ci")
             }
