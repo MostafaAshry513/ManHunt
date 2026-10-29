@@ -57,8 +57,7 @@ class InGameSmokeTest {
     private fun capture(name: String) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val bitmap = instrumentation.uiAutomation.takeScreenshot()
-        val dir = instrumentation.targetContext.getExternalFilesDir("screenshots")
-            ?: instrumentation.targetContext.filesDir
+        val dir = File(instrumentation.targetContext.filesDir, "screenshots")
         dir.mkdirs()
         val file = File(dir, "$name.png")
         file.outputStream().use { out ->

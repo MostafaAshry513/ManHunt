@@ -16,8 +16,10 @@ cleanup() {
   rm -rf "$shots"; mkdir -p "$shots"
   echo "==== emulator: screenshot paths ===="
   adb logcat -d -v brief 2>/dev/null | grep 'ManHuntTest.*screenshot' | tail -n 10 || true
-  adb shell ls -l /sdcard/Android/data/com.manhunt.app/files/screenshots 2>&1 || true
-  adb pull /sdcard/Android/data/com.manhunt.app/files/screenshots/. "$shots" 2>&1 || true
+  adb shell run-as com.manhunt.app ls files/screenshots 2>&1 || true
+  for f in $(adb shell run-as com.manhunt.app ls files/screenshots 2>/dev/null | tr -d '\r'); do
+    adb exec-out run-as com.manhunt.app cat "files/screenshots/$f" > "$shots/$f" 2>/dev/null || true
+  done
   ls -l "$shots" 2>&1 || true
   if [ "$status" -ne 0 ]; then
     echo "==== emulator: backend log (tail) ===="
