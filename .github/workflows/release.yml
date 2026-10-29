@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-37.0 build-tools;36.0.0'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build APK
+        run: ./gradlew :app:assembleDebug --console=plain
+
+      - name: Name artifact and checksum
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk "manhunt-${{ github.ref_name }}.apk"
+          sha256sum "manhunt-${{ github.ref_name }}.apk" > "manhunt-${{ github.ref_name }}.apk.sha256"
+          cat "manhunt-${{ github.ref_name }}.apk.sha256"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            "manhunt-${{ github.ref_name }}.apk" \
+            "manhunt-${{ github.ref_name }}.apk.sha256" \
+            --title "ManHunt ${{ github.ref_name }}" \
+            --generate-notes

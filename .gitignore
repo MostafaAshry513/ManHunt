@@ -1,0 +1,14 @@
+node_modules/
+server/data/
+server/data/*.db
+*.db-wal
+*.db-shm
+*.log
+.env
+.env.*
+dist/
+coverage/
+
+.gradle/
+.kotlin/
+*.log
