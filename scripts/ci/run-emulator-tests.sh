@@ -51,6 +51,8 @@ fi
 echo "==== emulator -> host ping ===="
 adb shell 'ping -c 1 -W 3 10.0.2.2' || true
 # Give the app a real land fix so the hunting map/screenshot is meaningful.
+adb shell settings put secure location_mode 3 || true
+adb shell cmd location set-location-enabled true || true
 adb emu geo fix -0.1278 51.5074 || true
 (
   for _ in $(seq 1 90); do
