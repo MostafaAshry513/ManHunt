@@ -38,6 +38,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
@@ -48,6 +49,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -651,10 +653,12 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     }
                 }
                 if (ui.loading) ManHuntLoader(size = 18.dp)
-                TextButton(onClick = {
+                IconButton(onClick = {
                     vm.loadHistory()
                     showHistory = true
-                }) { Text(t("History")) }
+                }) {
+                    Icon(Icons.Outlined.History, contentDescription = t("History"))
+                }
             }
 
             if (state == null) {
@@ -678,19 +682,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                item(key = "error") { ErrorBanner(ui.error) }
-                item(key = "notice") {
-                    AnimatedVisibility(
-                        visible = ui.notice != null,
-                        enter = fadeIn(tween(Motion.STANDARD, easing = Motion.EaseOutExpo)) +
-                            expandVertically(tween(Motion.STANDARD, easing = Motion.EaseOutExpo)),
-                        exit = fadeOut(tween(Motion.QUICK, easing = Motion.EaseInOut)) +
-                            shrinkVertically(tween(Motion.STANDARD, easing = Motion.EaseInOut)),
-                    ) {
-                        TextButton(onClick = vm::clearNotice) {
-                            Text(ui.notice.orEmpty(), style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
                 }
 
                 item(key = "phase") { PhaseCard(state, me?.isAdmin == true) }
@@ -838,6 +829,12 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 item {
                     ScreenCard {
                         SectionLabel(t("Your setup"))
+                        ErrorBanner(ui.error)
+                        ui.notice?.let { notice ->
+                            TextButton(onClick = vm::clearNotice) {
+                                Text(notice, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
                         val lobby = state.room.status == "lobby"
                         val ready = me?.ready == true
                         val readyBg by animateColorAsState(

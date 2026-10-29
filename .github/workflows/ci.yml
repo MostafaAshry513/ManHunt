@@ -152,19 +152,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Start backend for the emulator
+      - name: Install backend dependencies
         working-directory: server
-        env:
-          PORT: 8080
-          HOST: 0.0.0.0
-          DB_PATH: ./data/ci-emulator.db
-        run: |
-          npm ci
-          node src/server.ts > server.log 2>&1 &
-          for i in $(seq 1 40); do
-            if curl -fsS http://127.0.0.1:8080/health > /dev/null; then break; fi
-            sleep 1
-          done
+        run: npm ci
 
       - name: Enable KVM
         run: |
@@ -180,7 +170,21 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: cd android && ./gradlew :app:connectedDebugAndroidTest --console=plain
+          script: |
+            cd server
+            HOST=0.0.0.0 DB_PATH=./data/ci-emulator.db node src/server.ts > server.log 2>&1 &
+            SERVER_PID=$!
+            for i in $(seq 1 40); do
+              if curl -fsS http://127.0.0.1:8080/health > /dev/null; then break; fi
+              sleep 1
+            done
+            cd ../android
+            ./gradlew :app:connectedDebugAndroidTest --console=plain
+            RC=$?
+            kill $SERVER_PID || true
+            echo "--- backend log ---"
+            tail -n 40 ../server/server.log || true
+            exit $RC
 
       - name: Upload instrumented test report
         if: always()
