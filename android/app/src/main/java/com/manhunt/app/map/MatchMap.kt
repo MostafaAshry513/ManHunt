@@ -1,6 +1,7 @@
 package com.manhunt.app.map
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -27,14 +28,31 @@ import com.manhunt.app.data.LatLng
 import com.manhunt.app.data.PreyLocationStatus
 import com.manhunt.app.data.TrailPoint
 import com.manhunt.app.data.ZoneDto
+import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.Polyline
+
+/** Dark CARTO/OSM basemap so the map sits inside the game's navy/cyan palette. */
+private val DarkTiles = XYTileSource(
+    "CartoDark",
+    0,
+    20,
+    256,
+    ".png",
+    arrayOf(
+        "https://a.basemaps.cartocdn.com/dark_all/",
+        "https://b.basemaps.cartocdn.com/dark_all/",
+        "https://c.basemaps.cartocdn.com/dark_all/",
+        "https://d.basemaps.cartocdn.com/dark_all/",
+    ),
+    "© OpenStreetMap contributors © CARTO",
+)
 
 @Composable
 fun MatchMap(
@@ -51,8 +69,9 @@ fun MatchMap(
     var centered by remember { mutableStateOf(false) }
 
     val mapView = remember {
+        Configuration.getInstance().userAgentValue = context.packageName
         MapView(context).apply {
-            setTileSource(TileSourceFactory.MAPNIK)
+            setTileSource(DarkTiles)
             setMultiTouchControls(true)
             controller.setZoom(16.0)
             controller.setCenter(GeoPoint(0.0, 0.0))
@@ -78,7 +97,12 @@ fun MatchMap(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                RoundedCornerShape(20.dp),
+            ),
     ) {
         AndroidView(
             modifier = Modifier.fillMaxSize(),

@@ -1,14 +1,16 @@
 package com.manhunt.app
 
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.printToString
 import android.Manifest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
@@ -132,8 +134,10 @@ class InGameSmokeTest {
         api("POST", "/api/rooms/$roomId/ready", bobToken, JSONObject().put("ready", true))
 
         // Alice readies and starts through the UI.
+        compose.onNodeWithTag("lobby_list").performScrollToNode(hasTestTag("ready_button"))
         waitForTag("ready_button")
         compose.onNodeWithTag("ready_button").performClick()
+        compose.onNodeWithTag("lobby_list").performScrollToNode(hasTestTag("start_match"))
         waitForTag("start_match")
         compose.onNodeWithTag("start_match").performClick()
         waitForText("HUNTING", 40_000)

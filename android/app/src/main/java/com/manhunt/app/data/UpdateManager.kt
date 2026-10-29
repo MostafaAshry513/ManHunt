@@ -7,6 +7,9 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -28,37 +31,66 @@ class UpdateManager(
     private val baseUrl: () -> String,
 ) {
     private val prefs = context.getSharedPreferences("manhunt_updates", Context.MODE_PRIVATE)
+    private val _progress = MutableStateFlow<Float?>(null)
+
+    /** 0f..1f while downloading, then 1f; null when no download is active. */
+    val progress: StateFlow<Float?> = _progress.asStateFlow()
 
     suspend fun download(update: AppUpdate): File = withContext(Dispatchers.IO) {
-        val url = if (update.url.startsWith("http")) update.url else baseUrl().trimEnd('/') + update.url
-        val response = client.newCall(Request.Builder().url(url).build()).execute()
-        if (!response.isSuccessful) {
-            response.close()
-            throw IOException("Download failed (${response.code})")
-        }
-        val body = response.body ?: throw IOException("Empty response")
-        val dir = File(context.cacheDir, "updates").apply { mkdirs() }
-        val file = File(dir, "manhunt-${update.versionCode}.apk")
-
-        body.byteStream().use { input ->
-            file.outputStream().use { output -> input.copyTo(output) }
-        }
-        response.close()
-
-        if (update.sha256.isNotBlank()) {
-            val actual = sha256(file)
-            if (!actual.equals(update.sha256, ignoreCase = true)) {
-                file.delete()
-                throw IOException("Checksum mismatch: the download was corrupted")
+        try {
+            _progress.value = 0f
+            val url = if (update.url.startsWith("http")) update.url else baseUrl().trimEnd('/') + update.url
+            val response = client.newCall(Request.Builder().url(url).build()).execute()
+            if (!response.isSuccessful) {
+                response.close()
+                throw IOException("Download failed (${response.code})")
             }
+            val body = response.body ?: throw IOException("Empty response")
+            val dir = File(context.cacheDir, "updates").apply { mkdirs() }
+            val file = File(dir, "manhunt-${update.versionCode}.apk")
+            val total = body.contentLength().takeIf { it > 0 } ?: update.size
+            var downloaded = 0L
+            var lastPercent = -1
+
+            body.byteStream().use { input ->
+                file.outputStream().use { output ->
+                    val buffer = ByteArray(64 * 1024)
+                    while (true) {
+                        val read = input.read(buffer)
+                        if (read <= 0) break
+                        output.write(buffer, 0, read)
+                        downloaded += read
+                        if (total > 0) {
+                            val percent = ((downloaded * 100) / total).toInt().coerceIn(0, 100)
+                            if (percent != lastPercent) {
+                                lastPercent = percent
+                                _progress.value = (downloaded.toFloat() / total).coerceIn(0f, 1f)
+                            }
+                        }
+                    }
+                }
+            }
+            response.close()
+
+            if (update.sha256.isNotBlank()) {
+                val actual = sha256(file)
+                if (!actual.equals(update.sha256, ignoreCase = true)) {
+                    file.delete()
+                    throw IOException("Checksum mismatch: the download was corrupted")
+                }
+            }
+            _progress.value = 1f
+            // Survive activity/process recreation while the installer or the
+            // "install unknown apps" settings screen is in front.
+            prefs.edit()
+                .putString("apk_path", file.absolutePath)
+                .putInt("apk_version", update.versionCode)
+                .apply()
+            file
+        } catch (failure: Throwable) {
+            _progress.value = null
+            throw failure
         }
-        // Survive activity/process recreation while the installer or the
-        // "install unknown apps" settings screen is in front.
-        prefs.edit()
-            .putString("apk_path", file.absolutePath)
-            .putInt("apk_version", update.versionCode)
-            .apply()
-        file
     }
 
     /** The verified APK waiting to be installed, if it is newer than this build. */

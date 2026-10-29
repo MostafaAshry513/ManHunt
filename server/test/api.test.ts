@@ -79,11 +79,34 @@ test('create room and join by code', async () => {
 
   const joined = await joinRoom(ctx.app, bob.token, created.room.code.toLowerCase());
   assert.equal(joined.members.length, 2);
+  // The creator is prey; the next player fills the empty hunter slot.
+  assert.equal(joined.members.find((m: any) => m.userId === bob.id).team, 'hunters');
 
   const wrong = await ctx.app.inject({
     method: 'POST', url: '/api/rooms/join', headers: bearer(bob.token), payload: { code: 'ZZZZZZ' },
   });
   assert.equal(wrong.statusCode, 404);
+});
+
+test('joining players auto-balance the two teams', async () => {
+  const ctx = await makeApp();
+  const alice = await register(ctx.app, 'alice');
+  const bob = await register(ctx.app, 'bob');
+  const carol = await register(ctx.app, 'carol');
+  const dave = await register(ctx.app, 'dave');
+
+  const created = await createRoom(ctx.app, alice.token);
+  await joinRoom(ctx.app, bob.token, created.room.code);
+  await joinRoom(ctx.app, carol.token, created.room.code);
+  const joined = await joinRoom(ctx.app, dave.token, created.room.code);
+
+  const teamOf = (id: string) => joined.members.find((m: any) => m.userId === id).team;
+  assert.equal(teamOf(alice.id), 'prey');
+  assert.equal(teamOf(bob.id), 'hunters');
+  assert.equal(teamOf(carol.id), 'prey');
+  assert.equal(teamOf(dave.id), 'hunters');
+  assert.equal(joined.members.filter((m: any) => m.team === 'prey').length, 2);
+  assert.equal(joined.members.filter((m: any) => m.team === 'hunters').length, 2);
 });
 
 test('non-admin cannot start; unready players block the start', async () => {
