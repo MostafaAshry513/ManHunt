@@ -28,6 +28,7 @@ cleanup() {
     adb logcat -d -v brief 2>/dev/null | grep -Ei 'manhunt|System\.out|OkHttp|AndroidRuntime|FATAL' | tail -n 400 || true
   fi
   kill "$SERVER_PID" 2>/dev/null || true
+  kill "${GPS_PID:-}" 2>/dev/null || true
   exit "$status"
 }
 trap cleanup EXIT
@@ -51,6 +52,13 @@ echo "==== emulator -> host ping ===="
 adb shell 'ping -c 1 -W 3 10.0.2.2' || true
 # Give the app a real land fix so the hunting map/screenshot is meaningful.
 adb emu geo fix -0.1278 51.5074 || true
+(
+  for _ in $(seq 1 90); do
+    adb emu geo fix -0.1278 51.5074 >/dev/null 2>&1 || true
+    sleep 2
+  done
+) &
+GPS_PID=$!
 echo
 
 cd ../android

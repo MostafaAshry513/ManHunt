@@ -70,7 +70,7 @@ fun MatchMap(
         Configuration.getInstance().userAgentValue = "ManHunt/0.8.0 (com.manhunt.app)"
         MapView(context).apply {
             setTileSource(TileSourceFactory.MAPNIK)
-            // overlayManager.tilesOverlay.setColorFilter(DarkTileFilter)
+            overlayManager.tilesOverlay.setColorFilter(DarkTileFilter)
             setMultiTouchControls(true)
             controller.setZoom(16.0)
             controller.setCenter(GeoPoint(0.0, 0.0))
