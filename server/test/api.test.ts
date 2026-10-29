@@ -223,7 +223,8 @@ test('tag must be confirmed by the prey, then eliminates and can end the match',
   const s = state.json() as any;
   assert.equal(s.match.phase, 'finished');
   assert.equal(s.match.winner, 'hunters');
-  assert.equal(s.members.find((m: any) => m.userId === ctx.alice.id).eliminated, true);
+  // The room is back in the lobby, so per-match elimination flags must be cleared.
+  assert.equal(s.members.find((m: any) => m.userId === ctx.alice.id).eliminated, false);
 });
 
 test('disputed tags require an admin decision', async () => {

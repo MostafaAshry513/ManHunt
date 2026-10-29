@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,23 +53,24 @@ import java.time.format.DateTimeFormatter
 fun ChatPanel(
     messages: List<ChatMessage>,
     myUserId: String?,
+    draft: String,
+    onDraftChange: (String) -> Unit,
     sending: Boolean,
     onSend: (String) -> Unit,
     error: String? = null,
     modifier: Modifier = Modifier,
 ) {
-    var draft by rememberSaveable { mutableStateOf("") }
     val listState = rememberLazyListState()
     var knownCount by remember { mutableIntStateOf(messages.size) }
+    var didInitialScroll by remember { mutableStateOf(false) }
 
-    // Open at the newest message.
-    LaunchedEffect(Unit) {
-        if (messages.isNotEmpty()) listState.scrollToItem(messages.lastIndex)
-    }
-
-    // Follow new messages only when the reader is already near the bottom.
+    // Open at the newest message (messages usually arrive after the first composition).
+    // Follow later messages only when the reader is already near the bottom.
     LaunchedEffect(messages.size) {
-        if (messages.size > knownCount) {
+        if (!didInitialScroll && messages.isNotEmpty()) {
+            listState.scrollToItem(messages.lastIndex)
+            didInitialScroll = true
+        } else if (messages.size > knownCount) {
             val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
             val nearBottom = lastVisible >= messages.lastIndex - 1 || messages.size <= 6
             if (nearBottom) listState.animateScrollToItem(messages.lastIndex)
@@ -109,14 +109,11 @@ fun ChatPanel(
         ErrorBanner(error)
         Composer(
             draft = draft,
-            onDraftChange = { draft = it },
+            onDraftChange = onDraftChange,
             sending = sending,
             onSend = {
                 val text = draft.trim()
-                if (text.isNotEmpty()) {
-                    onSend(text)
-                    draft = ""
-                }
+                if (text.isNotEmpty()) onSend(text)
             },
         )
     }

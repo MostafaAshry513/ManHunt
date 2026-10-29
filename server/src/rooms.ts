@@ -339,7 +339,7 @@ export class RoomService {
       run(this.db, 'UPDATE matches SET status = ?, ended_at = ?, winner = ?, paused_at = NULL WHERE id = ?',
         cancelled ? 'cancelled' : 'finished', now, winner, match.id);
       run(this.db, 'UPDATE rooms SET status = ? WHERE id = ?', 'lobby', match.room_id);
-      run(this.db, 'UPDATE room_members SET is_ready = 0 WHERE room_id = ?', match.room_id);
+      run(this.db, 'UPDATE room_members SET is_ready = 0, eliminated = 0 WHERE room_id = ?', match.room_id);
       this.audit(match.room_id, actorId, 'match.finished', { matchId: match.id, winner, cancelled });
       this.systemMessage(match.room_id, cancelled
         ? 'Match cancelled by the admin.'

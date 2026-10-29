@@ -62,10 +62,15 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
 
     fun createRoom() {
         if (ui.busy) return
+        val name = ui.roomName.trim().ifBlank { "ManHunt" }
+        if (name.length < 2) {
+            ui = ui.copy(createError = "Room name must be at least 2 characters")
+            return
+        }
         ui = ui.copy(busy = true, createError = null)
         viewModelScope.launch {
             try {
-                val state = repo.createRoom(ui.roomName.ifBlank { "ManHunt" }.trim())
+                val state = repo.createRoom(name)
                 ui = ui.copy(busy = false, enteredRoomId = state.room.id)
             } catch (e: ApiException) {
                 ui = ui.copy(busy = false, createError = e.message)
@@ -75,7 +80,7 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
 
     fun joinRoom() {
         if (ui.busy) return
-        if (ui.joinCode.length < 4) {
+        if (ui.joinCode.length != 6) {
             ui = ui.copy(joinError = "Enter the 6-character room code")
             return
         }

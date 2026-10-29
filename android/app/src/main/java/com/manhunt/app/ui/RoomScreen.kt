@@ -123,6 +123,8 @@ data class RoomUi(
     val loading: Boolean = true,
     val busy: Boolean = false,
     val error: String? = null,
+    val chatBusy: Boolean = false,
+    val chatError: String? = null,
     val chatDraft: String = "",
     val left: Boolean = false,
 )
@@ -242,16 +244,24 @@ class RoomViewModel(
 
     fun sendChat(text: String) {
         val body = text.trim()
-        if (body.isEmpty() || ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        if (body.isEmpty() || ui.chatBusy) return
+        ui = ui.copy(chatBusy = true, chatError = null)
         viewModelScope.launch {
             try {
                 repo.sendMessage(roomId, body)
-                ui = ui.copy(messages = repo.messages(roomId), busy = false)
+                ui = ui.copy(
+                    messages = repo.messages(roomId),
+                    chatBusy = false,
+                    chatDraft = if (ui.chatDraft.trim() == body) "" else ui.chatDraft,
+                )
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                ui = ui.copy(chatBusy = false, chatError = e.message)
             }
         }
+    }
+
+    fun onChatDraftChange(text: String) {
+        ui = ui.copy(chatDraft = text, chatError = null)
     }
 
     fun claimTag(preyId: String) {
@@ -407,7 +417,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     val ui = vm.ui
 
     LaunchedEffect(ui.left) { if (ui.left) onBack() }
-    BackHandler { vm.leave() }
 
     LaunchedEffect(Unit) {
         vm.start()
@@ -421,6 +430,16 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     val match = state?.match
     val me = state?.members?.firstOrNull { it.userId == repo.myUserId() }
     val ownLocation by LiveLocation.current.collectAsState()
+
+    var showLeaveConfirm by remember { mutableStateOf(false) }
+    val requestLeave: () -> Unit = {
+        if (me?.isAdmin == true || state?.room?.status == "active") {
+            showLeaveConfirm = true
+        } else {
+            vm.leave()
+        }
+    }
+    BackHandler { requestLeave() }
 
     var hasLocation by remember { mutableStateOf(hasLocationPermission(context)) }
     var locationDenied by remember { mutableStateOf(false) }
@@ -457,6 +476,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     val phase = match?.phase
     val intervalSec = state?.room?.settings?.locationIntervalSec ?: 300
     val activePhase = phase == Phases.HEAD_START || phase == Phases.HUNTING
+    val showMatchMap = activePhase || phase == Phases.PAUSED
 
     // Start tracking while the app is visible: starting a location FGS from the background
     // is illegal on Android 12+ (docs/ANDROID_REVIEW.md A2). Starting during head start also
@@ -475,16 +495,33 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
 
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    var lastSeen by rememberSaveable { mutableIntStateOf(0) }
-    val unread = (ui.messages.size - lastSeen).coerceAtLeast(0)
+    var lastSeen by rememberSaveable { mutableIntStateOf(-1) }
+    val unread = if (lastSeen < 0) 0 else (ui.messages.size - lastSeen).coerceAtLeast(0)
 
     LaunchedEffect(tab, ui.messages.size) {
-        if (tab == 1) lastSeen = ui.messages.size
+        // Seed the marker on first load so already-read history is not shown as unread,
+        // then keep it pinned while the reader is on the Chat tab.
+        if (lastSeen < 0 || tab == 1) lastSeen = ui.messages.size
     }
     var showTagPicker by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showEndConfirm by remember { mutableStateOf(false) }
+
+    if (showLeaveConfirm) {
+        AlertDialog(
+            onDismissRequest = { showLeaveConfirm = false },
+            title = { Text(t("Leave the room?")) },
+            text = { Text(t("You will leave the room and lose your spot in the lobby.")) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showLeaveConfirm = false
+                    vm.leave()
+                }) { Text(t("Leave")) }
+            },
+            dismissButton = { TextButton(onClick = { showLeaveConfirm = false }) { Text(t("Cancel")) } },
+        )
+    }
 
     if (showEndConfirm) {
         AlertDialog(
@@ -516,7 +553,11 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
 
     if (showHistory) {
-        HistoryDialog(matches = ui.history, onDismiss = { showHistory = false })
+        HistoryDialog(
+            matches = ui.history,
+            loading = !ui.historyLoaded,
+            onDismiss = { showHistory = false },
+        )
     }
 
     if (showSettings && state != null) {
@@ -578,7 +619,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                TextButton(onClick = vm::leave) { Text(t("Leave")) }
+                TextButton(onClick = requestLeave) { Text(t("Leave")) }
                 Column(Modifier.weight(1f)) {
                     Text(
                         state?.room?.name ?: "Room",
@@ -587,43 +628,11 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-            TabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.surface) {
-                Tab(
-                    selected = tab == 0,
-                    modifier = Modifier.testTag("tab_game"),
-                    onClick = { tab = 0 },
-                    icon = { Icon(Icons.Outlined.SportsEsports, contentDescription = null) },
-                    text = { Text(t("Game")) },
-                )
-                Tab(
-                    selected = tab == 1,
-                    modifier = Modifier.testTag("tab_chat"),
-                    onClick = {
-                        tab = 1
-                        lastSeen = ui.messages.size
-                    },
-                    icon = {
-                        BadgedBox(badge = {
-                            if (unread > 0) Badge { Text(unread.toString()) }
-                        }) {
-                            Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null)
-                        }
-                    },
-                    text = { Text(t("Chat")) },
-                )
-            }
-
-                        if (state == null) {
-                            Text(
-                                "Connecting",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        } else {
+                    if (state != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
                             Text(
                                 state.room.code,
                                 style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp),
@@ -658,6 +667,50 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     showHistory = true
                 }) {
                     Icon(Icons.Outlined.History, contentDescription = t("History"))
+                }
+            }
+
+            TabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.surface) {
+                Tab(
+                    selected = tab == 0,
+                    modifier = Modifier.testTag("tab_game"),
+                    onClick = { tab = 0 },
+                    icon = { Icon(Icons.Outlined.SportsEsports, contentDescription = null) },
+                    text = { Text(t("Game")) },
+                )
+                Tab(
+                    selected = tab == 1,
+                    modifier = Modifier.testTag("tab_chat"),
+                    onClick = {
+                        tab = 1
+                        lastSeen = ui.messages.size
+                    },
+                    icon = {
+                        BadgedBox(badge = {
+                            if (unread > 0) Badge { Text(unread.toString()) }
+                        }) {
+                            Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null)
+                        }
+                    },
+                    text = { Text(t("Chat")) },
+                )
+            }
+
+            ui.notice?.let { notice ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .padding(start = 16.dp, end = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        notice,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                    TextButton(onClick = vm::clearNotice) { Text(t("Dismiss")) }
                 }
             }
 
@@ -698,7 +751,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     }
                 }
 
-                if (match != null) {
+                if (match != null && showMatchMap) {
                     item(key = "map") {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             MatchMap(
@@ -794,7 +847,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                                 color = MaterialTheme.colorScheme.primary,
                                             )
                                         }
-                                        if (member.eliminated) {
+                                        if (member.eliminated && state.room.status != "lobby") {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
                                                 "TAGGED",
@@ -829,11 +882,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     ScreenCard {
                         SectionLabel(t("Your setup"))
                         ErrorBanner(ui.error)
-                        ui.notice?.let { notice ->
-                            TextButton(onClick = vm::clearNotice) {
-                                Text(notice, style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
                         val lobby = state.room.status == "lobby"
                         val ready = me?.ready == true
                         val readyBg by animateColorAsState(
@@ -854,12 +902,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 onClick = { vm.setTeam(Teams.PREY) },
                                 label = { Text(t("Prey")) },
                                 enabled = lobby,
+                                modifier = Modifier.heightIn(min = 48.dp),
                             )
                             FilterChip(
                                 selected = me?.team == Teams.HUNTERS,
                                 onClick = { vm.setTeam(Teams.HUNTERS) },
                                 label = { Text(t("Hunters")) },
                                 enabled = lobby,
+                                modifier = Modifier.heightIn(min = 48.dp),
                             )
                         }
 
@@ -872,7 +922,13 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 contentColor = readyFg,
                             ),
                         ) {
-                            Text(if (me?.ready == true) "Cancel ready" else "I'm ready")
+                            Text(
+                                when {
+                                    !lobby -> t("Match in progress")
+                                    me?.ready == true -> t("Cancel ready")
+                                    else -> t("I'm ready")
+                                }
+                            )
                         }
 
                         if (me?.isAdmin == true && lobby) {
@@ -926,9 +982,11 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 ChatPanel(
                     messages = ui.messages,
                     myUserId = repo.myUserId(),
-                    sending = ui.busy,
+                    draft = ui.chatDraft,
+                    onDraftChange = vm::onChatDraftChange,
+                    sending = ui.chatBusy,
                     onSend = vm::sendChat,
-                    error = ui.error,
+                    error = ui.chatError,
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 )
             }

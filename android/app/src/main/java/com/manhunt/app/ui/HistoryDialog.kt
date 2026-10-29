@@ -17,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.manhunt.app.i18n.t
 import com.manhunt.app.data.MatchHistoryEntry
-import com.manhunt.app.i18n.t
 import com.manhunt.app.data.Teams
 import java.time.Instant
 import java.time.ZoneId
@@ -27,6 +26,7 @@ import java.util.Locale
 @Composable
 fun HistoryDialog(
     matches: List<MatchHistoryEntry>,
+    loading: Boolean = false,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -37,10 +37,12 @@ fun HistoryDialog(
                 modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                if (matches.isEmpty()) {
+                if (loading) {
+                    Text(t("Loading match history..."), style = MaterialTheme.typography.bodySmall)
+                } else if (matches.isEmpty()) {
                     Text(t("No matches played in this room yet."), style = MaterialTheme.typography.bodySmall)
                 }
-                matches.forEach { match ->
+                if (!loading) matches.forEach { match ->
                     val title = when {
                         match.cancelled -> "Cancelled"
                         match.winner == Teams.HUNTERS -> "Hunters won"
