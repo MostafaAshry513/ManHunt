@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.manhunt.app.i18n.t
 import com.manhunt.app.data.Teams
 import com.manhunt.app.ui.theme.Motion
 
@@ -69,7 +70,7 @@ fun TeamPill(team: String, modifier: Modifier = Modifier) {
         )
         Spacer(Modifier.width(6.dp))
         Text(
-            text = teamLabel(team).uppercase(),
+            text = t(teamLabel(team)).uppercase(),
             style = MaterialTheme.typography.labelSmall,
             color = color,
             fontWeight = FontWeight.SemiBold,

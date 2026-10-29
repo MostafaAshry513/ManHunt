@@ -1038,7 +1038,7 @@ private fun PhaseCard(state: RoomState, isAdmin: Boolean, busy: Boolean, onStart
                 else -> MaterialTheme.colorScheme.onSurfaceVariant
             }
             Text(
-                phase.replace('_', ' ').uppercase(),
+                t(phase.replace('_', ' ').uppercase()),
                 style = MaterialTheme.typography.labelMedium,
                 color = color,
                 fontWeight = FontWeight.Bold,
@@ -1125,15 +1125,18 @@ private fun remaining(target: Long?, offset: Long): String {
     return "%02d:%02d".format(total / 60, total % 60)
 }
 
+@Composable
 private fun startBlockers(state: RoomState): List<String> {
     val settings = state.room.settings
     val blockers = mutableListOf<String>()
-    if (state.members.size < settings.minPlayers) blockers += "Need ${settings.minPlayers} players"
+    if (state.members.size < settings.minPlayers) {
+        blockers += "${t("Need")} ${settings.minPlayers} ${t("players")}"
+    }
     val prey = state.members.count { it.team == Teams.PREY }
     val hunters = state.members.count { it.team == Teams.HUNTERS }
-    if (prey == 0) blockers += "No prey"
-    if (hunters == 0) blockers += "No hunters"
+    if (prey == 0) blockers += t("No prey")
+    if (hunters == 0) blockers += t("No hunters")
     val notReady = state.members.count { !it.ready }
-    if (notReady > 0) blockers += "$notReady not ready"
+    if (notReady > 0) blockers += "$notReady ${t("not ready")}"
     return blockers
 }

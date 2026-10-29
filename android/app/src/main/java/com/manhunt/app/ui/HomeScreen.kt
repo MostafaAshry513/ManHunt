@@ -125,7 +125,7 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                 Column(Modifier.weight(1f)) {
                     Text(t("MANHUNT"), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
                     Text(
-                        "Signed in as ${session?.user?.username ?: "..."}",
+                        "${t("Signed in as")} ${session?.user?.username ?: "..."}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
