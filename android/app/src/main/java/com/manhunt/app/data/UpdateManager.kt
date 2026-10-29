@@ -2,6 +2,9 @@ package com.manhunt.app.data
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,6 +27,7 @@ class UpdateManager(
     private val client: OkHttpClient,
     private val baseUrl: () -> String,
 ) {
+    private val prefs = context.getSharedPreferences("manhunt_updates", Context.MODE_PRIVATE)
 
     suspend fun download(update: AppUpdate): File = withContext(Dispatchers.IO) {
         val url = if (update.url.startsWith("http")) update.url else baseUrl().trimEnd('/') + update.url
@@ -34,7 +38,7 @@ class UpdateManager(
         }
         val body = response.body ?: throw IOException("Empty response")
         val dir = File(context.cacheDir, "updates").apply { mkdirs() }
-        val file = File(dir, "manhunt-${update.versionName.ifBlank { "latest" }}.apk")
+        val file = File(dir, "manhunt-${update.versionCode}.apk")
 
         body.byteStream().use { input ->
             file.outputStream().use { output -> input.copyTo(output) }
@@ -48,16 +52,49 @@ class UpdateManager(
                 throw IOException("Checksum mismatch: the download was corrupted")
             }
         }
+        // Survive activity/process recreation while the installer or the
+        // "install unknown apps" settings screen is in front.
+        prefs.edit()
+            .putString("apk_path", file.absolutePath)
+            .putInt("apk_version", update.versionCode)
+            .apply()
         file
     }
 
-    fun install(file: File) {
+    /** The verified APK waiting to be installed, if it is newer than this build. */
+    fun pendingApk(currentVersionCode: Int): File? {
+        val version = prefs.getInt("apk_version", 0)
+        if (version <= currentVersionCode) return null
+        val path = prefs.getString("apk_path", null) ?: return null
+        val file = File(path)
+        return file.takeIf { it.exists() && it.length() > 0 }
+    }
+
+    fun canInstall(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.O || context.packageManager.canRequestPackageInstalls()
+
+    /**
+     * Returns false when Android still needs the per-app "install unknown apps"
+     * permission; in that case the settings screen is opened and the user can
+     * retry without downloading again.
+     */
+    @Suppress("DEPRECATION")
+    fun install(file: File): Boolean {
+        if (!canInstall()) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:${context.packageName}"),
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            return false
+        }
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.files", file)
-        val intent = Intent(Intent.ACTION_VIEW).apply {
+        val intent = Intent(Intent.ACTION_INSTALL_PACKAGE).apply {
             setDataAndType(uri, "application/vnd.android.package-archive")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(intent)
+        return true
     }
 
     private fun sha256(file: File): String {

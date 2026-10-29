@@ -8,29 +8,33 @@ End-to-end game loop exists on both sides: auth, rooms, teams, readiness, server
 match phases, pause/resume, GPS reporting, hunter map, physical tagging with confirm/dispute,
 chat, spectator lockout, history, admin settings, safety onboarding.
 
-## Last verified (all commands re-run by the lead)
+## Last verified (2026-10-29)
 
 | Check | Command | Result |
 |---|---|---|
-| Backend tests | `cd server; npm test` | 45/45 pass |
+| Backend tests | `cd server; npm test` | 50/50 pass |
 | Backend types | `npx tsc --noEmit` | clean |
-| Live smoke | `node scripts/smoke.mjs` | 11/11 checks |
+| Live smoke | `node scripts/smoke.mjs` | pass |
 | Multi-client match | `node scripts/match-sim.mjs` | 13/13 checks |
-| Android build | `cd android; .\build.ps1` | BUILD SUCCESSFUL |
-| Android tests | `.\test.ps1` | 21/21 pass |
-| Android lint | `gradlew :app:lintDebug` | 0 errors |
-| Deploy scripts | parse + live health/backup | 5/5 parse, health 0/2, backup integrity ok |
+| Android build + JVM tests | GitHub Actions `Android` job | pass |
+| Android lint | GitHub Actions `Android` job | pass |
+| Full in-app match | GitHub Actions emulator job | pass (26.8s) |
+| Real phone | Infinix SMART 5, Android 11, adb over Tailscale | lobby, GPS map, chat, tag, history, update check verified |
 
-APK: `android/app/build/outputs/apk/debug/app-debug.apk`.
+Public APK: GitHub Releases (`v0.7.0`, release build). In-app update channel:
+`http://74.208.99.178/api/app/latest` → `/app.apk`.
 
-## Recently fixed (from independent reviews)
+## Recently fixed (real-device pass)
 
-- WS location leak to admins playing prey (High), admin bypass of prey tag confirmation,
-  `Math.random` room codes, location rate limit + 30-day retention, `allowBackup`.
-- Android: socket/polling leak on navigation, illegal background FGS start, no prey reports
-  during head start, frozen countdown, eliminated prey still tracking, missing manifest icon.
-- Backend: rematch after a hunters win was impossible (elimination state blocked `canStart`);
-  same-timestamp teleport reports were not flagged.
+- Bodyless POSTs (leave/start/pause) rejected by OkHttp; now sent with `{}`.
+- Errors moved inside their cards; join/create errors no longer appear under the header.
+- Lobby header rebuilt: full-width Game/Chat tabs, room code on its own row.
+- Chat and lobby actions use separate busy/error channels; failed chat keeps the draft.
+- Match start moved into the Match card so admins see it without scrolling.
+- Post-match lobby hides the old map and TAGGED badges; server clears elimination flags.
+- Settings uses five equal icon tabs (Updates no longer clipped) and is fully Arabic/RTL.
+- Update manifest BOM removed; in-app update check verified on the phone.
+- Release builds default to `http://74.208.99.178`; release workflow builds `assembleRelease`.
 
 ## Ready / next tasks
 
@@ -49,11 +53,12 @@ APK: `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Known limitations
 
-- No emulator (no nested virtualisation) and no phone attached: GPS fixes, FGS behaviour,
-  notification visibility, map tiles and two-phone play are UNVERIFIED.
-- Debug build uses cleartext HTTP; TLS is required before public use.
+- Real-device testing used one phone plus an API-driven second player (no second physical phone).
+- Cold start is ~9s on the low-end Infinix in a debuggable build; release APK is being measured.
+- Public traffic is cleartext HTTP (port 443 is occupied); TLS is still required before public use.
 - Single-node SQLite; horizontal scale needs a migration.
 - Registration is CPU-bound by scrypt (~13/s on this VM), measured in `docs/PERF.md`.
+- Server-generated system chat messages are English; UI strings are Arabic.
 
 ## Key paths
 
