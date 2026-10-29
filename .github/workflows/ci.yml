@@ -170,21 +170,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            set -x
-            cd server
-            export HOST=0.0.0.0
-            export PORT=8080
-            export DB_PATH=./data/ci-emulator.db
-            node src/server.ts > server.log 2>&1 &
-            sleep 10
-            if ! curl -fsS http://127.0.0.1:8080/health; then
-              echo "backend failed to start"
-              cat server.log
-              exit 1
-            fi
-            cd ../android
-            ./gradlew :app:connectedDebugAndroidTest --console=plain
+          script: bash scripts/ci/run-emulator-tests.sh
 
       - name: Upload instrumented test report
         if: always()
