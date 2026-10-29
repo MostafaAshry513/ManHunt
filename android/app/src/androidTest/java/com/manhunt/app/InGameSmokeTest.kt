@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -77,7 +79,13 @@ class InGameSmokeTest {
         compose.onNodeWithTag("auth_password").performTextInput("password123")
         compose.onNodeWithTag("auth_submit").performClick()
 
-        waitForText("Start a game", 40_000)
+        try {
+            waitForText("Start a game", 40_000)
+        } catch (failure: Throwable) {
+            println("==== SCREEN AFTER LOGIN ATTEMPT ====")
+            println(compose.onRoot().printToString())
+            throw failure
+        }
         compose.onNodeWithTag("home_room_name").performTextInput("CI Room")
         compose.onNodeWithTag("home_create").performClick()
         waitForTag("room_code")
