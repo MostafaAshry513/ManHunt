@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
@@ -42,6 +43,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -52,6 +54,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import com.manhunt.app.data.UpdateManager
 import com.manhunt.app.Graph
 import com.manhunt.app.i18n.AppLanguage
 import com.manhunt.app.i18n.t
@@ -60,6 +65,7 @@ private enum class SettingsTab(val label: String, val icon: ImageVector) {
     Appearance("Appearance", Icons.Outlined.Palette),
     Language("Language", Icons.Outlined.Translate),
     Permissions("Permissions", Icons.Outlined.LocationOn),
+    Updates("Updates", Icons.Outlined.SystemUpdate),
     Account("Account", Icons.Outlined.Person),
 }
 
@@ -118,6 +124,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                         onLanguage = repo::setLanguage,
                     )
                     SettingsTab.Permissions -> PermissionsTab()
+                    SettingsTab.Updates -> UpdateTab()
                     SettingsTab.Account -> AccountTab(
                         username = session?.user?.username ?: "-",
                         serverUrl = repo.serverUrl,
@@ -190,6 +197,94 @@ private fun LanguageTab(language: AppLanguage, onLanguage: (AppLanguage) -> Unit
         }
         Text(
             t("Language applies immediately and mirrors the whole layout."),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun UpdateTab() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val repo = Graph.container.repository
+    val manager = remember {
+        UpdateManager(context.applicationContext, Graph.container.httpClient, { repo.serverUrl })
+    }
+    var latest by remember { mutableStateOf<com.manhunt.app.data.AppUpdate?>(null) }
+    var downloaded by remember { mutableStateOf<java.io.File?>(null) }
+    var status by remember { mutableStateOf<String?>(null) }
+    var busy by remember { mutableStateOf(false) }
+
+    ScreenCard {
+        SectionLabel(t("Updates"))
+        Text(
+            "Installed ${com.manhunt.app.BuildConfig.VERSION_NAME} (${com.manhunt.app.BuildConfig.VERSION_CODE})",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Button(
+            onClick = {
+                busy = true
+                status = null
+                scope.launch {
+                    runCatching { repo.latestUpdate() }
+                        .onSuccess {
+                            latest = it
+                            status = if (it.versionCode > com.manhunt.app.BuildConfig.VERSION_CODE) {
+                                "Update ${it.versionName} is available"
+                            } else {
+                                "You are up to date"
+                            }
+                        }
+                        .onFailure { status = it.message }
+                    busy = false
+                }
+            },
+            enabled = !busy,
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+        ) { Text(t("Check for updates")) }
+
+        latest?.let { update ->
+            if (update.versionCode > com.manhunt.app.BuildConfig.VERSION_CODE) {
+                Text(
+                    "v${update.versionName} · ${(update.size / 1024 / 1024)} MB",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                update.notes?.let {
+                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Button(
+                    onClick = {
+                        busy = true
+                        status = "Downloading…"
+                        scope.launch {
+                            runCatching { manager.download(update) }
+                                .onSuccess {
+                                    downloaded = it
+                                    status = "Verified. Tap Install update."
+                                }
+                                .onFailure { status = it.message }
+                            busy = false
+                        }
+                    },
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                ) { Text(t("Download update")) }
+            }
+        }
+
+        downloaded?.let { file ->
+            Button(
+                onClick = { manager.install(file) },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+            ) { Text(t("Install update")) }
+        }
+
+        status?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Text(
+            "Updates install over the current app (same signing key); Android will ask you to confirm once.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

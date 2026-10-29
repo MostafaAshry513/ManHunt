@@ -26,6 +26,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.manhunt.app.i18n.t
 import com.manhunt.app.data.LatLng
+import com.manhunt.app.data.ZoneDto
+import com.manhunt.app.map.MatchMap
 import com.manhunt.app.i18n.t
 import com.manhunt.app.data.RoomState
 import kotlinx.serialization.json.JsonObject
@@ -52,6 +54,8 @@ fun RoomSettingsDialog(
     var trails by remember { mutableStateOf(settings.trailsEnabled) }
     var mode by remember { mutableStateOf(settings.mode) }
     var radius by remember { mutableStateOf((settings.zone?.radiusM ?: 800.0).toInt().toString()) }
+    var centerLat by remember { mutableStateOf(settings.zone?.centerLat ?: currentLocation?.lat) }
+    var centerLng by remember { mutableStateOf(settings.zone?.centerLng ?: currentLocation?.lng) }
     var shrink by remember { mutableStateOf(settings.shrink.enabled) }
     var shrinkInterval by remember { mutableStateOf((settings.shrink.intervalSec / 60).toString()) }
     var shrinkStep by remember { mutableStateOf(settings.shrink.stepM.toInt().toString()) }
@@ -112,15 +116,34 @@ fun RoomSettingsDialog(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Text(
-                        if (currentLocation != null) {
-                            "Zone centre: your current position"
-                        } else {
-                            "Turn on GPS so the zone can be centred on you"
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    if (centerLat != null && centerLng != null) {
+                        MatchMap(
+                            modifier = Modifier.fillMaxWidth().height(200.dp),
+                            ownLocation = LatLng(centerLat!!, centerLng!!),
+                            prey = emptyList(),
+                            zone = ZoneDto(
+                                centerLat = centerLat!!,
+                                centerLng = centerLng!!,
+                                radiusM = radius.toDoubleOrNull() ?: 800.0,
+                            ),
+                            showPrey = false,
+                            onTap = {
+                                centerLat = it.lat
+                                centerLng = it.lng
+                            },
+                        )
+                        Text(
+                            "Tap the map to move the zone centre",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        Text(
+                            "Enable GPS or tap the map to place the zone",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(t("Shrink over time"), Modifier.weight(1f))
                         Switch(checked = shrink, onCheckedChange = { shrink = it })
@@ -156,10 +179,7 @@ fun RoomSettingsDialog(
                 val durationSec = (duration.toIntOrNull() ?: 60) * 60
                 val intervalSec = (interval.toIntOrNull() ?: 5) * 60
 
-                if (mode == "zone" && currentLocation == null) {
-                    error = "GPS position needed to centre the zone"
-                    return@TextButton
-                }
+                if (mode == "zone" && (centerLat == null || centerLng == null)) {`n                    error = "Place the zone centre on the map first"`n                    return@TextButton`n                }
 
                 val payload = buildJsonObject {
                     put("headStartSec", headStartSec)
@@ -169,8 +189,8 @@ fun RoomSettingsDialog(
                     put("mode", mode)
                     if (mode == "zone") {
                         putJsonObject("zone") {
-                            put("centerLat", currentLocation!!.lat)
-                            put("centerLng", currentLocation!!.lng)
+                            put("centerLat", centerLat!!)
+                            put("centerLng", centerLng!!)
                             put("radiusM", (radius.toDoubleOrNull() ?: 800.0))
                         }
                         putJsonObject("shrink") {

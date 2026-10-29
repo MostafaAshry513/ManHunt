@@ -36,3 +36,26 @@ Remove-Item $temp -Recurse -Force
 Write-Host "Serving CI build from run $runId"
 Write-Host "  $Destination"
 Write-Host "  $([math]::Round((Get-Item $Destination).Length/1MB,2)) MB"
+
+# Publish the update manifest the app checks.
+$analyzer = 'C:\Android\Sdk\cmdline-tools\latest\bin\apkanalyzer.bat'
+$versionName = '0.5.1'
+$versionCode = 0
+if (Test-Path $analyzer) {
+    try { $versionName = (& $analyzer manifest version-name $Destination 2>$null).Trim() } catch { }
+    try { $versionCode = [int]((& $analyzer manifest version-code $Destination 2>$null).Trim()) } catch { }
+}
+$sha = (Get-FileHash $Destination -Algorithm SHA256).Hash.ToLower()
+$manifest = [ordered]@{
+    versionCode = $versionCode
+    versionName = $versionName
+    url         = '/app.apk'
+    sha256      = $sha
+    size        = (Get-Item $Destination).Length
+    publishedAt = (Get-Date).ToUniversalTime().ToString('o')
+    notes       = "Built by GitHub Actions run $runId"
+}
+$manifestPath = Join-Path $repoRoot 'server\data\app-latest.json'
+New-Item -ItemType Directory -Force (Split-Path -Parent $manifestPath) | Out-Null
+$manifest | ConvertTo-Json | Set-Content $manifestPath -Encoding UTF8
+Write-Host "Update manifest: $manifestPath (v$versionName code=$versionCode)"
