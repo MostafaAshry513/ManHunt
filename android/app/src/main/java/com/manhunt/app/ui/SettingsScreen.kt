@@ -250,7 +250,9 @@ private fun UpdateTab() {
         UpdateManager(context.applicationContext, Graph.container.httpClient, { repo.serverUrl })
     }
     var latest by remember { mutableStateOf<com.manhunt.app.data.AppUpdate?>(null) }
-    var downloaded by remember { mutableStateOf<java.io.File?>(null) }
+    var downloaded by remember {
+        mutableStateOf(manager.pendingApk(com.manhunt.app.BuildConfig.VERSION_CODE))
+    }
     var status by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
 
@@ -312,8 +314,20 @@ private fun UpdateTab() {
         }
 
         downloaded?.let { file ->
+            Text(
+                t("Update ready to install"),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
             Button(
-                onClick = { manager.install(file) },
+                onClick = {
+                    if (!manager.install(file)) {
+                        status = translate(
+                            "Allow installs from ManHunt, then tap Install update again.",
+                            repo.language.value,
+                        )
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
             ) { Text(t("Install update")) }
         }

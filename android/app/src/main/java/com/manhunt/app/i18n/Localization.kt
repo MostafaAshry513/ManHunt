@@ -204,6 +204,9 @@ private val arabic: Map<String, String> = mapOf(
     "Install update" to "تثبيت التحديث",
     "Downloading..." to "جارٍ التنزيل...",
     "Verified. Tap Install update." to "تم التحقق. اضغط على تثبيت التحديث.",
+    "Update ready to install" to "التحديث جاهز للتثبيت",
+    "Allow installs from ManHunt, then tap Install update again." to
+        "اسمح بتثبيت التطبيقات من ManHunt، ثم اضغط تثبيت التحديث مرة أخرى.",
     "Updates install over the current app (same signing key); Android will ask you to confirm once." to
         "تُثبَّت التحديثات فوق التطبيق الحالي (بنفس مفتاح التوقيع)؛ وسيطلب أندرويد التأكيد مرة واحدة.",
     "Signed in as" to "مسجّل الدخول باسم",
