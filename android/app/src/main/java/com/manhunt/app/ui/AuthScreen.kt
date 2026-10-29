@@ -122,7 +122,7 @@ fun AuthScreen() {
                     onValueChange = vm::onUsername,
                     label = { Text(t("Username")) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("auth_username"),
                 )
                 OutlinedTextField(
                     value = ui.password,

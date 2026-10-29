@@ -591,12 +591,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
             TabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.surface) {
                 Tab(
                     selected = tab == 0,
+                    modifier = Modifier.testTag("tab_game"),
                     onClick = { tab = 0 },
                     icon = { Icon(Icons.Outlined.SportsEsports, contentDescription = null) },
                     text = { Text(t("Game")) },
                 )
                 Tab(
                     selected = tab == 1,
+                    modifier = Modifier.testTag("tab_chat"),
                     onClick = {
                         tab = 1
                         lastSeen = ui.messages.size
@@ -623,7 +625,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 state.room.code,
                                 style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp),
                                 color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
+                                modifier = Modifier.testTag("room_code")
                                     .background(
                                         MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                                         RoundedCornerShape(6.dp),
@@ -867,7 +869,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                         Button(
                             onClick = vm::toggleReady,
                             enabled = lobby && !ui.busy,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("ready_button"),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = readyBg,
                                 contentColor = readyFg,
@@ -886,7 +888,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                             OutlinedButton(
                                 onClick = vm::startMatch,
                                 enabled = blockers.isEmpty() && !ui.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("start_match"),
                             ) { Text(t("Start match")) }
                             if (blockers.isNotEmpty()) {
                                 Text(
