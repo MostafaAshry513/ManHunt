@@ -56,6 +56,7 @@ fun ChatPanel(
     myUserId: String?,
     sending: Boolean,
     onSend: (String) -> Unit,
+    error: String? = null,
     modifier: Modifier = Modifier,
 ) {
     var draft by rememberSaveable { mutableStateOf("") }
@@ -105,6 +106,7 @@ fun ChatPanel(
             }
         }
 
+        ErrorBanner(error)
         Composer(
             draft = draft,
             onDraftChange = { draft = it },

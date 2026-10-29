@@ -31,13 +31,15 @@ class OkHttpTransport(
     override fun execute(request: HttpRequest): HttpResponse {
         val builder = Request.Builder().url(request.url)
         request.headers.forEach { (k, v) -> builder.header(k, v) }
-        val body = request.body
 
-        if (body == null) {
-            builder.method(request.method, null)
-        } else {
-            builder.method(request.method, body.toRequestBody("application/json".toMediaType()))
+        val json = "application/json".toMediaType()
+        val needsBody = request.method == "POST" || request.method == "PUT" || request.method == "PATCH"
+        val body = when {
+            request.body != null -> request.body.toRequestBody(json)
+            needsBody -> "{}".toRequestBody(json)
+            else -> null
         }
+        builder.method(request.method, body)
 
         client.newCall(builder.build()).execute().use { response ->
             return HttpResponse(response.code, response.body?.string().orEmpty())

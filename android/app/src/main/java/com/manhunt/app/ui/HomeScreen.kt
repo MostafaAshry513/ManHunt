@@ -47,7 +47,8 @@ data class HomeUi(
     val roomName: String = "",
     val joinCode: String = "",
     val busy: Boolean = false,
-    val error: String? = null,
+    val createError: String? = null,
+    val joinError: String? = null,
     val enteredRoomId: String? = null,
 )
 
@@ -55,19 +56,19 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
     var ui by mutableStateOf(HomeUi())
         private set
 
-    fun onRoomName(value: String) { ui = ui.copy(roomName = value, error = null) }
-    fun onJoinCode(value: String) { ui = ui.copy(joinCode = value.uppercase(), error = null) }
+    fun onRoomName(value: String) { ui = ui.copy(roomName = value, createError = null) }
+    fun onJoinCode(value: String) { ui = ui.copy(joinCode = value.uppercase(), joinError = null) }
     fun consumeNavigation() { ui = ui.copy(enteredRoomId = null) }
 
     fun createRoom() {
         if (ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        ui = ui.copy(busy = true, createError = null)
         viewModelScope.launch {
             try {
                 val state = repo.createRoom(ui.roomName.ifBlank { "ManHunt" }.trim())
                 ui = ui.copy(busy = false, enteredRoomId = state.room.id)
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                ui = ui.copy(busy = false, createError = e.message)
             }
         }
     }
@@ -75,16 +76,16 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
     fun joinRoom() {
         if (ui.busy) return
         if (ui.joinCode.length < 4) {
-            ui = ui.copy(error = "Enter the 6-character room code")
+            ui = ui.copy(joinError = "Enter the 6-character room code")
             return
         }
-        ui = ui.copy(busy = true, error = null)
+        ui = ui.copy(busy = true, joinError = null)
         viewModelScope.launch {
             try {
                 val state = repo.joinRoom(ui.joinCode)
                 ui = ui.copy(busy = false, enteredRoomId = state.room.id)
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                ui = ui.copy(busy = false, joinError = e.message)
             }
         }
     }
@@ -129,8 +130,6 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                 }
             }
 
-            ErrorBanner(ui.error)
-
             ScreenCard {
                 SectionLabel(t("Start a game"))
                 Text(t("Become the room admin"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
@@ -146,6 +145,7 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                     enabled = !ui.busy,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_create"),
                 ) { Text(t("Create room")) }
+                ErrorBanner(ui.createError)
             }
 
             ScreenCard {
@@ -163,6 +163,7 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                     enabled = !ui.busy,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_join"),
                 ) { Text(t("Join room")) }
+                ErrorBanner(ui.joinError)
             }
         }
     }
