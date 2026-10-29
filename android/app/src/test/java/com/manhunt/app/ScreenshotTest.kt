@@ -61,7 +61,7 @@ class ScreenshotTest {
         rule.setContent {
             ManHuntTheme(darkTheme = true) {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    ChatPanel(messages = sample, myUserId = "u1", sending = false, onSend = {})
+                    ChatPanel(messages = sample, myUserId = "u1", draft = "", onDraftChange = {}, sending = false, onSend = {})
                 }
             }
         }
@@ -85,7 +85,7 @@ class ScreenshotTest {
             ) {
                 ManHuntTheme(darkTheme = true) {
                     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                        ChatPanel(messages = arabicSample, myUserId = "u1", sending = false, onSend = {})
+                        ChatPanel(messages = arabicSample, myUserId = "u1", draft = "", onDraftChange = {}, sending = false, onSend = {})
                     }
                 }
             }

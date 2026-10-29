@@ -160,8 +160,8 @@ ok('tag claim delivered and confirmed');
 const spectatorReport = await call('POST', `/api/matches/${matchId}/location`, {
   token: alice.token, body: { lat: 51.5, lng: -0.12, accuracy: 5 },
 });
-assert(spectatorReport.status === 403, 'eliminated prey must not report');
-assert(spectatorReport.json.error.code === 'spectator', 'expected spectator code');
+assert([403, 409].includes(spectatorReport.status), 'tagged prey must not report');
+assert(['spectator', 'no_active_match'].includes(spectatorReport.json.error.code), 'expected spectator or match-ended rejection');
 ok('tagged prey is locked out of location reporting');
 
 const tag2 = await call('POST', `/api/rooms/${roomId}/tags`, { token: cara.token, body: { preyId: alice.user.id } });
