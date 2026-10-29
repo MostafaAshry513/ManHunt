@@ -43,9 +43,14 @@ private val arabic: Map<String, String> = mapOf(
     "Enter a friend's code" to "أدخل رمز صديقك",
     "Room code" to "رمز الغرفة",
     "Join room" to "انضم إلى الغرفة",
+    "Enter the 6-character room code" to "أدخل رمز الغرفة المكوّن من 6 أحرف",
+    "Room name must be at least 2 characters" to "يجب أن يتكون اسم الغرفة من حرفين على الأقل",
 
     // Room header / tabs
     "Leave" to "مغادرة",
+    "Leave the room?" to "مغادرة الغرفة؟",
+    "You will leave the room and lose your spot in the lobby." to
+        "ستغادر الغرفة وتفقد مكانك في الردهة.",
     "Game" to "اللعبة",
     "Chat" to "الدردشة",
     "History" to "السجل",
@@ -71,6 +76,7 @@ private val arabic: Map<String, String> = mapOf(
     "Hunters" to "الصيادون",
     "Cancel ready" to "إلغاء الاستعداد",
     "I'm ready" to "أنا مستعد",
+    "Match in progress" to "المباراة جارية",
     "Match settings" to "إعدادات المباراة",
     "Start match" to "ابدأ المباراة",
     "Pause match" to "إيقاف المباراة مؤقتًا",
@@ -119,7 +125,9 @@ private val arabic: Map<String, String> = mapOf(
         "سينتهي هذا المباراة للجميع وتعود الغرفة إلى الردهة.",
     "Match history" to "سجل المباريات",
     "No matches played in this room yet." to "لم تُلعب أي مباراة في هذه الغرفة بعد.",
+    "Loading match history..." to "جارٍ تحميل سجل المباريات...",
     "Close" to "إغلاق",
+    "Dismiss" to "إغلاق",
     "Hunters won" to "فاز الصيادون",
     "Prey won" to "فازت الفرائس",
     "Uploaded" to "مرفوع",

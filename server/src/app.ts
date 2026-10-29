@@ -115,7 +115,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   // Update channel: written by scripts/ci/pull-latest-apk.ps1 after a CI build.
   app.get('/api/app/latest', async (_req, reply) => {
     try {
-      const manifest = await readFile(resolve(process.cwd(), 'data', 'app-latest.json'), 'utf8');
+      // Strip a UTF-8 BOM if the manifest was written by Windows PowerShell:
+      // strict JSON clients (including kotlinx.serialization) reject it.
+      const manifest = (await readFile(resolve(process.cwd(), 'data', 'app-latest.json'), 'utf8'))
+        .replace(/^\uFEFF/, '');
       return reply.type('application/json').send(manifest);
     } catch {
       return reply.code(404).send({

@@ -61,5 +61,6 @@ $manifest = [ordered]@{
 }
 $manifestPath = Join-Path $repoRoot 'server\data\app-latest.json'
 New-Item -ItemType Directory -Force (Split-Path -Parent $manifestPath) | Out-Null
-$manifest | ConvertTo-Json | Set-Content $manifestPath -Encoding UTF8
+# Write UTF-8 without BOM: Android's JSON parser rejects a leading BOM.
+[IO.File]::WriteAllText($manifestPath, ($manifest | ConvertTo-Json), (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "Update manifest: $manifestPath (v$versionName code=$versionCode)"
