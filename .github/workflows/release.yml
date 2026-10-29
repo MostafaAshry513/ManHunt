@@ -46,11 +46,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build APK
-        run: ./gradlew :app:assembleDebug --console=plain
+        run: ./gradlew :app:assembleRelease --console=plain
 
       - name: Name artifact and checksum
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk "manhunt-${{ github.ref_name }}.apk"
+          cp app/build/outputs/apk/release/app-release.apk "manhunt-${{ github.ref_name }}.apk"
           sha256sum "manhunt-${{ github.ref_name }}.apk" > "manhunt-${{ github.ref_name }}.apk.sha256"
           cat "manhunt-${{ github.ref_name }}.apk.sha256"
 

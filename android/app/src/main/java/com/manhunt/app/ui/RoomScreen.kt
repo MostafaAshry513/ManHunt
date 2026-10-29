@@ -558,7 +558,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
             AlertDialog(
                 onDismissRequest = { },
                 title = { Text(t("Disputed tag")) },
-                text = { Text("$hunter says they tagged $prey, and $prey disputes it. Confirm or reject the tag.") },
+                text = { Text(t("Disputed tag message").format(hunter, prey)) },
                 confirmButton = { TextButton(onClick = { vm.resolveDisputed("confirmed") }) { Text(t("Confirm tag")) } },
                 dismissButton = { TextButton(onClick = { vm.resolveDisputed("rejected") }) { Text(t("Reject")) } },
             )
@@ -590,7 +590,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         AlertDialog(
             onDismissRequest = { },
             title = { Text(t("Tag claim")) },
-            text = { Text("$hunter says they physically touched you. Confirm the tag?") },
+            text = { Text(t("Tag claim message").format(hunter)) },
             confirmButton = { TextButton(onClick = vm::confirmIncomingTag) { Text(t("Confirm")) } },
             dismissButton = { TextButton(onClick = vm::disputeIncomingTag) { Text(t("Dispute")) } },
         )

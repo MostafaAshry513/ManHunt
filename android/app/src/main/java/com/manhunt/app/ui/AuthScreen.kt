@@ -158,7 +158,7 @@ fun AuthScreen() {
             Spacer(Modifier.height(20.dp))
 
             TextButton(onClick = vm::toggleServer) {
-                Text("Server: ${ui.serverUrl}", style = MaterialTheme.typography.bodySmall)
+                Text("${t("Server:")} ${ui.serverUrl}", style = MaterialTheme.typography.bodySmall)
             }
             if (ui.showServer) {
                 ScreenCard {

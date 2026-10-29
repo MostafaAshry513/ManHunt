@@ -141,6 +141,8 @@ private val arabic: Map<String, String> = mapOf(
     "Confirm" to "تأكيد",
     "Dispute" to "اعتراض",
     "Disputed tag" to "وسم متنازع عليه",
+    "Disputed tag message" to "%1$s يقول إنه وسم %2$s، و%2$s يعترض على ذلك. أكّد الوسم أو ارفضه.",
+    "Tag claim message" to "%1$s يقول إنه لامسك فعليًا. هل تؤكد الوسم؟",
     "Confirm tag" to "تأكيد الوسم",
     "Reject" to "رفض",
     "End the match?" to "إنهاء المباراة؟",
