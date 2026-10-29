@@ -11,6 +11,10 @@ SERVER_PID=$!
 
 cleanup() {
   status=$?
+  # Pull whatever the instrumentation test captured before the emulator dies.
+  local shots="$ROOT/emulator-screenshots"
+  rm -rf "$shots"; mkdir -p "$shots"
+  adb pull /sdcard/Android/data/com.manhunt.app/files/screenshots/. "$shots" >/dev/null 2>&1 || true
   if [ "$status" -ne 0 ]; then
     echo "==== emulator: backend log (tail) ===="
     tail -n 200 "$ROOT/server/server.log" || true
