@@ -35,9 +35,10 @@ if ! curl -fsS http://127.0.0.1:8080/health; then
   exit 1
 fi
 
-# Prove the emulator itself can reach the host backend before the test runs.
-echo "==== emulator -> host health ===="
-adb shell 'toybox wget -q -O - http://10.0.2.2:8080/health' || true
+# Best-effort proof the emulator can route to the host. The backend log records
+# the test's own requests with host 10.0.2.2, which covers the HTTP side.
+echo "==== emulator -> host ping ===="
+adb shell 'ping -c 1 -W 3 10.0.2.2' || true
 echo
 
 cd ../android
