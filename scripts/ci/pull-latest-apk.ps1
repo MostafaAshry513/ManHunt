@@ -1,14 +1,16 @@
-# Builds in CI, not locally.
+# Builds happen in CI; this script only publishes an already-built release.
 #
-# Downloads the newest successful CI artifact (Actions-built APK) and copies it
-# to the path the local install page serves: /app.apk.
+# Downloads the newest GitHub Release APK (the signed `assembleRelease` build),
+# verifies its SHA-256, copies it to the path the install page serves (`/app.apk`),
+# and writes the in-app update manifest without a UTF-8 BOM.
 #
 #   .\scripts\ci\pull-latest-apk.ps1
+#   .\scripts\ci\pull-latest-apk.ps1 -Tag v0.7.3
 #
 #Requires -Version 5.1
 [CmdletBinding()]
 param(
-    [string]$Workflow = 'ci.yml',
+    [string]$Tag = '',
     [string]$Destination = 'C:\dev\ManHunt\android\app\build\outputs\apk\debug\app-debug.apk'
 )
 
@@ -18,24 +20,39 @@ if (-not (Test-Path $gh)) { $gh = 'gh' }
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Set-Location $repoRoot
 
-$runId = & $gh run list --workflow $Workflow --status success --limit 1 --json databaseId --jq '.[0].databaseId'
-if ([string]::IsNullOrWhiteSpace($runId)) {
-    throw "No successful '$Workflow' run found. Push a commit and wait for CI."
+if ([string]::IsNullOrWhiteSpace($Tag)) {
+    $Tag = (& $gh release view --json tagName --jq '.tagName').Trim()
+    if ([string]::IsNullOrWhiteSpace($Tag)) {
+        throw 'No GitHub Release found. Tag a green commit first (release.yml builds it).'
+    }
 }
+if ($Tag -notmatch '^v[0-9A-Za-z._-]+$') { throw "Invalid tag: $Tag" }
 
-$temp = Join-Path $env:TEMP "manhunt-ci-$runId"
+$temp = Join-Path $env:TEMP "manhunt-release-$Tag"
 Remove-Item $temp -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $temp | Out-Null
 
-& $gh run download $runId --name manhunt-debug-apk --dir $temp
+& $gh release download $Tag --pattern '*.apk' --pattern '*.sha256' --dir $temp
 $apk = Get-ChildItem $temp -Recurse -Filter *.apk | Select-Object -First 1
-if (-not $apk) { throw 'Artifact downloaded but no APK found.' }
+if (-not $apk) { throw "Release $Tag has no APK asset." }
+
+$shaFile = Get-ChildItem $temp -Recurse -Filter *.sha256 | Select-Object -First 1
+$actual = (Get-FileHash $apk.FullName -Algorithm SHA256).Hash.ToLower()
+if ($shaFile) {
+    $expected = ((Get-Content $shaFile.FullName -Raw).Trim() -split '\s+')[0].ToLower()
+    if ($expected -ne $actual) {
+        throw "Release APK checksum mismatch: expected $expected, got $actual"
+    }
+    Write-Host 'SHA-256 verified against the release checksum.'
+} else {
+    Write-Warning 'Release has no .sha256 asset; publishing the APK hash anyway.'
+}
 
 New-Item -ItemType Directory -Force (Split-Path -Parent $Destination) | Out-Null
 Copy-Item $apk.FullName $Destination -Force
 Remove-Item $temp -Recurse -Force
 
-Write-Host "Serving CI build from run $runId"
+Write-Host "Serving release $Tag"
 Write-Host "  $Destination"
 Write-Host "  $([math]::Round((Get-Item $Destination).Length/1MB,2)) MB"
 
@@ -49,15 +66,14 @@ if ($aapt2 -and (Test-Path $aapt2)) {
     if ($badging -and $badging.Line -match "versionCode='(\d+)'") { $versionCode = [int]$Matches[1] }
     if ($badging -and $badging.Line -match "versionName='([^']+)'") { $versionName = $Matches[1] }
 }
-$sha = (Get-FileHash $Destination -Algorithm SHA256).Hash.ToLower()
 $manifest = [ordered]@{
     versionCode = $versionCode
     versionName = $versionName
     url         = '/app.apk'
-    sha256      = $sha
+    sha256      = $actual
     size        = (Get-Item $Destination).Length
     publishedAt = (Get-Date).ToUniversalTime().ToString('o')
-    notes       = "Built by GitHub Actions run $runId"
+    notes       = "Signed release from GitHub Actions ($Tag)"
 }
 $manifestPath = Join-Path $repoRoot 'server\data\app-latest.json'
 New-Item -ItemType Directory -Force (Split-Path -Parent $manifestPath) | Out-Null

@@ -19,10 +19,13 @@ chat, spectator lockout, history, admin settings, safety onboarding.
 | Android build + JVM tests | GitHub Actions `Android` job | pass |
 | Android lint | GitHub Actions `Android` job | pass |
 | Full in-app match | GitHub Actions emulator job | pass (26.8s) |
-| Real phone | Infinix SMART 5, Android 11, adb over Tailscale | lobby, GPS map, chat, tag, history, update check verified |
+| Real phone | Infinix SMART 5, Android 11, adb over Tailscale | lobby, GPS map, chat, tag, history, update download/verify/install verified |
+| In-app update | 0.6.0 → 0.7.2 on the phone | download → SHA-256 verify → Play Protect scan → installed |
+| Update persistence | force-stop after download | Install button restored from the verified cache |
 
-Public APK: GitHub Releases (`v0.7.0`, release build). In-app update channel:
+Public APK: GitHub Releases (`v0.7.3`, signed release build). In-app update channel:
 `http://74.208.99.178/api/app/latest` → `/app.apk`.
+Real-device screenshots: `docs/screenshots/05-device-*` through `08-device-*`.
 
 ## Recently fixed (real-device pass)
 
@@ -33,8 +36,11 @@ Public APK: GitHub Releases (`v0.7.0`, release build). In-app update channel:
 - Match start moved into the Match card so admins see it without scrolling.
 - Post-match lobby hides the old map and TAGGED badges; server clears elimination flags.
 - Settings uses five equal icon tabs (Updates no longer clipped) and is fully Arabic/RTL.
-- Update manifest BOM removed; in-app update check verified on the phone.
+- Update manifest BOM removed; in-app update check and full download/install verified on the phone.
+- Updater persists the verified APK across process death, opens the system installer directly,
+  and pre-checks the “install unknown apps” permission.
 - Release builds default to `http://74.208.99.178`; release workflow builds `assembleRelease`.
+- Branded dark launch screen (Android 11 window + Android 12+ splash icon).
 
 ## Ready / next tasks
 
@@ -54,11 +60,14 @@ Public APK: GitHub Releases (`v0.7.0`, release build). In-app update channel:
 ## Known limitations
 
 - Real-device testing used one phone plus an API-driven second player (no second physical phone).
-- Cold start is ~9s on the low-end Infinix in a debuggable build; release APK is being measured.
+- Cold start is ~10s on the low-end Infinix even in a release build; a branded splash is shown,
+  but baseline-profile work is still needed for a faster first frame.
+- First self-update after sideloading requires enabling “install unknown apps”; Play Protect also
+  asks to scan the APK once. Both are Android system steps, documented in the Updates tab.
 - Public traffic is cleartext HTTP (port 443 is occupied); TLS is still required before public use.
 - Single-node SQLite; horizontal scale needs a migration.
 - Registration is CPU-bound by scrypt (~13/s on this VM), measured in `docs/PERF.md`.
-- Server-generated system chat messages are English; UI strings are Arabic.
+- Server-generated system chat messages and release notes are English; UI strings are Arabic.
 
 ## Key paths
 
