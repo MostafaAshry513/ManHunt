@@ -60,9 +60,11 @@ class InGameSmokeTest {
         val dir = instrumentation.targetContext.getExternalFilesDir("screenshots")
             ?: instrumentation.targetContext.filesDir
         dir.mkdirs()
-        File(dir, "$name.png").outputStream().use { out ->
+        val file = File(dir, "$name.png")
+        file.outputStream().use { out ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
+        android.util.Log.i("ManHuntTest", "screenshot ${file.absolutePath} ${file.length()}")
     }
 
     private fun api(method: String, path: String, token: String? = null, body: JSONObject? = null): JSONObject {
