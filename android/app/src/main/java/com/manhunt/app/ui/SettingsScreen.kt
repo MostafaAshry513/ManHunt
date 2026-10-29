@@ -293,23 +293,25 @@ private fun UpdateTab() {
                 update.notes?.let {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Button(
-                    onClick = {
-                        busy = true
-                        status = translate("Downloading...", repo.language.value)
-                        scope.launch {
-                            runCatching { manager.download(update) }
-                                .onSuccess {
-                                    downloaded = it
-                                    status = translate("Verified. Tap Install update.", repo.language.value)
-                                }
-                                .onFailure { status = it.message }
-                            busy = false
-                        }
-                    },
-                    enabled = !busy,
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                ) { Text(t("Download update")) }
+                if (downloaded == null) {
+                    Button(
+                        onClick = {
+                            busy = true
+                            status = translate("Downloading...", repo.language.value)
+                            scope.launch {
+                                runCatching { manager.download(update) }
+                                    .onSuccess {
+                                        downloaded = it
+                                        status = translate("Verified. Tap Install update.", repo.language.value)
+                                    }
+                                    .onFailure { status = it.message }
+                                busy = false
+                            }
+                        },
+                        enabled = !busy,
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                    ) { Text(t("Download update")) }
+                }
             }
         }
 
