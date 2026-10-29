@@ -13,10 +13,12 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$gh = 'C:\Program Files\GitHub CLI\gh.exe'
+if (-not (Test-Path $gh)) { $gh = 'gh' }
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 Set-Location $repoRoot
 
-$runId = gh run list --workflow $Workflow --status success --limit 1 --json databaseId --jq '.[0].databaseId'
+$runId = & $gh run list --workflow $Workflow --status success --limit 1 --json databaseId --jq '.[0].databaseId'
 if ([string]::IsNullOrWhiteSpace($runId)) {
     throw "No successful '$Workflow' run found. Push a commit and wait for CI."
 }
@@ -25,7 +27,7 @@ $temp = Join-Path $env:TEMP "manhunt-ci-$runId"
 Remove-Item $temp -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $temp | Out-Null
 
-gh run download $runId --name manhunt-debug-apk --dir $temp
+& $gh run download $runId --name manhunt-debug-apk --dir $temp
 $apk = Get-ChildItem $temp -Recurse -Filter *.apk | Select-Object -First 1
 if (-not $apk) { throw 'Artifact downloaded but no APK found.' }
 
@@ -38,12 +40,14 @@ Write-Host "  $Destination"
 Write-Host "  $([math]::Round((Get-Item $Destination).Length/1MB,2)) MB"
 
 # Publish the update manifest the app checks.
-$analyzer = 'C:\Android\Sdk\cmdline-tools\latest\bin\apkanalyzer.bat'
-$versionName = '0.5.1'
+$buildTools = Get-ChildItem 'C:\Android\Sdk\build-tools' -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1
+$aapt2 = if ($buildTools) { Join-Path $buildTools.FullName 'aapt2.exe' } else { '' }
+$versionName = '0.0.0'
 $versionCode = 0
-if (Test-Path $analyzer) {
-    try { $versionName = (& $analyzer manifest version-name $Destination 2>$null).Trim() } catch { }
-    try { $versionCode = [int]((& $analyzer manifest version-code $Destination 2>$null).Trim()) } catch { }
+if ($aapt2 -and (Test-Path $aapt2)) {
+    $badging = & $aapt2 dump badging $Destination 2>$null | Select-String '^package:'
+    if ($badging -and $badging.Line -match "versionCode='(\d+)'") { $versionCode = [int]$Matches[1] }
+    if ($badging -and $badging.Line -match "versionName='([^']+)'") { $versionName = $Matches[1] }
 }
 $sha = (Get-FileHash $Destination -Algorithm SHA256).Hash.ToLower()
 $manifest = [ordered]@{
