@@ -132,3 +132,7 @@ All project docs live in [docs/](docs/). Highlights:
 - [Deployment](docs/DEPLOYMENT.md) | [Runbook](docs/RUNBOOK.md)
 - [Decisions](docs/DECISIONS.md) | [Implementation plan](docs/IMPLEMENTATION_PLAN.md)
 - [Research](docs/RESEARCH.md) | [Android build notes](android/README.md)
+
+## License
+
+MIT — see [LICENSE](LICENSE). Third-party skill files keep their own licenses (Apache-2.0, MIT, CC BY-SA 4.0) in `.opencode/skills/`.
