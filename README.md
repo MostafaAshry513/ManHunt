@@ -13,6 +13,11 @@ location visibility and chat, so clients can restart or lose signal safely.
 
 Rendered from the real Compose UI by `ScreenshotTest` (Robolectric), not mockups.
 
+## Download
+
+The installable APK is published on the [Releases](https://github.com/MostafaAshry513/ManHunt/releases)
+page for every tagged version. Debug builds are unsigned for Play, but install fine on a phone.
+
 ## Repository layout
 
 ```
