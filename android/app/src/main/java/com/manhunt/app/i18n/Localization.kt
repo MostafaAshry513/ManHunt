@@ -390,6 +390,7 @@ private val arabic: Map<String, String> = mapOf(
     "Hunters are live." to "الصيادون يتحركون الآن.",
     "Confirm the tag?" to "هل تؤكد الوسم؟",
     "Open the app to decide." to "افتح التطبيق لتقرر.",
+    "Recenter" to "إعادة التمركز",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }

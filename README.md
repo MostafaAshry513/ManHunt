@@ -11,15 +11,18 @@ chat — so a phone can lose signal or restart without breaking the game.
 
 ## Screenshots
 
-| Sign in | Chat (dark) | Chat (Arabic, RTL) |
+| Sign in | Lobby | Chat (dark) |
 |---|---|---|
-| ![Sign in](docs/screenshots/01-auth.png) | ![Chat in dark mode](docs/screenshots/02-chat-dark.png) | ![Arabic RTL chat](docs/screenshots/03-chat-arabic-rtl.png) |
+| ![Sign in](docs/screenshots/01-auth.png) | ![Lobby with teams and ready-up](docs/screenshots/05-lobby.png) | ![Chat in dark mode](docs/screenshots/02-chat-dark.png) |
 
-![Hunting map with zone, trail and prey markers](docs/screenshots/04-hunting-map.png)
+| Chat (Arabic, RTL) | Hunting map | Hunt result |
+|---|---|---|
+| ![Arabic RTL chat](docs/screenshots/03-chat-arabic-rtl.png) | ![Hunting map with zone, trail and prey markers](docs/screenshots/04-hunting-map.png) | ![Hunt result dialog](docs/screenshots/06-hunt-result.png) |
 
-Screenshots are captured from the real Compose UI (Robolectric screenshot tests or the CI
-emulator) and uploaded as CI artifacts. Map tiles come from OpenStreetMap at runtime and need
-network access; a render captured without network shows a blank tile layer.
+The lobby and result screenshots are captured by the real-emulator CI job; the rest come from the
+Robolectric screenshot tests. Map tiles come from OpenStreetMap at runtime and need network access;
+a render captured without network shows a blank tile layer (the Robolectric hunting-map shot draws
+the zone, trail and prey markers on top of a deliberately blank tile layer).
 
 ## Download and install
 
