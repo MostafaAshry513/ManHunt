@@ -8,7 +8,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToString
@@ -103,15 +102,14 @@ class InGameSmokeTest {
         val aliceName = "alice$suffix"
         val bobName = "bob$suffix"
 
-        // First run: accept the safety notice. Wait for either the safety screen or the
-        // auth screen so a slow first frame cannot skip the consent tap and stall the test.
-        // The consent button may be below the fold on short screens, so scroll to it.
+        // First run: accept the safety notice. The consent button is pinned at the bottom of
+        // the safety screen, so once it is composed it is directly clickable.
         compose.waitUntil(40_000) {
             compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty() ||
                 compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty()
         }
         if (compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty()) {
-            compose.onNodeWithTag("safety_accept").performScrollTo().performClick()
+            compose.onNodeWithTag("safety_accept").performClick()
         }
 
         waitForTag("auth_username", 40_000)
