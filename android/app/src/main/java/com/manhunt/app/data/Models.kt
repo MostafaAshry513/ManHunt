@@ -94,8 +94,35 @@ data class RoomState(
     val room: RoomInfo,
     val members: List<MemberDto> = emptyList(),
     val match: MatchDto? = null,
+    /**
+     * Durable tag claims replayed by the server so a reconnecting player never misses a
+     * real-world tag. Additive: older servers omit the field and it defaults to empty.
+     */
+    val pendingTags: List<PendingTagDto> = emptyList(),
     @SerialName("serverNow") val serverNow: Long = 0,
 )
+
+/** A pending (or expired-then-disputed) tag claim as returned in room state. */
+@Serializable
+data class PendingTagDto(
+    val id: String,
+    val matchId: String = "",
+    val hunterId: String = "",
+    val preyId: String = "",
+    val createdAt: Long = 0,
+    val expiresAt: Long = 0,
+    /** True once the claim expired and became a huntmaster dispute. */
+    val disputed: Boolean = false,
+) {
+    fun toTag(): TagDto = TagDto(
+        id = id,
+        matchId = matchId,
+        hunterId = hunterId,
+        preyId = preyId,
+        status = if (disputed) "disputed" else "pending",
+        createdAt = createdAt,
+    )
+}
 
 @Serializable
 data class ChatMessage(

@@ -1,12 +1,16 @@
 package com.manhunt.app.ui
 
 import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +18,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -43,6 +48,7 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.outlined.Tune
@@ -80,9 +86,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -131,6 +140,7 @@ data class RoomUi(
     val notice: String? = null,
     val history: List<MatchHistoryEntry> = emptyList(),
     val historyLoaded: Boolean = false,
+    val historyError: String? = null,
     val connected: Boolean = false,
     val loading: Boolean = true,
     val busy: Boolean = false,
@@ -179,7 +189,7 @@ class RoomViewModel(
     // every handler below runs on the main thread and is cancelled with the ViewModel.
     private val socket = RoomSocket(Graph.container.httpClient, viewModelScope) { event ->
         when (event) {
-            is SocketEvent.Room -> updateUi { it.copy(state = event.state, loading = false) }
+            is SocketEvent.Room -> updateUi { it.replayPendingTags(event.state).copy(loading = false) }
             // Coalesce the refresh storm: a single location/chat frame should not cause one
             // network round per event (they often arrive in bursts).
             is SocketEvent.Chat -> scheduleRefresh(silent = true, debounceMs = SOCKET_REFRESH_DEBOUNCE_MS)
@@ -241,6 +251,30 @@ class RoomViewModel(
         if (next != chat) chat = next
     }
 
+    /**
+     * Rehydrate tag dialogs from authoritative room state. Tag claims are durable now:
+     * a prey who missed the websocket event (pocketed phone, reconnected socket) still
+     * gets the confirm/dispute dialog, and an admin sees the dispute queue after a
+     * reconnect. Local event-derived dialogs are kept while the server snapshot may
+     * not have caught up yet, and dropped once the server says the claim is resolved.
+     */
+    private fun RoomUi.replayPendingTags(state: RoomState): RoomUi {
+        val me = state.members.firstOrNull { it.userId == repo.myUserId() }
+        val myClaim = state.pendingTags.firstOrNull { it.preyId == me?.userId }
+        val preyTag = when {
+            myClaim == null -> pendingTag // event arrived before this snapshot: keep it
+            myClaim.disputed -> null
+            else -> myClaim.toTag()
+        }
+        val disputed = state.pendingTags.firstOrNull { it.disputed }
+        val adminDispute = when {
+            me?.isAdmin != true -> null
+            disputed != null -> disputed.toTag()
+            else -> pendingDispute?.takeIf { local -> state.pendingTags.any { it.id == local.id } }
+        }
+        return copy(state = state, pendingTag = preyTag, pendingDispute = adminDispute)
+    }
+
     fun refresh(silent: Boolean = false) = scheduleRefresh(silent, debounceMs = 0)
 
     /**
@@ -298,7 +332,7 @@ class RoomViewModel(
                         locations = locations,
                         loading = false,
                         error = if (silent) it.error else null,
-                    )
+                    ).replayPendingTags(state)
                 }
                 updateChat { current -> current.mergeNewest(page.messages, page.hasMore) }
             }
@@ -478,12 +512,14 @@ class RoomViewModel(
     }
 
     fun loadHistory() {
+        updateUi { it.copy(historyError = null, historyLoaded = false) }
         viewModelScope.launch {
             try {
                 val matches = repo.history(roomId).matches
-                updateUi { it.copy(history = matches, historyLoaded = true) }
+                updateUi { it.copy(history = matches, historyLoaded = true, historyError = null) }
             } catch (e: ApiException) {
-                updateUi { it.copy(error = e.message, historyLoaded = true) }
+                // A failed load must not masquerade as "no hunts yet" (UI review).
+                updateUi { it.copy(historyError = e.message, historyLoaded = true) }
             }
         }
     }
@@ -603,6 +639,25 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     val match = state?.match
     val me = state?.members?.firstOrNull { it.userId == repo.myUserId() }
 
+    // Strings used inside non-composable lambdas (notification effects, click handlers)
+    // must be resolved here, in composition scope.
+    val notifHuntStarted = t("The hunt has started")
+    val notifHuntersLive = t("Hunters are live.")
+    val notifHuntOver = t("The hunt is over")
+    val notifWinner = t("Winner")
+    val winnerName = t(if (match?.winner == Teams.HUNTERS) "Hunters win" else "Prey win")
+    val notifCancelled = t("Hunt cancelled")
+    val notifTagFrom = t("Tag claim from")
+    val notifConfirmTag = t("Confirm the tag?")
+    val notifDispute = t("Disputed tag needs a decision")
+    val notifOpenApp = t("Open the app to decide.")
+    val fallbackHunter = t("A hunter")
+    val shareRoomTitle = t("Share room")
+    val joinRoomPrefix = t("Join my ManHunt room")
+    val codeWord = t("code")
+    val joinCodeLabel = t("Join code")
+    val roomCodeCopied = t("Room code copied")
+
     var showLeaveConfirm by remember { mutableStateOf(false) }
     val requestLeave: () -> Unit = {
         if (me?.isAdmin == true || state?.room?.status == "active") {
@@ -631,6 +686,22 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
             }
         }.toTypedArray()
     }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { }
+
+    // Ask for notification permission when entering a room (before the match starts),
+    // so the events that matter — tag claims, hunt start, result — can reach a pocketed
+    // phone. Asking mid-hunt would be both late and disruptive.
+    LaunchedEffect(state?.room?.status) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            state?.room?.status != null &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     var resumed by remember {
         mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
@@ -648,6 +719,57 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     val intervalSec = state?.room?.settings?.locationIntervalSec ?: 300
     val activePhase = phase == Phases.HEAD_START || phase == Phases.HUNTING
     val showMatchMap = activePhase || phase == Phases.PAUSED
+
+    // "Has permission" is not the same as "location is on": a granted permission with
+    // Location services switched off is a silent dead end (the GPS-off state seen in the
+    // human review). Re-check on resume so returning from Settings updates the UI.
+    val locationServicesOn = remember(resumed) {
+        val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+        when {
+            lm == null -> false
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> lm.isLocationEnabled
+            else -> runCatching {
+                Settings.Secure.getInt(context.contentResolver, Settings.Secure.LOCATION_MODE) !=
+                    Settings.Secure.LOCATION_MODE_OFF
+            }.getOrDefault(false)
+        }
+    }
+
+    // Notify the moments that happen with the phone in a pocket. Only when the screen is
+    // not resumed; a visible app already shows the banner/dialog.
+    val lastNotifiedPhase = remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(phase, resumed) {
+        val current = phase
+        if (current == null) return@LaunchedEffect
+        val previous = lastNotifiedPhase.value
+        if (previous == current) return@LaunchedEffect
+        lastNotifiedPhase.value = current
+        if (resumed) return@LaunchedEffect
+        when (current) {
+            Phases.HUNTING -> if (previous == Phases.HEAD_START) {
+                MatchNotifier.notify(context, 2, notifHuntStarted, notifHuntersLive)
+            }
+            Phases.FINISHED -> MatchNotifier.notify(
+                context,
+                3,
+                notifHuntOver,
+                "$notifWinner: $winnerName",
+            )
+            Phases.CANCELLED -> MatchNotifier.notify(context, 3, notifHuntOver, notifCancelled)
+        }
+    }
+    LaunchedEffect(ui.pendingTag, resumed) {
+        val tag = ui.pendingTag
+        if (!resumed && tag != null) {
+            val hunter = state?.members?.firstOrNull { it.userId == tag.hunterId }?.username ?: fallbackHunter
+            MatchNotifier.notify(context, 10, "$notifTagFrom $hunter", notifConfirmTag)
+        }
+    }
+    LaunchedEffect(ui.pendingDispute, resumed) {
+        if (!resumed && ui.pendingDispute != null && me?.isAdmin == true) {
+            MatchNotifier.notify(context, 11, notifDispute, notifOpenApp)
+        }
+    }
 
     // Start tracking while the app is visible: starting a location FGS from the background
     // is illegal on Android 12+ (docs/ANDROID_REVIEW.md A2). Starting during head start also
@@ -704,6 +826,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     var showSettings by remember { mutableStateOf(false) }
     var showHistory by remember { mutableStateOf(false) }
     var showEndConfirm by remember { mutableStateOf(false) }
+    var shownResultFor by rememberSaveable { mutableStateOf<String?>(null) }
 
     if (showLeaveConfirm) {
         AlertDialog(
@@ -768,8 +891,84 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         HistoryDialog(
             matches = ui.history,
             loading = !ui.historyLoaded,
+            error = ui.historyError,
             onDismiss = { showHistory = false },
         )
+    }
+
+    // A match used to end as a grey chat line with no moment of its own (UI review).
+    // Show the result once per finished/cancelled match, with a clear way onward.
+    val resultMatch = state?.match?.takeIf {
+        it.phase == Phases.FINISHED || it.phase == Phases.CANCELLED
+    }
+    if (resultMatch != null && shownResultFor != resultMatch.id) {
+        val cancelled = resultMatch.phase == Phases.CANCELLED
+        val huntersWin = resultMatch.winner == Teams.HUNTERS
+        val accent = if (huntersWin) teamColor(Teams.HUNTERS) else teamColor(Teams.PREY)
+        Dialog(
+            onDismissRequest = { shownResultFor = resultMatch.id },
+            properties = DialogProperties(),
+        ) {
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Icon(
+                        imageVector = when {
+                            cancelled -> Icons.Outlined.Stop
+                            huntersWin -> Icons.Outlined.GpsFixed
+                            else -> Icons.Outlined.Pets
+                        },
+                        contentDescription = null,
+                        modifier = Modifier.size(44.dp),
+                        tint = accent,
+                    )
+                    Text(
+                        t("Hunt result"),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        when {
+                            cancelled -> t("Hunt cancelled")
+                            huntersWin -> t("Hunters win!")
+                            else -> t("Prey win!")
+                        },
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        "${t("Prey remaining")}: ${resultMatch.preyAlive}/${resultMatch.preyTotal}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        TextButton(
+                            onClick = {
+                                shownResultFor = resultMatch.id
+                                vm.loadHistory()
+                                showHistory = true
+                            },
+                            modifier = Modifier.weight(1f),
+                        ) { Text(t("View hunt history")) }
+                        Button(
+                            onClick = { shownResultFor = resultMatch.id },
+                            modifier = Modifier.weight(1f),
+                        ) { Text(t("Back to lobby")) }
+                    }
+                }
+            }
+        }
     }
 
     if (showSettings && state != null) {
@@ -798,7 +997,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         val targets = state.members.filter { it.team == Teams.PREY && !it.eliminated }
         AlertDialog(
             onDismissRequest = { showTagPicker = false },
-            title = { Text(t("Who did you touch?")) },
+            title = { Text(t("Who did you tag?")) },
             text = {
                 Column(
                     modifier = Modifier
@@ -855,6 +1054,15 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp),
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.testTag("room_code")
+                                    // Tap-to-copy: the code was display-only before; a host
+                                    // had to read it aloud to invite anyone.
+                                    .clickable {
+                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                        clipboard.setPrimaryClip(
+                                            ClipData.newPlainText(joinCodeLabel, state.room.code),
+                                        )
+                                        Toast.makeText(context, roomCodeCopied, Toast.LENGTH_SHORT).show()
+                                    }
                                     .background(
                                         MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                                         RoundedCornerShape(6.dp),
@@ -871,7 +1079,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                     ),
                             )
                             Text(
-                                t(if (ui.connected) "Live" else "Polling"),
+                                t(if (ui.connected) "Live" else "Reconnecting…"),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -879,6 +1087,18 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     }
                 }
                 if (ui.loading) ManHuntLoader(size = 18.dp)
+                if (state != null) {
+                    IconButton(onClick = {
+                        val text = "$joinRoomPrefix: ${state.room.name} - $codeWord ${state.room.code}"
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, text)
+                        }
+                        context.startActivity(Intent.createChooser(send, shareRoomTitle))
+                    }, modifier = Modifier.testTag("share_room")) {
+                        Icon(Icons.Outlined.Share, contentDescription = shareRoomTitle)
+                    }
+                }
                 IconButton(onClick = {
                     vm.loadHistory()
                     showHistory = true
@@ -1005,25 +1225,58 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.weight(1f),
                         )
-                        if (me?.team == Teams.PREY && activePhase && !hasLocation) {
-                            if (locationDenied) {
-                                // Android stops showing the dialog after two denials;
-                                // the only way back is app settings.
-                                TextButton(onClick = { openAppSettings(context) }) {
-                                    Text(t("Allow in settings"))
+                    }
+                    // A hunter's two real actions and the GPS recovery must be visible
+                    // buttons, not tiny text links buried in a status row (UI review).
+                    if (activePhase) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            if (me?.team == Teams.PREY) {
+                                when {
+                                    !hasLocation && locationDenied -> OutlinedButton(
+                                        onClick = { openAppSettings(context) },
+                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                                    ) { Text(t("Allow in settings")) }
+                                    !hasLocation -> OutlinedButton(
+                                        onClick = { permissionLauncher.launch(trackingPermissions) },
+                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                                    ) { Text(t("Enable GPS")) }
+                                    !locationServicesOn -> OutlinedButton(
+                                        onClick = {
+                                            context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                                        },
+                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                                    ) { Text(t("Turn on location")) }
                                 }
-                            } else {
-                                TextButton(onClick = {
-                                    permissionLauncher.launch(trackingPermissions)
-                                }) { Text(t("Enable GPS")) }
+                            }
+                            if (me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
+                                OutlinedButton(
+                                    onClick = vm::toggleTrails,
+                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                                ) { Text(t(if (ui.trailsVisible) "Hide trails" else "Trails")) }
+                                Button(
+                                    onClick = { showTagPicker = true },
+                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.GpsFixed,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(t("Tag prey"))
+                                }
                             }
                         }
-                        if (me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
-                            TextButton(onClick = vm::toggleTrails) {
-                                Text(t(if (ui.trailsVisible) "Hide trails" else "Trails"))
-                            }
-                            TextButton(onClick = { showTagPicker = true }) { Text(t("Tag prey")) }
-                        }
+                    }
+                    if (me?.team == Teams.PREY && activePhase && hasLocation && !locationServicesOn) {
+                        Text(
+                            t("Location services are off - turn them on to share your position."),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                        )
                     }
                 }
             }
@@ -1379,7 +1632,7 @@ private fun PhaseCard(
                 target = target,
                 offset = offset,
                 prefix = "${t("Hunting.")} ",
-                suffix = " Â· ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
+                suffix = " · ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
             )
             Phases.PAUSED -> Text(
                 t("The hunt is paused. The clock is stopped."),
@@ -1408,6 +1661,16 @@ private fun PhaseCard(
 
         if (isAdmin && state.room.status == "lobby") {
             val blockers = startBlockers(state)
+            // The explanation belongs NEXT TO the disabled button: in the previous layout
+            // it sat below "Hunt rules", off the first screen (human review finding).
+            if (blockers.isNotEmpty()) {
+                Text(
+                    "${t("Before you can start")}: ${blockers.joinToString(" · ")}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.fillMaxWidth().testTag("start_blockers"),
+                )
+            }
             Button(
                 onClick = onStart,
                 enabled = blockers.isEmpty() && !busy,
@@ -1424,13 +1687,6 @@ private fun PhaseCard(
                 Icon(Icons.Outlined.Tune, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(t("Hunt rules"))
-            }
-            if (blockers.isNotEmpty()) {
-                Text(
-                    blockers.joinToString(" - "),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
             }
         }
 
@@ -1542,8 +1798,10 @@ private fun startBlockers(state: RoomState): List<String> {
     val hunters = state.members.count { it.team == Teams.HUNTERS }
     if (prey == 0) blockers += t("No prey yet")
     if (hunters == 0) blockers += t("No hunters yet")
-    val notReady = state.members.count { !it.ready }
-    if (notReady > 0) blockers += "$notReady ${t("still gearing up")}"
+    val notReady = state.members.filter { !it.ready }
+    if (notReady.isNotEmpty()) {
+        blockers += "${t("Waiting for")} ${notReady.joinToString(", ") { it.username }} ${t("to ready up")}"
+    }
     return blockers
 }
 

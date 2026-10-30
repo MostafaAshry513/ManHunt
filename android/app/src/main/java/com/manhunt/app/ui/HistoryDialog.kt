@@ -40,6 +40,8 @@ import java.util.Locale
 fun HistoryDialog(
     matches: List<MatchHistoryEntry>,
     loading: Boolean = false,
+    /** Non-null when loading the history failed; shown instead of the empty state. */
+    error: String? = null,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -66,6 +68,8 @@ fun HistoryDialog(
                         Spacer(Modifier.width(ManHuntSpacing.sm))
                         Text(t("Loading match history..."), style = MaterialTheme.typography.bodySmall)
                     }
+                    // A failed load must not masquerade as "No hunts in this room yet.".
+                    error != null -> ErrorBanner(error)
                     matches.isEmpty() -> EmptyState(
                         icon = Icons.Outlined.History,
                         title = t("No hunts in this room yet."),

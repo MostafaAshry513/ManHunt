@@ -46,6 +46,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -86,15 +89,23 @@ fun SettingsScreen(onBack: () -> Unit) {
                 containerColor = MaterialTheme.colorScheme.surface,
             ) {
                 SettingsTab.entries.forEachIndexed { index, entry ->
+                    // t() is @Composable; resolve the label before the non-composable
+                    // semantics lambda so the accessibility label can be set there too.
+                    val label = t(entry.label)
                     Tab(
                         selected = tab == index,
                         onClick = { tab = index },
+                        text = { Text(label, maxLines = 1) },
                         icon = {
                             Icon(
                                 entry.icon,
-                                contentDescription = t(entry.label),
+                                contentDescription = null,
                                 modifier = Modifier.padding(vertical = 2.dp),
                             )
+                        },
+                        modifier = Modifier.semantics {
+                            contentDescription = label
+                            selected = tab == index
                         },
                     )
                 }
@@ -215,7 +226,11 @@ private fun UpdateTab() {
         mutableStateOf(manager.pendingApk(com.manhunt.app.BuildConfig.VERSION_CODE))
     }
     var status by remember { mutableStateOf<String?>(null) }
-    var busy by remember { mutableStateOf(false) }
+    // One flag per action: the two buttons are independent, so pressing "Check for
+    // updates" must not make "Download update" look busy as well.
+    var checking by remember { mutableStateOf(false) }
+    var downloading by remember { mutableStateOf(false) }
+    val anyBusy = checking || downloading
     val downloadProgress by manager.progress.collectAsState()
 
     ScreenCard(title = t("Updates"), icon = Icons.Outlined.SystemUpdate) {
@@ -224,9 +239,9 @@ private fun UpdateTab() {
             style = MaterialTheme.typography.bodyMedium,
         )
         PrimaryButton(
-            text = t("Check for updates"),
+            text = if (checking) t("Checking...") else t("Check for updates"),
             onClick = {
-                busy = true
+                checking = true
                 status = null
                 scope.launch {
                     runCatching { repo.latestUpdate() }
@@ -238,12 +253,14 @@ private fun UpdateTab() {
                                 translate("You are up to date", repo.language.value)
                             }
                         }
-                        .onFailure { status = it.message }
-                    busy = false
+                        .onFailure {
+                            status = translate("Could not check for updates. Check your connection and try again.", repo.language.value)
+                        }
+                    checking = false
                 }
             },
-            enabled = !busy,
-            loading = busy,
+            enabled = !anyBusy,
+            loading = checking,
         )
 
         latest?.let { update ->
@@ -259,7 +276,7 @@ private fun UpdateTab() {
                     PrimaryButton(
                         text = t("Download update"),
                         onClick = {
-                            busy = true
+                            downloading = true
                             status = null
                             scope.launch {
                                 runCatching { manager.download(update) }
@@ -267,12 +284,14 @@ private fun UpdateTab() {
                                         downloaded = it
                                         status = translate("Verified. Tap Install update.", repo.language.value)
                                     }
-                                    .onFailure { status = it.message }
-                                busy = false
+                                    .onFailure {
+                                        status = translate("Download failed. Check your connection and try again.", repo.language.value)
+                                    }
+                                downloading = false
                             }
                         },
-                        enabled = !busy,
-                        loading = busy,
+                        enabled = !anyBusy,
+                        loading = downloading,
                     )
                 }
             }
@@ -318,7 +337,7 @@ private fun UpdateTab() {
             Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Text(
-            t("Updates install over the current app (same signing key); Android will ask you to confirm once."),
+            t("Updates install over the current app. Android will ask you to confirm once."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

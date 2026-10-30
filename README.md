@@ -1,143 +1,230 @@
 # ManHunt
 
-ManHunt is a real-world game of hide-and-seek for Android. **Prey** hide while their phones
-report periodic GPS positions; **Hunters** follow those positions on a map and tag prey by
-physically touching them. A Node.js server is authoritative: it owns timers, teams, tags,
-location visibility and chat, so clients can restart or lose signal safely.
+**Real-world hide-and-seek for Android.** Prey hide in the real world while their phones report
+their GPS positions; Hunters follow those positions on a live map and tag prey by physically
+touching them. The server is authoritative — it owns timers, teams, tags, location visibility and
+chat — so a phone can lose signal or restart without breaking the game.
+
+[![CI](https://github.com/MostafaAshry513/ManHunt/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/MostafaAshry513/ManHunt/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/MostafaAshry513/ManHunt?label=release)](https://github.com/MostafaAshry513/ManHunt/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## Screenshots
 
-| Chat (dark) | Chat (Arabic, RTL) |
+| Sign in | Chat (dark) | Chat (Arabic, RTL) |
+|---|---|---|
+| ![Sign in](docs/screenshots/01-auth.png) | ![Chat in dark mode](docs/screenshots/02-chat-dark.png) | ![Arabic RTL chat](docs/screenshots/03-chat-arabic-rtl.png) |
+
+![Hunting map with zone, trail and prey markers](docs/screenshots/04-hunting-map.png)
+
+Screenshots are captured from the real Compose UI (Robolectric screenshot tests or the CI
+emulator) and uploaded as CI artifacts. Map tiles come from OpenStreetMap at runtime and need
+network access; a render captured without network shows a blank tile layer.
+
+## Download and install
+
+**Fastest: the [install page](http://74.208.99.178/) — it always serves the latest signed APK
+with its SHA-256.** You can also take the release straight from GitHub:
+
+| Source | Link |
 |---|---|
-| ![Chat in dark mode](docs/screenshots/02-chat-dark.png) | ![Arabic RTL chat](docs/screenshots/03-chat-arabic-rtl.png) |
+| Install page (hosted test server) | <http://74.208.99.178/> |
+| GitHub release | [v0.9.0 release notes](https://github.com/MostafaAshry513/ManHunt/releases/latest) |
+| Direct APK | [manhunt-v0.9.0.apk](https://github.com/MostafaAshry513/ManHunt/releases/download/v0.9.0/manhunt-v0.9.0.apk) |
+| Checksum | [manhunt-v0.9.0.apk.sha256](https://github.com/MostafaAshry513/ManHunt/releases/download/v0.9.0/manhunt-v0.9.0.apk.sha256) |
 
-![Hunting map with zone and trail](docs/screenshots/04-hunting-map.png)
+- **Requires Android 8.0 (API 26) or newer**; about 14 MB. The release APK is a signed
+  `assembleRelease` build produced and signed by GitHub Actions.
+- ManHunt is **not on Google Play**. Install it as a sideloaded APK:
+  1. Download the APK on the phone.
+  2. Open it and confirm; Android will ask you to allow installs from unknown sources for the
+     app you downloaded from (Settings → Apps → Special app access → Install unknown apps).
+  3. Install, then open ManHunt. Play Protect may warn about an app installed from a browser —
+     that is normal for sideloaded apps; choose "Install anyway" only if you trust this repo.
+  4. Create a local account and play — no email address is required.
+- **In-app updates:** Settings → Updates checks the server's update channel, shows the new
+  version, downloads the APK and verifies its SHA-256 before offering to install. Release
+  builds are pointed at the hosted server out of the box.
 
-All images are rendered from the real Compose UI by `ScreenshotTest` / `GameScreenshotTest`
-(Robolectric). The hunting view is the production `MatchMap` composable with a zone, a
-reported trail, prey markers and OSM attribution; base map tiles are not downloaded in the
-headless renderer, so the tile layer is blank in this capture.
+> **Test deployment, plain HTTP.** The hosted server and install page are a public test
+> deployment served over plain HTTP (no TLS). Session tokens and GPS positions are not
+> encrypted in transit. Use it for test games only — see [Status and limitations](#status-and-limitations).
 
-## Download
+## Quick start
 
-The installable APK is published on the [Releases](https://github.com/MostafaAshry513/ManHunt/releases)
-page for every tagged version. Debug builds are unsigned for Play, but install fine on a phone.
+### Play on the hosted server
+
+1. Install the APK on two or more Android phones (see above). They are already pointed at
+   `http://74.208.99.178`.
+2. Open the app, create an account on each phone (username 3–24 letters/digits/underscore,
+   password 8+ characters), then on one phone tap **Host a hunt** → **Create hunt**.
+3. On the other phones tap **Join a hunt**, enter the 6-character room code, choose a side
+   (**Prey** or **Hunters**) and tap **Ready to hunt**.
+4. The host opens **Hunt rules** (head start, duration, report interval, trails, zone) and taps
+   **Begin the hunt**. Prey enable GPS and hide; Hunters track them. Tag by tapping the prey
+   when you are physically close — the prey confirms or disputes.
+5. The match ends on the timer (Prey win if anyone survives) or when every prey has been tagged
+   (Hunters win). History is in the room, and the hunt can be started again as a rematch.
+
+### Self-host the server
+
+The backend is one Node.js process using the built-in `node:sqlite`; there is no database
+server, Docker or external dependency.
+
+```bash
+git clone https://github.com/MostafaAshry513/ManHunt.git
+cd ManHunt/server
+npm ci
+npm start          # listens on http://127.0.0.1:8080
+```
+
+To accept phones on your network, bind all interfaces and point the app at it:
+
+```bash
+# macOS / Linux / Git Bash
+HOST=0.0.0.0 npm start
+
+# Windows PowerShell
+$env:HOST = '0.0.0.0'; npm start
+```
+
+On the sign-in screen tap the **Server** row, enter `http://<your-machine-LAN-IP>:8080`, tap
+**Save server**, then sign in. The debug APK defaults to `http://10.0.2.2:8080` (the host from an
+emulator). Changing the server signs you out.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PORT` | `8080` | HTTP/WebSocket port |
+| `HOST` | `127.0.0.1` | Bind address; `0.0.0.0` for phones on the network |
+| `DB_PATH` | `server/data/manhunt.db` | SQLite file |
+| `SESSION_DAYS` | `30` | Login token lifetime |
+| `LOCATION_RETENTION_DAYS` | `30` | Precise GPS history retention |
+| `PUBLIC_URL` | *(empty)* | Public base URL shown on the install page |
+
+For an internet-facing deployment, read [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and
+[docs/RUNBOOK.md](docs/RUNBOOK.md) first — the hosted server is a small single-instance setup,
+not a production service.
+
+## Features
+
+- **Server-authoritative gameplay.** Timers, phases, teams, tag outcomes and victory are decided
+  and persisted on the server; the app only sends intents. Clients cannot fake a tag or a phase.
+- **Live hunter map.** Prey positions, an optional movement trail and the hunt zone on an
+  OpenStreetMap map (osmdroid). Positions are visible only to Hunters during the hunting phase —
+  never to Prey, and Admins get no extra location power.
+- **Durable tag claims (v0.9.0).** A tag request is stored on the server, so the Prey still sees
+  it after a reconnect. If it is not confirmed, disputed or resolved within 90 seconds it becomes
+  a dispute the Huntmaster must settle.
+- **Tag flow with fair resolution.** Hunter claims → Prey confirms or disputes → Huntmaster
+  resolves a dispute. Duplicate claims are rejected or idempotent; elimination cannot double-apply.
+- **Match controls.** Head start, pause/resume (the match clock is frozen and shifted, so no time
+  is lost), end early/cancel, rematch, and match history in the room.
+- **Zones and shrink.** Open play or a circular zone, optionally shrinking step by step, with a
+  countdown shown to players.
+- **Chat and localization.** Room chat plus system messages; English and Arabic with full RTL,
+  dark theme by default and adjustable text size.
+- **In-app updater.** Checks the server's update manifest, downloads the APK and verifies its
+  SHA-256 before installing.
+- **Self-hostable.** One Node process, one SQLite file, no Docker, no external database, no paid
+  map or push services.
+
+## Status and limitations
+
+The project is an **active hobby project at v0.9.0**, not a polished consumer product. What is
+verified in CI on every push:
+
+- **Backend:** TypeScript typecheck, the full `node --test` suite (auth, rooms, match lifecycle,
+  tags, locations, history, security), plus a live HTTP + WebSocket smoke test and a three-player
+  match simulation against a running server.
+- **Android:** debug build, Robolectric/JVM unit tests, Android lint, and an in-app test on a real
+  Android emulator.
+- **Releases:** every tag is built and signed by GitHub Actions; each release ships the APK and a
+  `.sha256` checksum, and the hosted install page/update channel serves the same signed APK.
+
+Still true and worth knowing:
+
+1. **No TLS on the hosted deployment.** It is plain HTTP at a bare IP: there is no domain and no
+   certificate. Session tokens and location data are unencrypted in transit. Do not use the hosted
+   server for real sensitive location data; self-host behind HTTPS if you need that.
+2. **The hosted server is a test server.** It is a single VM with SQLite and no availability
+   guarantee; its data may be wiped. There is no account recovery — no email is collected, so a
+   forgotten password means creating a new account.
+3. **Location privacy needs trusted players.** GPS is shared only with the Hunters in your room
+   during a match, and the foreground tracking service shows a notification, but the game is
+   still about broadcasting your location to other people. Play with people you trust. ManHunt is
+   a game, **not a safety service**.
+4. **Zone boundaries are not enforced server-side.** A player can physically leave the zone; the
+   shrink countdown is informational only, and there is no separate "zone shrinking soon" alert.
+5. **Match history rosters use current room membership**, not a per-match snapshot.
+6. **Not on Google Play.** Sideloading means "unknown sources" and possible Play Protect warnings,
+   and no store-managed updates.
+7. **The current build is verified on an Android emulator**, not re-verified on physical phones
+   (the last on-device verification was an earlier version). Real GPS battery behaviour in the
+   field is therefore not guaranteed.
+
+Planned next: TLS/domain in front of the public deployment, Play Store distribution, server-side
+zone enforcement, and per-match history rosters.
+
+## Requirements
+
+- **To play:** an Android 8.0+ phone with GPS and a network connection (about 14 MB free).
+- **To self-host:** Node.js 24 or newer. That is the whole runtime — no database server, no
+  Docker, no reverse proxy required for a small game.
+- **To build the Android app:** JDK 21 and Android SDK platform 37 / build-tools 36. Android
+  Studio is optional; the Gradle wrapper and CI do the work. See
+  [docs/TESTING.md](docs/TESTING.md).
 
 ## Repository layout
 
 ```
 ManHunt/
-|-- android/        Kotlin + Jetpack Compose app (OkHttp REST/WS, osmdroid, location service)
-|-- server/         Fastify REST + WebSocket API, SQLite; src/, test/, scripts/
-|-- docs/           Architecture, API reference, testing, security, deployment, runbook
-|-- scripts/deploy/ Windows scheduled-task, backup and healthcheck helpers
-`-- .github/        CI workflow (committed; not verified on this host)
+|-- android/        Kotlin + Jetpack Compose app (osmdroid map, foreground location service)
+|-- server/         Node.js + Fastify REST/WebSocket API, SQLite (node:sqlite), tests, scripts
+|-- docs/           Architecture, API reference, operations and quality docs (start at docs/README.md)
+|-- scripts/        CI APK publisher and Windows deployment/device helpers
+`-- .github/        GitHub Actions: CI (server, Android, emulator) and tag-driven signed releases
 ```
 
-## Prerequisites
+## Development and testing
 
-| Tool | Version used | Path on this machine |
-|---|---|---|
-| JDK | Temurin 21 | `C:\Android\jdk-21` |
-| Android SDK | Platform 37, Build-Tools 36 | `C:\Android\Sdk` |
-| Node.js | 24 (native TypeScript, no build step) | on `PATH` |
+Run backend commands from `server/` and Android commands from `android/`. The smoke and
+simulation scripts need a server already listening on the URL you pass them.
 
-The Android scripts set `JAVA_HOME`; `android/local.properties` points at the SDK. Android Studio is not required.
-
-## Backend
-
-```powershell
-cd C:\dev\ManHunt\server
+```bash
+# Backend
+cd server
 npm ci
-npm test
-npm start
+npm run typecheck
+npm test                                          # node --test suite
+node scripts/smoke.mjs http://127.0.0.1:8080      # live HTTP + WebSocket checks
+node scripts/match-sim.mjs http://127.0.0.1:8080  # scripted 3-player match
+
+# Android (Gradle wrapper; on Windows you can also use .\build.ps1, .\test.ps1, .\install.ps1)
+cd ../android
+./gradlew :app:assembleDebug
+./gradlew :app:testDebugUnitTest
+./gradlew :app:lintDebug
 ```
 
-The server listens on `http://127.0.0.1:8080` and stores SQLite data in `server\data\manhunt.db`.
-For phones, bind all interfaces: `$env:HOST = '0.0.0.0'; npm start`.
-
-| Variable | Default | Meaning |
-|---|---|---|
-| `PORT` | `8080` | HTTP/WebSocket port |
-| `HOST` | `127.0.0.1` | Bind address; use `0.0.0.0` for a phone on the LAN |
-| `DB_PATH` | `server\data\manhunt.db` | SQLite file |
-| `SESSION_DAYS` | `30` | Login token lifetime |
-| `LOCATION_RETENTION_DAYS` | `30` | Precise GPS history retention |
-
-### Verified checks
-
-Run backend commands from `server\` and Android commands from `android\`; the two `node scripts/*.mjs` checks need a server already running.
-
-| Command | Verified result | What it proves |
-|---|---|---|
-| `npm test` | 45/45 pass | Domain rules, auth, rooms, match lifecycle, tags, history, security (`node --test` + `fastify.inject`) |
-| `npx tsc --noEmit` | clean | TypeScript type gate (Node runs the `.ts` files directly) |
-| `node scripts/smoke.mjs` | 11 checks | Live HTTP + WebSocket: health, registration, room, start, hunter-only location push, chat |
-| `node scripts/match-sim.mjs` | 13 checks | Three simulated players: pause/resume, live location, tag + confirm, spectator lockout, history, reconnect |
-| `.\test.ps1` (Android) | 21/21 pass | JVM + Robolectric tests; no emulator or device needed |
-
-Both scripts default to `http://127.0.0.1:8080`; pass another base URL, e.g. `node scripts/smoke.mjs http://127.0.0.1:8123`.
-
-## Android
-
-```powershell
-cd C:\dev\ManHunt\android
-.\build.ps1      # debug APK
-.\test.ps1       # JVM tests (fast, no device)
-.\install.ps1    # install + launch on a connected phone
-```
-
-APK: `android\app\build\outputs\apk\debug\app-debug.apk`; test report: `android\app\build\reports\tests\testDebugUnitTest\index.html`.
-`install.ps1` needs a device: enable Developer options > Wireless debugging, run `adb pair <ip:port>` once, `adb connect <ip:port>`, then `.\install.ps1`. No usable emulator here (no nested virtualisation).
-
-**Pointing the app at a server:** on the sign-in screen tap **Server: http://10.0.2.2:8080**, enter the URL
-and tap **Save server**. Use `http://10.0.2.2:8080` only from an emulator; on a real phone use the PC's LAN
-address, e.g. `http://192.168.1.20:8080`. Changing it signs you out.
-
-## Playing a match with two phones
-
-1. On the PC run the backend with `$env:HOST='0.0.0.0'`; if Windows Firewall prompts, allow Node on the private network.
-2. Connect both phones to the same Wi-Fi, install the APK, and set the same server URL.
-3. Register one account per phone (username 3-24 letters/numbers/underscore, password 8+).
-4. Phone A: **Create room** and share the 6-character code. Phone B: enter the code and **Join room**.
-5. Pick teams (at least one Prey and one Hunter) and both tap **I'm ready**.
-6. Admin (phone A) opens **Match settings** (head start defaults to 5 minutes) and taps **Start match**.
-7. The Prey taps **Enable GPS** and grants permission so the foreground service reports positions; the Hunter follows the map.
-8. When physically touching a prey, the Hunter taps **Tag prey** and picks the player; the Prey confirms or disputes.
-9. The match ends at the timer (Prey win if anyone survives) or when all prey are tagged (Hunters win). History is in the room.
-
-## Status and limitations
-
-Implemented and exercised: backend auth, rooms, teams, readiness, head start, hunting, pause/resume,
-tagging with confirm/dispute/admin resolve, location tracking with validation and flags, zone +
-shrink computation, chat, match history, and the Android client for the core game loop.
-
-Honest gaps as of 2026-10-29:
-
-- **No emulator and no phone attached on this host.** Real GPS fixes, foreground-service behaviour, map tile rendering and two-phone UX are implemented but unverified on hardware.
-- **Public HTTPS is not verified.** There is no domain, TLS certificate or inbound firewall rule; the server remains local/LAN only. See `docs/DEPLOYMENT.md`.
-- **Debug builds use cleartext HTTP** (`usesCleartextTraffic=true`). Tokens and locations are unencrypted; use only on a trusted LAN, never on the public internet.
-- **Rematch bug:** a finished match does not clear eliminated players, so after all prey were
-  tagged the next **Start match** is rejected (`cannot_start`). Start a new room (or have the
-  tagged prey leave and rejoin) until this is fixed.
-- The Android UI has no End-match or resolve-dispute button yet; those REST endpoints exist and
-  are covered by backend tests. Zone shrink `warningSec` is stored but no warning is emitted, and zone
-  boundaries are not enforced server-side. Match history rosters use current membership, not a per-match snapshot.
-- CI (`.github/workflows/ci.yml`) is committed but not verified here: this host has no GitHub authentication.
+CI (`.github/workflows/ci.yml`) runs all of the above against every push, including the emulator
+in-app test; the release workflow (`.github/workflows/release.yml`) builds and signs the APK for
+every `v*` tag. Current commands and coverage are documented in [docs/TESTING.md](docs/TESTING.md).
 
 ## Documentation
 
-All project docs live in [docs/](docs/). Highlights:
+Start at the [documentation index](docs/README.md) for a guide by audience (`Start here`,
+`Operations`, `Quality`, and the historical archive). Highlights:
 
-- [Architecture](docs/ARCHITECTURE.md) - components, state machine, data model, contracts
-- [API reference](docs/API.md) - every REST endpoint, WebSocket event, settings and phases
-- [Environment](docs/ENVIRONMENT.md) - exact toolchain and host-specific fixes
-- [Testing](docs/TESTING.md) - what was executed and what remains unverified
-- [Security](docs/SECURITY.md) | [Security review](docs/SECURITY_REVIEW.md)
-- [Deployment](docs/DEPLOYMENT.md) | [Runbook](docs/RUNBOOK.md)
-- [Decisions](docs/DECISIONS.md) | [Implementation plan](docs/IMPLEMENTATION_PLAN.md)
-- [Research](docs/RESEARCH.md) | [Android build notes](android/README.md)
+- [Architecture](docs/ARCHITECTURE.md) — components, match state machine, data model, API/WS
+  contracts, security boundaries
+- [API reference](docs/API.md) — every REST endpoint and WebSocket event, settings, phases
+- [Decisions](docs/DECISIONS.md) — architecture decision records
+- [Deployment](docs/DEPLOYMENT.md) | [Runbook](docs/RUNBOOK.md) — self-hosting and operations
+- [Security](docs/SECURITY.md) | [Testing](docs/TESTING.md) | [Performance](docs/PERF.md)
+- [Customization](docs/CUSTOMIZATION.md) — themes, languages, server address, forking
+- [Contributing](CONTRIBUTING.md)
 
 ## License
 
-MIT � see [LICENSE](LICENSE). Third-party skill files keep their own licenses (Apache-2.0, MIT, CC BY-SA 4.0) in `.opencode/skills/`.
+MIT — see [LICENSE](LICENSE). Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright)
+(ODbL); third-party Android/Node dependencies keep their own licenses.

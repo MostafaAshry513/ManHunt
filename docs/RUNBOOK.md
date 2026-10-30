@@ -2,11 +2,11 @@
 
 Operational procedures for the ManHunt backend on the Windows Server 2022 host.
 
-> **Current status:** the backend is local-only at `http://127.0.0.1:8080`.
-> Public exposure is **blocked on authorization** to open an inbound port / install a
-> tunnel, and on **a domain** (none is configured). There is no TLS certificate and no
-> reverse proxy. Nothing in `scripts/deploy` opens a firewall port or changes
-> machine-wide security settings.
+> **Current status:** the backend runs as the `ManHuntServer` scheduled task on
+> `127.0.0.1:8080` and is publicly reachable as a **plain-HTTP test deployment** at
+> <http://74.208.99.178/> through a Caddy reverse proxy on port 80 (no domain, no TLS:
+> Caddy runs with `auto_https off`). GitHub CI and tag-driven signed releases are live.
+> This is a test service: no availability guarantee, and its data may be reset.
 
 All commands below are Windows PowerShell 5.1 compatible and assume an **elevated**
 session (`Run as administrator`) where task registration or removal is involved.
@@ -23,7 +23,8 @@ session (`Run as administrator`) where task registration or removal is involved.
 | Backups | `C:\dev\ManHunt\backups` |
 | Task name | `ManHuntServer` |
 | Node | `C:\Program Files\nodejs\node.exe` (24+) |
-| Listener | `127.0.0.1:8080` |
+| Backend listener | `0.0.0.0:8080` as installed (`-ListenHost 0.0.0.0`); `127.0.0.1` is sufficient behind the proxy |
+| Public entry point | Caddy on port 80 (HTTP only) -> `127.0.0.1:8080`; config at `C:\ProgramData\caddy\Caddyfile` |
 
 The task runs as `NT AUTHORITY\SYSTEM` and starts at boot. Its launcher
 (`run-server.ps1`) restarts Node after a non-zero exit, waiting 10 seconds by default
@@ -114,6 +115,9 @@ Expected response:
 {"ok":true,"now":1793233013194,"service":"manhunt","version":"0.1.0"}
 ```
 
+The `version` field is a static server constant and does not track the Android app version; the
+install page reads the real app version from the published update manifest.
+
 ## Logs
 
 ```powershell
@@ -189,9 +193,10 @@ behind. If health fails, stop the task and restore the `.pre-restore-*` copy.
 
 ## Update
 
-There is no git remote and no GitHub authentication on this host, so `git pull` only
-works if a remote is added and credentials are available. Otherwise copy the reviewed
-build from the source machine.
+The repository has a GitHub remote and the host is authenticated with the GitHub CLI
+(`MostafaAshry513`), and CI is live, so a normal update is: fetch, verify, restart. The Android
+APK is not built on this host — GitHub Actions builds and signs it, and
+`scripts/ci/pull-latest-apk.ps1` publishes the release to the install page.
 
 ```powershell
 Set-Location C:\dev\ManHunt
@@ -200,7 +205,7 @@ Set-Location C:\dev\ManHunt
 Stop-ScheduledTask -TaskName ManHuntServer
 
 git status --short
-git pull --ff-only            # only if a remote exists
+git pull --ff-only
 
 Set-Location C:\dev\ManHunt\server
 npm ci
@@ -212,11 +217,14 @@ Start-ScheduledTask -TaskName ManHuntServer
 powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -File C:\dev\ManHunt\scripts\deploy\healthcheck.ps1 -Port 8080
 $LASTEXITCODE
+
+# Publish the newest signed release APK + update manifest to the install page
+.\scripts\ci\pull-latest-apk.ps1
 ```
 
-Do not start the task if typecheck or tests fail. CI is defined in
-`.github/workflows/ci.yml` but **has not been run** on this host (no GitHub auth);
-local commands above are the source of truth.
+Do not start the task if typecheck or tests fail. CI (`.github/workflows/ci.yml`) runs the same
+gates on every push plus the Android build and emulator test; the local commands above are the
+fast pre-flight. If the update changes the database schema, take the backup before pulling.
 
 ## Rollback
 
@@ -239,11 +247,12 @@ Restore procedure; an older binary must not be pointed at a newer schema. Verify
 
 ## Certificate renewal (PLACEHOLDER)
 
-**No TLS terminator is installed and no certificate exists.** This section is a
-placeholder for the eventual approved setup; the commands below are illustrative and
-have not been executed. Public HTTPS remains blocked on authorization and a domain.
+**No TLS terminator is installed and no certificate exists.** Caddy currently proxies plain HTTP
+on port 80 with `auto_https off`; there is no domain, so no certificate can be issued yet. This
+section is a placeholder for the eventual domain + TLS setup described in
+[DEPLOYMENT.md](DEPLOYMENT.md); the commands below are illustrative and have not been executed.
 
-After a TLS proxy is approved and installed, renewal will depend on the chosen tool.
+After a TLS proxy is approved and a domain is configured, renewal will depend on the chosen tool.
 Replace this placeholder with the verified command for that tool:
 
 ```powershell
@@ -288,5 +297,6 @@ and Task Scheduler event history.
   observe it restart the task after the child process was force-killed. The
   launcher's internal restart loop is the tested recovery mechanism.
 - `/health` only proves the process is alive and SQLite answers `SELECT 1`.
-- There is no TLS, reverse proxy, domain, or inbound firewall rule. Public exposure is
-  not authorized and must not be inferred from this document.
+- There is no TLS, domain or certificate: the public site is a plain-HTTP test deployment.
+  The backend is installed listening on `0.0.0.0:8080`; binding it to `127.0.0.1` and exposing
+  only the reverse proxy is the recommended hardening step.

@@ -4,14 +4,17 @@
 
 ```
 Android app (Kotlin/Compose)          Backend (Node 24/Fastify)              Storage
-┌──────────────────────────┐   HTTPS  ┌──────────────────────────────┐      ┌─────────┐
+┌──────────────────────────┐   HTTP   ┌──────────────────────────────┐      ┌─────────┐
 │ Compose UI / ViewModels  │ ───────► │ REST /api/*                  │ ───► │ SQLite  │
 │ Repository               │          │ Auth (opaque tokens)         │      │  (WAL)  │
-│  ├─ OkHttp REST          │   WSS    │ RoomService (authoritative)  │      └─────────┘
+│  ├─ OkHttp REST          │    WS    │ RoomService (authoritative)  │      └─────────┘
 │  └─ OkHttp WebSocket     │ ◄──────► │ Hub (room-scoped broadcast)  │
 │ Foreground location svc  │          │ Tick loop (1 s reconcile)    │
 └──────────────────────────┘          └──────────────────────────────┘
 ```
+
+Protocols are cleartext `http`/`ws` in the current public test deployment (a TLS reverse proxy is
+a planned hardening step, not a current feature); self-hosters can put HTTPS/WSS in front.
 
 The server is the only authority. Clients send intents; the server validates, persists and
 broadcasts the resulting state.
@@ -48,7 +51,7 @@ computedPhase(match, now):
 | `room_members` | (room,user) team, ready, eliminated, joined_at |
 | `matches` | status, start/head-start/end timestamps, winner, settings, zone origin+radius |
 | `location_reports` | lat/lng/accuracy/recorded_at/received_at/flagged |
-| `tags` | hunter, prey, status(pending/confirmed/disputed/rejected) |
+| `tags` | hunter, prey, status(pending/confirmed/disputed/rejected); unresolved claims are replayed in room state until confirmed, disputed and resolved, or expired into a dispute |
 | `messages` | room chat + system messages |
 | `audit_events` | room, actor, type, JSON payload |
 | `zone_events` | reserved for persisted shrink steps (radius is currently derived) |
@@ -100,7 +103,7 @@ Server -> client:
 | Event | Recipients | Payload |
 |---|---|---|
 | `hello` | the client | userId, username, server time |
-| `room` | room subscribers | full state snapshot (members, phase, timers, zone) |
+| `room` | room subscribers | full state snapshot (members, phase, timers, zone, `pendingTags` unresolved tag claims) |
 | `chat` | room | message or system notice |
 | `prey_location` | hunters only (never an admin who is playing prey) | position report |
 | `tag_request` | the targeted prey | pending tag |
@@ -121,7 +124,7 @@ game correctness.
 7. Rate limits: auth 10/min/IP, room join 20/min/user, chat 10/10 s, tags 10/min.
 8. Passwords and tokens are never logged; only hashes are stored.
 
-## Android structure (target)
+## Android structure
 
 ```
 app/src/main/java/com/manhunt/app/

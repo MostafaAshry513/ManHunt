@@ -51,6 +51,8 @@ import java.time.format.DateTimeFormatter
  * Recomposition contract:
  * - the composer draft lives here (or in the caller's saveable state) instead of the
  *   screen-level ViewModel state, so typing never recomposes the room screen;
+ * - the draft is only cleared once a send reports success. A failed send keeps the
+ *   text in the composer so the player can retry without retyping;
  * - the list follows new messages only when the reader is already near the bottom, and
  *   keeps the visual position when an older page is prepended.
  */
@@ -77,6 +79,25 @@ fun ChatPanel(
     val activeDraft = draft ?: localDraft
     val updateDraft: (String) -> Unit = { value ->
         if (onDraftChange != null) onDraftChange(value) else localDraft = value
+    }
+    // Text handed to the most recent onSend and not yet resolved. The composer keeps it
+    // while the request is in flight; it is cleared only when that send succeeds.
+    var submittedDraft by remember { mutableStateOf<String?>(null) }
+
+    // Runs when a send starts, succeeds or fails (keys, not every keystroke). Clearing
+    // here instead of in onSend is what keeps a failed send retryable: the old code
+    // wiped the field as soon as the request left, losing the message on every error.
+    LaunchedEffect(sending, error) {
+        // Externally hoisted draft: the caller owns the text and clears it itself.
+        if (draft != null) return@LaunchedEffect
+        val submitted = submittedDraft ?: return@LaunchedEffect
+        if (sending) return@LaunchedEffect
+        // The send finished. Clear only on success, and only the text that was actually
+        // sent: anything typed while the request was in flight must survive the result.
+        if (error == null && localDraft.trim() == submitted) localDraft = ""
+        // Stop tracking either way so a later reconcile of an unrelated `error` cannot
+        // clear the composer for a send that already failed.
+        submittedDraft = null
     }
 
     val olderItemCount = if (hasMore && onLoadOlder != null) 1 else 0
@@ -178,9 +199,10 @@ fun ChatPanel(
             onSend = {
                 val text = activeDraft.trim()
                 if (text.isNotEmpty()) {
+                    // Keep the text on screen until the send reports success; the
+                    // LaunchedEffect above clears it only then.
+                    if (draft == null) submittedDraft = text
                     onSend(text)
-                    // The panel owns the draft: clear it as soon as the message is sent.
-                    if (draft == null) localDraft = ""
                 }
             },
         )

@@ -62,6 +62,12 @@ data class AuthUi(
     val serverUrl: String = "",
     /** True after the first submit attempt, so field errors appear inline. */
     val submitted: Boolean = false,
+    /** Result of the last "Test connection" probe; null before the first test. */
+    val serverStatus: String? = null,
+    /** Whether [serverStatus] is a success; null while no result is shown. */
+    val serverStatusOk: Boolean? = null,
+    /** True while a "Test connection" probe is in flight. */
+    val testingServer: Boolean = false,
 )
 
 class AuthViewModel(private val repo: ManHuntRepository) : ViewModel() {
@@ -72,12 +78,54 @@ class AuthViewModel(private val repo: ManHuntRepository) : ViewModel() {
     fun onPassword(value: String) { ui = ui.copy(password = value, error = null) }
     fun toggleMode() { ui = ui.copy(register = !ui.register, error = null, submitted = false) }
     fun toggleServer() { ui = ui.copy(showServer = !ui.showServer) }
-    fun onServerUrl(value: String) { ui = ui.copy(serverUrl = value) }
+
+    fun onServerUrl(value: String) {
+        // A verdict for the previous address must not outlive the edit.
+        ui = ui.copy(serverUrl = value, serverStatus = null, serverStatusOk = null)
+    }
 
     fun saveServer() {
         if (ui.serverUrl.isBlank()) return
         repo.setServerUrl(ui.serverUrl)
-        ui = ui.copy(serverUrl = repo.serverUrl, showServer = false, error = null)
+        ui = ui.copy(
+            serverUrl = repo.serverUrl,
+            showServer = false,
+            error = null,
+            serverStatus = null,
+            serverStatusOk = null,
+        )
+    }
+
+    /**
+     * Probes the configured server with the public update manifest. GET /api/app/latest
+     * needs no auth token, so it verifies the address before sign-in; any failure reads
+     * as "not responding" in the card instead of crashing the screen on a dead server.
+     */
+    fun testServer() {
+        if (ui.testingServer) return
+        val configured = repo.serverUrl
+        ui = ui.copy(testingServer = true, serverStatus = null, serverStatusOk = null)
+        viewModelScope.launch {
+            val reachable = runCatching { repo.latestUpdate() }.isSuccess
+            // The address changed while the probe was in flight: a verdict for the old
+            // server would be misleading, so only stop the spinner.
+            if (repo.serverUrl != configured) {
+                ui = ui.copy(testingServer = false)
+                return@launch
+            }
+            ui = ui.copy(
+                testingServer = false,
+                serverStatusOk = reachable,
+                serverStatus = translate(
+                    if (reachable) {
+                        "Server is reachable"
+                    } else {
+                        "Server did not respond. Check the address."
+                    },
+                    repo.language.value,
+                ),
+            )
+        }
     }
 
     fun submit() {
@@ -206,8 +254,8 @@ fun AuthScreen() {
             }
 
             ScreenCard(
-                title = t("Server:"),
-                subtitle = t("Use your PC's LAN IP on a real phone, or 10.0.2.2 on an emulator."),
+                title = t("Game server"),
+                subtitle = t("The server your phone connects to."),
                 icon = Icons.Outlined.Wifi,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -242,6 +290,36 @@ fun AuthScreen() {
                             text = t("Save server"),
                             onClick = vm::saveServer,
                             modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+
+                SecondaryButton(
+                    text = t("Test connection"),
+                    onClick = vm::testServer,
+                    enabled = !ui.testingServer,
+                    modifier = Modifier.testTag("auth_test_server"),
+                )
+                if (ui.testingServer) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ManHuntLoader(size = 18.dp)
+                        Spacer(Modifier.width(ManHuntSpacing.sm))
+                        Text(
+                            t("Loading"),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    ui.serverStatus?.let { status ->
+                        Text(
+                            status,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (ui.serverStatusOk == true) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
                         )
                     }
                 }

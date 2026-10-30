@@ -9,17 +9,17 @@
 | Authorization | Every room/match endpoint re-checks membership; admin-only actions verified server-side |
 | Teams | Locked while a match is active; server rejects changes |
 | Location privacy | Role-based: only `hunters` may read prey positions; history additionally requires `trailsEnabled`. Admin rank grants no location power (regression-tested) |
-| Tag integrity | Server decides outcomes; hunter claims need prey confirmation; duplicates idempotent for 60 s; elimination cannot double-apply |
+| Tag integrity | Server decides outcomes; tag claims are stored durably and replayed in room state; prey confirmation/dispute is required; a claim unresolved for 90 s becomes a huntmaster dispute; duplicates for the same prey are rejected (409) and same-hunter retries are idempotent; elimination cannot double-apply |
 | Timers/phases | Derived from persisted server timestamps; clients cannot influence them |
 | Input validation | zod schemas + domain validation; coordinates, accuracy and timestamps bounded |
 | Anti-cheat heuristics | Implied-speed > 55 m/s or accuracy > 500 m flags a report (stored, audited, surfaced; never auto-penalised) |
 | Abuse limits | auth 10/min/IP, join 20/min/user, chat 10/10 s, tags 10/min; 256 KB body cap |
 | Logging | No coordinates in logs; `/ws` request logging suppressed so the session token in the query string is not written to disk |
-| Secrets | None in source; configuration via environment (`PORT`, `HOST`, `DB_PATH`, `SESSION_DAYS`) |
+| Secrets | None in source; configuration via environment (`PORT`, `HOST`, `DB_PATH`, `SESSION_DAYS`, `PUBLIC_URL`); release signing key only in CI secrets |
 
 ## Security review round 1 (2026-10-29)
 
-Independent review (DeepSeek V4 Pro) produced `docs/SECURITY_REVIEW.md`. Confirmed issues
+An independent security review produced [SECURITY_REVIEW.md](SECURITY_REVIEW.md). Confirmed issues
 were fixed in the same pass, each with a regression test where testable:
 
 | Finding | Fix |
@@ -33,26 +33,39 @@ were fixed in the same pass, each with a regression test where testable:
 
 ## Residual risks / known gaps
 
-1. **No TLS yet.** The server binds `127.0.0.1`. Public exposure needs a TLS terminator and
-   an authorized inbound port; until then the Android debug build uses cleartext HTTP.
-2. **WebSocket token in the query string.** Request logging for `/ws` is suppressed, but a
+1. **No TLS on the public test deployment.** `http://74.208.99.178/` is served over plain HTTP
+   behind a reverse proxy, with no domain or certificate. Session tokens, account traffic and GPS
+   positions are unencrypted in transit. The Android app uses cleartext HTTP for both debug and
+   release builds; do not use the hosted server for real sensitive location data. A TLS terminator
+   in front of the server is the next hardening step (see [DEPLOYMENT.md](DEPLOYMENT.md)).
+2. **Server listening broadly.** The installed Windows Scheduled Task binds the backend to
+   `0.0.0.0:8080`; the reverse proxy only needs `127.0.0.1`. Bind loopback and expose only the
+   proxy when hardening.
+3. **WebSocket token in the query string.** Request logging for `/ws` is suppressed, but a
    future reverse proxy must redact query strings.
-3. **CORS is permissive** (`origin: true`). Bearer tokens limit CSRF exposure; restrict
+4. **CORS is permissive** (`origin: true`). Bearer tokens limit CSRF exposure; restrict
    before any browser client ships.
-4. **Session token in plain SharedPreferences.** `allowBackup` is off; keystore-backed
+5. **Session token in plain SharedPreferences.** `allowBackup` is off; keystore-backed
    storage is the next hardening step.
-5. **No account lockout beyond rate limiting**, no verified emails, no MFA.
-6. **GPS spoofing cannot be prevented** on a compromised device; heuristics only flag.
-7. **SQLite single-writer** - correct for one instance, a migration is needed to scale out.
-8. **No automated dependency scanning yet** (a report-only `npm audit` step exists in CI).
+6. **No account recovery and no verified email.** No email address is collected, so a lost
+   password cannot be reset; users create a new account. There is no MFA and no lockout beyond
+   rate limiting.
+7. **GPS spoofing cannot be prevented** on a compromised device; heuristics only flag.
+8. **SQLite single-writer** - correct for one instance, a migration is needed to scale out.
+9. **No automated dependency scanning** (a report-only `npm audit --omit=dev` step runs in CI and
+   is allowed to fail softly; no Dependabot).
 
 ## Secrets handling
 
-- `.env*` and `data/` are gitignored.
-- Android signing keys are not present; only debug builds are produced.
+- `.env*`, `data/`, `keys/` and logs are gitignored.
+- The Android release signing keystore is injected into CI/release jobs from GitHub Actions
+  secrets and is never committed. A local copy under `keys/` is gitignored; anyone with it can
+  sign updates, so treat it as a production secret and never upload it.
 - No credentials are embedded in the APK or the repository.
 
 ## Reporting
 
-If a vulnerability is found, do not open a public issue with exploit details; record it in
-`docs/SECURITY.md` with severity and mitigation status.
+Do not open a public issue with exploit details. Report the issue privately to the maintainer
+(GitHub: [MostafaAshry513](https://github.com/MostafaAshry513)) with steps to reproduce, and allow
+time for a fix before disclosure. Controls and known gaps are listed above so reports can skip
+what is already known.

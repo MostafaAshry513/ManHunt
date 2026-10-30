@@ -114,7 +114,7 @@ private val arabic: Map<String, String> = mapOf(
     "Prey win" to "فازت الفرائس",
     "Zone" to "المنطقة",
     "m" to "م",
-    "Zone shrinks in" to "تتقلص المنطقة خلال",
+    "Zone shrinks in" to "تتقلص المنطقة بعد",
     "Players" to "اللاعبون",
     "Need" to "تحتاج",
     "players" to "لاعبين",
@@ -141,7 +141,7 @@ private val arabic: Map<String, String> = mapOf(
     "Stale" to "قديم",
     "Unverified" to "غير موثّق",
     "Tagged" to "تم وسمه",
-    "Zone shrinks in %02d:%02d" to "تتقلص المنطقة خلال %02d:%02d",
+    "Zone shrinks in %02d:%02d" to "تتقلص المنطقة بعد %02d:%02d",
     "Zone: %d m radius" to "المنطقة: نصف قطر %d م",
 
     // Dialogs
@@ -172,7 +172,7 @@ private val arabic: Map<String, String> = mapOf(
     "Hunters won" to "فاز الصيادون",
     "Prey won" to "فازت الفرائس",
     "Uploaded" to "مرفوع",
-    "Prey are hiding. Hunting starts in" to "الفرائس تختبئ. تبدأ المطاردة خلال",
+    "Prey are hiding. Hunting starts in" to "الفرائس تختبئ. تبدأ المطاردة بعد",
     "Hunting." to "المطاردة.",
     "You were tagged" to "تم وسمك",
     "You are spectating this match. You can still chat, but you cannot tag or share new positions." to
@@ -327,6 +327,69 @@ private val arabic: Map<String, String> = mapOf(
     "Stay safe" to "ابقَ آمنًا",
     "Not a safety service" to "ليست خدمة أمان",
     "I understand and I'll play safely" to "أفهم ذلك وسألعب بأمان",
+
+    // Connection & sharing
+    "Reconnecting…" to "جارٍ إعادة الاتصال…",
+    "Room code copied" to "تم نسخ رمز الغرفة",
+    "Share room" to "مشاركة الغرفة",
+    "Join code" to "رمز الانضمام",
+
+    // Location services
+    "Turn on location" to "تشغيل خدمة الموقع",
+    "Location services are off - turn them on to share your position." to
+        "خدمة الموقع مغلقة - شغّلها لمشاركة موقعك.",
+
+    // Start blockers
+    "Before you can start" to "قبل أن تبدأ",
+    "Waiting for" to "في انتظار",
+    "to ready up" to "ليستعد",
+
+    // Updates
+    "Checking..." to "جارٍ التحقق...",
+    "Could not check for updates. Check your connection and try again." to
+        "تعذّر التحقق من التحديثات. تحقق من اتصالك وحاول مرة أخرى.",
+    "Download failed. Check your connection and try again." to
+        "فشل التنزيل. تحقق من اتصالك وحاول مرة أخرى.",
+    "Updates install over the current app. Android will ask you to confirm once." to
+        "تُثبَّت التحديثات فوق التطبيق الحالي. سيطلب أندرويد التأكيد مرة واحدة.",
+
+    // Match result
+    "Hunt result" to "نتيجة المطاردة",
+    "Hunters win!" to "فاز الصيادون!",
+    "Prey win!" to "فازت الفرائس!",
+    "Hunt over" to "انتهت المطاردة",
+    "Winner" to "الفائز",
+    "Play again" to "العب مرة أخرى",
+    "View hunt history" to "عرض سجل المطاردات",
+    "Back to lobby" to "العودة إلى غرفة الانتظار",
+
+    // Zone picker
+    "Pick on map" to "اختر من الخريطة",
+    "Tap the map to place the zone centre" to "المس الخريطة لتحديد مركز المنطقة",
+    "Drag to move the map, tap to set the centre" to "اسحب لتحريك الخريطة، والمس لتحديد المركز",
+    "Zone centre set" to "تم تحديد مركز المنطقة",
+    "Zone centre not set" to "لم يتم تحديد مركز المنطقة",
+
+    // Server connection
+    "Game server" to "خادم اللعبة",
+    "The server your phone connects to." to "الخادم الذي يتصل به هاتفك.",
+    "Test connection" to "اختبار الاتصال",
+    "Server is reachable" to "الخادم متاح",
+    "Server did not respond. Check the address." to "الخادم لا يستجيب. تحقق من العنوان.",
+
+    // Tags & notifications
+    "Who did you tag?" to "من الذي وسمته؟",
+    "Enable notifications to hear about tags, match start and the result." to
+        "فعّل الإشعارات لتصلك تنبيهات الوسم وبدء المطاردة والنتيجة.",
+    "Tag claim from" to "ادعاء وسم من",
+    "The hunt has started" to "بدأت المطاردة",
+    "The hunt is over" to "انتهت المطاردة",
+    "Disputed tag needs a decision" to "ادعاء وسم متنازع عليه يحتاج قرارًا",
+    "Join my ManHunt room" to "انضم إلى غرفة ManHunt",
+    "code" to "الرمز",
+    "Hunters are live." to "الصيادون يتحركون الآن.",
+    "Confirm the tag?" to "هل تؤكد الوسم؟",
+    "Open the app to decide." to "افتح التطبيق لتقرر.",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }

@@ -18,9 +18,21 @@ export type AppDeps = {
   clock?: () => number;
   sessionDays?: number;
   logger?: boolean;
+  /** Override for the published update manifest (tests use a temporary file). */
+  manifestPath?: string;
 };
 
 type Authed = FastifyRequest & { auth: User };
+
+type LatestManifest = {
+  versionCode?: number;
+  versionName?: string;
+  url?: string;
+  sha256?: string;
+  size?: number;
+  publishedAt?: string;
+  notes?: string;
+};
 
 const registerBody = z.object({ username: z.string(), password: z.string() });
 const roomBody = z.object({ name: z.string() });
@@ -77,6 +89,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   const clock = deps.clock ?? (() => Date.now());
   const sessionDays = deps.sessionDays ?? 30;
   const limiter = new RateLimiter(clock);
+  const manifestPath = deps.manifestPath ?? resolve(process.cwd(), 'data', 'app-latest.json');
 
   const app = Fastify({
     logger: deps.logger === false ? false : { level: process.env.LOG_LEVEL ?? 'info' },
@@ -120,35 +133,28 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 
   // Update channel: written by scripts/ci/pull-latest-apk.ps1 after a CI build.
   app.get('/api/app/latest', async (_req, reply) => {
-    try {
-      // Strip a UTF-8 BOM if the manifest was written by Windows PowerShell:
-      // strict JSON clients (including kotlinx.serialization) reject it.
-      const manifest = (await readFile(resolve(process.cwd(), 'data', 'app-latest.json'), 'utf8'))
-        .replace(/^\uFEFF/, '');
-      return reply.type('application/json').send(manifest);
-    } catch {
+    const manifest = await readManifestText(manifestPath);
+    if (manifest === null) {
       return reply.code(404).send({
         error: { code: 'no_update_channel', message: 'No update manifest has been published yet' },
       });
     }
+    return reply.type('application/json').send(manifest);
   });
 
-  // Simple install page + APK download for testers.
+  // Install page + APK download for testers. Version, size and checksum are read from the
+  // published update manifest on every request, so the page cannot show stale metadata.
   const apkPath = process.env.APK_PATH ?? resolve(
     process.cwd(), '..', 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk',
   );
 
-  app.get('/', async (_req, reply) => {
-    return reply.type('text/html').send(
-      `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">
-       <title>ManHunt</title>
-       <body style="font-family:system-ui;background:#0B1220;color:#E6EDF7;padding:32px">
-       <h1 style="margin:0 0 8px">ManHunt</h1>
-       <p style="color:#93A4BF">Server: ${escapeHtml(process.env.PUBLIC_URL ?? '')}</p>
-       <p><a style="color:#22D3EE" href="/app.apk">Download the Android APK</a></p>
-       <p style="color:#93A4BF;font-size:14px">On the sign-in screen, set the server to the address you used to open this page.</p>
-       </body>`,
-    );
+  app.get('/', async (req, reply) => {
+    const raw = await readManifestText(manifestPath);
+    const manifest = raw === null ? null : parseManifest(raw);
+    return reply
+      .type('text/html; charset=utf-8')
+      .header('cache-control', 'no-store')
+      .send(renderInstallPage(manifest, publicBaseUrl(req)));
   });
 
   app.get('/app.apk', async (_req, reply) => {
@@ -368,4 +374,188 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c
   ));
+}
+
+/** Read the published update manifest, stripping the BOM Windows PowerShell may add. */
+async function readManifestText(path: string): Promise<string | null> {
+  try {
+    return (await readFile(path, 'utf8')).replace(/^\uFEFF/, '');
+  } catch {
+    return null;
+  }
+}
+
+function parseManifest(raw: string): LatestManifest | null {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return parsed !== null && typeof parsed === 'object' ? (parsed as LatestManifest) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Public base URL for the install page, from PUBLIC_URL or the request's Host header. */
+function publicBaseUrl(req: FastifyRequest): string {
+  const configured = (process.env.PUBLIC_URL ?? '').trim();
+  if (configured) return configured.replace(/\/+$/, '');
+  const host = req.headers.host;
+  if (!host) return '';
+  return `${req.protocol === 'https' ? 'https' : 'http'}://${host}`;
+}
+
+function formatBytes(bytes: number | undefined): string {
+  if (typeof bytes !== 'number' || !Number.isFinite(bytes) || bytes <= 0) return '';
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function formatDate(iso: string | undefined): string {
+  if (typeof iso !== 'string') return '';
+  const parsed = Date.parse(iso);
+  return Number.isFinite(parsed) ? new Date(parsed).toISOString().slice(0, 10) : '';
+}
+
+/**
+ * The install page. Metadata (version, size, checksum) comes from the update manifest on
+ * every request; everything else is static and dependency-free so the page works on any phone.
+ */
+function renderInstallPage(manifest: LatestManifest | null, serverUrl: string): string {
+  const version = typeof manifest?.versionName === 'string' ? manifest.versionName.trim() : '';
+  const size = formatBytes(manifest?.size);
+  const sha = typeof manifest?.sha256 === 'string' ? manifest.sha256.trim() : '';
+  const published = formatDate(manifest?.publishedAt);
+  const manifestUrl = typeof manifest?.url === 'string' ? manifest.url.trim() : '';
+  const downloadHref = /^\/[\w./-]+$/.test(manifestUrl) ? manifestUrl : '/app.apk';
+
+  const chips = [
+    version ? `<span class="chip chip-version">v${escapeHtml(version)}</span>` : '',
+    size ? `<span class="chip">${escapeHtml(size)}</span>` : '',
+    '<span class="chip">Android 8.0+</span>',
+  ].filter(Boolean).join('\n        ');
+
+  const details = manifest === null
+    ? '<p class="meta">Release details are not published on this server yet — the download below is the latest available build.</p>'
+    : [
+      published ? `<p class="meta">Published ${escapeHtml(published)}</p>` : '',
+      sha
+        ? `<p class="hash">SHA-256<code>${escapeHtml(sha)}</code></p>`
+        : '<p class="meta">No checksum has been published for this build.</p>',
+    ].filter(Boolean).join('\n      ');
+
+  const serverBlock = serverUrl
+    ? `<p class="server"><span class="dot" aria-hidden="true"></span><span>Server <code>${escapeHtml(serverUrl)}</code></span></p>
+      <p class="hint">This page is served by that server, and the build offered here is already pointed at it. Self-hosting? Set your own address on the app's sign-in screen after installing.</p>`
+    : '<p class="hint">Set the server address on the app\'s sign-in screen after installing.</p>';
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0B1220">
+<meta name="description" content="ManHunt — real-world GPS hide-and-seek for Android. Download the signed APK.">
+<title>ManHunt — hide, hunt, survive</title>
+<style>
+  :root{color-scheme:dark;--bg:#0B1220;--card:#111B2E;--line:#1E2B44;--text:#E6EDF7;--muted:#93A4BF;--cyan:#22D3EE}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:radial-gradient(120% 60% at 50% 0%,#122039 0%,var(--bg) 60%) fixed;color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .wrap{max-width:640px;margin:0 auto;padding:28px 18px calc(28px + env(safe-area-inset-bottom))}
+  .hero{display:flex;align-items:center;gap:14px}
+  .icon{flex:none;border-radius:22%}
+  .eyebrow{margin:0 0 2px;font-size:12px;letter-spacing:.22em;color:var(--cyan);font-weight:700}
+  h1{margin:0;font-size:clamp(24px,6vw,32px);letter-spacing:-.01em}
+  h2{margin:0 0 12px;font-size:18px}
+  .pitch{color:var(--muted);margin:16px 0 22px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0)) var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;color:var(--muted)}
+  .chip-version{color:var(--cyan);border-color:rgba(34,211,238,.45)}
+  .button{display:block;text-align:center;background:var(--cyan);color:#06121F;text-decoration:none;font-weight:700;padding:14px 18px;border-radius:12px;font-size:17px}
+  .button:hover,.button:focus-visible{filter:brightness(1.06)}
+  .button:focus-visible{outline:2px solid #E6EDF7;outline-offset:3px}
+  .meta{color:var(--muted);font-size:13px;margin:12px 0 0}
+  .hash{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+  .hash code{display:block;margin-top:4px;padding:8px 10px;background:#0A1424;border:1px solid var(--line);border-radius:8px;font-size:11.5px;word-break:break-all;color:#B9C8DE}
+  .server{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:14px;flex-wrap:wrap}
+  .server code{font-size:13px;background:#0A1424;border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--cyan)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.16);flex:none}
+  .hint{color:var(--muted);font-size:13px;margin:8px 0 0}
+  .steps{margin:0;padding-left:22px}
+  .steps li{margin:0 0 10px;padding-left:4px}
+  .notes{margin:0;padding-left:20px;color:#C7D3E5;font-size:14.5px}
+  .notes li{margin:0 0 9px}
+  .notes b{color:var(--text)}
+  .footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
+  .footer a{color:var(--cyan)}
+  .fine{font-size:12px;opacity:.8}
+  @media (min-width:520px){.button{display:inline-block;min-width:280px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <svg class="icon" width="68" height="68" viewBox="0 0 108 108" role="img" aria-label="ManHunt icon">
+      <rect width="108" height="108" rx="26" fill="#0B1220"/>
+      <circle cx="54" cy="54" r="32" fill="#22D3EE" opacity=".18"/>
+      <circle cx="54" cy="54" r="26" fill="none" stroke="#22D3EE" stroke-width="4"/>
+      <path d="M54 26v56M26 54h56" stroke="#FF7A59" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="54" cy="54" r="4" fill="#FFFFFF"/>
+    </svg>
+    <div>
+      <p class="eyebrow">MANHUNT</p>
+      <h1>Hide. Hunt. Survive.</h1>
+    </div>
+  </header>
+
+  <p class="pitch">Real-world hide-and-seek for Android. Prey hide while their phones report
+  position; Hunters follow on a live map and tag them in person. One server keeps the timers,
+  teams and tag rules fair.</p>
+
+  <section class="card" aria-labelledby="download-heading">
+    <h2 id="download-heading">Download for Android</h2>
+    <div class="chips">
+        ${chips}
+    </div>
+    <a class="button" href="${escapeHtml(downloadHref)}">Download APK${version ? ` v${escapeHtml(version)}` : ''}</a>
+      ${details}
+    ${serverBlock}
+  </section>
+
+  <section class="card">
+    <h2>Install in four steps</h2>
+    <ol class="steps">
+      <li><b>Download</b> the APK on the Android phone you will play on.</li>
+      <li><b>Allow unknown sources</b> when Android asks. If it does not ask: Settings &rarr;
+        Apps &rarr; Special app access &rarr; Install unknown apps, then allow your browser.</li>
+      <li><b>Open the file and install.</b> Play Protect may warn about a sideloaded app — choose
+        &ldquo;Install anyway&rdquo; only if you trust this project.</li>
+      <li><b>Open ManHunt and sign in.</b> Create a local account (no email needed) and use the
+        server shown above.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>Privacy &amp; safety</h2>
+    <ul class="notes">
+      <li>Your position is shown only to the <b>Hunters in your room</b> while a match is running.
+        Admins get no extra location access.</li>
+      <li>Location reports are sent by a foreground service with a visible notification. Movement
+        history is available to Hunters only when the host turns trails on.</li>
+      <li>There is no email address and <b>no password recovery</b> — keep your password safe.</li>
+      <li>This is a <b>test server on plain HTTP</b>: traffic is not encrypted. Do not use it for
+        real sensitive location data; self-host behind HTTPS for that.</li>
+      <li>ManHunt is a game, not a safety or tracking service. Play with people you trust.</li>
+    </ul>
+  </section>
+
+  <footer class="footer">
+    <p><a href="https://github.com/MostafaAshry513/ManHunt/releases/latest">GitHub release</a> ·
+      <a href="https://github.com/MostafaAshry513/ManHunt">source code</a> ·
+      <a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/DEPLOYMENT.md">self-hosting guide</a></p>
+    <p class="fine">MIT licensed · Map data &copy; OpenStreetMap contributors</p>
+  </footer>
+</main>
+</body>
+</html>`;
 }

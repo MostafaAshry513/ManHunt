@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -105,13 +106,15 @@ fun MatchMap(
     val mapLabel = t("Map")
     val zoomInLabel = t("Zoom in")
     val zoomOutLabel = t("Zoom out")
+    val recenterLabel = t("Recenter")
     val attribution = "© OpenStreetMap contributors"
 
-    // Known trade-offs from the 0.8.1 review pass, deferred to a perf pass:
-    // 1) This composable sits in the room screen's LazyColumn - scrolling it out of
-    //    the viewport disposes the MapView (osmdroid destroys its tile providers)
-    //    and scrolling back rebuilds it from scratch. Acceptable at the current
-    //    list size; fix by hoisting the MapView lifetime above the list.
+    // Known trade-offs, kept deliberately:
+    // 1) The room screen hosts this map OUTSIDE its scrolling list (moved out in 0.8.3)
+    //    at a fixed height, so osmdroid owns the vertical drag gesture instead of the
+    //    LazyColumn and the MapView survives list scrolling (disposing it would destroy
+    //    its tile providers). The cost is a fixed-height viewport: the map cannot grow
+    //    with its content, and leaving the room screen still tears the MapView down.
     // 2) update() below rebuilds every overlay on each recomposition/location tick.
     //    Cheap at current overlay counts; add a data-signature guard if trails grow.
 
@@ -285,8 +288,8 @@ fun MatchMap(
             },
         )
 
-        // Accessibility/UX zoom controls: the built-in osmdroid buttons are unthemed,
-        // so provide two 48 dp targets that follow the app theme.
+        // Accessibility/UX map controls: the built-in osmdroid buttons are unthemed,
+        // so provide 48 dp targets that follow the app theme (zoom in/out and recenter).
         Column(
             modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -296,6 +299,26 @@ fun MatchMap(
             }
             MapControlButton(onClick = { mapView.controller.zoomOut() }, label = zoomOutLabel) {
                 Icon(Icons.Outlined.Remove, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            }
+            MapControlButton(
+                onClick = {
+                    // Recovery when GPS, tiles or the camera leave the player lost: jump
+                    // back to own position, else to the play-zone centre. Neither known
+                    // yet (no fix and an open zone) means the button is a no-op.
+                    val focus = ownLocation?.let { GeoPoint(it.lat, it.lng) }
+                        ?: zone?.let { GeoPoint(it.centerLat, it.centerLng) }
+                    if (focus != null) {
+                        mapView.controller.animateTo(focus)
+                        mapView.controller.setZoom(17.0)
+                    }
+                },
+                label = recenterLabel,
+            ) {
+                Icon(
+                    Icons.Outlined.MyLocation,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
         }
 

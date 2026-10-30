@@ -1,5 +1,9 @@
 # Android UI audit — accessibility, adaptive layout, edge-to-edge
 
+> **Historical document.** An internal audit of an earlier version (v0.8.x). Some findings have
+> since been fixed and `file:line` references may have drifted; check the current code before
+> acting on it. See [docs/README.md](README.md) for the current documentation map.
+
 Read-only audit of the Android client UI. No production code was modified; the only
 file written is this document. No Gradle build or test was executed.
 
@@ -1007,12 +1011,12 @@ five above.)*
 
 ## Skills read and how they were applied
 
-Read in this order, as required by `docs/SKILL_MATRIX.md` (the running session cannot
+Read in this order, as required by `docs/archive/SKILL_MATRIX.md` (the running session cannot
 hot-load them, so the files were read directly):
 
 | File | Applied to |
 |---|---|
-| `docs/SKILL_MATRIX.md` | Established that `adaptive` and `compose-performance` are installed-but-not-hot-loadable and that accessibility was an explicit gap ("audit delegated") — this document closes it. |
+| `docs/archive/SKILL_MATRIX.md` | Established that `adaptive` and `compose-performance` are installed-but-not-hot-loadable and that accessibility was an explicit gap ("audit delegated") — this document closes it. |
 | `.opencode/skills/adaptive/SKILL.md` | Step 1 (verify current UI / screenshot coverage → `AppSmokeTest` only renders `AuthScreen`, so findings carry Robolectric recipes); Step 6 (never add `configChanges`/`screenOrientation` — verified absent; the "systematically audit **every** `remember`" instruction produced UI-06); Step 6.2 (scroll state → verified good); Step 2/3 (no navigation rail / multi-pane: the app is a small state router, so no Nav3 recommendation — noted, not applied); Step 4 (bounded lists stay eager, the unbounded room body stays lazy); the skill's explicit-insets requirement drove UI-04/UI-05. |
 | `.opencode/skills/compose-performance/SKILL.md` | Category 1 (root-level state reads → UI-07; `remember` keys → UI-17), Category 3 (mandatory `key`/`contentType` → UI-19; small bounded lists → verified good), Category 4 (animation phase deferral → UI-16, UI-23, UI-24), Category 5 (`LaunchedEffect`/timer scope → UI-17; `collectAsState` vs `collectAsStateWithLifecycle` → checked, left as-is), Category 2/6 (no `onGloballyPositioned`, no decorative `Canvas` beyond the loader). |
 | `.opencode/skills/compose-performance/references/state-and-stability.md` | Mandatory before flagging state issues: confirmed UI-07 is a legitimate root-level state-read finding (not a backwards write — all writes are in callbacks/ViewModel), and that no `@Stable`/`@Immutable`/`ImmutableList` change should be recommended here. |

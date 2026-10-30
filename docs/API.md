@@ -91,18 +91,44 @@ exactly this shape:
     "preyTotal": 1,
     "zone": null
   },
+  "pendingTags": [
+    {
+      "id": "tag_...",
+      "matchId": "match_...",
+      "hunterId": "usr_...",
+      "hunterUsername": "bob",
+      "preyId": "usr_...",
+      "preyUsername": "alice",
+      "createdAt": 1760001000000,
+      "expiresAt": 1760001090000,
+      "disputed": false
+    }
+  ],
   "serverNow": 1760001000000
 }
 ```
 
 - `room.status` is `lobby`, `active` or `closed`.
 - `match` is `null` until the room has ever started a match; afterwards it is the active
-  match or the latest finished/cancelled one.
+  match or the latest finished/cancelled one. This also means `pendingTags` is always `[]`
+  in the lobby, even if the previous match had unresolved claims.
 - `match.status` is the persisted phase; `match.phase` is derived from timestamps (see
   [Phases](#phases-and-transitions)). `now` and `serverNow` are the server clock.
 - `zone` is `null` in open mode, otherwise
   `{ "centerLat": 51.5, "centerLng": -0.12, "radiusM": 800, "nextShrinkAt": 1760000300000 | null }`.
 - `connected` reflects live WebSocket presence only; it never gates game rules.
+- `pendingTags` lists the **unresolved tag claims of the current match** (durable state, see
+  [Tags](#tags)), oldest first. It is how a prey who missed the `tag_request` WebSocket event
+  (or reconnected later) still sees the claim, and how hunters/admins see "awaiting
+  confirmation":
+  - `disputed: false` — pending confirmation: the prey can still `confirm` or `dispute` it
+    before `expiresAt` (= `createdAt` + 90 s).
+  - `disputed: true` — it is already a huntmaster dispute (the prey disputed it, or the 90 s
+    window expired). The entry stays here until an admin resolves it, so a reconnecting
+    admin still sees the queue.
+  - Resolved claims (confirmed/rejected) disappear from the list.
+  - The same array is included in every `room` WebSocket snapshot, so no separate replay
+    event is needed.
 
 ## Endpoints
 
@@ -180,6 +206,12 @@ Bearer auth, room member. Response: room state snapshot.
 
 A non-member receives **401 `unauthorized`** ("Not a member of this room"), including for a
 room id that does not exist.
+
+This is the reconnect/fallback path for tag claims: a pending claim survives a dropped
+WebSocket, a client restart and a **server restart** (it is stored in SQLite), and is
+returned in `pendingTags` until the prey resolves it or it escalates to a dispute after 90 s
+(see [Tags](#tags)). Polling this endpoint is enough to drive the prey confirm dialog and the
+hunter/admin "awaiting confirmation" indicator; no WebSocket is required.
 
 #### POST `/api/rooms/:id/leave`
 
@@ -324,6 +356,32 @@ A tag is visible as:
 
 Statuses: `pending`, `confirmed`, `disputed`, `rejected`.
 
+Claims that are not resolved yet (status `pending` or `disputed`) are additionally exposed in
+the room state as `pendingTags` entries, together with the usernames needed to render them:
+
+```json
+{
+  "id": "tag_...",
+  "matchId": "match_...",
+  "hunterId": "usr_...",
+  "hunterUsername": "bob",
+  "preyId": "usr_...",
+  "preyUsername": "alice",
+  "createdAt": 1760001000000,
+  "expiresAt": 1760001090000,
+  "disputed": false
+}
+```
+
+- `disputed: false` → still awaiting the prey (`pending`); the prey may confirm or dispute
+  until `expiresAt`.
+- `disputed: true` → escalated to a huntmaster dispute (`disputed`), either because the prey
+  disputed it or because the 90 s confirmation window passed without an answer. It remains in
+  `pendingTags` until an admin resolves it.
+- `expiresAt` is always `createdAt + 90 000` ms; it is informational for clients (the server
+  is authoritative). This view is only present for the current match — `pendingTags` is `[]`
+  in the lobby.
+
 #### POST `/api/rooms/:id/tags`
 
 Bearer auth, **hunter**, phase `hunting`, rate limited per user.
@@ -332,28 +390,41 @@ Body: `{ "preyId": "usr_..." }`.
 - The target must be a prey member who is not eliminated (400 `invalid_target`,
   409 `already_tagged`).
 - With `tagPolicy: "confirm"` (default) the tag is `pending`; only the target prey receives a
-  `tag_request` WebSocket event.
+  `tag_request` WebSocket event. The claim is durable: it is stored as a `pending` tag and is
+  returned in the room state's `pendingTags` until resolved, so a prey who missed the socket
+  event (or reconnects later) still sees the confirm dialog.
 - With `tagPolicy: "instant"` the tag is immediately `confirmed` and the prey is eliminated;
   no `tag_request` is sent.
-- Idempotency: if the same hunter already requested a tag for the same prey within 60 s, the
-  existing tag is returned instead of creating a new one (unless the prey is now eliminated,
-  in which case 409 `already_tagged` wins).
+- At most **one unresolved claim per prey** in a match. A second hunter's duplicate claim is
+  rejected with 409 `tag_pending` ("Another tag claim for that prey is already awaiting
+  confirmation"). A retry by the **same** hunter is idempotent and returns the existing tag,
+  so a double-tap cannot double-claim.
+- Idempotency for already-resolved tags: if the same hunter requested a tag for the same prey
+  within 60 s, the existing tag is returned instead of creating a new one (unless the prey is
+  now eliminated, in which case 409 `already_tagged` wins).
+- If the prey neither confirms nor disputes a `confirm`-policy claim within **90 seconds**
+  (for example a pocketed phone), the claim is escalated lazily to `disputed` — on the next
+  state read or the 1 s server tick — and a system chat message announces it. The huntmaster
+  then resolves it with the normal `POST /api/tags/:id/resolve` path.
 
 Errors: 404 (room), 409 `no_active_match` / `not_hunting`, 403 (not a hunter), 400
-`invalid_target`, 409 `already_tagged`, 429.
+`invalid_target`, 409 `already_tagged` / `tag_pending`, 429.
 
 #### POST `/api/tags/:id/confirm`
 
 Bearer auth, **only the tagged prey**. No body. Marks the tag `confirmed` and eliminates the
 prey. Returns the tag view. If this was the last living prey, the match finishes immediately
-with `winner: "hunters"`.
+with `winner: "hunters"`, and the system chat order is
+`"<prey> confirmed the tag"` then `"Match over - Hunters win!"` (the confirmation is written
+before the finish so history reads chronologically).
 
 Errors: 404 `not_found`, 403 (not the tagged prey), 409 `tag_resolved`.
 
 #### POST `/api/tags/:id/dispute`
 
 Bearer auth, **only the tagged prey**. No body. Marks the tag `disputed`; the prey is **not**
-eliminated. Broadcasts `tag_disputed` to the room and returns the tag view.
+eliminated. Broadcasts `tag_disputed` to the room and returns the tag view. The tag stays in
+`pendingTags` with `disputed: true` until the admin resolves it.
 
 Errors: 404, 403, 409 `tag_resolved`.
 
@@ -503,11 +574,11 @@ Every frame is `{ "type": "...", "data": { ... } }`.
 | Event | When / recipients | `data` fields |
 |---|---|---|
 | `hello` | immediately to the new socket | `userId`, `username`, `now` |
-| `room` | after a successful subscribe and after room/match mutations (membership, teams, readiness, settings, start/end/pause/resume, tags) to all room subscribers | full room state snapshot |
+| `room` | after a successful subscribe and after room/match mutations (membership, teams, readiness, settings, start/end/pause/resume, tags) to all room subscribers | full room state snapshot, including `pendingTags` |
 | `chat` | room subscribers when a chat or system message is created | `id`, `userId` (null for system), `username`, `kind` (`chat`/`system`), `body`, `createdAt` |
 | `prey_location` | hunters only, non-eliminated, while `hunting`, on each accepted live report | `matchId`, `userId`, `username`, `lat`, `lng`, `accuracy` (nullable), `recordedAt`, `receivedAt`, `flagged` |
 | `tag_request` | only the targeted prey, when a `confirm`-policy tag is created | tag view: `id`, `matchId`, `hunterId`, `preyId`, `status` (`pending`), `createdAt` |
-| `tag_disputed` | all room subscribers when a prey disputes | tag view: `id`, `matchId`, `hunterId`, `preyId`, `status` (`disputed`), `createdAt` |
+| `tag_disputed` | all room subscribers when a prey disputes, **or when a pending claim expires into a dispute after 90 s** | tag view: `id`, `matchId`, `hunterId`, `preyId`, `status` (`disputed`), `createdAt` |
 | `pong` | reply to the requesting socket's `ping` | `now` |
 | `error` | requesting socket (currently only a forbidden `subscribe`) | `code` (e.g. `forbidden`), `message` |
 
@@ -616,7 +687,10 @@ Rules enforced by `computedPhase` and `RoomService.reconcile`:
 - **Reconnect flow.** Reopen `/ws?token=...`, wait for `hello`, send `subscribe`, and use the
   returned `room` snapshot to replace local state. There is no replay of missed chat or
   location events; re-fetch state and chat, and latest/trail locations where the role allows,
-  over REST.
+  over REST. Unresolved tag claims are the exception: they are not lost, because the snapshot's
+  `pendingTags` (and `GET /api/rooms/:id`) replay every claim that is still awaiting the prey
+  or a huntmaster decision. Render the prey confirm prompt for `disputed: false` entries and
+  the admin dispute queue for `disputed: true` entries.
 - **Location cadence is client-driven.** The server validates and stores reports but does not
   schedule them; `locationIntervalSec` tells the client how often to report (the Android
   foreground service uses it). Stale markers on the hunter side use twice that interval.

@@ -1,6 +1,8 @@
 # Environment
 
-Captured 2026-10-28 on the build machine. Secrets are omitted.
+Snapshot of the build/hosting machine, captured 2026-10-28. Secrets are omitted. Later changes
+(CI, public deployment, GitHub authentication) are noted inline; treat the versions below as a
+record of that host, not as project requirements.
 
 ## Host
 
@@ -11,7 +13,7 @@ Captured 2026-10-28 on the build machine. Secrets are omitted.
 | RAM | 24 GB |
 | Disk | 720 GB, ~677 GB free |
 | PowerShell | 5.1.20348 |
-| Public IP | <server-ip> (as reported by ifconfig.me) |
+| Public IP | `74.208.99.178` |
 | Domain | none configured |
 | Virtualisation | QEMU/KVM guest, **no nested virtualisation** (no AMD-V, no SLAT) |
 
@@ -29,21 +31,24 @@ Captured 2026-10-28 on the build machine. Secrets are omitted.
 | npm | 11.19.1 | |
 | Python | 3.15 | unused by this project |
 | Git | 2.56.0 | |
+| GitHub CLI (`gh`) | installed and authenticated as `MostafaAshry513` | CI and releases are live (changed after the original capture) |
+| Caddy | 2.11.7 | reverse proxy for the public HTTP test deployment |
 | Docker | **not installed** | |
 | PostgreSQL | **not installed** | |
-| GitHub CLI | **not installed**, no auth | |
 
 ## Implications
 
-1. **No Android emulator.** Without nested virtualisation the emulator runs in pure
-   software (10-30+ min boot, unusable). Testing is JVM-based (Robolectric) plus a real
-   phone over adb. `docs/TESTING.md` records what is therefore unverified.
-2. **No Docker / PostgreSQL.** The backend uses Node's built-in `node:sqlite` with WAL,
-   a single process and file-backed persistence. Migrations are plain SQL applied at boot.
-3. **No GitHub CLI / auth.** CI workflows can be written but not pushed or executed.
-4. **Public hosting is not proven.** A public IP exists, but Windows Firewall has no
-   inbound rule for the app and outbound-only access is the current state. Opening an
-   inbound port or changing firewall policy requires explicit authorization.
+1. **No Android emulator on this host.** Without nested virtualisation the emulator runs in pure
+   software (10-30+ min boot, unusable). Local testing is JVM-based (Robolectric) plus a real
+   phone over adb. GitHub Actions runs a real Android emulator for the in-app test instead.
+2. **No Docker / PostgreSQL.** The backend uses Node's built-in `node:sqlite` with WAL, a single
+   process and file-backed persistence. Migrations are plain SQL applied at boot.
+3. **GitHub CLI and CI are available now.** `gh` is authenticated, CI runs on every push and
+   releases are built and signed by GitHub Actions. The original "CI cannot be executed" note is
+   obsolete.
+4. **Public hosting is live but HTTP-only.** `http://74.208.99.178/` serves the install page and
+   update channel through a Caddy reverse proxy; there is no domain and no TLS certificate. See
+   [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Host-specific fixes applied (important)
 

@@ -1,5 +1,9 @@
 # Testing ManHunt on a real (rooted) phone over adb
 
+> **Historical guide.** Written for the author's rooted-phone setup in an earlier phase. The
+> commands are still useful, but device/network specifics and UI labels may have changed. See
+> [docs/README.md](README.md) for the current documentation map.
+
 This machine is set up to install and drive the ManHunt debug APK on a rooted
 Android phone on a **different network** than this Windows host. Everything below
 was prepared and syntax-checked here; no phone was attached during setup, so the

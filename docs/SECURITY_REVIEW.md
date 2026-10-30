@@ -1,5 +1,10 @@
 # Security & Privacy Review — ManHunt
 
+> **Historical document.** An internal adversarial review of an earlier version; its confirmed
+> findings were fixed at the time (see [SECURITY.md](SECURITY.md)). Test counts and `file:line`
+> references may have drifted; check the current code before acting on it. See
+> [docs/README.md](README.md) for the current documentation map.
+
 Adversarial, evidence-based review of the backend (`server/`) and Android client
 (`android/`). Method: direct code reading of `server/src/**` and
 `android/app/src/main/**`, plus a run of the backend test suite

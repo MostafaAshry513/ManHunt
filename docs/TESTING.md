@@ -1,76 +1,81 @@
 # Testing
 
-Everything below was executed on the build machine. Results are recorded, not assumed.
+What runs on every change, how to run it yourself, and what is deliberately not covered.
+Commands are real: CI executes the same gates on every push.
+
+## What CI runs
+
+`.github/workflows/ci.yml` has three jobs:
+
+| Job | Steps |
+|---|---|
+| **Server (typecheck + tests)** | `npm ci` → `npx tsc --noEmit` → `npm test` → start the server on `127.0.0.1:8080` and run `node scripts/smoke.mjs` + `node scripts/match-sim.mjs` against it |
+| **Android (build + JVM tests)** | assemble the debug APK, run the Robolectric/JVM unit tests, run Android lint, upload the APK and UI screenshots as artifacts |
+| **In-app test (real emulator)** | boot an Android 36 emulator (Pixel 6), run the instrumented in-app match test against a live local backend, upload screenshots and reports |
+
+`release.yml` reuses the Android build path to produce the signed release APK on every `v*` tag.
 
 ## Backend
 
-```powershell
-cd C:\dev\ManHunt\server
-npm test          # node --test, in-memory SQLite + fastify.inject
-npx tsc --noEmit  # type gate (no emit; Node runs .ts natively)
-node scripts/smoke.mjs   # against a live server on 127.0.0.1:8080
+```bash
+cd server
+npm ci
+npm run typecheck        # tsc --noEmit (Node runs the .ts sources natively)
+npm test                 # node --test test/*.test.ts
 ```
 
-### Results (2026-10-28)
+The suite uses in-memory SQLite and `fastify.inject`, so it needs no running server. What it
+covers:
 
-| Command | Result |
-|---|---|
-| `npm test` | **45 passed, 0 failed** |
-| `npx tsc --noEmit` | **clean** |
-| `node scripts/smoke.mjs` | **SMOKE PASS** - 11 checks, real HTTP + WebSocket |
-| `node scripts/match-sim.mjs` | **MATCH SIM PASS** - 13 checks, 3 players, full match |
+- `test/domain.test.ts` — haversine accuracy, destination/radius, point-in-polygon, shrink
+  clamping, implied speed, coordinate validation, `canStart` (balance/minimum/readiness), phase
+  derivation including expiry, victory, settings validation.
+- `test/api.test.ts` — register/login/me/duplicate, room create/join, non-admin start, unready
+  blocking, team lock, head-start → hunting, location visibility (hunters only), trails gating,
+  tag confirm/eliminate/hunters-win, dispute + admin resolve, duplicate tags, prey win on timer
+  expiry, chat, state surviving a server restart.
+- `test/rematch.test.ts` — a finished match clears eliminations, so the next start works.
+- `test/tag-durability.test.ts` — durable tag claims: present in room state, replayed after
+  restart, duplicate rejection, 90 s expiry → dispute + system message, message order on a
+  match-ending confirmation.
+- `test/security.test.ts`, `test/security_fixes.test.ts`, `test/history.test.ts`,
+  `test/pagination.test.ts`, `test/properties.test.ts` — authz, malformed input, rate limits,
+  history retention, chat pagination, and property-based geo/state checks.
 
-Coverage by file:
+Live-process checks (require a server already listening):
 
-- `test/domain.test.ts` - haversine accuracy, destination/radius, point-in-polygon, polygon
-  area, shrink clamping, implied speed, coordinate validation, `canStart` (balance, minimum,
-  readiness), phase derivation incl. expiry, victory, settings validation.
-- `test/api.test.ts` - register/login/me/duplicate, room create/join, non-admin start,
-  unready blocking, team lock, head-start -> hunting, location visibility (hunters only),
-  trails gating, tag confirm/eliminate/hunters-win, dispute + admin resolve, idempotent
-  duplicate tags, prey win on timer expiry, chat, **state survives a server restart**.
-- `test/security.test.ts` - outsider access, prey cannot read locations or report as hunter,
-  invalid coordinates/timestamps/accuracy, teleport flags, login rate limiting,
-  admin-only settings/end, invalid bearer token.
-
-Smoke test (live process) verifies: health, two registrations, room create/join, settings
-patch, team switch, readiness, WebSocket subscribe, server-authorized start, prey location
-POST, **hunter-only `prey_location` push**, and chat fan-out.
+```bash
+node scripts/smoke.mjs http://127.0.0.1:8080       # HTTP + WebSocket smoke checks
+node scripts/match-sim.mjs http://127.0.0.1:8080   # three simulated players, full match
+node scripts/load-test.mjs                         # load test; see docs/PERF.md
+```
 
 ## Android
 
-```powershell
-cd C:\dev\ManHunt\android
-.\build.ps1
-.\test.ps1
+```bash
+cd android
+./gradlew :app:assembleDebug          # Windows: .\build.ps1
+./gradlew :app:testDebugUnitTest      # Windows: .\test.ps1
+./gradlew :app:lintDebug
 ```
 
-| Command | Result |
+- JVM tests cover the API client, models, map math, WebSocket parsing, session storage and a
+  Robolectric Compose smoke test; screenshot tests render the current UI to PNGs under
+  `app/build/screenshots`.
+- The emulator test (`android/app/src/androidTest/`, run by CI) drives an in-app match flow
+  end-to-end against a real backend.
+- `.\install.ps1` installs and launches the app on a connected phone for manual testing; see
+  [DEVICE_TESTING.md](DEVICE_TESTING.md) for the long-form device guide.
+
+## Not covered
+
+| Area | Why / status |
 |---|---|
-| `build.ps1` | **BUILD SUCCESSFUL**, `app-debug.apk` produced |
-| `test.ps1` | **21 tests passed** (ApiClient 4, Models 4, MapMath 2, Socket parser 6, SessionStore 4, AppSmoke 1) |
-| `gradlew :app:lintDebug` | **0 errors** (warnings only: dependency update hints) |
+| Physical-phone behaviour of the current build | The current build is verified on the CI emulator; the last physical-device verification was an earlier version. Real GPS accuracy, battery use and background throttling still need a field test. |
+| HTTPS / public TLS | The public deployment is plain HTTP; there is no certificate to test yet. |
+| Long-running production load | [PERF.md](PERF.md) has honest localhost load numbers, not internet-scale results. |
+| Browser client | None exists yet. |
+| Dependency vulnerability scanning | `npm audit --omit=dev` runs in CI report-only and may fail softly without failing the build. |
 
-Robolectric runs the real Compose UI through `AppSmokeTest`; parser and map math are pure
-JVM tests. Android-specific behaviours below still require a device.
-
-## Not verified (and why)
-
-| Item | Blocker |
-|---|---|
-| Real GPS capture, accuracy filtering, background tracking | No emulator (no nested virtualisation) and no physical device attached. |
-| Foreground service notification + OS battery behaviour | Requires a real device. |
-| Map rendering and OSM tile requests | Requires a device/emulator to render; osmdroid also needs a real network viewport. |
-| Multi-device gameplay | Only simulated clients can run here (multi-client HTTP/WS tests are feasible and planned). |
-| Public HTTPS reachability | Inbound port not opened; see `DEPLOYMENT.md`. |
-| Instrumentation/UI tests | Need a device or emulator. |
-
-These are tracked in `IMPLEMENTATION_PLAN.md`; they are not counted as done.
-
-## Running the backend test suite in CI
-
-```yaml
-- run: npm ci
-- run: npx tsc --noEmit
-- run: npm test
-```
+Add a test with every behaviour change, especially auth, locations, tags and match phase rules
+(see [CONTRIBUTING.md](../CONTRIBUTING.md)).

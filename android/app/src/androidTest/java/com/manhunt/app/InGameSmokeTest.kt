@@ -198,8 +198,11 @@ class InGameSmokeTest {
         api("POST", "/api/rooms/$roomId/tags", bobToken, JSONObject().put("preyId", aliceId))
         waitForText("Tag claim", 30_000)
         compose.onAllNodesWithText("Confirm")[0].performClick()
+        // v0.9.0 shows a dedicated result dialog. Accept the live system chat line too,
+        // because the dialog may not have recomposed yet when this runs.
         compose.waitUntil(30_000) {
-            compose.onAllNodesWithText("You were tagged").fetchSemanticsNodes().isNotEmpty() ||
+            compose.onAllNodesWithText("Hunt result").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithText("You were tagged").fetchSemanticsNodes().isNotEmpty() ||
                 compose.onAllNodesWithText("Match over - Hunters win!").fetchSemanticsNodes().isNotEmpty()
         }
         capture("04-result")

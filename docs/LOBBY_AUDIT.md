@@ -1,5 +1,9 @@
 # Lobby audit — state, layout, errors, flow, accessibility
 
+> **Historical document.** An internal audit of an earlier version (v0.8.x). Some findings have
+> since been fixed and `file:line` references may have drifted; check the current code before
+> acting on it. See [docs/README.md](README.md) for the current documentation map.
+
 Read-only audit of the ManHunt Android lobby. No production code was modified; the only
 file written is this document. No Gradle build or test was executed.
 

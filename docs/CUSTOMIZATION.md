@@ -11,6 +11,7 @@ Open **Settings** (gear on the home screen):
 | Appearance | Dark / light theme, text size (85%–135%) |
 | Language | English / العربية — switches the whole UI to RTL with Arabic copy |
 | Permissions | Location and notification status, with a shortcut to system settings |
+| Updates | Installed version, check for a new APK, download progress, install |
 | Account | Signed-in user, server address, sign out |
 
 ## Server address
@@ -18,9 +19,10 @@ Open **Settings** (gear on the home screen):
 The app talks to whatever server you point it at. Set it on the sign-in screen
 under **Server**. Examples:
 
+- Hosted test server (default in release builds): `http://74.208.99.178`
 - Emulator: `http://10.0.2.2:8080`
 - Phone on your LAN: `http://192.168.1.20:8080`
-- Public: `https://your-domain.example`
+- A deployment with TLS: `https://your-domain.example`
 
 The value is stored locally and used for both REST and WebSocket.
 

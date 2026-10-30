@@ -53,7 +53,30 @@ export type MatchView = {
   zone: { centerLat: number; centerLng: number; radiusM: number; nextShrinkAt: number | null } | null;
 };
 
+/**
+ * A tag claim of the current match that is not resolved yet. `disputed === false` means
+ * the prey can still confirm/deny it (the countdown to `expiresAt` is running);
+ * `disputed === true` means it already became a huntmaster dispute (either the prey
+ * disputed it or the confirmation window expired) and waits for an admin decision.
+ */
+export type PendingTagView = {
+  id: string;
+  matchId: string;
+  hunterId: string;
+  hunterUsername: string;
+  preyId: string;
+  preyUsername: string;
+  createdAt: number;
+  expiresAt: number;
+  disputed: boolean;
+};
+
 const TAG_IDEMPOTENCY_MS = 60_000;
+/**
+ * How long an unresolved tag claim waits for the prey before it becomes a huntmaster
+ * dispute. Kept short on purpose: a pocketed phone must not swallow a real-world tag.
+ */
+export const PENDING_TAG_TTL_MS = 90_000;
 const MAX_PLAYERS = 50;
 const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -310,8 +333,11 @@ export class RoomService {
     if (!match) return false;
 
     const now = this.now();
+    // Lazy tag-claim expiry: no extra timer process, runs on every state read and tick.
+    const changed = this.expireStaleTags(match, now);
+
     const phase = computedPhase(match, now);
-    if (phase === match.status) return false;
+    if (phase === match.status) return changed;
 
     if (phase === 'finished') {
       this.finishMatch(match, winnerFor(this.preyAlive(roomId), this.preyTotal(roomId)), false, null);
@@ -334,6 +360,35 @@ export class RoomService {
     return null;
   }
 
+  /**
+   * Escalates unresolved tag claims older than the confirmation window into huntmaster
+   * disputes. Called lazily from `reconcile` (state reads and the 1 s server tick), so a
+   * pocketed phone can never silently void a real-world tag. Returns true if anything changed.
+   */
+  private expireStaleTags(match: MatchRow, now: number): boolean {
+    const stale = all<{ id: string; hunter_id: string; prey_id: string }>(this.db,
+      `SELECT id, hunter_id, prey_id FROM tags
+        WHERE match_id = ? AND status = 'pending' AND created_at <= ?
+        ORDER BY created_at ASC, id ASC`,
+      match.id, now - PENDING_TAG_TTL_MS);
+    if (stale.length === 0) return false;
+
+    const roomId = match.room_id;
+    tx(this.db, () => {
+      for (const tag of stale) {
+        run(this.db, "UPDATE tags SET status = 'disputed', resolved_at = ? WHERE id = ? AND status = 'pending'",
+          now, tag.id);
+        this.audit(roomId, null, 'tag.expired', { tagId: tag.id, hunterId: tag.hunter_id, preyId: tag.prey_id });
+        this.systemMessage(roomId,
+          `${this.username(tag.hunter_id)}'s tag claim on ${this.username(tag.prey_id)} expired ` +
+          `(${PENDING_TAG_TTL_MS / 1000}s without confirmation) - a huntmaster must decide`);
+        // Same event live clients already handle for a manual prey dispute.
+        this.hub.broadcast(roomId, { type: 'tag_disputed', data: this.tagView(tag.id) }, () => true);
+      }
+    });
+    return true;
+  }
+
   private finishMatch(match: MatchRow, winner: 'prey' | 'hunters' | null, cancelled: boolean, actorId: string | null): void {
     const now = this.now();
     tx(this.db, () => {
@@ -352,12 +407,29 @@ export class RoomService {
 
   requestTag(hunterId: string, roomId: string, preyId: string): unknown {
     const room = this.room(roomId);
+    // requireHuntingMatch reconciles first, so expired claims have already become disputes.
     const match = this.requireHuntingMatch(roomId);
     const hunter = this.member(roomId, hunterId);
     if (!hunter || hunter.team !== 'hunters') throw forbidden('Only hunters can tag');
     const prey = this.member(roomId, preyId);
     if (!prey || prey.team !== 'prey') throw badRequest('Target is not a prey player', 'invalid_target');
     if (prey.eliminated) throw conflict('That prey is already tagged', 'already_tagged');
+
+    // One unresolved claim per prey: a second hunter must not double-claim. Retrying as the
+    // same hunter stays idempotent (pre-existing behaviour) and returns the existing claim.
+    const unresolved = get<{ id: string; hunter_id: string; status: string }>(this.db,
+      `SELECT id, hunter_id, status FROM tags
+        WHERE match_id = ? AND prey_id = ? AND status IN ('pending', 'disputed')
+        ORDER BY created_at DESC, id DESC LIMIT 1`,
+      match.id, preyId);
+    if (unresolved) {
+      if (unresolved.hunter_id === hunterId) return this.tagView(unresolved.id);
+      throw conflict(
+        unresolved.status === 'disputed'
+          ? 'That prey already has a disputed tag awaiting a huntmaster decision'
+          : 'Another tag claim for that prey is already awaiting confirmation',
+        'tag_pending');
+    }
 
     const recent = get<{ id: string; status: string }>(this.db,
       `SELECT id, status FROM tags
@@ -372,8 +444,9 @@ export class RoomService {
       id, match.id, hunterId, preyId, instant ? 'confirmed' : 'pending', this.now());
 
     if (instant) {
-      this.eliminate(preyId, roomId, match);
+      // Announce before eliminating: eliminate() may finish the match and write its own message.
       this.systemMessage(roomId, `${hunter.username} tagged ${prey.username}`);
+      this.eliminate(preyId, roomId, match);
     } else {
       this.hub.sendToUser(roomId, preyId, { type: 'tag_request', data: this.tagView(id) });
       this.systemMessage(roomId, `${hunter.username} claims to have tagged ${prey.username} - awaiting confirmation`);
@@ -396,8 +469,10 @@ export class RoomService {
     tx(this.db, () => {
       run(this.db, 'UPDATE tags SET status = ?, resolved_at = ?, resolved_by = ? WHERE id = ?',
         'confirmed', this.now(), userId, tagId);
-      this.eliminate(userId, roomId, match);
+      // Write the confirmation first: eliminate() may finish the match and write its
+      // "Match over" message, which must come after this one in chat order.
       this.systemMessage(roomId, `${prey.username} confirmed the tag`);
+      this.eliminate(userId, roomId, match);
       this.audit(roomId, userId, 'tag.confirmed', { tagId });
     });
 
@@ -737,7 +812,9 @@ export class RoomService {
   // ---------------------------------------------------------------- views
 
   state(roomId: string): unknown {
-    this.reconcile(roomId);
+    // Lazy evaluation can change state (expired tag claim -> dispute, timer phase change).
+    // Broadcast when it did, so REST pollers and live socket clients agree immediately.
+    if (this.reconcile(roomId)) this.broadcastRoom(roomId);
     return this.buildState(roomId);
   }
 
@@ -746,7 +823,8 @@ export class RoomService {
     const settings = JSON.parse(room.settings_json) as Settings;
     const presence = this.hub.presence(roomId);
     const members = this.members(roomId);
-    const match = this.activeMatch(roomId) ?? this.latestMatch(roomId);
+    const activeMatch = this.activeMatch(roomId);
+    const match = activeMatch ?? this.latestMatch(roomId);
     const now = this.now();
 
     let matchView: MatchView | null = null;
@@ -791,8 +869,43 @@ export class RoomService {
         isAdmin: m.user_id === room.admin_id,
       })),
       match: matchView,
+      // Unresolved claims of the current match only; the lobby always reports an empty list.
+      pendingTags: activeMatch ? this.pendingTags(activeMatch.id, now) : [],
       serverNow: now,
     };
+  }
+
+  /**
+   * Unresolved tag claims (pending confirmation or already disputed) of one match, joined
+   * with usernames. Pending claims past the 90 s window are hidden here even before
+   * reconcile escalates them, so no REST/WS reader ever sees a stale countdown.
+   */
+  private pendingTags(matchId: string, now: number): PendingTagView[] {
+    const rows = all<{
+      id: string; match_id: string; hunter_id: string; hunter_username: string;
+      prey_id: string; prey_username: string; created_at: number; status: string;
+    }>(this.db,
+      `SELECT t.id, t.match_id, t.hunter_id, hu.username AS hunter_username,
+              t.prey_id, pu.username AS prey_username, t.created_at, t.status
+         FROM tags t
+         JOIN users hu ON hu.id = t.hunter_id
+         JOIN users pu ON pu.id = t.prey_id
+        WHERE t.match_id = ? AND t.status IN ('pending', 'disputed')
+          AND (t.status = 'disputed' OR t.created_at > ?)
+        ORDER BY t.created_at ASC, t.id ASC`,
+      matchId, now - PENDING_TAG_TTL_MS);
+
+    return rows.map((r) => ({
+      id: r.id,
+      matchId: r.match_id,
+      hunterId: r.hunter_id,
+      hunterUsername: r.hunter_username,
+      preyId: r.prey_id,
+      preyUsername: r.prey_username,
+      createdAt: r.created_at,
+      expiresAt: r.created_at + PENDING_TAG_TTL_MS,
+      disputed: r.status === 'disputed',
+    }));
   }
 
   private zoneView(match: MatchRow, settings: Settings, now: number): MatchView['zone'] {

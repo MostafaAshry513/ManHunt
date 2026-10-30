@@ -1,5 +1,9 @@
 # Android Client Review — ManHunt
 
+> **Historical document.** An internal adversarial review of an earlier version. Some findings have
+> since been fixed and `file:line` references may have drifted; check the current code before
+> acting on it. See [docs/README.md](README.md) for the current documentation map.
+
 Adversarial, read-only review of the Android client (`android/app/src/main/**`,
 `AndroidManifest.xml`, `app/build.gradle.kts`), cross-checked against the backend
 contract (`docs/ARCHITECTURE.md`, `server/src/**`). Method: direct code reading of
