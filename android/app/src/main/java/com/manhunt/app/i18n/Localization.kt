@@ -204,6 +204,49 @@ private val arabic: Map<String, String> = mapOf(
     "By (m)" to "بمقدار (متر)",
     "Save" to "حفظ",
 
+    // Pagination / connection states (used by the room/chat surface)
+    "Load older messages" to "تحميل الرسائل الأقدم",
+    "Loading older messages" to "جارٍ تحميل الرسائل الأقدم",
+    "No older messages" to "لا توجد رسائل أقدم",
+    "Connection lost" to "انقطع الاتصال",
+    "Last updated" to "آخر تحديث",
+    "Reconnecting" to "جارٍ إعادة الاتصال",
+
+    // Auth / validation
+    "Show password" to "إظهار كلمة المرور",
+    "Hide password" to "إخفاء كلمة المرور",
+    "Username is required" to "اسم المستخدم مطلوب",
+    "Password must be at least 8 characters" to "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "Enter a valid server address (http:// or https://)" to "أدخل عنوان خادم صالحًا (http:// أو https://)",
+    "Change server" to "تغيير الخادم",
+    "Something went wrong" to "حدث خطأ ما",
+
+    // Home
+    "Current server" to "الخادم الحالي",
+
+    // History dialog
+    "Duration" to "المدة",
+    "Hunts appear here once they finish." to "تظهر المطاردات هنا بعد انتهائها.",
+    "min" to "د",
+    "Prey:" to "الفرائس:",
+    "Hunters:" to "الصيادون:",
+
+    // Map
+    "You" to "أنت",
+    "Zoom in" to "تكبير",
+    "Zoom out" to "تصغير",
+    "Play zone" to "منطقة اللعب",
+    "Stale report" to "بلاغ قديم",
+    "Unverified report" to "بلاغ غير موثّق",
+    "Live report" to "بلاغ مباشر",
+
+    // Room rules dialog
+    "Timing" to "التوقيت",
+    "Zone centre" to "مركز المنطقة",
+    "Latitude" to "خط العرض",
+    "Longitude" to "خط الطول",
+    "Enter coordinates manually" to "أدخل الإحداثيات يدويًا",
+
     // Chat
     "No messages yet. Say hello." to "لا رسائل بعد. ألقِ التحية.",
     "Message" to "رسالة",

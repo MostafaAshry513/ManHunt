@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,12 +16,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material.icons.outlined.Login
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -43,10 +41,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.manhunt.app.Graph
-import com.manhunt.app.i18n.t
-import com.manhunt.app.i18n.translate
 import com.manhunt.app.data.ApiException
 import com.manhunt.app.data.ManHuntRepository
+import com.manhunt.app.i18n.t
+import com.manhunt.app.i18n.translate
+import com.manhunt.app.ui.theme.ManHuntSizes
+import com.manhunt.app.ui.theme.ManHuntSpacing
 import kotlinx.coroutines.launch
 
 data class HomeUi(
@@ -123,70 +123,97 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(ManHuntSpacing.screen),
+            verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(t("MANHUNT"), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
                     Text(
-                        "${t("Playing as")} ${session?.user?.username ?: "..."}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        t("MANHUNT"),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Spacer(Modifier.size(ManHuntSpacing.xs))
+                    Pill(
+                        text = "${t("Playing as")} ${session?.user?.username ?: "..."}",
+                        color = MaterialTheme.colorScheme.primary,
+                        icon = Icons.Outlined.Person,
                     )
                 }
-                TextButton(onClick = { repo.logout() }) {
-                    Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(t("Sign out"))
-                }
-                IconButton(onClick = onOpenSettings, modifier = Modifier.testTag("home_settings")) {
+                IconButton(
+                    onClick = onOpenSettings,
+                    modifier = Modifier.size(ManHuntSizes.touchTarget).testTag("home_settings"),
+                ) {
                     Icon(Icons.Outlined.Settings, contentDescription = t("Settings"))
                 }
             }
 
-            ScreenCard {
-                SectionLabel(t("Host a hunt"))
-                Text(t("You set the rules. You call the hunt."), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                OutlinedTextField(
+            ScreenCard(
+                title = t("Host a hunt"),
+                subtitle = t("You set the rules. You call the hunt."),
+                icon = Icons.Outlined.AddCircle,
+            ) {
+                ManHuntTextField(
                     value = ui.roomName,
                     onValueChange = vm::onRoomName,
-                    label = { Text(t("Hunt name")) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().testTag("home_room_name"),
+                    label = t("Hunt name"),
+                    enabled = !ui.busy,
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
+                    testTag = "home_room_name",
                 )
-                Button(
+                PrimaryButton(
+                    text = t("Create hunt"),
                     onClick = vm::createRoom,
                     enabled = !ui.busy,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_create"),
-                ) {
-                    Icon(Icons.Outlined.AddCircle, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(t("Create hunt"))
-                }
+                    icon = Icons.Outlined.AddCircle,
+                    modifier = Modifier.testTag("home_create"),
+                )
                 ErrorBanner(ui.createError)
             }
 
-            ScreenCard {
-                SectionLabel(t("Join a hunt"))
-                Text(t("Got an invite code?"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                OutlinedTextField(
+            ScreenCard(
+                title = t("Join a hunt"),
+                subtitle = t("Got an invite code?"),
+                icon = Icons.Outlined.Login,
+            ) {
+                ManHuntTextField(
                     value = ui.joinCode,
                     onValueChange = vm::onJoinCode,
-                    label = { Text(t("Invite code")) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().testTag("home_join_code"),
+                    label = t("Invite code"),
+                    enabled = !ui.busy,
+                    placeholder = "ABC123",
+                    testTag = "home_join_code",
                 )
-                Button(
+                PrimaryButton(
+                    text = t("Join hunt"),
                     onClick = vm::joinRoom,
                     enabled = !ui.busy,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("home_join"),
-                ) {
-                    Icon(Icons.Outlined.Login, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(t("Join hunt"))
-                }
+                    icon = Icons.Outlined.Login,
+                    modifier = Modifier.testTag("home_join"),
+                )
                 ErrorBanner(ui.joinError)
+            }
+
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    t("Signed in as") + " " + (session?.user?.username ?: "-"),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(
+                    onClick = { repo.logout() },
+                    modifier = Modifier.heightIn(min = ManHuntSizes.touchTarget),
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Outlined.Logout,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(ManHuntSpacing.xs))
+                    Text(t("Sign out"))
+                }
             }
         }
     }

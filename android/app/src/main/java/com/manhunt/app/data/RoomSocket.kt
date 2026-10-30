@@ -27,9 +27,15 @@ sealed interface SocketEvent {
 /**
  * Authenticated room socket with bounded exponential backoff.
  * Purely an accelerator: the server is authoritative and the UI still polls as a fallback.
+ *
+ * OkHttp invokes the [WebSocketListener] callbacks on its own threads. Every event is
+ * marshalled onto [callbackScope] (the ViewModel's main-dispatcher scope in the app) so
+ * UI state is only ever written from the main thread and the callbacks are owned by the
+ * screen's lifecycle rather than by the OkHttp thread pool.
  */
 class RoomSocket(
     private val http: OkHttpClient,
+    private val callbackScope: CoroutineScope,
     private val onEvent: (SocketEvent) -> Unit,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -40,6 +46,11 @@ class RoomSocket(
     private var wanted = false
     private var attempt = 0
     private var reconnectJob: Job? = null
+
+    /** Main-thread event delivery; ordering is preserved because the scope is single-threaded. */
+    private fun dispatch(event: SocketEvent) {
+        callbackScope.launch { onEvent(event) }
+    }
 
     fun connect(baseUrl: String, token: String, roomId: String) {
         close()
@@ -69,22 +80,22 @@ class RoomSocket(
     private val listener = object : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             attempt = 0
-            onEvent(SocketEvent.Connection(true))
+            dispatch(SocketEvent.Connection(true))
             roomId?.let { webSocket.send("""{"type":"subscribe","roomId":"$it"}""") }
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            SocketPayloadParser.parse(text)?.let(onEvent)
+            SocketPayloadParser.parse(text)?.let(::dispatch)
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            onEvent(SocketEvent.Connection(false, t.message))
+            dispatch(SocketEvent.Connection(false, t.message))
             scheduleReconnect()
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             if (wanted) {
-                onEvent(SocketEvent.Connection(false, reason))
+                dispatch(SocketEvent.Connection(false, reason))
                 scheduleReconnect()
             }
         }

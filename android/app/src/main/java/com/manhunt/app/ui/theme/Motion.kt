@@ -17,8 +17,14 @@ object Motion {
     /** Spatial change: screen and card transitions. */
     const val EMPHASIZED = 240
 
+    /** Long content change: expanding dialogs, paged lists. */
+    const val LONG = 320
+
     /** Decelerating curve for entrances; fast start, soft landing. */
     val EaseOutExpo: Easing = CubicBezierEasing(0.16f, 1f, 0.3f, 1f)
+
+    /** Gentler entrance curve for larger surfaces. */
+    val EaseOutCubic: Easing = CubicBezierEasing(0.33f, 1f, 0.68f, 1f)
 
     /** Symmetric ease for exits. */
     val EaseInOut: Easing = CubicBezierEasing(0.4f, 0f, 0.2f, 1f)

@@ -7,39 +7,31 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Translate
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -48,25 +40,23 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
-import com.manhunt.app.data.UpdateManager
 import com.manhunt.app.Graph
+import com.manhunt.app.data.UpdateManager
 import com.manhunt.app.i18n.AppLanguage
 import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
+import com.manhunt.app.ui.theme.ManHuntRadius
+import com.manhunt.app.ui.theme.ManHuntSpacing
+import kotlinx.coroutines.launch
 
 private enum class SettingsTab(val label: String, val icon: ImageVector) {
     Appearance("Appearance", Icons.Outlined.Palette),
@@ -87,60 +77,26 @@ fun SettingsScreen(onBack: () -> Unit) {
 
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))
-                }
-                Text(
-                    t("Settings"),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
+            ScreenHeader(title = t("Settings"), onBack = onBack)
 
-            Row(
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(0.dp),
+            // Material Tab row: exposes the proper Tab role/selected state to TalkBack
+            // (the old bespoke clickable columns had no selection semantics).
+            TabRow(
+                selectedTabIndex = tab,
+                containerColor = MaterialTheme.colorScheme.surface,
             ) {
                 SettingsTab.entries.forEachIndexed { index, entry ->
-                    val selected = tab == index
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { tab = index }
-                            .padding(vertical = 6.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            entry.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(22.dp),
-                            tint = if (selected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Spacer(Modifier.height(3.dp))
-                        Text(
-                            t(entry.label),
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                            color = if (selected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Box(
-                            Modifier
-                                .width(20.dp)
-                                .height(2.dp)
-                                .background(
-                                    if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                    RoundedCornerShape(1.dp),
-                                ),
-                        )
-                    }
+                    Tab(
+                        selected = tab == index,
+                        onClick = { tab = index },
+                        icon = {
+                            Icon(
+                                entry.icon,
+                                contentDescription = t(entry.label),
+                                modifier = Modifier.padding(vertical = 2.dp),
+                            )
+                        },
+                    )
                 }
             }
 
@@ -148,8 +104,8 @@ fun SettingsScreen(onBack: () -> Unit) {
                 Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = ManHuntSpacing.xl, vertical = ManHuntSpacing.lg),
+                verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
             ) {
                 when (SettingsTab.entries[tab]) {
                     SettingsTab.Appearance -> AppearanceTab(
@@ -184,16 +140,14 @@ private fun AppearanceTab(
 ) {
     var scale by remember(storedScale) { mutableFloatStateOf(storedScale) }
 
-    ScreenCard {
-        SectionLabel(t("Theme"))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    ScreenCard(title = t("Theme"), icon = Icons.Outlined.Palette) {
+        Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
             FilterChip(selected = dark, onClick = { onTheme(true) }, label = { Text(t("Dark")) })
             FilterChip(selected = !dark, onClick = { onTheme(false) }, label = { Text(t("Light")) })
         }
     }
 
-    ScreenCard {
-        SectionLabel(t("Text size"))
+    ScreenCard(title = t("Text size"), icon = Icons.Outlined.Person) {
         Text(
             "${(scale * 100).toInt()}%",
             style = MaterialTheme.typography.titleMedium,
@@ -211,18 +165,24 @@ private fun AppearanceTab(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Text(
-            t("Hunters see prey positions every few minutes."),
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        Surface(
+            shape = RoundedCornerShape(ManHuntRadius.sm),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                t("Hunters see prey positions every few minutes."),
+                modifier = Modifier.padding(ManHuntSpacing.md),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
 
 @Composable
 private fun LanguageTab(language: AppLanguage, onLanguage: (AppLanguage) -> Unit) {
-    ScreenCard {
-        SectionLabel(t("Language"))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    ScreenCard(title = t("Language"), icon = Icons.Outlined.Translate) {
+        Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
             FilterChip(
                 selected = language == AppLanguage.English,
                 onClick = { onLanguage(AppLanguage.English) },
@@ -258,13 +218,13 @@ private fun UpdateTab() {
     var busy by remember { mutableStateOf(false) }
     val downloadProgress by manager.progress.collectAsState()
 
-    ScreenCard {
-        SectionLabel(t("Updates"))
+    ScreenCard(title = t("Updates"), icon = Icons.Outlined.SystemUpdate) {
         Text(
             "${t("Installed")} ${com.manhunt.app.BuildConfig.VERSION_NAME} (${com.manhunt.app.BuildConfig.VERSION_CODE})",
             style = MaterialTheme.typography.bodyMedium,
         )
-        Button(
+        PrimaryButton(
+            text = t("Check for updates"),
             onClick = {
                 busy = true
                 status = null
@@ -283,20 +243,21 @@ private fun UpdateTab() {
                 }
             },
             enabled = !busy,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-        ) { Text(t("Check for updates")) }
+            loading = busy,
+        )
 
         latest?.let { update ->
             if (update.versionCode > com.manhunt.app.BuildConfig.VERSION_CODE) {
                 Text(
-                    "v${update.versionName} · ${(update.size / 1024 / 1024)} MB",
+                    "v${update.versionName} | ${(update.size / 1024 / 1024)} MB",
                     style = MaterialTheme.typography.titleMedium,
                 )
                 update.notes?.let {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (downloaded == null) {
-                    Button(
+                    PrimaryButton(
+                        text = t("Download update"),
                         onClick = {
                             busy = true
                             status = null
@@ -311,8 +272,8 @@ private fun UpdateTab() {
                             }
                         },
                         enabled = !busy,
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                    ) { Text(t("Download update")) }
+                        loading = busy,
+                    )
                 }
             }
         }
@@ -333,23 +294,24 @@ private fun UpdateTab() {
             }
         }
 
-        downloaded?.let { file ->
+        downloaded?.let {
             Text(
                 t("Update ready to install"),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Button(
+            PrimaryButton(
+                text = t("Install update"),
                 onClick = {
-                    if (!manager.install(file)) {
+                    if (!manager.install(it)) {
                         status = translate(
                             "Allow installs from ManHunt, then tap Install update again.",
                             repo.language.value,
                         )
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-            ) { Text(t("Install update")) }
+                icon = Icons.Outlined.SystemUpdate,
+            )
         }
 
         status?.let {
@@ -367,8 +329,7 @@ private fun UpdateTab() {
 private fun PermissionsTab() {
     val context = LocalContext.current
 
-    ScreenCard {
-        SectionLabel(t("Location"))
+    ScreenCard(title = t("Location"), icon = Icons.Outlined.LocationOn) {
         val granted = hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ||
             hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
         PermissionRow(
@@ -380,8 +341,7 @@ private fun PermissionsTab() {
         )
     }
 
-    ScreenCard {
-        SectionLabel(t("Notifications"))
+    ScreenCard(title = t("Notifications"), icon = Icons.Outlined.Notifications) {
         val granted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             hasPermission(context, Manifest.permission.POST_NOTIFICATIONS)
         } else {
@@ -405,46 +365,44 @@ private fun PermissionRow(
     explanation: String,
     onOpenSettings: () -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Column(Modifier.weight(1f).padding(start = 12.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Text(
-                if (granted) t("Allowed") else t("Not allowed"),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-            )
-        }
-        OutlinedButton(onClick = onOpenSettings) { Text(t(if (granted) "Manage" else "Allow")) }
-    }
+    InfoRow(icon = icon, label = title, value = t(if (granted) "Allowed" else "Not allowed"))
     Text(
         explanation,
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
+    SecondaryButton(
+        text = t(if (granted) "Manage" else "Allow"),
+        onClick = onOpenSettings,
+    )
 }
 
 @Composable
 private fun AccountTab(username: String, serverUrl: String, onSignOut: () -> Unit) {
-    ScreenCard {
-        SectionLabel(t("Signed in as"))
-        Text(username, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    ScreenCard(title = t("Account"), icon = Icons.Outlined.Person) {
+        InfoRow(
+            icon = Icons.Outlined.Person,
+            label = t("Signed in as"),
+            value = username,
+        )
     }
-    ScreenCard {
-        SectionLabel(t("Server"))
-        Text(serverUrl, style = MaterialTheme.typography.bodyMedium)
+    ScreenCard(title = t("Server"), icon = Icons.Outlined.Wifi) {
+        InfoRow(
+            icon = Icons.Outlined.Wifi,
+            label = t("Server"),
+            value = serverUrl,
+        )
         Text(
             t("To change the server, sign out and edit it on the sign-in screen."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
-    Button(
+    SecondaryButton(
+        text = t("Sign out"),
         onClick = onSignOut,
-        modifier = Modifier.fillMaxWidth().height(50.dp),
-        shape = RoundedCornerShape(14.dp),
-    ) { Text(t("Sign out")) }
-    Spacer(Modifier.height(8.dp))
+        contentColor = MaterialTheme.colorScheme.error,
+    )
 }
 
 private fun hasPermission(context: Context, permission: String): Boolean =

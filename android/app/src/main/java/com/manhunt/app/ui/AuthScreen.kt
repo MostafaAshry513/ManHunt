@@ -2,31 +2,42 @@ package com.manhunt.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,9 +45,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.manhunt.app.Graph
-import com.manhunt.app.i18n.t
 import com.manhunt.app.data.ApiException
 import com.manhunt.app.data.ManHuntRepository
+import com.manhunt.app.i18n.t
+import com.manhunt.app.i18n.translate
+import com.manhunt.app.ui.theme.ManHuntSpacing
 import kotlinx.coroutines.launch
 
 data class AuthUi(
@@ -47,6 +60,8 @@ data class AuthUi(
     val error: String? = null,
     val showServer: Boolean = false,
     val serverUrl: String = "",
+    /** True after the first submit attempt, so field errors appear inline. */
+    val submitted: Boolean = false,
 )
 
 class AuthViewModel(private val repo: ManHuntRepository) : ViewModel() {
@@ -55,7 +70,7 @@ class AuthViewModel(private val repo: ManHuntRepository) : ViewModel() {
 
     fun onUsername(value: String) { ui = ui.copy(username = value, error = null) }
     fun onPassword(value: String) { ui = ui.copy(password = value, error = null) }
-    fun toggleMode() { ui = ui.copy(register = !ui.register, error = null) }
+    fun toggleMode() { ui = ui.copy(register = !ui.register, error = null, submitted = false) }
     fun toggleServer() { ui = ui.copy(showServer = !ui.showServer) }
     fun onServerUrl(value: String) { ui = ui.copy(serverUrl = value) }
 
@@ -67,18 +82,26 @@ class AuthViewModel(private val repo: ManHuntRepository) : ViewModel() {
 
     fun submit() {
         if (ui.loading) return
+        // Same rule as before: a username is required and passwords are at least 8 characters.
         if (ui.username.isBlank() || ui.password.length < 8) {
-            ui = ui.copy(error = "Username required and password must be at least 8 characters")
+            ui = ui.copy(
+                submitted = true,
+                error = if (ui.username.isBlank()) {
+                    translate("Username is required", repo.language.value)
+                } else {
+                    translate("Password must be at least 8 characters", repo.language.value)
+                },
+            )
             return
         }
-        ui = ui.copy(loading = true, error = null)
+        ui = ui.copy(loading = true, error = null, submitted = true)
         viewModelScope.launch {
             try {
                 if (ui.register) repo.register(ui.username, ui.password) else repo.login(ui.username, ui.password)
             } catch (e: ApiException) {
                 ui = ui.copy(error = e.message)
             } catch (e: Exception) {
-                ui = ui.copy(error = e.message ?: "Something went wrong")
+                ui = ui.copy(error = e.message ?: translate("Something went wrong", repo.language.value))
             } finally {
                 ui = ui.copy(loading = false)
             }
@@ -92,97 +115,139 @@ fun AuthScreen() {
         initializer { AuthViewModel(Graph.container.repository) }
     })
     val ui = vm.ui
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    val usernameError = ui.submitted && ui.username.isBlank()
+    val passwordError = ui.submitted && ui.password.length < 8
 
     Surface(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 48.dp),
-            verticalArrangement = Arrangement.Center,
+                .padding(horizontal = ManHuntSpacing.xl, vertical = ManHuntSpacing.section),
+            verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.xl),
         ) {
-            Text(t("MANHUNT"), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
-            Spacer(Modifier.height(6.dp))
-            Text(
-                "Hide. Hunt. Survive.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            HeroBanner(
+                title = t("MANHUNT"),
+                subtitle = t("Hide. Hunt. Survive."),
+                icon = Icons.Outlined.Person,
             )
-            Spacer(Modifier.height(32.dp))
 
             ScreenCard {
-                Text(
-                    if (ui.register) "Create your account" else "Welcome back",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        if (ui.register) Icons.Outlined.Person else Icons.Outlined.Lock,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.width(ManHuntSpacing.sm))
+                    Text(
+                        if (ui.register) t("Create your account") else t("Welcome back"),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
 
-                OutlinedTextField(
+                ManHuntTextField(
                     value = ui.username,
                     onValueChange = vm::onUsername,
-                    label = { Text(t("Username")) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().testTag("auth_username"),
+                    label = t("Username"),
+                    enabled = !ui.loading,
+                    isError = usernameError,
+                    supportingText = if (usernameError) t("Username is required") else null,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next,
+                    autofillType = if (ui.register) ContentType.NewUsername else ContentType.Username,
+                    testTag = "auth_username",
                 )
-                OutlinedTextField(
+
+                ManHuntTextField(
                     value = ui.password,
                     onValueChange = vm::onPassword,
-                    label = { Text(t("Password")) },
-                    singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier.fillMaxWidth().testTag("auth_password"),
+                    label = t("Password"),
+                    enabled = !ui.loading,
+                    isError = passwordError,
+                    supportingText = if (passwordError) t("Password must be at least 8 characters") else null,
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done,
+                    visualTransformation = if (passwordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                    autofillType = if (ui.register) ContentType.NewPassword else ContentType.Password,
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                if (passwordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                                contentDescription = t(if (passwordVisible) "Hide password" else "Show password"),
+                            )
+                        }
+                    },
+                    testTag = "auth_password",
                 )
 
                 ErrorBanner(ui.error)
 
-                Button(
-                    onClick = {
-                        vm.submit()
-                    },
+                PrimaryButton(
+                    text = if (ui.register) t("Create account") else t("Sign in"),
+                    onClick = vm::submit,
+                    loading = ui.loading,
                     enabled = !ui.loading,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp).testTag("auth_submit"),
-                ) {
-                    if (ui.loading) {
-                        ManHuntLoader(size = 20.dp, color = MaterialTheme.colorScheme.onPrimary)
-                    } else {
-                        Text(if (ui.register) "Create account" else "Sign in")
-                    }
-                }
+                    modifier = Modifier.testTag("auth_submit"),
+                )
 
-                TextButton(onClick = vm::toggleMode, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (ui.register) "I already have an account" else "New here? Create an account")
-                }
+                InlineAction(
+                    text = if (ui.register) t("I already have an account") else t("New here? Create an account"),
+                    onClick = vm::toggleMode,
+                    modifier = Modifier.fillMaxWidth(),
+                )
             }
 
-            Spacer(Modifier.height(20.dp))
-
-            TextButton(onClick = vm::toggleServer) {
-                Text("${t("Server:")} ${ui.serverUrl}", style = MaterialTheme.typography.bodySmall)
-            }
-            if (ui.showServer) {
-                ScreenCard {
-                    Text(t("Server address"), style = MaterialTheme.typography.titleSmall)
+            ScreenCard(
+                title = t("Server:"),
+                subtitle = t("Use your PC's LAN IP on a real phone, or 10.0.2.2 on an emulator."),
+                icon = Icons.Outlined.Wifi,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        t("Use your PC's LAN IP on a real phone, or 10.0.2.2 on an emulator."),
-                        style = MaterialTheme.typography.bodySmall,
+                        ui.serverUrl,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    OutlinedTextField(
+                    InlineAction(
+                        text = if (ui.showServer) t("Cancel") else t("Change server"),
+                        onClick = vm::toggleServer,
+                    )
+                }
+                if (ui.showServer) {
+                    ManHuntTextField(
                         value = ui.serverUrl,
                         onValueChange = vm::onServerUrl,
+                        label = t("Server address"),
                         // Format hint, not copy: a placeholder must never leak a private LAN address.
-                        label = { Text("http://server:8080") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = "http://server:8080",
+                        keyboardType = KeyboardType.Uri,
+                        autofillType = null,
                     )
-                    Button(onClick = vm::saveServer, modifier = Modifier.fillMaxWidth()) {
-                        Text(t("Save server"))
+                    Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
+                        SecondaryButton(
+                            text = t("Cancel"),
+                            onClick = vm::toggleServer,
+                            modifier = Modifier.weight(1f),
+                        )
+                        PrimaryButton(
+                            text = t("Save server"),
+                            onClick = vm::saveServer,
+                            modifier = Modifier.weight(1f),
+                        )
                     }
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(ManHuntSpacing.sm))
         }
     }
 }

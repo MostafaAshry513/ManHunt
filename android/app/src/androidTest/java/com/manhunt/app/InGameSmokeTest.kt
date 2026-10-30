@@ -102,12 +102,17 @@ class InGameSmokeTest {
         val aliceName = "alice$suffix"
         val bobName = "bob$suffix"
 
-        // First run: accept the safety notice.
-        if (compose.onAllNodesWithText("I understand and I'll play safely").fetchSemanticsNodes().isNotEmpty()) {
-            compose.onAllNodesWithText("I understand and I'll play safely")[0].performClick()
+        // First run: accept the safety notice. The consent button is pinned at the bottom of
+        // the safety screen, so once it is composed it is directly clickable.
+        compose.waitUntil(40_000) {
+            compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty()
+        }
+        if (compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty()) {
+            compose.onNodeWithTag("safety_accept").performClick()
         }
 
-        waitForTag("auth_username")
+        waitForTag("auth_username", 40_000)
         compose.onNodeWithTag("auth_username").performTextInput(aliceName)
         compose.onNodeWithTag("auth_password").performTextInput("password123")
 

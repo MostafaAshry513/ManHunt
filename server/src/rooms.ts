@@ -636,18 +636,33 @@ export class RoomService {
     return view;
   }
 
-  messages(userId: string, roomId: string, limit = 50): unknown {
+  /**
+   * Newest messages first read backwards from an optional id cursor.
+   *
+   * `before` is exclusive: only messages with `id < before` are returned, which makes
+   * the cursor stable while new messages are being appended. The page is always
+   * returned oldest-to-newest so the existing client rendering order is unchanged.
+   * `hasMore` is additive: older clients that ignore it keep their previous behaviour.
+   */
+  messages(userId: string, roomId: string, limit = 50, before?: number): unknown {
     this.room(roomId);
     if (!this.member(roomId, userId)) throw forbidden('You are not in this room');
+    const pageSize = Math.min(Math.max(Math.trunc(limit) || 50, 1), 200);
+    const cursor = typeof before === 'number' && Number.isFinite(before) ? Math.trunc(before) : null;
     const rows = all<{ id: number; user_id: string | null; username: string | null; kind: string; body: string; created_at: number }>(
       this.db,
       `SELECT m.id, m.user_id, u.username, m.kind, m.body, m.created_at
          FROM messages m LEFT JOIN users u ON u.id = m.user_id
-        WHERE m.room_id = ? ORDER BY m.id DESC LIMIT ?`,
-      roomId, Math.min(Math.max(limit, 1), 200));
+        WHERE m.room_id = ?${cursor === null ? '' : ' AND m.id < ?'}
+        ORDER BY m.id DESC LIMIT ?`,
+      ...(cursor === null ? [roomId, pageSize + 1] : [roomId, cursor, pageSize + 1]));
+
+    // Fetch one extra row to learn whether another (older) page exists without a COUNT(*).
+    const hasMore = rows.length > pageSize;
+    const page = hasMore ? rows.slice(0, pageSize) : rows;
 
     return {
-      messages: rows.reverse().map((r) => ({
+      messages: page.reverse().map((r) => ({
         id: r.id,
         userId: r.user_id,
         username: r.username ?? 'System',
@@ -655,6 +670,7 @@ export class RoomService {
         body: r.body,
         createdAt: r.created_at,
       })),
+      hasMore,
     };
   }
 
