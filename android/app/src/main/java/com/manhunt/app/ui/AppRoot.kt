@@ -102,7 +102,7 @@ fun AppRoot() {
                     label = "screen",
                 ) { current ->
                     when (current) {
-                        Route.Safety -> SafetyScreen(
+                        Route.Safety -> WelcomeScreen(
                             onAccept = {
                                 repo.acceptSafety()
                                 safetyAccepted = true

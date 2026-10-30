@@ -45,13 +45,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.GpsFixed
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -695,11 +693,8 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     LaunchedEffect(resumed) {
         if (resumed) hasLocation = hasLocationPermission(context)
     }
-    val notificationsGranted = remember(resumed, state?.room?.status) {
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-            PackageManager.PERMISSION_GRANTED
-    }
+    // Only a fallback for someone who declined permissions on the welcome screen.
+    // Permissions are asked once there, before the player ever enters a room.
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
@@ -708,26 +703,10 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         locationDenied = !hasLocation
     }
     val trackingPermissions = remember {
-        buildList {
-            add(Manifest.permission.ACCESS_FINE_LOCATION)
-            add(Manifest.permission.ACCESS_COARSE_LOCATION)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                add(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }.toTypedArray()
-    }
-
-    // Permissions belong BEFORE the match, not mid-hunt (human review + player feedback).
-    // Entering the lobby asks once for location + notifications; the lobby's "device
-    // check" card below lets anyone fix a missing permission or re-enable it later.
-    LaunchedEffect(state?.room?.status, hasLocation, notificationsGranted) {
-        if (state?.room?.status == "lobby" &&
-            !MatchNotifier.prompted(context) &&
-            (!hasLocation || !notificationsGranted)
-        ) {
-            MatchNotifier.markPrompted(context)
-            permissionLauncher.launch(trackingPermissions)
-        }
+        arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        )
     }
 
     val matchId = match?.id
@@ -1434,33 +1413,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 }
 
                 if (lobby) {
-                    // Ask/fix permissions here, in the lobby, while everyone is still
-                    // getting ready - never in the middle of a hunt.
-                    item(key = "device_check") {
-                        ScreenCard {
-                            SectionLabel(t("Before the hunt"), Icons.Outlined.Checklist)
-                            DeviceCheckRow(
-                                icon = Icons.Outlined.LocationOn,
-                                title = t("Location"),
-                                granted = hasLocation,
-                                onAllow = { permissionLauncher.launch(trackingPermissions) },
-                            )
-                            DeviceCheckRow(
-                                icon = Icons.Outlined.Notifications,
-                                title = t("Notifications"),
-                                granted = notificationsGranted,
-                                onAllow = { permissionLauncher.launch(trackingPermissions) },
-                            )
-                            Text(
-                                t("Permissions are asked now, before the hunt starts."),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-
-                if (lobby) {
                     item {
                         ScreenCard {
                             SectionLabel(t("Choose your side"), Icons.Outlined.SwapHoriz)
@@ -1834,43 +1786,6 @@ private fun remainingSeconds(target: Long?, offset: Long): Long {
 private fun formatRemaining(target: Long?, seconds: Long): String {
     if (target == null) return "--:--"
     return "%02d:%02d".format(seconds / 60, seconds % 60)
-}
-
-@Composable
-private fun DeviceCheckRow(
-    icon: ImageVector,
-    title: String,
-    granted: Boolean,
-    onAllow: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            icon,
-            contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = if (granted) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.tertiary,
-        )
-        Spacer(Modifier.width(10.dp))
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyMedium)
-            Text(
-                t(if (granted) "Allowed" else "Not allowed"),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (granted) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.tertiary,
-            )
-        }
-        if (!granted) {
-            TextButton(
-                onClick = onAllow,
-                modifier = Modifier.heightIn(min = 44.dp),
-            ) { Text(t("Allow")) }
-        }
-    }
 }
 
 @Composable

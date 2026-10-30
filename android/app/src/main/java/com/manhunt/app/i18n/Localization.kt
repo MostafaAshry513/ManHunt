@@ -399,6 +399,49 @@ private val arabic: Map<String, String> = mapOf(
     "Before the hunt" to "قبل بدء المطاردة",
     "Permissions are asked now, before the hunt starts." to
         "تُطلب الأذونات الآن، قبل بدء المطاردة.",
+
+    // First-run welcome (roles & scenario)
+    "Welcome to ManHunt" to "مرحبًا بك في ManHunt",
+    "Real-world hide-and-seek — here's how it works." to
+        "لعبة الغُمّيضة في العالم الحقيقي — إليك كيف تعمل.",
+    "The two sides" to "الفريقان",
+    "Prey — you hide" to "الفريسة — أنت تختبئ",
+    "While the hunt is running, your phone shares your position with the Hunters at " +
+        "the interval the room set. Stay hidden and survive until the hunt ends — if at " +
+        "least one Prey is still free when the clock stops, Prey win." to
+        "أثناء المطاردة، يشارك هاتفك موقعك مع الصيادين وفق الفترة التي حددتها الغرفة. " +
+            "ابقَ مختبئًا واصمد حتى تنتهي المطاردة — وإذا بقي فريسة واحدة حرة عند توقف الساعة، تفوز الفرائس.",
+    "Hunters — you chase" to "الصيادون — أنت تطارد",
+    "Hunters see the Prey's latest positions on the map (and their trails if the " +
+        "room allows it). Find them in the real world and tag them by touching them — " +
+        "each tag must be confirmed by the Prey. Tag every Prey to win." to
+        "يرى الصيادون أحدث مواقع الفرائس على الخريطة (ومساراتهم إذا سمحت الغرفة بذلك). " +
+            "اعثروا عليهم في العالم الحقيقي ووسموهم بلمسهم — ويجب أن تؤكد الفريسة كل وسم. " +
+            "وسموا كل الفرائس لتفوزوا.",
+    "How a hunt runs" to "كيف تسير المطاردة",
+    "1. Create or join a room, then pick your side.\n" +
+        "2. Ready up. The huntmaster starts the hunt.\n" +
+        "3. Prey get a head start to hide; then hunting begins.\n" +
+        "4. Hunters tag Prey in person, and each tag is confirmed in the app.\n" +
+        "5. The hunt ends when the timer runs out or all Prey are tagged." to
+        "1. أنشئ غرفة أو انضم إليها، ثم اختر فريقك.\n" +
+            "2. استعدوا. يبدأ حكم المطاردة المطاردة.\n" +
+            "3. تحصل الفرائس على مهلة للاختباء، ثم تبدأ المطاردة.\n" +
+            "4. يوسم الصيادون الفرائس شخصيًا، ويُؤكَّد كل وسم في التطبيق.\n" +
+            "5. تنتهي المطاردة عند انتهاء الوقت أو عند وسم كل الفرائس.",
+    "What you need" to "ما تحتاجه",
+    " Location access, so Prey can share their position and Hunters can use the map." to
+        " إذن الموقع، حتى تشارك الفرائس مواقعها ويستخدم الصيادون الخريطة.",
+    " Notifications, so tag requests and the result reach you when the phone is in a pocket." to
+        " الإشعارات، حتى تصلك طلبات الوسم والنتيجة والهاتف في جيبك.",
+    "A safe place to play: this is a real-world game, played outdoors." to
+        "مكان آمن للعب: هذه لعبة في العالم الحقيقي تُلعب في الخارج.",
+    "Play safe" to "العب بأمان",
+    "Respect property and local law, watch traffic, and never run while looking at your " +
+        "phone. ManHunt is a game — not an emergency, rescue or child-tracking service." to
+        "احترم الممتلكات والقانون المحلي، وانتبه لحركة المرور، ولا تركض وأنت تنظر إلى هاتفك. " +
+            "ManHunt لعبة — وليست خدمة طوارئ أو إنقاذ أو تتبّع أطفال.",
+    "Let's play" to "لنبدأ اللعب",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }
