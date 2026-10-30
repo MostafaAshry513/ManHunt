@@ -102,12 +102,18 @@ class InGameSmokeTest {
         val aliceName = "alice$suffix"
         val bobName = "bob$suffix"
 
-        // First run: accept the safety notice.
+        // First run: accept the safety notice. Wait for either the safety screen or the
+        // auth screen so a slow first frame cannot skip the consent tap and stall the test
+        // (the old immediate check missed consent on slower/headless emulator starts).
+        compose.waitUntil(40_000) {
+            compose.onAllNodesWithText("I understand and I'll play safely").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty()
+        }
         if (compose.onAllNodesWithText("I understand and I'll play safely").fetchSemanticsNodes().isNotEmpty()) {
             compose.onAllNodesWithText("I understand and I'll play safely")[0].performClick()
         }
 
-        waitForTag("auth_username")
+        waitForTag("auth_username", 40_000)
         compose.onNodeWithTag("auth_username").performTextInput(aliceName)
         compose.onNodeWithTag("auth_password").performTextInput("password123")
 
