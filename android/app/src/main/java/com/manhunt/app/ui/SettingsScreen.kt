@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -36,6 +38,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -108,31 +111,47 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
             }
 
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = ManHuntSpacing.xl, vertical = ManHuntSpacing.lg),
-                verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
-            ) {
-                when (SettingsTab.entries[tab]) {
-                    SettingsTab.Appearance -> AppearanceTab(
-                        dark = dark,
-                        storedScale = storedScale,
-                        onTheme = repo::setDarkTheme,
-                        onScale = repo::setTextScale,
-                    )
-                    SettingsTab.Language -> LanguageTab(
-                        language = language,
-                        onLanguage = repo::setLanguage,
-                    )
-                    SettingsTab.Permissions -> PermissionsTab()
-                    SettingsTab.Updates -> UpdateTab()
-                    SettingsTab.Account -> AccountTab(
-                        username = session?.user?.username ?: "-",
-                        serverUrl = repo.serverUrl,
-                        onSignOut = { repo.logout() },
-                    )
+            val pagerState = rememberPagerState(
+                initialPage = tab,
+                pageCount = { SettingsTab.entries.size },
+            )
+            LaunchedEffect(tab) {
+                if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
+            }
+            LaunchedEffect(pagerState.settledPage) {
+                if (tab != pagerState.settledPage) tab = pagerState.settledPage
+            }
+            // Swipe between settings pages, synced with the tab strip above.
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+            ) { page ->
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = ManHuntSpacing.xl, vertical = ManHuntSpacing.lg),
+                    verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
+                ) {
+                    when (SettingsTab.entries[page]) {
+                        SettingsTab.Appearance -> AppearanceTab(
+                            dark = dark,
+                            storedScale = storedScale,
+                            onTheme = repo::setDarkTheme,
+                            onScale = repo::setTextScale,
+                        )
+                        SettingsTab.Language -> LanguageTab(
+                            language = language,
+                            onLanguage = repo::setLanguage,
+                        )
+                        SettingsTab.Permissions -> PermissionsTab()
+                        SettingsTab.Updates -> UpdateTab()
+                        SettingsTab.Account -> AccountTab(
+                            username = session?.user?.username ?: "-",
+                            serverUrl = repo.serverUrl,
+                            onSignOut = { repo.logout() },
+                        )
+                    }
                 }
             }
         }

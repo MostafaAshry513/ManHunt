@@ -19,6 +19,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -1284,7 +1286,22 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 }
             }
 
-            if (tab == 0) {
+            val pagerState = rememberPagerState(pageCount = { 2 })
+            LaunchedEffect(tab) {
+                if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
+            }
+            LaunchedEffect(pagerState.settledPage) {
+                if (tab != pagerState.settledPage) tab = pagerState.settledPage
+            }
+            // Swipe between Game and Chat. During a match the map page disables the pager
+            // gesture so a horizontal map pan can never flip the tab by accident.
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                userScrollEnabled = !(pagerState.currentPage == 0 && showMatchMap),
+            ) { page ->
+                if (page == 0) {
+                    Column(Modifier.fillMaxSize()) {
                 if (!lobby && match != null && showMatchMap) {
                     activeMatchMap(
                         Modifier
@@ -1506,12 +1523,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 }
 
                 }
-            } else {
-                ChatTabContent(
-                    vm = vm,
-                    myUserId = repo.myUserId(),
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                )
+                    }
+                } else {
+                    ChatTabContent(
+                        vm = vm,
+                        myUserId = repo.myUserId(),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
         }
     }
