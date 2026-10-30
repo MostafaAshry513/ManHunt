@@ -84,6 +84,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -782,7 +783,11 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         onDispose { TrackingService.stop(context) }
     }
 
-    var tab by rememberSaveable { mutableIntStateOf(0) }
+    // Single source of truth for Game/Chat is the pager: tapping a tab starts the scroll
+    // directly, so rapid taps re-target it instead of cancelling mid-flight (which used to
+    // leave the pager stuck between pages).
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(pageCount = { 2 })
     // Unread is tracked by message id, not list length: the server window caps the
     // visible list, so in a busy room a length-based badge would silently stay at zero.
     var lastReadId by rememberSaveable { mutableLongStateOf(-1L) }
@@ -808,10 +813,10 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         lastScrollKey = key
     }
 
-    LaunchedEffect(tab, unread) {
+    LaunchedEffect(pagerState.currentPage, unread) {
         // Seed the marker on first load so already-read history is not shown as unread,
-        // then keep it pinned while the reader is on the Chat tab.
-        if (tab == 1 && unread > 0) {
+        // then keep it pinned while the reader is on the Chat page.
+        if (pagerState.currentPage == 1 && unread > 0) {
             lastReadId = vm.chat.messages.maxOfOrNull { it.id } ?: -1L
         } else if (lastReadId < 0) {
             lastReadId = vm.chat.messages.maxOfOrNull { it.id } ?: -1L
@@ -1114,31 +1119,24 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 }
             }
 
-            val pagerState = rememberPagerState(pageCount = { 2 })
-            LaunchedEffect(tab) {
-                if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
-            }
-            LaunchedEffect(pagerState.currentPage) {
-                if (tab != pagerState.currentPage) tab = pagerState.currentPage
-            }
             TabRow(
-                selectedTabIndex = tab,
+                selectedTabIndex = pagerState.currentPage,
                 containerColor = MaterialTheme.colorScheme.surface,
                 indicator = { tabPositions -> PagerTabIndicator(pagerState, tabPositions) },
             ) {
                 Tab(
-                    selected = tab == 0,
+                    selected = pagerState.currentPage == 0,
                     modifier = Modifier.testTag("tab_game"),
-                    onClick = { tab = 0 },
+                    onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
                     icon = { Icon(Icons.Outlined.SportsEsports, contentDescription = null) },
                     text = { Text(t("Game")) },
                 )
                 Tab(
-                    selected = tab == 1,
+                    selected = pagerState.currentPage == 1,
                     modifier = Modifier.testTag("tab_chat"),
                     onClick = {
-                        tab = 1
                         lastReadId = vm.chat.messages.maxOfOrNull { it.id } ?: -1L
+                        scope.launch { pagerState.animateScrollToPage(1) }
                     },
                     icon = {
                         BadgedBox(badge = {

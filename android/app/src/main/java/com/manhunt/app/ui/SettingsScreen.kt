@@ -83,18 +83,10 @@ fun SettingsScreen(onBack: () -> Unit) {
     val storedScale by repo.textScale.collectAsState()
     val language by repo.language.collectAsState()
     val session by repo.session.collectAsState()
-    var tab by rememberSaveable { mutableIntStateOf(0) }
-    // Declared before the tab strip so the indicator can follow the pager while swiping.
-    val pagerState = rememberPagerState(
-        initialPage = tab,
-        pageCount = { SettingsTab.entries.size },
-    )
-    LaunchedEffect(tab) {
-        if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
-    }
-    LaunchedEffect(pagerState.currentPage) {
-        if (tab != pagerState.currentPage) tab = pagerState.currentPage
-    }
+    val scope = rememberCoroutineScope()
+    // Single source of truth: the pager. Tapping a tab starts a scroll directly, so rapid
+    // taps simply re-target the animation instead of cancelling it mid-flight and sticking.
+    val pagerState = rememberPagerState(pageCount = { SettingsTab.entries.size })
 
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
@@ -104,14 +96,14 @@ fun SettingsScreen(onBack: () -> Unit) {
             // tab strip is compact and the icons stay centred; TalkBack still gets the
             // localized label through the content description.
             TabRow(
-                selectedTabIndex = tab,
+                selectedTabIndex = pagerState.currentPage,
                 containerColor = MaterialTheme.colorScheme.surface,
                 indicator = { tabPositions -> PagerTabIndicator(pagerState, tabPositions) },
             ) {
                 SettingsTab.entries.forEachIndexed { index, entry ->
                     Tab(
-                        selected = tab == index,
-                        onClick = { tab = index },
+                        selected = pagerState.currentPage == index,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                         icon = {
                             Icon(
                                 entry.icon,
