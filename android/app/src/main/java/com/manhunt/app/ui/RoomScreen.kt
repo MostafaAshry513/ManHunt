@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import android.Manifest
 import android.content.Context
@@ -73,7 +73,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -1369,7 +1368,7 @@ private fun PhaseCard(
                 target = target,
                 offset = offset,
                 prefix = "${t("Hunting.")} ",
-                suffix = " · ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
+                suffix = " Â· ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
             )
             Phases.PAUSED -> Text(
                 t("The hunt is paused. The clock is stopped."),
@@ -1480,9 +1479,13 @@ private fun PhaseCard(
 }
 
 /**
- * Frame-aligned countdown. Only this composable reads the ticking value, so a running
- * clock invalidates one Text per second (and before that only if the rendered value
- * changes) instead of driving a 1 s whole-card state tick.
+ * Wall-clock countdown. Only this composable reads the ticking value, so a running
+ * clock invalidates one Text per second instead of driving a whole-card state tick.
+ *
+ * It must NOT wait for a frame every vsync: a per-frame loop keeps the Compose frame
+ * clock permanently busy (instrumentation tests time out waiting for idle, and on device
+ * it wakes the choreographer at 60 Hz for a value that changes once a second). Sleep
+ * until the next displayed-second boundary instead.
  */
 @Composable
 private fun CountdownText(
@@ -1496,13 +1499,12 @@ private fun CountdownText(
     var seconds by remember(target, offset) { mutableLongStateOf(remainingSeconds(target, offset)) }
     LaunchedEffect(target, offset) {
         if (target == null) return@LaunchedEffect
-        while (true) {
-            // withFrameMillis aligns the clock read with rendering; writing only when the
-            // displayed second changes keeps recomposition at ~1 Hz.
-            withFrameMillis {
-                val next = remainingSeconds(target, offset)
-                if (next != seconds) seconds = next
-            }
+        while (isActive) {
+            val next = remainingSeconds(target, offset)
+            if (next != seconds) seconds = next
+            val remainingMs = (target - (System.currentTimeMillis() + offset)).coerceAtLeast(0L)
+            val waitMs = if (remainingMs == 0L) 1_000L else (remainingMs % 1_000L).takeIf { it > 0L } ?: 1_000L
+            delay(waitMs)
         }
     }
     Text(prefix + formatRemaining(target, seconds) + suffix, style = style, color = color)
@@ -1533,3 +1535,4 @@ private fun startBlockers(state: RoomState): List<String> {
     if (notReady > 0) blockers += "$notReady ${t("still gearing up")}"
     return blockers
 }
+
