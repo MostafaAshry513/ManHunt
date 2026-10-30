@@ -1094,7 +1094,9 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 if (ui.loading) ManHuntLoader(size = 18.dp)
                 if (state != null) {
                     IconButton(onClick = {
-                        val text = "$joinRoomPrefix: ${state.room.name} - $codeWord ${state.room.code}"
+                        // A tappable invite link: opening it in the app auto-joins the room.
+                        val link = repo.serverUrl.trimEnd('/') + "/join?code=" + state.room.code
+                        val text = "$joinRoomPrefix\n${state.room.name} - $codeWord ${state.room.code}\n$link"
                         val send = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_TEXT, text)
@@ -1112,7 +1114,18 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 }
             }
 
-            TabRow(selectedTabIndex = tab, containerColor = MaterialTheme.colorScheme.surface) {
+            val pagerState = rememberPagerState(pageCount = { 2 })
+            LaunchedEffect(tab) {
+                if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
+            }
+            LaunchedEffect(pagerState.currentPage) {
+                if (tab != pagerState.currentPage) tab = pagerState.currentPage
+            }
+            TabRow(
+                selectedTabIndex = tab,
+                containerColor = MaterialTheme.colorScheme.surface,
+                indicator = { tabPositions -> PagerTabIndicator(pagerState, tabPositions) },
+            ) {
                 Tab(
                     selected = tab == 0,
                     modifier = Modifier.testTag("tab_game"),
@@ -1265,13 +1278,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 }
             }
 
-            val pagerState = rememberPagerState(pageCount = { 2 })
-            LaunchedEffect(tab) {
-                if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
-            }
-            LaunchedEffect(pagerState.settledPage) {
-                if (tab != pagerState.settledPage) tab = pagerState.settledPage
-            }
             // Swipe between Game and Chat. During a match the map page disables the pager
             // gesture so a horizontal map pan can never flip the tab by accident.
             HorizontalPager(
@@ -1285,7 +1291,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     activeMatchMap(
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .padding(horizontal = 16.dp, vertical = 10.dp)
                             .testTag("match_map_card"),
                     )
                 }
@@ -1294,6 +1300,8 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 // weight, not fillMaxSize: the chat composer must keep its height (UI-01).
                 modifier = Modifier.weight(1f).fillMaxWidth().padding(horizontal = 16.dp).testTag("lobby_list"),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
+                // Breathing room below the tab bar so the first card is not glued to it.
+                contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp),
             ) {
 
                 if (!lobby) {

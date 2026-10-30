@@ -84,6 +84,17 @@ fun SettingsScreen(onBack: () -> Unit) {
     val language by repo.language.collectAsState()
     val session by repo.session.collectAsState()
     var tab by rememberSaveable { mutableIntStateOf(0) }
+    // Declared before the tab strip so the indicator can follow the pager while swiping.
+    val pagerState = rememberPagerState(
+        initialPage = tab,
+        pageCount = { SettingsTab.entries.size },
+    )
+    LaunchedEffect(tab) {
+        if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
+    }
+    LaunchedEffect(pagerState.currentPage) {
+        if (tab != pagerState.currentPage) tab = pagerState.currentPage
+    }
 
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
@@ -95,6 +106,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             TabRow(
                 selectedTabIndex = tab,
                 containerColor = MaterialTheme.colorScheme.surface,
+                indicator = { tabPositions -> PagerTabIndicator(pagerState, tabPositions) },
             ) {
                 SettingsTab.entries.forEachIndexed { index, entry ->
                     Tab(
@@ -111,16 +123,6 @@ fun SettingsScreen(onBack: () -> Unit) {
                 }
             }
 
-            val pagerState = rememberPagerState(
-                initialPage = tab,
-                pageCount = { SettingsTab.entries.size },
-            )
-            LaunchedEffect(tab) {
-                if (pagerState.currentPage != tab) pagerState.animateScrollToPage(tab)
-            }
-            LaunchedEffect(pagerState.settledPage) {
-                if (tab != pagerState.settledPage) tab = pagerState.settledPage
-            }
             // Swipe between settings pages, synced with the tab strip above.
             HorizontalPager(
                 state = pagerState,
@@ -182,10 +184,15 @@ private fun AppearanceTab(
         )
         Slider(
             value = scale,
-            onValueChange = { scale = it },
-            onValueChangeFinished = { onScale(scale) },
+            // Live preview: the whole app rescales while the finger is still on the
+            // slider, not only when it is released.
+            onValueChange = {
+                scale = it
+                onScale(it)
+            },
             valueRange = 0.85f..1.35f,
-            steps = 4,
+            // steps=9 => 11 stops: 85, 90, 95, 100, 105, ... 135. Includes exactly 100%.
+            steps = 9,
         )
         Text(
             t("Preview: the room, chat and buttons scale together."),

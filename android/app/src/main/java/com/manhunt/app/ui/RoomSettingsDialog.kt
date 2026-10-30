@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -133,6 +133,15 @@ fun RoomSettingsDialog(
                         onValueChange = { radius = it.filter(Char::isDigit) },
                         label = t("Zone radius (metres)"),
                         keyboardType = KeyboardType.Number,
+                    )
+
+                    // One-tap placement: centre the play area on the phone's current
+                    // position, so a host can start a hunt right where they stand.
+                    SecondaryButton(
+                        text = t("Use my location"),
+                        onClick = { currentLocation?.let { applyCenter(it.lat, it.lng) } },
+                        enabled = currentLocation != null,
+                        modifier = Modifier.testTag("zone_use_location"),
                     )
 
                     // Zone placement opens a dedicated, non-scrolling full-screen map:

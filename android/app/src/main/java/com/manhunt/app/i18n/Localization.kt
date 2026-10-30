@@ -442,6 +442,7 @@ private val arabic: Map<String, String> = mapOf(
         "احترم الممتلكات والقانون المحلي، وانتبه لحركة المرور، ولا تركض وأنت تنظر إلى هاتفك. " +
             "ManHunt لعبة — وليست خدمة طوارئ أو إنقاذ أو تتبّع أطفال.",
     "Let's play" to "لنبدأ اللعب",
+    "Use my location" to "استخدم موقعي",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }

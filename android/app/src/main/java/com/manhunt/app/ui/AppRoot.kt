@@ -75,6 +75,22 @@ fun AppRoot() {
         }
     }
 
+    // Invite link: once the player is past the welcome and signed in, join the room
+    // automatically instead of making them retype the code.
+    val pendingJoin by DeepLink.pendingCode.collectAsState()
+    LaunchedEffect(pendingJoin, session, safetyAccepted) {
+        val code = pendingJoin ?: return@LaunchedEffect
+        if (!safetyAccepted || session == null) return@LaunchedEffect
+        DeepLink.consume()
+        val joined = runCatching { repo.joinRoom(code) }.getOrNull()
+        if (joined != null) {
+            activeRoomId = joined.room.id
+            routeKey = "room"
+        } else {
+            routeKey = "home"
+        }
+    }
+
     ManHuntTheme(darkTheme = dark, fontScale = textScale) {
         CompositionLocalProvider(
             LocalLanguage provides language,

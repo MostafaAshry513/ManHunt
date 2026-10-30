@@ -21,11 +21,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -41,6 +44,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TabPosition
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -65,6 +70,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import com.manhunt.app.data.Teams
 import com.manhunt.app.i18n.t
 import com.manhunt.app.ui.theme.ManHuntElevation
@@ -72,6 +78,7 @@ import com.manhunt.app.ui.theme.ManHuntRadius
 import com.manhunt.app.ui.theme.ManHuntSizes
 import com.manhunt.app.ui.theme.ManHuntSpacing
 import com.manhunt.app.ui.theme.Motion
+import kotlin.math.abs
 
 @Composable
 fun teamColor(team: String): Color = when (team) {
@@ -455,6 +462,33 @@ fun ErrorBanner(
             }
         }
     }
+}
+
+/**
+ * Tab underline that follows the pager while it is being dragged, instead of jumping
+ * to the new tab after the swipe settles. Interpolates between the current and target
+ * tab position using the pager's continuous offset.
+ */
+@Composable
+fun PagerTabIndicator(pagerState: PagerState, tabPositions: List<TabPosition>) {
+    if (tabPositions.isEmpty()) return
+    val current = pagerState.currentPage.coerceIn(0, tabPositions.lastIndex)
+    val offset = pagerState.currentPageOffsetFraction
+    val target = if (offset >= 0f) {
+        (current + 1).coerceAtMost(tabPositions.lastIndex)
+    } else {
+        (current - 1).coerceAtLeast(0)
+    }
+    val fraction = abs(offset).coerceIn(0f, 1f)
+    val start = tabPositions[current]
+    val end = tabPositions[target]
+    TabRowDefaults.SecondaryIndicator(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.BottomStart)
+            .offset(x = lerp(start.left, end.left, fraction))
+            .width(lerp(start.width, end.width, fraction)),
+    )
 }
 
 @Composable

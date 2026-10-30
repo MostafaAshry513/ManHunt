@@ -134,12 +134,6 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
-                    Spacer(Modifier.size(ManHuntSpacing.xs))
-                    Pill(
-                        text = "${t("Playing as")} ${session?.user?.username ?: "..."}",
-                        color = MaterialTheme.colorScheme.primary,
-                        icon = Icons.Outlined.Person,
-                    )
                 }
                 IconButton(
                     onClick = onOpenSettings,
