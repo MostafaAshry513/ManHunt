@@ -1,5 +1,6 @@
 package com.manhunt.app.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -61,6 +62,9 @@ fun AppRoot() {
     }
 
     LaunchedEffect(Unit) { repo.restoreSession() }
+
+    // System back on the settings screen returns Home instead of finishing the Activity.
+    BackHandler(enabled = routeKey == "settings") { routeKey = "home" }
 
     LaunchedEffect(session, safetyAccepted) {
         routeKey = when {

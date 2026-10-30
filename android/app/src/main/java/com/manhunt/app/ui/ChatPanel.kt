@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,12 +23,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,45 +39,84 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.manhunt.app.i18n.t
 import com.manhunt.app.data.ChatMessage
+import com.manhunt.app.i18n.t
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
- * Group-chat style room chat.
+ * Group-chat style room chat with backwards paging.
  *
- * Auto-scroll rule: only follow new messages when the reader is already at the bottom.
- * If they scrolled up to read, incoming messages never yank the list.
+ * Recomposition contract:
+ * - the composer draft lives here (or in the caller's saveable state) instead of the
+ *   screen-level ViewModel state, so typing never recomposes the room screen;
+ * - the list follows new messages only when the reader is already near the bottom, and
+ *   keeps the visual position when an older page is prepended.
  */
 @Composable
 fun ChatPanel(
     messages: List<ChatMessage>,
     myUserId: String?,
-    draft: String,
-    onDraftChange: (String) -> Unit,
     sending: Boolean,
     onSend: (String) -> Unit,
     error: String? = null,
+    hasMore: Boolean = false,
+    loadingOlder: Boolean = false,
+    onLoadOlder: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    /**
+     * Optional externally-hoisted draft. Production keeps the draft local; tests pass a
+     * fixed value to render a populated composer. Null means "chat panel owns the draft".
+     */
+    draft: String? = null,
+    onDraftChange: ((String) -> Unit)? = null,
 ) {
     val listState = rememberLazyListState()
-    var knownCount by remember { mutableIntStateOf(messages.size) }
+    var localDraft by rememberSaveable { mutableStateOf("") }
+    val activeDraft = draft ?: localDraft
+    val updateDraft: (String) -> Unit = { value ->
+        if (onDraftChange != null) onDraftChange(value) else localDraft = value
+    }
+
+    val olderItemCount = if (hasMore && onLoadOlder != null) 1 else 0
+    // Stable, unique list keys, computed once per message list. Server ids are
+    // authoritative; realtime system frames arrive with id == 0, so those rows are keyed
+    // by createdAt + the occurrence index of that timestamp in ascending list order. Keys
+    // never include the body or the absolute position, so prepending an older page (which
+    // only contains larger-timestamp history with real ids) cannot re-key existing rows.
+    val messageKeys = remember(messages) { stableMessageKeys(messages) }
+    // Ids are the stable identity of a message; fall back to -1 when empty.
+    var knownFirstId by remember { mutableLongStateOf(Long.MAX_VALUE) }
+    var knownLastId by remember { mutableLongStateOf(-1L) }
     var didInitialScroll by remember { mutableStateOf(false) }
 
-    // Open at the newest message (messages usually arrive after the first composition).
-    // Follow later messages only when the reader is already near the bottom.
-    LaunchedEffect(messages.size) {
-        if (!didInitialScroll && messages.isNotEmpty()) {
-            listState.scrollToItem(messages.lastIndex)
-            didInitialScroll = true
-        } else if (messages.size > knownCount) {
-            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
-            val nearBottom = lastVisible >= messages.lastIndex - 1 || messages.size <= 6
-            if (nearBottom) listState.animateScrollToItem(messages.lastIndex)
+    LaunchedEffect(messages.size, messages.firstOrNull()?.id, messages.lastOrNull()?.id) {
+        if (messages.isEmpty()) return@LaunchedEffect
+        val firstId = messages.first().id
+        val lastId = messages.last().id
+        when {
+            !didInitialScroll -> {
+                // Open at the newest message once the first page arrives.
+                listState.scrollToItem(messages.lastIndex + olderItemCount)
+                didInitialScroll = true
+            }
+            knownFirstId != Long.MAX_VALUE && firstId < knownFirstId -> {
+                // An older page was prepended: scrolling by the number of inserted rows
+                // keeps the reader anchored on the message they were reading.
+                val added = messages.count { it.id < knownFirstId }
+                if (added > 0) {
+                    listState.scrollToItem((listState.firstVisibleItemIndex + added).coerceAtLeast(0))
+                }
+            }
+            lastId > knownLastId -> {
+                val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+                val nearBottom = lastVisible >= listState.layoutInfo.totalItemsCount - 2 || messages.size <= 6
+                if (nearBottom) listState.animateScrollToItem(messages.lastIndex + olderItemCount)
+            }
         }
-        knownCount = messages.size
+        knownFirstId = firstId
+        knownLastId = lastId
     }
 
     Column(modifier.fillMaxSize()) {
@@ -94,10 +135,33 @@ fun ChatPanel(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
+                if (hasMore && onLoadOlder != null) {
+                    item(key = "load_older") {
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            TextButton(
+                                onClick = onLoadOlder,
+                                enabled = !loadingOlder,
+                                // Material minimum touch target: 48dp tall even when the
+                                // label is replaced by the small inline spinner.
+                                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
+                                modifier = Modifier
+                                    .heightIn(min = 48.dp)
+                                    .testTag("chat_load_older"),
+                            ) {
+                                if (loadingOlder) {
+                                    ManHuntLoader(size = 16.dp)
+                                } else {
+                                    Text(t("Load older messages"))
+                                }
+                            }
+                        }
+                    }
+                }
                 items(
-                    items = messages,
-                    key = { it.id.toString() + "-" + it.createdAt + "-" + it.body.hashCode() },
-                ) { message ->
+                    count = messages.size,
+                    key = { index -> messageKeys[index] },
+                ) { index ->
+                    val message = messages[index]
                     MessageBubble(
                         message = message,
                         mine = message.userId != null && message.userId == myUserId,
@@ -108,12 +172,16 @@ fun ChatPanel(
 
         ErrorBanner(error)
         Composer(
-            draft = draft,
-            onDraftChange = onDraftChange,
+            draft = activeDraft,
+            onDraftChange = updateDraft,
             sending = sending,
             onSend = {
-                val text = draft.trim()
-                if (text.isNotEmpty()) onSend(text)
+                val text = activeDraft.trim()
+                if (text.isNotEmpty()) {
+                    onSend(text)
+                    // The panel owns the draft: clear it as soon as the message is sent.
+                    if (draft == null) localDraft = ""
+                }
             },
         )
     }
@@ -216,6 +284,30 @@ private fun Composer(
             modifier = Modifier.size(48.dp).testTag("chat_send"),
         ) {
             Icon(Icons.AutoMirrored.Filled.Send, contentDescription = t("Send message"))
+        }
+    }
+}
+
+/**
+ * LazyColumn keys, guaranteed unique for the current list.
+ *
+ * - Persisted messages (server id > 0): `m-<id>` — the database primary key is unique and
+ *   survives paging, so the key is stable when older pages are prepended.
+ * - Realtime/system frames (server sends `id: 0` for the broadcast-only system message):
+ *   `s-<createdAt>-<occurrence>`, where occurrence counts earlier id-less rows with the
+ *   same createdAt in ascending list order. Two system frames with an identical body and
+ *   timestamp therefore get distinct keys, while the key still never depends on the body
+ *   hash or the absolute list index (so it does not change when history is prepended).
+ */
+private fun stableMessageKeys(messages: List<ChatMessage>): List<String> {
+    val occurrenceByCreatedAt = HashMap<Long, Int>(messages.size)
+    return messages.map { message ->
+        if (message.id > 0) {
+            "m-${message.id}"
+        } else {
+            val occurrence = occurrenceByCreatedAt.getOrDefault(message.createdAt, 0)
+            occurrenceByCreatedAt[message.createdAt] = occurrence + 1
+            "s-${message.createdAt}-$occurrence"
         }
     }
 }

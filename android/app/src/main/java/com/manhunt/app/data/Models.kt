@@ -108,7 +108,14 @@ data class ChatMessage(
 )
 
 @Serializable
-data class MessagesResponse(val messages: List<ChatMessage> = emptyList())
+data class MessagesResponse(
+    val messages: List<ChatMessage> = emptyList(),
+    /**
+     * True when older messages exist before the first entry of this page.
+     * Additive field: older servers omit it and it defaults to false.
+     */
+    val hasMore: Boolean = false,
+)
 
 @Serializable
 data class PreyLocationStatus(

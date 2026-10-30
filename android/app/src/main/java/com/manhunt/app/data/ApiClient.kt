@@ -40,8 +40,18 @@ class ApiClient(
     suspend fun leaveRoom(token: String, roomId: String): Unit =
         post<Unit>("/api/rooms/$roomId/leave", body = null, token = token)
 
-    suspend fun messages(token: String, roomId: String): List<ChatMessage> =
-        get<MessagesResponse>("/api/rooms/$roomId/messages", token).messages
+    /**
+     * Chat page. Without [limit]/[before] this is exactly the pre-pagination request
+     * (newest 50, ascending); with them it pages backwards from an exclusive message id.
+     */
+    suspend fun messages(token: String, roomId: String, limit: Int? = null, before: Long? = null): MessagesResponse {
+        val query = buildList {
+            if (limit != null) add("limit=$limit")
+            if (before != null) add("before=$before")
+        }.joinToString("&")
+        val suffix = if (query.isEmpty()) "" else "?$query"
+        return get("/api/rooms/$roomId/messages$suffix", token)
+    }
 
     suspend fun sendMessage(token: String, roomId: String, body: String): ChatMessage =
         post("/api/rooms/$roomId/messages", body = buildJsonObject { put("body", body) }.toString(), token = token)

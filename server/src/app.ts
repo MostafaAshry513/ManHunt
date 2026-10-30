@@ -30,6 +30,12 @@ const readyBody = z.object({ ready: z.boolean() });
 const tagBody = z.object({ preyId: z.string().min(1) });
 const resolveBody = z.object({ decision: z.enum(['confirmed', 'rejected']) });
 const messageBody = z.object({ body: z.string() });
+// Pagination query for GET /api/rooms/:id/messages. Both params are optional, so a
+// request without a query string keeps the pre-pagination "newest 50" response.
+const messagesQuery = z.object({
+  limit: z.coerce.number().int().min(1).optional(),
+  before: z.coerce.number().int().min(1).optional(),
+});
 const locationBody = z.object({
   lat: z.number(),
   lng: z.number(),
@@ -248,7 +254,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   });
 
   app.get<{ Params: { id: string } }>('/api/rooms/:id/messages', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.messages((req as Authed).auth.id, req.params.id);
+    const { auth } = req as Authed;
+    // Backwards compatible: no query -> newest 50, exactly as before pagination existed.
+    const query = parse(messagesQuery, req.query ?? {});
+    return deps.rooms.messages(auth.id, req.params.id, query.limit, query.before);
   });
 
   app.post<{ Params: { id: string } }>('/api/rooms/:id/messages', { preHandler: authenticate }, async (req) => {

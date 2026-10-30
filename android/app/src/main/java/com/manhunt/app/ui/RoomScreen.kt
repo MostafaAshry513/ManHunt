@@ -65,6 +65,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -72,11 +73,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -86,6 +89,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -109,13 +113,17 @@ import com.manhunt.app.data.TrailPoint
 import com.manhunt.app.location.TrackingService
 import com.manhunt.app.map.MatchMap
 import com.manhunt.app.ui.theme.Motion
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 data class RoomUi(
     val state: RoomState? = null,
-    val messages: List<ChatMessage> = emptyList(),
     val locations: LatestLocations? = null,
     val trails: Map<String, List<TrailPoint>> = emptyMap(),
     val trailsVisible: Boolean = false,
@@ -128,11 +136,26 @@ data class RoomUi(
     val loading: Boolean = true,
     val busy: Boolean = false,
     val error: String? = null,
-    val chatBusy: Boolean = false,
-    val chatError: String? = null,
-    val chatDraft: String = "",
     val left: Boolean = false,
 )
+
+/**
+ * Chat has its own state holder: message traffic (every socket chat event, every poll)
+ * then invalidates only the chat tab instead of re-running the whole room screen.
+ */
+data class ChatUi(
+    val messages: List<ChatMessage> = emptyList(),
+    val sending: Boolean = false,
+    val error: String? = null,
+    val hasMore: Boolean = false,
+    val loadingOlder: Boolean = false,
+)
+
+private const val CHAT_PAGE_SIZE = 50
+private const val MAX_LOADED_MESSAGES = 500
+private const val POLL_CONNECTED_MS = 20_000L
+private const val POLL_FALLBACK_MS = 10_000L
+private const val SOCKET_REFRESH_DEBOUNCE_MS = 350L
 
 class RoomViewModel(
     private val repo: ManHuntRepository,
@@ -142,19 +165,33 @@ class RoomViewModel(
     var ui by mutableStateOf(RoomUi())
         private set
 
+    var chat by mutableStateOf(ChatUi())
+        private set
+
     private var started = false
-    private var pollJob: kotlinx.coroutines.Job? = null
+    private var pollJob: Job? = null
+    private var refreshJob: Job? = null
+    private var refreshRunning = false
+    private var refreshQueued = false
 
     private fun msg(english: String): String = translate(english, repo.language.value)
 
-    private val socket = RoomSocket(Graph.container.httpClient) { event ->
+    // Socket events are dispatched on viewModelScope (main dispatcher) by RoomSocket, so
+    // every handler below runs on the main thread and is cancelled with the ViewModel.
+    private val socket = RoomSocket(Graph.container.httpClient, viewModelScope) { event ->
         when (event) {
-            is SocketEvent.Room -> ui = ui.copy(state = event.state, loading = false)
-            is SocketEvent.Chat -> refresh(silent = true)
-            is SocketEvent.PreyLocation -> refresh(silent = true)
-            is SocketEvent.TagRequest -> ui = ui.copy(pendingTag = event.tag)
-            is SocketEvent.TagDisputed -> ui = ui.copy(pendingDispute = event.tag)
-            is SocketEvent.Connection -> ui = ui.copy(connected = event.connected)
+            is SocketEvent.Room -> updateUi { it.copy(state = event.state, loading = false) }
+            // Coalesce the refresh storm: a single location/chat frame should not cause one
+            // network round per event (they often arrive in bursts).
+            is SocketEvent.Chat -> scheduleRefresh(silent = true, debounceMs = SOCKET_REFRESH_DEBOUNCE_MS)
+            is SocketEvent.PreyLocation -> scheduleRefresh(silent = true, debounceMs = SOCKET_REFRESH_DEBOUNCE_MS)
+            is SocketEvent.TagRequest -> updateUi { it.copy(pendingTag = event.tag) }
+            is SocketEvent.TagDisputed -> updateUi { it.copy(pendingDispute = event.tag) }
+            is SocketEvent.Connection -> {
+                updateUi { it.copy(connected = event.connected) }
+                // A reconnect may have missed events: pull the authoritative state once.
+                if (event.connected) scheduleRefresh(silent = true, debounceMs = 0)
+            }
         }
     }
 
@@ -168,9 +205,13 @@ class RoomViewModel(
         if (started) return
         started = true
         repo.currentToken()?.let { socket.connect(Graph.container.serverUrl, it, roomId) }
+        // Coming back from the background: refresh once immediately instead of waiting
+        // for the first poll interval.
+        refresh(silent = true)
         pollJob = viewModelScope.launch {
             while (isActive) {
-                delay(10_000)
+                // The socket is the fast path; polling is a slower correctness fallback.
+                delay(if (ui.connected) POLL_CONNECTED_MS else POLL_FALLBACK_MS)
                 refresh(silent = true)
             }
         }
@@ -180,46 +221,136 @@ class RoomViewModel(
         started = false
         pollJob?.cancel()
         pollJob = null
+        refreshJob?.cancel()
+        refreshJob = null
         socket.close()
     }
 
     override fun onCleared() {
         stop()
+        super.onCleared()
     }
 
-    fun refresh(silent: Boolean = false) {
+    /** Skips the write when the value is unchanged, so idle polls do not recompose. */
+    private inline fun updateUi(block: (RoomUi) -> RoomUi) {
+        val next = block(ui)
+        if (next != ui) ui = next
+    }
+
+    private inline fun updateChat(block: (ChatUi) -> ChatUi) {
+        val next = block(chat)
+        if (next != chat) chat = next
+    }
+
+    fun refresh(silent: Boolean = false) = scheduleRefresh(silent, debounceMs = 0)
+
+    /**
+     * Debounced, single-flight refresh: socket-triggered reloads within [debounceMs] fold
+     * into one request, and a refresh that is already running swallows the concurrent one
+     * (running exactly one trailing refresh if anything arrived meanwhile).
+     */
+    private fun scheduleRefresh(silent: Boolean, debounceMs: Long) {
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
+            if (debounceMs > 0) delay(debounceMs)
+            requestRefreshNow(silent)
+        }
+    }
+
+    private fun requestRefreshNow(silent: Boolean) {
         viewModelScope.launch {
+            if (refreshRunning) {
+                refreshQueued = true
+                return@launch
+            }
+            refreshRunning = true
             try {
-                val state = repo.room(roomId)
+                refreshOnce(silent)
+            } finally {
+                refreshRunning = false
+            }
+            if (refreshQueued) {
+                refreshQueued = false
+                requestRefreshNow(true)
+            }
+        }
+    }
+
+    private suspend fun refreshOnce(silent: Boolean) {
+        try {
+            coroutineScope {
+                // Room state and newest chat page are independent requests: run in parallel.
+                val stateDeferred = async { repo.room(roomId) }
+                // No query string here: this is exactly the pre-pagination request, so the
+                // newest-50 contract stays byte-identical for the common path.
+                val chatDeferred = async { repo.messages(roomId) }
+                val state = stateDeferred.await()
+                val page = chatDeferred.await()
                 val me = state.members.firstOrNull { it.userId == repo.myUserId() }
-                val locations = if (me?.team == Teams.HUNTERS && state.match?.phase == Phases.HUNTING) {
-                    runCatching { repo.latestLocations(state.match.id) }.getOrNull()
+                val huntingMatch = state.match?.takeIf { it.phase == Phases.HUNTING }
+                val locations = if (me?.team == Teams.HUNTERS && huntingMatch != null) {
+                    runCatching { repo.latestLocations(huntingMatch.id) }.getOrNull()
                 } else {
                     null
                 }
-                val messages = repo.messages(roomId)
-                ui = ui.copy(
-                    state = state,
-                    messages = messages,
-                    locations = locations,
-                    loading = false,
-                    error = if (silent) ui.error else null,
-                )
+                updateUi {
+                    it.copy(
+                        state = state,
+                        locations = locations,
+                        loading = false,
+                        error = if (silent) it.error else null,
+                    )
+                }
+                updateChat { current -> current.mergeNewest(page.messages, page.hasMore) }
+            }
+        } catch (e: ApiException) {
+            if (!silent) updateUi { it.copy(loading = false, error = e.message) }
+            if (e.status == 401) updateUi { it.copy(left = true) }
+        }
+    }
+
+    /** Newest page merged over already-loaded older pages (id is the stable identity). */
+    private fun ChatUi.mergeNewest(newest: List<ChatMessage>, newestHasMore: Boolean): ChatUi {
+        if (messages.isEmpty()) return copy(messages = newest, hasMore = newestHasMore)
+        val byId = LinkedHashMap<Long, ChatMessage>(messages.size + newest.size)
+        for (message in messages) if (message.id > 0) byId[message.id] = message
+        for (message in newest) if (message.id > 0) byId[message.id] = message
+        val merged = byId.values.sortedWith(compareBy({ it.id }, { it.createdAt })).takeLast(MAX_LOADED_MESSAGES)
+        // Older history is already loaded (hasMore=false): keep that knowledge.
+        return copy(messages = merged)
+    }
+
+    /** Loads the page before the oldest loaded message. Call from the chat tab. */
+    fun loadOlderMessages() {
+        if (chat.loadingOlder || !chat.hasMore) return
+        val oldestId = chat.messages.firstOrNull { it.id > 0 }?.id ?: return
+        updateChat { it.copy(loadingOlder = true, error = null) }
+        viewModelScope.launch {
+            try {
+                val page = repo.messages(roomId, limit = CHAT_PAGE_SIZE, before = oldestId)
+                updateChat { current ->
+                    val byId = LinkedHashMap<Long, ChatMessage>(page.messages.size + current.messages.size)
+                    for (message in page.messages) if (message.id > 0) byId[message.id] = message
+                    for (message in current.messages) if (message.id > 0) byId[message.id] = message
+                    val merged = byId.values.sortedWith(compareBy({ it.id }, { it.createdAt }))
+                        .takeLast(MAX_LOADED_MESSAGES)
+                    current.copy(messages = merged, hasMore = page.hasMore, loadingOlder = false)
+                }
             } catch (e: ApiException) {
-                if (!silent) ui = ui.copy(loading = false, error = e.message)
-                if (e.status == 401) ui = ui.copy(left = true)
+                updateChat { it.copy(loadingOlder = false, error = e.message) }
             }
         }
     }
 
     fun setTeam(team: String) {
         if (ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        updateUi { it.copy(busy = true, error = null) }
         viewModelScope.launch {
             try {
-                ui = ui.copy(state = repo.setTeam(roomId, team), busy = false)
+                val state = repo.setTeam(roomId, team)
+                updateUi { it.copy(state = state, busy = false) }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                updateUi { it.copy(busy = false, error = e.message) }
             }
         }
     }
@@ -227,97 +358,96 @@ class RoomViewModel(
     fun toggleReady() {
         val me = ui.state?.members?.firstOrNull { it.userId == repo.myUserId() }
         if (ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        updateUi { it.copy(busy = true, error = null) }
         viewModelScope.launch {
             try {
-                ui = ui.copy(state = repo.setReady(roomId, !(me?.ready ?: false)), busy = false)
+                val state = repo.setReady(roomId, !(me?.ready ?: false))
+                updateUi { it.copy(state = state, busy = false) }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                updateUi { it.copy(busy = false, error = e.message) }
             }
         }
     }
 
     fun startMatch() {
         if (ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        updateUi { it.copy(busy = true, error = null) }
         viewModelScope.launch {
             try {
-                ui = ui.copy(state = repo.startMatch(roomId), busy = false)
+                val state = repo.startMatch(roomId)
+                updateUi { it.copy(state = state, busy = false) }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                updateUi { it.copy(busy = false, error = e.message) }
             }
         }
     }
 
     fun sendChat(text: String) {
         val body = text.trim()
-        if (body.isEmpty() || ui.chatBusy) return
-        ui = ui.copy(chatBusy = true, chatError = null)
+        if (body.isEmpty() || chat.sending) return
+        updateChat { it.copy(sending = true, error = null) }
         viewModelScope.launch {
             try {
                 repo.sendMessage(roomId, body)
-                ui = ui.copy(
-                    messages = repo.messages(roomId),
-                    chatBusy = false,
-                    chatDraft = if (ui.chatDraft.trim() == body) "" else ui.chatDraft,
-                )
+                val page = repo.messages(roomId)
+                updateChat { it.copy(sending = false).mergeNewest(page.messages, page.hasMore) }
             } catch (e: ApiException) {
-                ui = ui.copy(chatBusy = false, chatError = e.message)
+                updateChat { it.copy(sending = false, error = e.message) }
             }
         }
     }
 
-    fun onChatDraftChange(text: String) {
-        ui = ui.copy(chatDraft = text, chatError = null)
-    }
-
     fun claimTag(preyId: String) {
         if (ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        updateUi { it.copy(busy = true, error = null) }
         viewModelScope.launch {
             try {
                 repo.requestTag(roomId, preyId)
-                ui = ui.copy(busy = false, notice = msg("Tag claim sent - waiting for the prey to confirm"))
+                updateUi {
+                    it.copy(busy = false, notice = msg("Tag claim sent - waiting for the prey to confirm"))
+                }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                updateUi { it.copy(busy = false, error = e.message) }
             }
         }
     }
 
     fun confirmIncomingTag() {
         val tag = ui.pendingTag ?: return
-        ui = ui.copy(busy = true, pendingTag = null)
+        updateUi { it.copy(busy = true, pendingTag = null) }
         viewModelScope.launch {
             try {
                 repo.confirmTag(tag.id)
-                ui = ui.copy(busy = false, notice = msg("Tag confirmed"))
+                updateUi { it.copy(busy = false, notice = msg("Tag confirmed")) }
             } catch (e: ApiException) {
                 // Keep the dialog alive: the prey must still answer this claim.
-                ui = ui.copy(busy = false, error = e.message, pendingTag = tag)
+                updateUi { it.copy(busy = false, error = e.message, pendingTag = tag) }
             }
             refresh(silent = true)
         }
     }
 
     fun dismissPendingTag() {
-        ui = ui.copy(pendingTag = null)
+        updateUi { it.copy(pendingTag = null) }
     }
 
     fun disputeIncomingTag() {
         val tag = ui.pendingTag ?: return
-        ui = ui.copy(busy = true, pendingTag = null)
+        updateUi { it.copy(busy = true, pendingTag = null) }
         viewModelScope.launch {
             try {
                 repo.disputeTag(tag.id)
-                ui = ui.copy(busy = false, notice = msg("Tag disputed - the admin will decide"))
+                updateUi { it.copy(busy = false, notice = msg("Tag disputed - the admin will decide")) }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message, pendingTag = tag)
+                updateUi { it.copy(busy = false, error = e.message, pendingTag = tag) }
             }
             refresh(silent = true)
         }
     }
 
-    fun clearNotice() { ui = ui.copy(notice = null) }
+    fun clearNotice() {
+        updateUi { it.copy(notice = null) }
+    }
 
     fun pauseMatch() = act { repo.pauseMatch(roomId) }
 
@@ -327,79 +457,93 @@ class RoomViewModel(
 
     fun resolveDisputed(decision: String) {
         val tag = ui.pendingDispute ?: return
-        ui = ui.copy(busy = true, pendingDispute = null)
+        updateUi { it.copy(busy = true, pendingDispute = null) }
         viewModelScope.launch {
             try {
                 repo.resolveTag(tag.id, decision)
-                ui = ui.copy(
-                    busy = false,
-                    notice = "${msg("Disputed tag")}: ${translate(decision, repo.language.value)}",
-                )
+                updateUi {
+                    it.copy(
+                        busy = false,
+                        notice = "${msg("Disputed tag")}: ${translate(decision, repo.language.value)}",
+                    )
+                }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message, pendingDispute = tag)
+                updateUi { it.copy(busy = false, error = e.message, pendingDispute = tag) }
             }
             refresh(silent = true)
         }
     }
 
     fun dismissPendingDispute() {
-        ui = ui.copy(pendingDispute = null)
+        updateUi { it.copy(pendingDispute = null) }
     }
 
     fun loadHistory() {
         viewModelScope.launch {
             try {
-                ui = ui.copy(history = repo.history(roomId).matches, historyLoaded = true)
+                val matches = repo.history(roomId).matches
+                updateUi { it.copy(history = matches, historyLoaded = true) }
             } catch (e: ApiException) {
-                ui = ui.copy(error = e.message, historyLoaded = true)
+                updateUi { it.copy(error = e.message, historyLoaded = true) }
             }
         }
     }
 
-    /** Trails are fetched on demand (one request per prey), only for hunters. */
+    /** Trails are fetched on demand (one request per prey), only for hunters, in parallel. */
     fun toggleTrails() {
         if (ui.trailsVisible) {
-            ui = ui.copy(trailsVisible = false, trails = emptyMap())
+            updateUi { it.copy(trailsVisible = false, trails = emptyMap()) }
             return
         }
-        val matchId = ui.state?.match?.id ?: return
-        val prey = ui.state?.members?.filter { it.team == Teams.PREY } ?: emptyList()
+        val state = ui.state ?: return
+        val matchId = state.match?.id ?: return
+        val prey = state.members.filter { it.team == Teams.PREY }
         viewModelScope.launch {
-            val collected = mutableMapOf<String, List<TrailPoint>>()
-            for (member in prey) {
-                runCatching { repo.trail(matchId, member.userId) }
-                    .getOrNull()
-                    ?.takeIf { it.trailEnabled }
-                    ?.let { if (it.points.isNotEmpty()) collected[member.userId] = it.points }
+            val results = coroutineScope {
+                prey.map { member ->
+                    async {
+                        member.userId to runCatching { repo.trail(matchId, member.userId) }.getOrNull()
+                    }
+                }.awaitAll()
             }
-            ui = ui.copy(
-                trails = collected,
-                trailsVisible = true,
-                notice = if (collected.isEmpty()) msg("No trails available yet") else null,
-            )
+            val collected = buildMap {
+                for ((userId, trail) in results) {
+                    val points = trail?.takeIf { it.trailEnabled }?.points.orEmpty()
+                    if (points.isNotEmpty()) put(userId, points)
+                }
+            }
+            updateUi {
+                it.copy(
+                    trails = collected,
+                    trailsVisible = true,
+                    notice = if (collected.isEmpty()) msg("No trails available yet") else null,
+                )
+            }
         }
     }
 
     fun saveSettings(patch: kotlinx.serialization.json.JsonObject) {
         if (ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        updateUi { it.copy(busy = true, error = null) }
         viewModelScope.launch {
             try {
-                ui = ui.copy(state = repo.updateSettings(roomId, patch), busy = false, notice = msg("Settings saved"))
+                val state = repo.updateSettings(roomId, patch)
+                updateUi { it.copy(state = state, busy = false, notice = msg("Settings saved")) }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                updateUi { it.copy(busy = false, error = e.message) }
             }
         }
     }
 
     private fun act(block: suspend () -> RoomState) {
         if (ui.busy) return
-        ui = ui.copy(busy = true, error = null)
+        updateUi { it.copy(busy = true, error = null) }
         viewModelScope.launch {
             try {
-                ui = ui.copy(state = block(), busy = false)
+                val state = block()
+                updateUi { it.copy(state = state, busy = false) }
             } catch (e: ApiException) {
-                ui = ui.copy(busy = false, error = e.message)
+                updateUi { it.copy(busy = false, error = e.message) }
             }
         }
     }
@@ -407,10 +551,11 @@ class RoomViewModel(
     fun leave() {
         viewModelScope.launch {
             runCatching { repo.leaveRoom(roomId) }
-            ui = ui.copy(left = true)
+            updateUi { it.copy(left = true) }
         }
     }
 }
+
 
 private fun hasLocationPermission(context: Context): Boolean {
     val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -437,9 +582,19 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
     LaunchedEffect(ui.left) { if (ui.left) onBack() }
 
-    LaunchedEffect(Unit) {
-        vm.start()
-        vm.refresh()
+    // Polling and the socket are owned by the screen lifecycle: they run while the screen
+    // is STARTED and are torn down when it is STOPPED (backgrounded) or disposed. This
+    // avoids 10 s polls and socket churn while the app is in the background.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            vm.start()
+            try {
+                awaitCancellation()
+            } finally {
+                vm.stop()
+            }
+        }
     }
     DisposableEffect(Unit) {
         onDispose { vm.stop() }
@@ -448,7 +603,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     val state = ui.state
     val match = state?.match
     val me = state?.members?.firstOrNull { it.userId == repo.myUserId() }
-    val ownLocation by LiveLocation.current.collectAsState()
 
     var showLeaveConfirm by remember { mutableStateOf(false) }
     val requestLeave: () -> Unit = {
@@ -479,7 +633,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         }.toTypedArray()
     }
 
-    val lifecycleOwner = LocalLifecycleOwner.current
     var resumed by remember {
         mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
     }
@@ -515,11 +668,16 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
     var tab by rememberSaveable { mutableIntStateOf(0) }
     // Unread is tracked by message id, not list length: the server window caps the
-    // visible list at 50 messages, so in a busy room the size stops changing and a
-    // length-based badge would silently stay at zero.
+    // visible list, so in a busy room a length-based badge would silently stay at zero.
     var lastReadId by rememberSaveable { mutableLongStateOf(-1L) }
-    val newestId = ui.messages.maxOfOrNull { it.id } ?: -1L
-    val unread = if (lastReadId < 0) 0 else ui.messages.count { it.id > lastReadId }
+    // derivedStateOf keeps chat traffic out of the screen's recomposition path: the screen
+    // recomposes only when the unread *count* changes, not on every incoming message.
+    val unread by remember {
+        derivedStateOf {
+            val marker = lastReadId
+            if (marker < 0) 0 else vm.chat.messages.count { it.id > marker }
+        }
+    }
     val listState = rememberLazyListState()
 
     // On real phase/status transitions bring the new focal card into view: hunt card
@@ -538,10 +696,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         lastScrollKey = key
     }
 
-    LaunchedEffect(tab, newestId) {
+    LaunchedEffect(tab, unread) {
         // Seed the marker on first load so already-read history is not shown as unread,
         // then keep it pinned while the reader is on the Chat tab.
-        if (lastReadId < 0 || tab == 1) lastReadId = newestId
+        if (tab == 1 && unread > 0) {
+            lastReadId = vm.chat.messages.maxOfOrNull { it.id } ?: -1L
+        } else if (lastReadId < 0) {
+            lastReadId = vm.chat.messages.maxOfOrNull { it.id } ?: -1L
+        }
     }
     var showTagPicker by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
@@ -616,9 +778,8 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
 
     if (showSettings && state != null) {
-        RoomSettingsDialog(
+        RoomSettingsHost(
             state = state,
-            currentLocation = ownLocation,
             onSave = { patch ->
                 showSettings = false
                 vm.saveSettings(patch)
@@ -744,7 +905,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     modifier = Modifier.testTag("tab_chat"),
                     onClick = {
                         tab = 1
-                        lastReadId = ui.messages.maxOfOrNull { it.id } ?: -1L
+                        lastReadId = vm.chat.messages.maxOfOrNull { it.id } ?: -1L
                     },
                     icon = {
                         BadgedBox(badge = {
@@ -850,6 +1011,9 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
                     if (match != null && showMatchMap) {
                     item(key = "map") {
+                        // Collect the GPS fix inside the map item only: a location update
+                        // recomposes the map card, not the whole room screen.
+                        val ownLocation by LiveLocation.current.collectAsState()
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             MatchMap(
                                 modifier = Modifier
@@ -1050,19 +1214,53 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
                 }
             } else {
-                ChatPanel(
-                    messages = ui.messages,
+                ChatTabContent(
+                    vm = vm,
                     myUserId = repo.myUserId(),
-                    draft = ui.chatDraft,
-                    onDraftChange = vm::onChatDraftChange,
-                    sending = ui.chatBusy,
-                    onSend = vm::sendChat,
-                    error = ui.chatError,
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                 )
             }
         }
     }
+}
+
+@Composable
+private fun ChatTabContent(
+    vm: RoomViewModel,
+    myUserId: String?,
+    modifier: Modifier = Modifier,
+) {
+    // Reading the chat state in this dedicated composable keeps chat traffic inside the
+    // chat tab's recomposition scope; the lobby/game surface does not re-run for messages.
+    val chat = vm.chat
+    ChatPanel(
+        messages = chat.messages,
+        myUserId = myUserId,
+        sending = chat.sending,
+        onSend = vm::sendChat,
+        error = chat.error,
+        hasMore = chat.hasMore,
+        loadingOlder = chat.loadingOlder,
+        onLoadOlder = vm::loadOlderMessages,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun RoomSettingsHost(
+    state: RoomState,
+    onSave: (kotlinx.serialization.json.JsonObject) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    // The live GPS fix is only read while the dialog is open, so ordinary location updates
+    // do not invalidate the room screen.
+    val ownLocation by LiveLocation.current.collectAsState()
+    RoomSettingsDialog(
+        state = state,
+        currentLocation = ownLocation,
+        onSave = onSave,
+        onDismiss = onDismiss,
+    )
 }
 
 @Composable
@@ -1122,15 +1320,6 @@ private fun PhaseCard(
     onEnd: () -> Unit,
 ) {
     val match = state.match
-    var tick by remember { mutableIntStateOf(0) }
-    LaunchedEffect(match?.id, match?.phase) {
-        if (match?.phase != Phases.HEAD_START && match?.phase != Phases.HUNTING) return@LaunchedEffect
-        while (true) {
-            delay(1_000)
-            tick += 1
-        }
-    }
-    @Suppress("UNUSED_EXPRESSION") tick
 
     val phase = when {
         state.room.status == "lobby" &&
@@ -1165,21 +1354,34 @@ private fun PhaseCard(
             else -> null
         }
 
-        Text(
-            when (phase) {
-                Phases.LOBBY -> if (isAdmin) t("Pick a side. Ready up. The huntmaster starts the hunt.")
-                else t("The huntmaster is setting the rules.")
-                Phases.HEAD_START -> "${t("Prey are hiding. Hunting starts in")} ${remaining(target, offset)}"
-                Phases.HUNTING ->
-                    "${t("Hunting.")} ${remaining(target, offset)} · ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}"
-                Phases.PAUSED -> t("The hunt is paused. The clock is stopped.")
-                Phases.FINISHED ->
-                    "${t("Hunt over")} - ${if (match?.winner == Teams.HUNTERS) t("Hunters win") else t("Prey win")}"
-                Phases.CANCELLED -> t("Hunt cancelled")
-                else -> t("In progress")
-            },
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        when (phase) {
+            Phases.LOBBY -> Text(
+                if (isAdmin) t("Pick a side. Ready up. The huntmaster starts the hunt.")
+                else t("The huntmaster is setting the rules."),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Phases.HEAD_START -> CountdownText(
+                target = target,
+                offset = offset,
+                prefix = "${t("Prey are hiding. Hunting starts in")} ",
+            )
+            Phases.HUNTING -> CountdownText(
+                target = target,
+                offset = offset,
+                prefix = "${t("Hunting.")} ",
+                suffix = " · ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
+            )
+            Phases.PAUSED -> Text(
+                t("The hunt is paused. The clock is stopped."),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Phases.FINISHED -> Text(
+                "${t("Hunt over")} - ${if (match?.winner == Teams.HUNTERS) t("Hunters win") else t("Prey win")}",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Phases.CANCELLED -> Text(t("Hunt cancelled"), style = MaterialTheme.typography.bodyMedium)
+            else -> Text(t("In progress"), style = MaterialTheme.typography.bodyMedium)
+        }
 
         if (phase == Phases.LOBBY && match != null &&
             (match.phase == Phases.FINISHED || match.phase == Phases.CANCELLED)) {
@@ -1265,9 +1467,10 @@ private fun PhaseCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             zone.nextShrinkAt?.let { next ->
-                val secs = ((next - (System.currentTimeMillis() + offset)) / 1000).coerceAtLeast(0)
-                Text(
-                    "${t("Zone shrinks in")} %02d:%02d".format(secs / 60, secs % 60),
+                CountdownText(
+                    target = next,
+                    offset = offset,
+                    prefix = "${t("Zone shrinks in")} ",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary,
                 )
@@ -1276,12 +1479,43 @@ private fun PhaseCard(
     }
 }
 
-private fun remaining(target: Long?, offset: Long): String {
+/**
+ * Frame-aligned countdown. Only this composable reads the ticking value, so a running
+ * clock invalidates one Text per second (and before that only if the rendered value
+ * changes) instead of driving a 1 s whole-card state tick.
+ */
+@Composable
+private fun CountdownText(
+    target: Long?,
+    offset: Long,
+    prefix: String,
+    suffix: String = "",
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    color: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    var seconds by remember(target, offset) { mutableLongStateOf(remainingSeconds(target, offset)) }
+    LaunchedEffect(target, offset) {
+        if (target == null) return@LaunchedEffect
+        while (true) {
+            // withFrameMillis aligns the clock read with rendering; writing only when the
+            // displayed second changes keeps recomposition at ~1 Hz.
+            withFrameMillis {
+                val next = remainingSeconds(target, offset)
+                if (next != seconds) seconds = next
+            }
+        }
+    }
+    Text(prefix + formatRemaining(target, seconds) + suffix, style = style, color = color)
+}
+
+private fun remainingSeconds(target: Long?, offset: Long): Long {
+    if (target == null) return 0L
+    return ((target - (System.currentTimeMillis() + offset)) / 1000).coerceAtLeast(0)
+}
+
+private fun formatRemaining(target: Long?, seconds: Long): String {
     if (target == null) return "--:--"
-    val ms = target - (System.currentTimeMillis() + offset)
-    if (ms <= 0) return "00:00"
-    val total = ms / 1000
-    return "%02d:%02d".format(total / 60, total % 60)
+    return "%02d:%02d".format(seconds / 60, seconds % 60)
 }
 
 @Composable
