@@ -349,7 +349,6 @@ private fun PermissionsTab() {
         val granted = hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ||
             hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
         PermissionRow(
-            icon = Icons.Outlined.LocationOn,
             title = t("Precise location"),
             granted = granted,
             explanation = t("Required while you play as Prey in an active match."),
@@ -364,7 +363,6 @@ private fun PermissionsTab() {
             true
         }
         PermissionRow(
-            icon = Icons.Outlined.Notifications,
             title = t("Tracking notice"),
             granted = granted,
             explanation = t("Android requires a visible notification while location tracking is active."),
@@ -396,13 +394,13 @@ private fun PermissionsTab() {
 
 @Composable
 private fun PermissionRow(
-    icon: ImageVector,
     title: String,
     granted: Boolean,
     explanation: String,
     onOpenSettings: () -> Unit,
 ) {
-    InfoRow(icon = icon, label = title, value = t(if (granted) "Allowed" else "Not allowed"))
+    // Icon lives in the card header only; repeating it on the row looked duplicated.
+    InfoRow(label = title, value = t(if (granted) "Allowed" else "Not allowed"))
     Text(
         explanation,
         style = MaterialTheme.typography.bodySmall,
@@ -417,15 +415,14 @@ private fun PermissionRow(
 @Composable
 private fun AccountTab(username: String, serverUrl: String, onSignOut: () -> Unit) {
     ScreenCard(title = t("Account"), icon = Icons.Outlined.Person) {
+        // Card header already carries the icon; rows are text-only so it is not repeated.
         InfoRow(
-            icon = Icons.Outlined.Person,
             label = t("Signed in as"),
             value = username,
         )
     }
     ScreenCard(title = t("Server"), icon = Icons.Outlined.Wifi) {
         InfoRow(
-            icon = Icons.Outlined.Wifi,
             label = t("Server"),
             value = serverUrl,
         )

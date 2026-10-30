@@ -483,33 +483,35 @@ fun SectionLabel(text: String, icon: ImageVector? = null) {
 /** A labelled row (icon + text + trailing slot) for settings/detail lists. */
 @Composable
 fun InfoRow(
-    icon: ImageVector,
     label: String,
     value: String,
     modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
     valueColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            Modifier
-                .size(36.dp)
-                .background(
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                    RoundedCornerShape(ManHuntRadius.sm),
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                icon,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
+        if (icon != null) {
+            Box(
+                Modifier
+                    .size(36.dp)
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                        RoundedCornerShape(ManHuntRadius.sm),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+            Spacer(Modifier.width(ManHuntSpacing.md))
         }
-        Spacer(Modifier.width(ManHuntSpacing.md))
         Column(Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
