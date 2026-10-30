@@ -28,8 +28,10 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -43,9 +45,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -82,30 +86,23 @@ fun SettingsScreen(onBack: () -> Unit) {
         Column(Modifier.fillMaxSize()) {
             ScreenHeader(title = t("Settings"), onBack = onBack)
 
-            // Material Tab row: exposes the proper Tab role/selected state to TalkBack
-            // (the old bespoke clickable columns had no selection semantics).
-            TabRow(
+            // Compact, single-line labelled tabs: no big icon+text headers, and a
+            // scrollable strip so five labels never squeeze or clip on a narrow phone.
+            ScrollableTabRow(
                 selectedTabIndex = tab,
                 containerColor = MaterialTheme.colorScheme.surface,
+                edgePadding = 0.dp,
             ) {
                 SettingsTab.entries.forEachIndexed { index, entry ->
-                    // t() is @Composable; resolve the label before the non-composable
-                    // semantics lambda so the accessibility label can be set there too.
-                    val label = t(entry.label)
                     Tab(
                         selected = tab == index,
                         onClick = { tab = index },
-                        text = { Text(label, maxLines = 1) },
-                        icon = {
-                            Icon(
-                                entry.icon,
-                                contentDescription = null,
-                                modifier = Modifier.padding(vertical = 2.dp),
+                        text = {
+                            Text(
+                                t(entry.label),
+                                style = MaterialTheme.typography.labelMedium,
+                                maxLines = 1,
                             )
-                        },
-                        modifier = Modifier.semantics {
-                            contentDescription = label
-                            selected = tab == index
                         },
                     )
                 }
@@ -373,6 +370,27 @@ private fun PermissionsTab() {
             explanation = t("Android requires a visible notification while location tracking is active."),
             onOpenSettings = { openAppSettings(context) },
         )
+        var matchNotifications by remember {
+            mutableStateOf(MatchNotifier.enabled(context))
+        }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(t("Match notifications"), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    t("Get notified when someone claims a tag, a hunt starts or ends."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(
+                checked = matchNotifications,
+                onCheckedChange = {
+                    matchNotifications = it
+                    MatchNotifier.setEnabled(context, it)
+                },
+                modifier = Modifier.testTag("match_notifications_switch"),
+            )
+        }
     }
 }
 

@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,6 +46,8 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.GpsFixed
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -82,6 +85,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
@@ -668,8 +672,28 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
     BackHandler { requestLeave() }
 
+    var resumed by remember {
+        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, _ ->
+            resumed = lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     var hasLocation by remember { mutableStateOf(hasLocationPermission(context)) }
     var locationDenied by remember { mutableStateOf(false) }
+    // Re-check on resume: the player may grant/revoke a permission in system settings.
+    LaunchedEffect(resumed) {
+        if (resumed) hasLocation = hasLocationPermission(context)
+    }
+    val notificationsGranted = remember(resumed, state?.room?.status) {
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+    }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
@@ -686,32 +710,18 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
             }
         }.toTypedArray()
     }
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { }
 
-    // Ask for notification permission when entering a room (before the match starts),
-    // so the events that matter — tag claims, hunt start, result — can reach a pocketed
-    // phone. Asking mid-hunt would be both late and disruptive.
-    LaunchedEffect(state?.room?.status) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            state?.room?.status != null &&
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
-            PackageManager.PERMISSION_GRANTED
+    // Permissions belong BEFORE the match, not mid-hunt (human review + player feedback).
+    // Entering the lobby asks once for location + notifications; the lobby's "device
+    // check" card below lets anyone fix a missing permission or re-enable it later.
+    LaunchedEffect(state?.room?.status, hasLocation, notificationsGranted) {
+        if (state?.room?.status == "lobby" &&
+            !MatchNotifier.prompted(context) &&
+            (!hasLocation || !notificationsGranted)
         ) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            MatchNotifier.markPrompted(context)
+            permissionLauncher.launch(trackingPermissions)
         }
-    }
-
-    var resumed by remember {
-        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
-    }
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, _ ->
-            resumed = lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     val matchId = match?.id
@@ -827,6 +837,16 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     var showHistory by remember { mutableStateOf(false) }
     var showEndConfirm by remember { mutableStateOf(false) }
     var shownResultFor by rememberSaveable { mutableStateOf<String?>(null) }
+    // Only open the result dialog for a match we actually watched: a room whose previous
+    // match already finished must not greet a joining/reconnecting player with an old
+    // "Hunters win!" window (found after the v0.9.0 review).
+    var seenActivePhase by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(matchId, phase) {
+        if (phase == Phases.HEAD_START || phase == Phases.HUNTING || phase == Phases.PAUSED) {
+            seenActivePhase = true
+        }
+        if (matchId == null) seenActivePhase = false
+    }
 
     if (showLeaveConfirm) {
         AlertDialog(
@@ -901,7 +921,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     val resultMatch = state?.match?.takeIf {
         it.phase == Phases.FINISHED || it.phase == Phases.CANCELLED
     }
-    if (resultMatch != null && shownResultFor != resultMatch.id) {
+    if (resultMatch != null && seenActivePhase && shownResultFor != resultMatch.id) {
         val cancelled = resultMatch.phase == Phases.CANCELLED
         val huntersWin = resultMatch.winner == Teams.HUNTERS
         val accent = if (huntersWin) teamColor(Teams.HUNTERS) else teamColor(Teams.PREY)
@@ -1202,17 +1222,25 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     MatchMap(
-                        modifier = Modifier.fillMaxWidth().height(240.dp),
+                        modifier = Modifier.fillMaxWidth().height(220.dp),
                         ownLocation = ownLocation,
                         prey = ui.locations?.prey ?: emptyList(),
                         zone = match?.zone,
                         showPrey = me?.team == Teams.HUNTERS,
                         trails = if (ui.trailsVisible) ui.trails else emptyMap(),
                     )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Compact HUD row: status text and the one or two actions that matter
+                    // share a single line, so the map does not eat the room screen's height
+                    // (hunter tools used to get their own full-width row).
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
                         Text(
                             t(
                                 when {
+                                    activePhase && me?.team == Teams.PREY && hasLocation && !locationServicesOn ->
+                                        "Turn on location services"
                                     me?.team == Teams.HUNTERS -> "Prey positions are the latest reports"
                                     activePhase && hasLocation && resumed && ownLocation != null -> "Sharing your position"
                                     activePhase && hasLocation && resumed -> "Waiting for GPS"
@@ -1223,60 +1251,31 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),
                         )
-                    }
-                    // A hunter's two real actions and the GPS recovery must be visible
-                    // buttons, not tiny text links buried in a status row (UI review).
-                    if (activePhase) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            if (me?.team == Teams.PREY) {
-                                when {
-                                    !hasLocation && locationDenied -> OutlinedButton(
-                                        onClick = { openAppSettings(context) },
-                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                                    ) { Text(t("Allow in settings")) }
-                                    !hasLocation -> OutlinedButton(
-                                        onClick = { permissionLauncher.launch(trackingPermissions) },
-                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                                    ) { Text(t("Enable GPS")) }
-                                    !locationServicesOn -> OutlinedButton(
-                                        onClick = {
-                                            context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                                        },
-                                        modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                                    ) { Text(t("Turn on location")) }
+                        if (activePhase && me?.team == Teams.PREY) {
+                            when {
+                                !hasLocation && locationDenied -> CompactMapAction(t("Allow in settings")) {
+                                    openAppSettings(context)
                                 }
-                            }
-                            if (me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
-                                OutlinedButton(
-                                    onClick = vm::toggleTrails,
-                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                                ) { Text(t(if (ui.trailsVisible) "Hide trails" else "Trails")) }
-                                Button(
-                                    onClick = { showTagPicker = true },
-                                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.GpsFixed,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp),
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(t("Tag prey"))
+                                !hasLocation -> CompactMapAction(t("Enable GPS")) {
+                                    permissionLauncher.launch(trackingPermissions)
+                                }
+                                !locationServicesOn -> CompactMapAction(t("Turn on")) {
+                                    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                                 }
                             }
                         }
-                    }
-                    if (me?.team == Teams.PREY && activePhase && hasLocation && !locationServicesOn) {
-                        Text(
-                            t("Location services are off - turn them on to share your position."),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.tertiary,
-                        )
+                        if (activePhase && me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
+                            if (ui.trailsVisible) {
+                                CompactMapAction(t("Hide trails")) { vm.toggleTrails() }
+                            } else {
+                                CompactMapAction(t("Trails")) { vm.toggleTrails() }
+                            }
+                            CompactMapAction(t("Tag prey"), filled = true) { showTagPicker = true }
+                        }
                     }
                 }
             }
@@ -1409,6 +1408,33 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 TeamPill(member.team)
                             }
                             Spacer(Modifier.height(10.dp))
+                        }
+                    }
+                }
+
+                if (lobby) {
+                    // Ask/fix permissions here, in the lobby, while everyone is still
+                    // getting ready - never in the middle of a hunt.
+                    item(key = "device_check") {
+                        ScreenCard {
+                            SectionLabel(t("Before the hunt"))
+                            DeviceCheckRow(
+                                icon = Icons.Outlined.LocationOn,
+                                title = t("Location"),
+                                granted = hasLocation,
+                                onAllow = { permissionLauncher.launch(trackingPermissions) },
+                            )
+                            DeviceCheckRow(
+                                icon = Icons.Outlined.Notifications,
+                                title = t("Notifications"),
+                                granted = notificationsGranted,
+                                onAllow = { permissionLauncher.launch(trackingPermissions) },
+                            )
+                            Text(
+                                t("Permissions are asked now, before the hunt starts."),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                 }
@@ -1785,6 +1811,65 @@ private fun remainingSeconds(target: Long?, offset: Long): Long {
 private fun formatRemaining(target: Long?, seconds: Long): String {
     if (target == null) return "--:--"
     return "%02d:%02d".format(seconds / 60, seconds % 60)
+}
+
+@Composable
+private fun DeviceCheckRow(
+    icon: ImageVector,
+    title: String,
+    granted: Boolean,
+    onAllow: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = if (granted) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.tertiary,
+        )
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                t(if (granted) "Allowed" else "Not allowed"),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (granted) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.tertiary,
+            )
+        }
+        if (!granted) {
+            TextButton(
+                onClick = onAllow,
+                modifier = Modifier.heightIn(min = 44.dp),
+            ) { Text(t("Allow")) }
+        }
+    }
+}
+
+@Composable
+private fun CompactMapAction(
+    label: String,
+    filled: Boolean = false,
+    onClick: () -> Unit,
+) {
+    val contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+    if (filled) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.heightIn(min = 44.dp),
+            contentPadding = contentPadding,
+        ) { Text(label, maxLines = 1) }
+    } else {
+        OutlinedButton(
+            onClick = onClick,
+            modifier = Modifier.heightIn(min = 44.dp),
+            contentPadding = contentPadding,
+        ) { Text(label, maxLines = 1) }
+    }
 }
 
 @Composable

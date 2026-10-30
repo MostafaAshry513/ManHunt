@@ -391,6 +391,14 @@ private val arabic: Map<String, String> = mapOf(
     "Confirm the tag?" to "هل تؤكد الوسم؟",
     "Open the app to decide." to "افتح التطبيق لتقرر.",
     "Recenter" to "إعادة التمركز",
+    "Turn on location services" to "شغّل خدمة الموقع",
+    "Turn on" to "تشغيل",
+    "Match notifications" to "إشعارات المطاردات",
+    "Get notified when someone claims a tag, a hunt starts or ends." to
+        "تصلك تنبيهات عند ادعاء وسم أو بدء المطاردة أو انتهائها.",
+    "Before the hunt" to "قبل بدء المطاردة",
+    "Permissions are asked now, before the hunt starts." to
+        "تُطلب الأذونات الآن، قبل بدء المطاردة.",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }

@@ -20,6 +20,31 @@ import com.manhunt.app.MainActivity
  */
 object MatchNotifier {
     private const val CHANNEL_ID = "match_events"
+    private const val PREFS = "manhunt_notifications"
+    private const val KEY_ENABLED = "match_notifications_enabled"
+    private const val KEY_PROMPTED = "notifications_prompted"
+
+    /** Player-facing switch in Settings; defaults on, can be turned off at any time. */
+    fun enabled(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_ENABLED, true)
+
+    fun setEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(KEY_ENABLED, enabled)
+            .apply()
+    }
+
+    /** True after the app asked for notification permission once; never ask again. */
+    fun prompted(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(KEY_PROMPTED, false)
+
+    fun markPrompted(context: Context) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(KEY_PROMPTED, true)
+            .apply()
+    }
 
     private fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -39,6 +64,7 @@ object MatchNotifier {
     }
 
     fun notify(context: Context, id: Int, title: String, body: String) {
+        if (!enabled(context)) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
             PackageManager.PERMISSION_GRANTED
