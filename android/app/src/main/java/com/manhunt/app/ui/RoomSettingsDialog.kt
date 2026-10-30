@@ -3,16 +3,17 @@ package com.manhunt.app.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,11 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.manhunt.app.i18n.t
 import com.manhunt.app.data.LatLng
-import com.manhunt.app.data.ZoneDto
-import com.manhunt.app.map.MatchMap
 import com.manhunt.app.data.RoomState
+import com.manhunt.app.data.ZoneDto
+import com.manhunt.app.i18n.t
+import com.manhunt.app.map.MatchMap
+import com.manhunt.app.ui.theme.ManHuntSizes
+import com.manhunt.app.ui.theme.ManHuntSpacing
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -56,44 +59,56 @@ fun RoomSettingsDialog(
     var radius by remember { mutableStateOf((settings.zone?.radiusM ?: 800.0).toInt().toString()) }
     var centerLat by remember { mutableStateOf(settings.zone?.centerLat ?: currentLocation?.lat) }
     var centerLng by remember { mutableStateOf(settings.zone?.centerLng ?: currentLocation?.lng) }
+    var latText by remember {
+        mutableStateOf((settings.zone?.centerLat ?: currentLocation?.lat)?.let { formatCoordinate(it) }.orEmpty())
+    }
+    var lngText by remember {
+        mutableStateOf((settings.zone?.centerLng ?: currentLocation?.lng)?.let { formatCoordinate(it) }.orEmpty())
+    }
     var shrink by remember { mutableStateOf(settings.shrink.enabled) }
     var shrinkInterval by remember { mutableStateOf((settings.shrink.intervalSec / 60).toString()) }
     var shrinkStep by remember { mutableStateOf(settings.shrink.stepM.toInt().toString()) }
     var error by remember { mutableStateOf<String?>(null) }
+
+    fun applyCenter(lat: Double, lng: Double) {
+        centerLat = lat
+        centerLng = lng
+        latText = formatCoordinate(lat)
+        lngText = formatCoordinate(lng)
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(t("Hunt rules")) },
         text = {
             Column(
-                modifier = Modifier.heightIn(max = 460.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.heightIn(max = 480.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm),
             ) {
-                Text(t("Applies to the next match. Rules are enforced by the server."), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    t("Applies to the next match. Rules are enforced by the server."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
-                OutlinedTextField(
+                SectionLabel(t("Timing"))
+                ManHuntTextField(
                     value = headStart,
                     onValueChange = { headStart = it.filter(Char::isDigit) },
-                    label = { Text(t("Prey head start (minutes)")) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    label = t("Prey head start (minutes)"),
+                    keyboardType = KeyboardType.Number,
                 )
-                OutlinedTextField(
+                ManHuntTextField(
                     value = duration,
                     onValueChange = { duration = it.filter(Char::isDigit) },
-                    label = { Text(t("Match duration (minutes)")) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    label = t("Match duration (minutes)"),
+                    keyboardType = KeyboardType.Number,
                 )
-                OutlinedTextField(
+                ManHuntTextField(
                     value = interval,
                     onValueChange = { interval = it.filter(Char::isDigit) },
-                    label = { Text(t("Location report interval (minutes)")) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    label = t("Location report interval (minutes)"),
+                    keyboardType = KeyboardType.Number,
                 )
 
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -101,79 +116,114 @@ fun RoomSettingsDialog(
                     Switch(checked = trails, onCheckedChange = { trails = it })
                 }
 
-                Text(t("Play area"), style = MaterialTheme.typography.labelMedium)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionLabel(t("Play area"))
+                Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
                     FilterChip(selected = mode == "open", onClick = { mode = "open" }, label = { Text(t("Open")) })
                     FilterChip(selected = mode == "zone", onClick = { mode = "zone" }, label = { Text(t("Zone")) })
                 }
 
                 if (mode == "zone") {
-                    OutlinedTextField(
+                    ManHuntTextField(
                         value = radius,
                         onValueChange = { radius = it.filter(Char::isDigit) },
-                        label = { Text(t("Zone radius (metres)")) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                        label = t("Zone radius (metres)"),
+                        keyboardType = KeyboardType.Number,
                     )
-                    if (centerLat != null && centerLng != null) {
-                        MatchMap(
-                            modifier = Modifier.fillMaxWidth().height(200.dp),
-                            ownLocation = LatLng(centerLat!!, centerLng!!),
-                            prey = emptyList(),
-                            zone = ZoneDto(
-                                centerLat = centerLat!!,
-                                centerLng = centerLng!!,
-                                radiusM = radius.toDoubleOrNull() ?: (settings.zone?.radiusM ?: 800.0),
-                            ),
-                            showPrey = false,
-                            // ownLocation is the zone centre candidate here - focus
-                            // without drawing a "You" marker on top of it.
-                            showOwnMarker = false,
-                            onTap = {
-                                centerLat = it.lat
-                                centerLng = it.lng
-                            },
-                        )
-                        Text(
-                            t("Tap the map to move the zone centre"),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+
+                    // The map is the primary placement surface and must be visible even
+                    // before a centre exists (otherwise zone mode is unusable on a new room).
+                    val center = if (centerLat != null && centerLng != null) {
+                        LatLng(centerLat!!, centerLng!!)
                     } else {
-                        Text(
-                            t("Enable GPS or tap the map to place the zone"),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        null
+                    }
+                    val fallback = center ?: currentLocation ?: LatLng(0.0, 0.0)
+                    MatchMap(
+                        modifier = Modifier.fillMaxWidth().height(ManHuntSizes.mapHeight),
+                        ownLocation = center,
+                        prey = emptyList(),
+                        zone = center?.let {
+                            ZoneDto(
+                                centerLat = it.lat,
+                                centerLng = it.lng,
+                                radiusM = radius.toDoubleOrNull() ?: (settings.zone?.radiusM ?: 800.0),
+                            )
+                        },
+                        showPrey = false,
+                        // ownLocation is the zone centre candidate here - focus
+                        // without drawing a "You" marker on top of it.
+                        showOwnMarker = false,
+                        onTap = { applyCenter(it.lat, it.lng) },
+                        fallbackCenter = fallback,
+                        fallbackZoom = if (center != null || currentLocation != null) 15.0 else 2.0,
+                    )
+                    Text(
+                        t("Tap the map to move the zone centre"),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+
+                    SectionLabel(t("Zone centre"))
+                    Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
+                        ManHuntTextField(
+                            value = latText,
+                            onValueChange = { raw ->
+                                latText = raw
+                                latText.toDoubleOrNull()?.let { centerLat = it }
+                            },
+                            label = t("Latitude"),
+                            keyboardType = KeyboardType.Number,
+                            modifier = Modifier.weight(1f),
+                        )
+                        ManHuntTextField(
+                            value = lngText,
+                            onValueChange = { raw ->
+                                lngText = raw
+                                lngText.toDoubleOrNull()?.let { centerLng = it }
+                            },
+                            label = t("Longitude"),
+                            keyboardType = KeyboardType.Number,
+                            modifier = Modifier.weight(1f),
                         )
                     }
+                    Text(
+                        t("Enter coordinates manually"),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Text(t("Shrink over time"), Modifier.weight(1f))
                         Switch(checked = shrink, onCheckedChange = { shrink = it })
                     }
                     if (shrink) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedTextField(
+                        Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
+                            ManHuntTextField(
                                 value = shrinkInterval,
                                 onValueChange = { shrinkInterval = it.filter(Char::isDigit) },
-                                label = { Text(t("Every (min)")) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
+                                label = t("Every (min)"),
+                                keyboardType = KeyboardType.Number,
                                 modifier = Modifier.weight(1f),
                             )
-                            OutlinedTextField(
+                            ManHuntTextField(
                                 value = shrinkStep,
                                 onValueChange = { shrinkStep = it.filter(Char::isDigit) },
-                                label = { Text(t("By (m)")) },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                singleLine = true,
+                                label = t("By (m)"),
+                                keyboardType = KeyboardType.Number,
                                 modifier = Modifier.weight(1f),
                             )
                         }
                     }
                 }
 
-                error?.let { Text(t(it), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                error?.let {
+                    Text(
+                        t(it),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                Spacer(Modifier.height(ManHuntSpacing.xs))
             }
         },
         confirmButton = {
@@ -216,3 +266,6 @@ fun RoomSettingsDialog(
         dismissButton = { TextButton(onClick = onDismiss) { Text(t("Cancel")) } },
     )
 }
+
+private fun formatCoordinate(value: Double): String =
+    String.format(java.util.Locale.ROOT, "%.5f", value)

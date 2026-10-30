@@ -102,7 +102,8 @@ class ManHuntRepository(
         api.leaveRoom(token(), roomId)
     }
 
-    suspend fun messages(roomId: String): List<ChatMessage> = api.messages(token(), roomId)
+    suspend fun messages(roomId: String, limit: Int? = null, before: Long? = null): MessagesResponse =
+        api.messages(token(), roomId, limit, before)
 
     suspend fun sendMessage(roomId: String, body: String): ChatMessage = api.sendMessage(token(), roomId, body)
 

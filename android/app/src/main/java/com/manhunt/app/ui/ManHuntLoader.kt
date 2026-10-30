@@ -29,12 +29,15 @@ import com.manhunt.app.i18n.t
 /**
  * Small radar-sweep loader: a faint ring, a rotating sweep and a pulsing core.
  * Sized by the caller so it never dominates the screen.
+ *
+ * @param label content description announced by TalkBack; defaults to "Loading".
  */
 @Composable
 fun ManHuntLoader(
     modifier: Modifier = Modifier,
     size: Dp = 28.dp,
     color: Color = MaterialTheme.colorScheme.primary,
+    label: String? = null,
 ) {
     val transition = rememberInfiniteTransition(label = "manhunt-loader")
     val angle by transition.animateFloat(
@@ -53,12 +56,12 @@ fun ManHuntLoader(
         label = "core",
     )
 
-    val loadingLabel = t("Loading")
+    val contentLabel = label ?: t("Loading")
 
     Canvas(
         modifier = modifier
             .size(size)
-            .semantics { contentDescription = loadingLabel },
+            .semantics { contentDescription = contentLabel },
     ) {
         val stroke = this.size.minDimension * 0.10f
         val inset = stroke / 2f
