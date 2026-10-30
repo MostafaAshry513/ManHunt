@@ -36,6 +36,7 @@ sealed interface Route {
     data object Safety : Route
     data object Auth : Route
     data object Home : Route
+    data object Roles : Route
     data object Settings : Route
     data class Room(val id: String) : Route
 }
@@ -56,6 +57,7 @@ fun AppRoot() {
     val route: Route = when (routeKey) {
         "safety" -> Route.Safety
         "home" -> Route.Home
+        "roles" -> Route.Roles
         "settings" -> Route.Settings
         "room" -> Route.Room(activeRoomId)
         else -> Route.Auth
@@ -118,11 +120,16 @@ fun AppRoot() {
                     label = "screen",
                 ) { current ->
                     when (current) {
-                        Route.Safety -> WelcomeScreen(
-                            onAccept = {
+                        Route.Safety -> RolesScreen(
+                            firstRun = true,
+                            onClose = {
                                 repo.acceptSafety()
                                 safetyAccepted = true
                             },
+                        )
+                        Route.Roles -> RolesScreen(
+                            firstRun = false,
+                            onClose = { routeKey = "home" },
                         )
                         Route.Auth -> AuthScreen()
                         Route.Home -> HomeScreen(
@@ -131,6 +138,7 @@ fun AppRoot() {
                                 routeKey = "room"
                             },
                             onOpenSettings = { routeKey = "settings" },
+                            onOpenRoles = { routeKey = "roles" },
                         )
                         Route.Settings -> SettingsScreen(onBack = { routeKey = "home" })
                         is Route.Room -> RoomScreen(

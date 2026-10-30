@@ -443,6 +443,27 @@ private val arabic: Map<String, String> = mapOf(
             "ManHunt لعبة — وليست خدمة طوارئ أو إنقاذ أو تتبّع أطفال.",
     "Let's play" to "لنبدأ اللعب",
     "Use my location" to "استخدم موقعي",
+
+    // Roles page + game-mode catalog
+    "Roles" to "الأدوار",
+    "How each side plays, and what modes are coming." to
+        "كيف يلعب كل فريق، وما الأوضاع القادمة.",
+    "Classic hunt" to "المطاردة الكلاسيكية",
+    "The original real-world game: Prey hide and share their position, Hunters track them down and tag them in person." to
+        "اللعبة الأصلية في العالم الحقيقي: تختبئ الفرائس وتشارك مواقعها، ويتتبعها الصيادون ويوسمونها شخصيًا.",
+    "Tag Relay" to "تتابع الوسم",
+    "Swap sides, keep score." to "بدّلوا الجانبين واحفظوا النقاط.",
+    "Planned: teams alternate between Prey and Hunters each round, scoring tags and survival time." to
+        "مخطط له: تتبادل الفرق بين الفريسة والصياد كل جولة، مع احتساب الوسم ومدة الصمود.",
+    "Zone Lock" to "إغلاق المنطقة",
+    "The walls close in." to "تضيق الدائرة.",
+    "Planned: a shrinking play area with trails off — stay inside the zone and survive as long as you can." to
+        "مخطط له: منطقة لعب تتقلص مع إيقاف المسارات — ابقَ داخل المنطقة واصمد أطول وقت ممكن.",
+    "Coming soon" to "قريبًا",
+    "Classic is the only playable mode right now." to
+        "المطاردة الكلاسيكية هي الوضع الوحيد القابل للعب حاليًا.",
+    "Swipe to see all modes · classic is playable today" to
+        "اسحب لرؤية كل الأوضاع · المطاردة الكلاسيكية متاحة الآن",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }

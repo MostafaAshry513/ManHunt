@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
@@ -103,7 +104,7 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
 }
 
 @Composable
-fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
+fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenRoles: () -> Unit) {
     val repo = Graph.container.repository
     val session by repo.session.collectAsState()
     val vm: HomeViewModel = viewModel(factory = viewModelFactory {
@@ -134,6 +135,12 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit) {
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
+                }
+                IconButton(
+                    onClick = onOpenRoles,
+                    modifier = Modifier.size(ManHuntSizes.touchTarget).testTag("home_roles"),
+                ) {
+                    Icon(Icons.Outlined.Info, contentDescription = t("Roles"))
                 }
                 IconButton(
                     onClick = onOpenSettings,
