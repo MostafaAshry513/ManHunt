@@ -29,6 +29,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.GpsFixed
+import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -92,7 +94,13 @@ fun TeamPill(team: String, modifier: Modifier = Modifier) {
         tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
         label = "team-color",
     )
-    Pill(text = t(teamLabel(team)), color = color, modifier = modifier)
+    // Role icon instead of a plain colour dot: the word alone was harder to scan.
+    Pill(
+        text = t(teamLabel(team)),
+        color = color,
+        modifier = modifier,
+        icon = if (team == Teams.PREY) Icons.Outlined.Pets else Icons.Outlined.GpsFixed,
+    )
 }
 
 /** Small rounded status chip: dot + label. Used for teams and statuses. */
@@ -362,7 +370,7 @@ fun PrimaryButton(
                 Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(ManHuntSpacing.sm))
             }
-            Text(text, style = MaterialTheme.typography.labelLarge)
+            Text(text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
         }
     }
 }
@@ -388,7 +396,7 @@ fun SecondaryButton(
             Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(ManHuntSpacing.sm))
         }
-        Text(text, style = MaterialTheme.typography.labelLarge)
+        Text(text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
     }
 }
 
@@ -450,14 +458,25 @@ fun ErrorBanner(
 }
 
 @Composable
-fun SectionLabel(text: String) {
-    Text(
-        text = text.uppercase(),
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.primary,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.semantics { heading() },
-    )
+fun SectionLabel(text: String, icon: ImageVector? = null) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (icon != null) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.width(5.dp))
+        }
+        Text(
+            text = text.uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.semantics { heading() },
+        )
+    }
     Spacer(Modifier.height(ManHuntSpacing.xxs))
 }
 

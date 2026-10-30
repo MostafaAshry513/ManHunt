@@ -86,22 +86,22 @@ fun SettingsScreen(onBack: () -> Unit) {
         Column(Modifier.fillMaxSize()) {
             ScreenHeader(title = t("Settings"), onBack = onBack)
 
-            // Compact, single-line labelled tabs: no big icon+text headers, and a
-            // scrollable strip so five labels never squeeze or clip on a narrow phone.
-            ScrollableTabRow(
+            // Icon-only tabs: the labels were too tall/wordy for a phone header, so the
+            // tab strip is compact and the icons stay centred; TalkBack still gets the
+            // localized label through the content description.
+            TabRow(
                 selectedTabIndex = tab,
                 containerColor = MaterialTheme.colorScheme.surface,
-                edgePadding = 0.dp,
             ) {
                 SettingsTab.entries.forEachIndexed { index, entry ->
                     Tab(
                         selected = tab == index,
                         onClick = { tab = index },
-                        text = {
-                            Text(
-                                t(entry.label),
-                                style = MaterialTheme.typography.labelMedium,
-                                maxLines = 1,
+                        icon = {
+                            Icon(
+                                entry.icon,
+                                contentDescription = t(entry.label),
+                                modifier = Modifier.padding(vertical = 2.dp),
                             )
                         },
                     )

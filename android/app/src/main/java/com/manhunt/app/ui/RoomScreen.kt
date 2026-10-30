@@ -43,8 +43,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.GpsFixed
+import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
@@ -54,6 +56,8 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.SportsEsports
 import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material.icons.outlined.SwapHoriz
+import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
@@ -1257,24 +1261,24 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                         )
                         if (activePhase && me?.team == Teams.PREY) {
                             when {
-                                !hasLocation && locationDenied -> CompactMapAction(t("Allow in settings")) {
+                                !hasLocation && locationDenied -> CompactMapAction(t("Allow in settings"), Icons.Outlined.Tune) {
                                     openAppSettings(context)
                                 }
-                                !hasLocation -> CompactMapAction(t("Enable GPS")) {
+                                !hasLocation -> CompactMapAction(t("Enable GPS"), Icons.Outlined.LocationOn) {
                                     permissionLauncher.launch(trackingPermissions)
                                 }
-                                !locationServicesOn -> CompactMapAction(t("Turn on")) {
+                                !locationServicesOn -> CompactMapAction(t("Turn on"), Icons.Outlined.LocationOn) {
                                     context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
                                 }
                             }
                         }
                         if (activePhase && me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
                             if (ui.trailsVisible) {
-                                CompactMapAction(t("Hide trails")) { vm.toggleTrails() }
+                                CompactMapAction(t("Hide trails"), Icons.Outlined.Timeline) { vm.toggleTrails() }
                             } else {
-                                CompactMapAction(t("Trails")) { vm.toggleTrails() }
+                                CompactMapAction(t("Trails"), Icons.Outlined.Timeline) { vm.toggleTrails() }
                             }
-                            CompactMapAction(t("Tag prey"), filled = true) { showTagPicker = true }
+                            CompactMapAction(t("Tag prey"), Icons.Outlined.GpsFixed, filled = true) { showTagPicker = true }
                         }
                     }
                 }
@@ -1358,7 +1362,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
                 item {
                     ScreenCard {
-                        SectionLabel("${t("Hunt roster")} (${state.members.size})")
+                        SectionLabel("${t("Hunt roster")} (${state.members.size})", Icons.Outlined.Groups)
                         state.members.forEach { member ->
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
@@ -1417,7 +1421,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     // getting ready - never in the middle of a hunt.
                     item(key = "device_check") {
                         ScreenCard {
-                            SectionLabel(t("Before the hunt"))
+                            SectionLabel(t("Before the hunt"), Icons.Outlined.Checklist)
                             DeviceCheckRow(
                                 icon = Icons.Outlined.LocationOn,
                                 title = t("Location"),
@@ -1442,7 +1446,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 if (lobby) {
                     item {
                         ScreenCard {
-                            SectionLabel(t("Choose your side"))
+                            SectionLabel(t("Choose your side"), Icons.Outlined.SwapHoriz)
                             ErrorBanner(ui.error)
                             val ready = me?.ready == true
                             val readyBg by animateColorAsState(
@@ -1618,7 +1622,7 @@ private fun PhaseCard(
 
     ScreenCard {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            SectionLabel(t("The hunt"))
+            SectionLabel(t("The hunt"), Icons.Outlined.SportsEsports)
             Spacer(Modifier.weight(1f))
             val color: Color = when (phase) {
                 Phases.HUNTING -> MaterialTheme.colorScheme.tertiary
@@ -1853,22 +1857,30 @@ private fun DeviceCheckRow(
 @Composable
 private fun CompactMapAction(
     label: String,
+    icon: ImageVector? = null,
     filled: Boolean = false,
     onClick: () -> Unit,
 ) {
     val contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+    val content: @Composable () -> Unit = {
+        if (icon != null) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(4.dp))
+        }
+        Text(label, maxLines = 1, textAlign = TextAlign.Center)
+    }
     if (filled) {
         Button(
             onClick = onClick,
             modifier = Modifier.heightIn(min = 44.dp),
             contentPadding = contentPadding,
-        ) { Text(label, maxLines = 1) }
+        ) { content() }
     } else {
         OutlinedButton(
             onClick = onClick,
             modifier = Modifier.heightIn(min = 44.dp),
             contentPadding = contentPadding,
-        ) { Text(label, maxLines = 1) }
+        ) { content() }
     }
 }
 
