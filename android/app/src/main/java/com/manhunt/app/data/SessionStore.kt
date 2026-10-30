@@ -53,7 +53,7 @@ class SessionStore(context: Context) {
         private const val KEY_USER = "user"
         private const val KEY_SERVER = "server_url"
         private const val KEY_DARK = "dark_theme"
-        private const val KEY_SAFETY = "safety_accepted"
+        private const val KEY_SAFETY = "welcome_accepted_v2"
         private const val KEY_TEXT_SCALE = "text_scale"
         private const val KEY_LANGUAGE = "language"
     }
