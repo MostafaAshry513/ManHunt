@@ -1,9 +1,10 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -14,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,14 +26,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.manhunt.app.data.LatLng
 import com.manhunt.app.data.RoomState
 import com.manhunt.app.data.ZoneDto
 import com.manhunt.app.i18n.t
 import com.manhunt.app.map.MatchMap
-import com.manhunt.app.ui.theme.ManHuntSizes
 import com.manhunt.app.ui.theme.ManHuntSpacing
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -69,6 +73,7 @@ fun RoomSettingsDialog(
     var shrinkInterval by remember { mutableStateOf((settings.shrink.intervalSec / 60).toString()) }
     var shrinkStep by remember { mutableStateOf(settings.shrink.stepM.toInt().toString()) }
     var error by remember { mutableStateOf<String?>(null) }
+    var showZonePicker by remember { mutableStateOf(false) }
 
     fun applyCenter(lat: Double, lng: Double) {
         centerLat = lat
@@ -130,38 +135,24 @@ fun RoomSettingsDialog(
                         keyboardType = KeyboardType.Number,
                     )
 
-                    // The map is the primary placement surface and must be visible even
-                    // before a centre exists (otherwise zone mode is unusable on a new room).
-                    val center = if (centerLat != null && centerLng != null) {
-                        LatLng(centerLat!!, centerLng!!)
-                    } else {
-                        null
+                    // Zone placement opens a dedicated, non-scrolling full-screen map:
+                    // panning a map inside this dialog's scroll column is unusable because
+                    // the column's vertical drag detector steals the gesture.
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            t(
+                                if (centerLat != null && centerLng != null) "Zone centre set"
+                                else "Zone centre not set"
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(
+                            onClick = { showZonePicker = true },
+                            modifier = Modifier.testTag("zone_pick"),
+                        ) { Text(t("Pick on map")) }
                     }
-                    val fallback = center ?: currentLocation ?: LatLng(0.0, 0.0)
-                    MatchMap(
-                        modifier = Modifier.fillMaxWidth().height(ManHuntSizes.mapHeight),
-                        ownLocation = center,
-                        prey = emptyList(),
-                        zone = center?.let {
-                            ZoneDto(
-                                centerLat = it.lat,
-                                centerLng = it.lng,
-                                radiusM = radius.toDoubleOrNull() ?: (settings.zone?.radiusM ?: 800.0),
-                            )
-                        },
-                        showPrey = false,
-                        // ownLocation is the zone centre candidate here - focus
-                        // without drawing a "You" marker on top of it.
-                        showOwnMarker = false,
-                        onTap = { applyCenter(it.lat, it.lng) },
-                        fallbackCenter = fallback,
-                        fallbackZoom = if (center != null || currentLocation != null) 15.0 else 2.0,
-                    )
-                    Text(
-                        t("Tap the map to move the zone centre"),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
 
                     SectionLabel(t("Zone centre"))
                     Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
@@ -265,7 +256,69 @@ fun RoomSettingsDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(t("Cancel")) } },
     )
+
+    if (showZonePicker) {
+        ZonePickerDialog(
+            initialCenter = if (centerLat != null && centerLng != null) {
+                LatLng(centerLat!!, centerLng!!)
+            } else {
+                currentLocation
+            },
+            radiusM = radius.toDoubleOrNull() ?: (settings.zone?.radiusM ?: 800.0),
+            onPicked = { picked ->
+                applyCenter(picked.lat, picked.lng)
+                showZonePicker = false
+            },
+            onDismiss = { showZonePicker = false },
+        )
+    }
+}
+
+/**
+ * Full-screen, non-scrolling zone placement map. Kept out of the settings dialog's
+ * scroll column so osmdroid owns all drag gestures (all directions).
+ */
+@Composable
+private fun ZonePickerDialog(
+    initialCenter: LatLng?,
+    radiusM: Double,
+    onPicked: (LatLng) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            Column(Modifier.fillMaxSize().padding(ManHuntSpacing.md)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        t("Tap the map to place the zone centre"),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = onDismiss) { Text(t("Close")) }
+                }
+                MatchMap(
+                    modifier = Modifier.fillMaxWidth().weight(1f).testTag("zone_picker_map"),
+                    ownLocation = initialCenter,
+                    prey = emptyList(),
+                    zone = initialCenter?.let {
+                        ZoneDto(centerLat = it.lat, centerLng = it.lng, radiusM = radiusM)
+                    },
+                    showPrey = false,
+                    showOwnMarker = false,
+                    onTap = onPicked,
+                    fallbackCenter = initialCenter ?: LatLng(0.0, 0.0),
+                    fallbackZoom = if (initialCenter != null) 15.0 else 2.0,
+                )
+                Text(
+                    t("Drag to move the map, tap to set the centre"),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
 }
 
 private fun formatCoordinate(value: Double): String =
     String.format(java.util.Locale.ROOT, "%.5f", value)
+

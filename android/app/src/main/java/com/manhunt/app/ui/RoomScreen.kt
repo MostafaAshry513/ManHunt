@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import android.Manifest
 import android.content.Context
@@ -679,18 +679,14 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
     val listState = rememberLazyListState()
 
-    // On real phase/status transitions bring the new focal card into view: hunt card
-    // is the LAST lobby item, phase card the FIRST match item. Skipped on first load.
+    // Bring the list back to the TOP on real phase/status transitions (and when the first
+    // room state arrives). The lobby must open at the top, not scrolled to the last card;
+    // this also stops the map/menu from opening half-scrolled after a match ends.
     var lastScrollKey by remember { mutableStateOf<Any?>(null) }
     LaunchedEffect(ui.state?.room?.status, ui.state?.match?.id, ui.state?.match?.phase) {
         val key = listOf(ui.state?.room?.status, ui.state?.match?.id, ui.state?.match?.phase)
         if (lastScrollKey != null && lastScrollKey != key) {
-            if (ui.state?.room?.status == "lobby") {
-                val last = (listState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0)
-                listState.scrollToItem(last)
-            } else {
-                listState.scrollToItem(0)
-            }
+            listState.scrollToItem(0)
         }
         lastScrollKey = key
     }
@@ -976,7 +972,71 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 )
             }
 
+            // The map is deliberately OUTSIDE the scrolling list. A LazyColumn's vertical
+            // drag detector steals osmdroid's pans (dragging the map scrolls the page).
+            // Kept at a fixed height, the map owns its own touch stream in every direction.
+            val activeMatchMap: @Composable (Modifier) -> Unit = { outerModifier ->
+                val ownLocation by LiveLocation.current.collectAsState()
+                Column(
+                    modifier = outerModifier,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    MatchMap(
+                        modifier = Modifier.fillMaxWidth().height(240.dp),
+                        ownLocation = ownLocation,
+                        prey = ui.locations?.prey ?: emptyList(),
+                        zone = match?.zone,
+                        showPrey = me?.team == Teams.HUNTERS,
+                        trails = if (ui.trailsVisible) ui.trails else emptyMap(),
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            t(
+                                when {
+                                    me?.team == Teams.HUNTERS -> "Prey positions are the latest reports"
+                                    activePhase && hasLocation && resumed && ownLocation != null -> "Sharing your position"
+                                    activePhase && hasLocation && resumed -> "Waiting for GPS"
+                                    activePhase && hasLocation -> "Open the app to resume sharing"
+                                    activePhase -> "Location off"
+                                    else -> "Map"
+                                }
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (me?.team == Teams.PREY && activePhase && !hasLocation) {
+                            if (locationDenied) {
+                                // Android stops showing the dialog after two denials;
+                                // the only way back is app settings.
+                                TextButton(onClick = { openAppSettings(context) }) {
+                                    Text(t("Allow in settings"))
+                                }
+                            } else {
+                                TextButton(onClick = {
+                                    permissionLauncher.launch(trackingPermissions)
+                                }) { Text(t("Enable GPS")) }
+                            }
+                        }
+                        if (me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
+                            TextButton(onClick = vm::toggleTrails) {
+                                Text(t(if (ui.trailsVisible) "Hide trails" else "Trails"))
+                            }
+                            TextButton(onClick = { showTagPicker = true }) { Text(t("Tag prey")) }
+                        }
+                    }
+                }
+            }
+
             if (tab == 0) {
+                if (!lobby && match != null && showMatchMap) {
+                    activeMatchMap(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .testTag("match_map_card"),
+                    )
+                }
                 LazyColumn(
                 state = listState,
                 // weight, not fillMaxSize: the chat composer must keep its height (UI-01).
@@ -995,73 +1055,9 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
                     item(key = "phase") { matchCard() }
 
-                    if (me?.eliminated == true && phase == Phases.HUNTING) {
-                        item {
+                    if (me?.team == Teams.HUNTERS && ui.locations?.prey?.isNotEmpty() == true) {
+                        item(key = "prey_status") {
                             ScreenCard {
-                                Text(t("You were tagged"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                                Text(
-                                    "You are spectating this match. You can still chat, but you cannot tag or share new positions.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-
-                    if (match != null && showMatchMap) {
-                    item(key = "map") {
-                        // Collect the GPS fix inside the map item only: a location update
-                        // recomposes the map card, not the whole room screen.
-                        val ownLocation by LiveLocation.current.collectAsState()
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            MatchMap(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1.4f)
-                                    .heightIn(max = 320.dp),
-                                ownLocation = ownLocation,
-                                prey = ui.locations?.prey ?: emptyList(),
-                                zone = match.zone,
-                                showPrey = me?.team == Teams.HUNTERS,
-                                trails = if (ui.trailsVisible) ui.trails else emptyMap(),
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    t(
-                                        when {
-                                            me?.team == Teams.HUNTERS -> "Prey positions are the latest reports"
-                                            activePhase && hasLocation && resumed && ownLocation != null -> "Sharing your position"
-                                            activePhase && hasLocation && resumed -> "Waiting for GPS"
-                                            activePhase && hasLocation -> "Open the app to resume sharing"
-                                            activePhase -> "Location off"
-                                            else -> "Map"
-                                        }
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                if (me?.team == Teams.PREY && activePhase && !hasLocation) {
-                                    if (locationDenied) {
-                                        // Android stops showing the dialog after two denials;
-                                        // the only way back is app settings.
-                                        TextButton(onClick = { openAppSettings(context) }) {
-                                            Text(t("Allow in settings"))
-                                        }
-                                    } else {
-                                        TextButton(onClick = {
-                                            permissionLauncher.launch(trackingPermissions)
-                                        }) { Text(t("Enable GPS")) }
-                                    }
-                                }
-                                if (me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
-                                    TextButton(onClick = vm::toggleTrails) {
-                                        Text(t(if (ui.trailsVisible) "Hide trails" else "Trails"))
-                                    }
-                                    TextButton(onClick = { showTagPicker = true }) { Text(t("Tag prey")) }
-                                }
-                            }
-                            if (ui.locations?.prey?.isNotEmpty() == true && me?.team == Teams.HUNTERS) {
                                 // Text alternative to the map (UI-03) and per-player staleness (UI-08).
                                 ui.locations!!.prey.forEach { p ->
                                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -1082,17 +1078,30 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                         Text(label, style = MaterialTheme.typography.labelSmall, color = tint)
                                     }
                                 }
+                                if (ui.locations!!.prey.any { it.stale }) {
+                                    Text(
+                                        t("Some prey reports are stale (older than two intervals)."),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.tertiary,
+                                    )
+                                }
                             }
-                            if (ui.locations?.prey?.any { it.stale } == true) {
+                        }
+                    }
+
+                    if (me?.eliminated == true && phase == Phases.HUNTING) {
+                        item {
+                            ScreenCard {
+                                Text(t("You were tagged"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                                 Text(
-                                    t("Some prey reports are stale (older than two intervals)."),
+                                    "You are spectating this match. You can still chat, but you cannot tag or share new positions.",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.tertiary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
                     }
-                }
+
                 }
 
                 item {
@@ -1176,14 +1185,16 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                 TeamChoiceCard(
                                     team = Teams.PREY,
                                     selected = me?.team == Teams.PREY,
-                                    enabled = !ui.busy,
+                                    // Tapping the side you are already on is a no-op; disable it
+                                    // so it is obvious the choice is already applied.
+                                    enabled = !ui.busy && me?.team != Teams.PREY,
                                     onClick = { vm.setTeam(Teams.PREY) },
                                     modifier = Modifier.weight(1f).testTag("team_prey"),
                                 )
                                 TeamChoiceCard(
                                     team = Teams.HUNTERS,
                                     selected = me?.team == Teams.HUNTERS,
-                                    enabled = !ui.busy,
+                                    enabled = !ui.busy && me?.team != Teams.HUNTERS,
                                     onClick = { vm.setTeam(Teams.HUNTERS) },
                                     modifier = Modifier.weight(1f).testTag("team_hunters"),
                                 )
