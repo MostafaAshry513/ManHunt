@@ -128,7 +128,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 
   app.get('/health', async () => {
     deps.db.prepare('SELECT 1').get();
-    return { ok: true, now: clock(), service: 'manhunt', version: '0.1.0' };
+    return { ok: true, now: clock(), service: 'manhunt', version: '0.9.0' };
   });
 
   // Update channel: written by scripts/ci/pull-latest-apk.ps1 after a CI build.
