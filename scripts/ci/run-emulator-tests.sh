@@ -68,6 +68,16 @@ cd ../android
   -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true \
   --console=plain
 
+# Pull the instrumentation screenshots while the debuggable build is still installed
+# (run-as stops working once the non-debuggable release build replaces it).
+echo "==== pulling instrumentation screenshots ===="
+SHOTS="$ROOT/emulator-screenshots"
+rm -rf "$SHOTS"; mkdir -p "$SHOTS"
+for f in $(adb shell run-as com.manhunt.app ls files/screenshots 2>/dev/null | tr -d '\r'); do
+  adb exec-out run-as com.manhunt.app cat "files/screenshots/$f" > "$SHOTS/$f" 2>/dev/null || true
+done
+ls -l "$SHOTS" || true
+
 # R8/resource-shrunk release build must at least install and boot: this is the runtime
 # gate for the release configuration that ships to players (debug tests do not cover it).
 echo "==== release (R8) build + launch smoke ===="
