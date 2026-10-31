@@ -146,6 +146,9 @@ data class RoomUi(
     val trailsVisible: Boolean = false,
     val pendingTag: TagDto? = null,
     val pendingDispute: TagDto? = null,
+    /** Claim ids the player dismissed: hidden from the dialog but shown as a banner. */
+    val dismissedTagId: String? = null,
+    val dismissedDisputeId: String? = null,
     val notice: String? = null,
     val history: List<MatchHistoryEntry> = emptyList(),
     val historyLoaded: Boolean = false,
@@ -246,7 +249,6 @@ class RoomViewModel(
 
     override fun onCleared() {
         stop()
-        super.onCleared()
     }
 
     /** Skips the write when the value is unchanged, so idle polls do not recompose. */
@@ -273,12 +275,14 @@ class RoomViewModel(
         val preyTag = when {
             myClaim == null -> pendingTag // event arrived before this snapshot: keep it
             myClaim.disputed -> null
+            // Dismissed by the player: hide the dialog, but the claim stays visible as a banner.
+            myClaim.id == dismissedTagId -> null
             else -> myClaim.toTag()
         }
         val disputed = state.pendingTags.firstOrNull { it.disputed }
         val adminDispute = when {
             me?.isAdmin != true -> null
-            disputed != null -> disputed.toTag()
+            disputed != null && disputed.id != dismissedDisputeId -> disputed.toTag()
             else -> pendingDispute?.takeIf { local -> state.pendingTags.any { it.id == local.id } }
         }
         return copy(state = state, pendingTag = preyTag, pendingDispute = adminDispute)
@@ -456,7 +460,7 @@ class RoomViewModel(
 
     fun confirmIncomingTag() {
         val tag = ui.pendingTag ?: return
-        updateUi { it.copy(busy = true, pendingTag = null) }
+        updateUi { it.copy(busy = true, pendingTag = null, dismissedTagId = null) }
         viewModelScope.launch {
             try {
                 repo.confirmTag(tag.id)
@@ -470,12 +474,20 @@ class RoomViewModel(
     }
 
     fun dismissPendingTag() {
-        updateUi { it.copy(pendingTag = null) }
+        val tag = ui.pendingTag ?: return
+        updateUi { it.copy(pendingTag = null, dismissedTagId = tag.id) }
+    }
+
+    /** Re-opens a tag claim the player dismissed; the banner's action. */
+    fun reviewPendingTag() {
+        val me = ui.state?.members?.firstOrNull { it.userId == repo.myUserId() }
+        val claim = ui.state?.pendingTags?.firstOrNull { it.preyId == me?.userId && !it.disputed } ?: return
+        updateUi { it.copy(pendingTag = claim.toTag(), dismissedTagId = null) }
     }
 
     fun disputeIncomingTag() {
         val tag = ui.pendingTag ?: return
-        updateUi { it.copy(busy = true, pendingTag = null) }
+        updateUi { it.copy(busy = true, pendingTag = null, dismissedTagId = null) }
         viewModelScope.launch {
             try {
                 repo.disputeTag(tag.id)
@@ -499,7 +511,7 @@ class RoomViewModel(
 
     fun resolveDisputed(decision: String) {
         val tag = ui.pendingDispute ?: return
-        updateUi { it.copy(busy = true, pendingDispute = null) }
+        updateUi { it.copy(busy = true, pendingDispute = null, dismissedDisputeId = null) }
         viewModelScope.launch {
             try {
                 repo.resolveTag(tag.id, decision)
@@ -517,7 +529,14 @@ class RoomViewModel(
     }
 
     fun dismissPendingDispute() {
-        updateUi { it.copy(pendingDispute = null) }
+        val tag = ui.pendingDispute ?: return
+        updateUi { it.copy(pendingDispute = null, dismissedDisputeId = tag.id) }
+    }
+
+    /** Re-opens a disputed tag the huntmaster dismissed; the banner's action. */
+    fun reviewPendingDispute() {
+        val claim = ui.state?.pendingTags?.firstOrNull { it.disputed } ?: return
+        updateUi { it.copy(pendingDispute = claim.toTag(), dismissedDisputeId = null) }
     }
 
     fun loadHistory() {
@@ -1293,6 +1312,8 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                             .testTag("match_map_card"),
                     )
                 }
+                val waitingTagClaim = state?.pendingTags?.firstOrNull { it.preyId == me?.userId && !it.disputed }
+                val waitingDispute = state?.pendingTags?.firstOrNull { it.disputed }
                 LazyColumn(
                 state = listState,
                 // weight, not fillMaxSize: the chat composer must keep its height (UI-01).
@@ -1301,6 +1322,44 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 // Breathing room below the tab bar so the first card is not glued to it.
                 contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp),
             ) {
+
+                // A dismissed tag dialog must not silently lose the decision: keep it visible
+                // as a banner until the player actually answers it.
+                if (waitingTagClaim != null && ui.pendingTag == null) {
+                    item(key = "tag_waiting") {
+                        ScreenCard {
+                            Text(
+                                t("A tag claim is waiting for your answer."),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                t("Confirm or dispute it to keep the hunt fair."),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Button(
+                                onClick = vm::reviewPendingTag,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) { Text(t("Review tag claim")) }
+                        }
+                    }
+                }
+                if (me?.isAdmin == true && waitingDispute != null && ui.pendingDispute == null) {
+                    item(key = "dispute_waiting") {
+                        ScreenCard {
+                            Text(
+                                t("A disputed tag is waiting for the huntmaster."),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Button(
+                                onClick = vm::reviewPendingDispute,
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            ) { Text(t("Review dispute")) }
+                        }
+                    }
+                }
 
                 if (!lobby) {
                     if (ui.error != null) {
@@ -1396,7 +1455,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                                         if (!member.connected) {
                                             Spacer(Modifier.width(6.dp))
                                             Text(
-                                                t("out of range"),
+                                                t("Offline"),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )

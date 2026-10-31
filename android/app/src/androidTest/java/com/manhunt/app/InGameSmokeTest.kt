@@ -109,6 +109,8 @@ class InGameSmokeTest {
                 compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty()
         }
         if (compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty()) {
+            // Capture the first-run Roles page for docs/UI review before leaving it.
+            capture("00-roles")
             compose.onNodeWithTag("safety_accept").performClick()
         }
 

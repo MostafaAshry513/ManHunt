@@ -154,6 +154,11 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     return reply
       .type('text/html; charset=utf-8')
       .header('cache-control', 'no-store')
+      // Static pages only: no scripts, no framing, no referrer leakage.
+      .header('x-content-type-options', 'nosniff')
+      .header('x-frame-options', 'DENY')
+      .header('referrer-policy', 'no-referrer')
+      .header('content-security-policy', "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
       .send(renderInstallPage(manifest, publicBaseUrl(req)));
   });
 
@@ -165,6 +170,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     return reply
       .type('text/html; charset=utf-8')
       .header('cache-control', 'no-store')
+      .header('x-content-type-options', 'nosniff')
+      .header('x-frame-options', 'DENY')
+      .header('referrer-policy', 'no-referrer')
+      .header('content-security-policy', "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
       .send(renderJoinPage(code, publicBaseUrl(req)));
   });
 

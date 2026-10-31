@@ -102,8 +102,7 @@ class UpdateManager(
         return file.takeIf { it.exists() && it.length() > 0 }
     }
 
-    fun canInstall(): Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.O || context.packageManager.canRequestPackageInstalls()
+    fun canInstall(): Boolean = context.packageManager.canRequestPackageInstalls()
 
     /**
      * Returns false when Android still needs the per-app "install unknown apps"

@@ -77,7 +77,7 @@ private val arabic: Map<String, String> = mapOf(
     "Hunt rules" to "قواعد المطاردة",
     "Begin the hunt" to "ابدأ المطاردة",
     "HUNTMASTER" to "حكم المطاردة",
-    "out of range" to "خارج التغطية",
+    "Offline" to "غير متصل",
     "Hunt roster" to "قائمة المطاردة",
     "Hide. Survive." to "اختبئ. انجُ.",
     "Track. Tag." to "تتبّع. وسم.",
@@ -464,6 +464,13 @@ private val arabic: Map<String, String> = mapOf(
         "المطاردة الكلاسيكية هي الوضع الوحيد القابل للعب حاليًا.",
     "Swipe to see all modes · classic is playable today" to
         "اسحب لرؤية كل الأوضاع · المطاردة الكلاسيكية متاحة الآن",
+
+    // Dismissed tag decisions stay visible as banners
+    "A tag claim is waiting for your answer." to "يوجد ادعاء وسم بانتظار ردك.",
+    "Confirm or dispute it to keep the hunt fair." to "أكّده أو اعترض عليه للحفاظ على عدالة المطاردة.",
+    "Review tag claim" to "مراجعة ادعاء الوسم",
+    "A disputed tag is waiting for the huntmaster." to "يوجد وسم متنازع عليه بانتظار حكم المطاردة.",
+    "Review dispute" to "مراجعة الاعتراض",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }

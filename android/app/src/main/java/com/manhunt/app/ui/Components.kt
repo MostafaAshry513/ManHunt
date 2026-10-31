@@ -69,6 +69,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.manhunt.app.data.Teams
@@ -466,28 +467,35 @@ fun ErrorBanner(
 
 /**
  * Tab underline that follows the pager while it is being dragged, instead of jumping
- * to the new tab after the swipe settles. Interpolates between the current and target
- * tab position using the pager's continuous offset.
+ * to the new tab after the swipe settles.
+ *
+ * The pager's offset is read inside the layout lambda (not during composition) so a drag
+ * invalidates layout instead of recomposing this composable on every frame.
+ * shortcut: assumes TabRow gives every tab the same width, as both call sites do.
  */
 @Composable
 fun PagerTabIndicator(pagerState: PagerState, tabPositions: List<TabPosition>) {
     if (tabPositions.isEmpty()) return
-    val current = pagerState.currentPage.coerceIn(0, tabPositions.lastIndex)
-    val offset = pagerState.currentPageOffsetFraction
-    val target = if (offset >= 0f) {
-        (current + 1).coerceAtMost(tabPositions.lastIndex)
-    } else {
-        (current - 1).coerceAtLeast(0)
-    }
-    val fraction = abs(offset).coerceIn(0f, 1f)
-    val start = tabPositions[current]
-    val end = tabPositions[target]
+    val tabWidth = tabPositions.first().width
     TabRowDefaults.SecondaryIndicator(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentSize(Alignment.BottomStart)
-            .offset(x = lerp(start.left, end.left, fraction))
-            .width(lerp(start.width, end.width, fraction)),
+            .offset {
+                val current = pagerState.currentPage.coerceIn(0, tabPositions.lastIndex)
+                val offset = pagerState.currentPageOffsetFraction
+                val target = if (offset >= 0f) {
+                    (current + 1).coerceAtMost(tabPositions.lastIndex)
+                } else {
+                    (current - 1).coerceAtLeast(0)
+                }
+                val fraction = abs(offset).coerceIn(0f, 1f)
+                IntOffset(
+                    x = lerp(tabPositions[current].left, tabPositions[target].left, fraction).roundToPx(),
+                    y = 0,
+                )
+            }
+            .width(tabWidth),
     )
 }
 

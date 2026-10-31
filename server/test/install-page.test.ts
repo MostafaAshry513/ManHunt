@@ -53,8 +53,7 @@ test('install page renders version, size, checksum and server from the update ma
   assert.match(res.body, /github\.com\/MostafaAshry513\/ManHunt/);
 });
 
-test('/api/app/latest serves the manifest JSON without a PowerShell BOM', async (t) => {
-  const dir = await mkdtemp(join(tmpdir(), 'manhunt-install-page-'));
+test('/api/app/latest serves the manifest JSON without a PowerShell BOM', async (t) => {  const dir = await mkdtemp(join(tmpdir(), 'manhunt-install-page-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const manifestPath = join(dir, 'app-latest.json');
   await writeFile(manifestPath, `\uFEFF${JSON.stringify({
@@ -89,4 +88,24 @@ test('install page still downloads without a published manifest and the update A
   const latest = await app.inject({ method: 'GET', url: '/api/app/latest' });
   assert.equal(latest.statusCode, 404);
   assert.equal(latest.json().error.code, 'no_update_channel');
+});
+
+test('html pages send hardening headers and the join page sanitizes the invite code', async (t) => {
+  const app = await makeApp();
+  t.after(() => app.close());
+
+  for (const url of ['/', '/join?code=abc123']) {
+    const res = await app.inject({ method: 'GET', url });
+    assert.equal(res.statusCode, 200, url);
+    assert.equal(res.headers['x-content-type-options'], 'nosniff', url);
+    assert.equal(res.headers['x-frame-options'], 'DENY', url);
+    assert.equal(res.headers['referrer-policy'], 'no-referrer', url);
+    assert.match(String(res.headers['content-security-policy']), /default-src 'none'/, url);
+  }
+
+  const join = await app.inject({ method: 'GET', url: '/join?code=abc123' });
+  assert.match(join.body, /ABC123/);
+
+  const hostile = await app.inject({ method: 'GET', url: '/join?code=%3Cscript%3Ealert(1)%3C%2Fscript%3E' });
+  assert.doesNotMatch(hostile.body, /<script>alert/i);
 });
