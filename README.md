@@ -21,7 +21,7 @@ chat — so a phone can lose signal or restart without breaking the game.
 
 | Settings | Hunt result |
 |---|---|
-| ![Settings: appearance and text size](docs/screenshots/07-settings.png) | ![Hunt result dialog](docs/screenshots/08-hunt-result.png) |
+| ![Settings: updates, release date and changelog](docs/screenshots/07-settings.png) | ![Hunt result dialog](docs/screenshots/08-hunt-result.png) |
 
 The room screenshots are captured by the real-emulator CI job; the rest come from the
 Robolectric screenshot tests. Map tiles come from OpenStreetMap at runtime and need network access;
@@ -37,6 +37,7 @@ with its SHA-256.** You can also take the release straight from GitHub:
 |---|---|
 | Install page (hosted test server) | <http://74.208.99.178/> |
 | GitHub releases | [latest release](https://github.com/MostafaAshry513/ManHunt/releases/latest) — APK + `.sha256` |
+| Changelog | [CHANGELOG.md](CHANGELOG.md) |
 
 - **Requires Android 8.0 (API 26) or newer**; the APK is about 2 MB. The release APK is a signed
   `assembleRelease` build produced and signed by GitHub Actions.

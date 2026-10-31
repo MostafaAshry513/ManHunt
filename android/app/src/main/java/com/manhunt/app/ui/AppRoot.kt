@@ -1,6 +1,6 @@
 package com.manhunt.app.ui
 
-import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -18,10 +18,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -34,6 +37,8 @@ import com.manhunt.app.i18n.arabicStrings
 import com.manhunt.app.i18n.t
 import com.manhunt.app.ui.theme.ManHuntTheme
 import com.manhunt.app.ui.theme.Motion
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
 
 sealed interface Route {
     data object Safety : Route
@@ -70,8 +75,20 @@ fun AppRoot() {
 
     LaunchedEffect(Unit) { repo.restoreSession() }
 
-    // System back on the settings screen returns Home instead of finishing the Activity.
-    BackHandler(enabled = routeKey == "settings") { routeKey = "home" }
+    // Predictive back: while a system back gesture is in progress over Settings/Roles, the
+    // screen follows the finger (scale/slide) and then navigates Home on completion.
+    var backProgress by remember { mutableFloatStateOf(0f) }
+    val canPredictiveBack = routeKey == "settings" || routeKey == "roles"
+    PredictiveBackHandler(enabled = canPredictiveBack) { progressEvents ->
+        try {
+            progressEvents.collect { event -> backProgress = event.progress }
+        } catch (cancel: CancellationException) {
+            backProgress = 0f
+            throw cancel
+        }
+        backProgress = 0f
+        routeKey = "home"
+    }
 
     LaunchedEffect(session, safetyAccepted) {
         routeKey = when {
@@ -113,6 +130,17 @@ fun AppRoot() {
                 val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
                 AnimatedContent(
                     targetState = route,
+                    modifier = Modifier.graphicsLayer {
+                        // Read the gesture progress inside the draw/layout lambda so the
+                        // animation does not recompose the whole screen for every frame.
+                        val p = backProgress.coerceIn(0f, 1f)
+                        if (p > 0f) {
+                            scaleX = 1f - 0.08f * p
+                            scaleY = 1f - 0.08f * p
+                            translationX = size.width * 0.06f * p * (if (isRtl) -1f else 1f)
+                            alpha = 1f - 0.16f * p
+                        }
+                    },
                     transitionSpec = {
                         (fadeIn(tween(Motion.EMPHASIZED, easing = Motion.EaseOutExpo)) +
                             slideInHorizontally(tween(Motion.EMPHASIZED, easing = Motion.EaseOutExpo)) {

@@ -73,7 +73,28 @@ $manifest = [ordered]@{
     sha256      = $actual
     size        = (Get-Item $Destination).Length
     publishedAt = (Get-Date).ToUniversalTime().ToString('o')
-    notes       = "Signed release from GitHub Actions ($Tag)"
+    notes       = "ManHunt $Tag"
+}
+
+# Prefer the release body generated from CHANGELOG.md; it is what the Updates page shows
+# as the changelog. Falls back to a neutral one-liner for older releases with generated
+# "Full Changelog" bodies.
+try {
+    $release = (& $gh release view $Tag --json body,publishedAt | ConvertFrom-Json)
+    $body = ($release.body | Out-String).Trim()
+    if (-not [string]::IsNullOrWhiteSpace($body) -and $body -notmatch '^Full Changelog') {
+        # Keep the manifest readable in-app: drop Markdown heading markers and link syntax.
+        $body = $body -replace '(?m)^#{1,6}\s*', ''
+        $body = $body -replace '\[([^\]]+)\]\([^)]+\)', '$1'
+        $body = $body -replace '(?m)^\*\s+', '- '
+        if ($body.Length -gt 4000) { $body = $body.Substring(0, 4000).Trim() + '…' }
+        $manifest.notes = $body
+    }
+    if ($release.publishedAt) {
+        $manifest.publishedAt = ([DateTimeOffset]$release.publishedAt).ToUniversalTime().ToString('o')
+    }
+} catch {
+    Write-Warning "Could not read release notes for $Tag; keeping the fallback notes."
 }
 $manifestPath = Join-Path $repoRoot 'server\data\app-latest.json'
 New-Item -ItemType Directory -Force (Split-Path -Parent $manifestPath) | Out-Null

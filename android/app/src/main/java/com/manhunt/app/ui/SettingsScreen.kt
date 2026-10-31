@@ -29,6 +29,7 @@ import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -65,6 +66,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.manhunt.app.Graph
 import com.manhunt.app.data.AppStorage
+import com.manhunt.app.data.Changelog
+import com.manhunt.app.data.ChangelogEntry
 import com.manhunt.app.data.UpdateManager
 import com.manhunt.app.i18n.AppLanguage
 import com.manhunt.app.i18n.t
@@ -74,6 +77,12 @@ import com.manhunt.app.ui.theme.ManHuntSpacing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private enum class SettingsTab(val label: String, val icon: ImageVector) {
     Appearance("Appearance", Icons.Outlined.Palette),
@@ -247,6 +256,7 @@ private fun UpdateTab() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val repo = Graph.container.repository
+    val language by repo.language.collectAsState()
     val manager = remember {
         UpdateManager(context.applicationContext, Graph.container.httpClient, { repo.serverUrl })
     }
@@ -295,11 +305,15 @@ private fun UpdateTab() {
         latest?.let { update ->
             if (update.versionCode > com.manhunt.app.BuildConfig.VERSION_CODE) {
                 Text(
-                    "v${update.versionName} | ${(update.size / 1024 / 1024)} MB",
+                    "v${update.versionName} · ${(update.size / 1024 / 1024)} MB",
                     style = MaterialTheme.typography.titleMedium,
                 )
-                update.notes?.let {
-                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                formatReleaseDate(update.publishedAt)?.let { published ->
+                    Text(
+                        "${t("Released")} $published",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 if (downloaded == null) {
                     PrimaryButton(
@@ -371,6 +385,75 @@ private fun UpdateTab() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+
+    ChangelogCard(
+        update = latest?.takeIf { it.versionCode > com.manhunt.app.BuildConfig.VERSION_CODE },
+        language = language,
+    )
+}
+
+/**
+ * Version/date block for releases. Prefer the update manifest's notes (written from the
+ * release body); fall back to the bundled recent-changes list when offline.
+ */
+@Composable
+private fun ChangelogCard(update: com.manhunt.app.data.AppUpdate?, language: AppLanguage) {
+    ScreenCard(title = t("What's new"), icon = Icons.Outlined.History) {
+        val notes = update?.notes?.trim().orEmpty()
+        if (notes.isNotEmpty()) {
+            Text(
+                "v${update?.versionName.orEmpty()}",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            formatReleaseDate(update?.publishedAt)?.let { published ->
+                Text(
+                    "${t("Released")} $published",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text(
+                notes,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            Changelog.recent.take(3).forEach { entry -> ChangelogEntryBlock(entry, language) }
+        }
+    }
+}
+
+@Composable
+private fun ChangelogEntryBlock(entry: ChangelogEntry, language: AppLanguage) {
+    Text(
+        "v${entry.version} · ${formatChangelogDate(entry.date, language)}",
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+    )
+    entry.changes.forEach { change ->
+        Text(
+            "• ${t(change)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun formatReleaseDate(iso: String?): String? {
+    if (iso.isNullOrBlank()) return null
+    val instant = runCatching { Instant.parse(iso) }.getOrNull()
+        ?: runCatching { OffsetDateTime.parse(iso).toInstant() }.getOrNull()
+    val date = instant?.atZone(ZoneId.systemDefault())?.toLocalDate()
+        ?: runCatching { LocalDate.parse(iso.take(10)) }.getOrNull()
+    return date?.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH))
+}
+
+private fun formatChangelogDate(isoDate: String, language: AppLanguage): String {
+    val locale = if (language == AppLanguage.Arabic) Locale("ar") else Locale.ENGLISH
+    return runCatching {
+        LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("d MMM yyyy", locale))
+    }.getOrDefault(isoDate)
 }
 
 @Composable

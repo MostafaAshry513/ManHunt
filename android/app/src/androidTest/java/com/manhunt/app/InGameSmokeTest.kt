@@ -134,6 +134,15 @@ class InGameSmokeTest {
             println(compose.onRoot().printToString())
             throw failure
         }
+
+        // Regression: system back from Settings must return Home, not finish the Activity.
+        compose.onNodeWithTag("home_settings").performClick()
+        waitForTag("settings_tab_0", 20_000)
+        compose.activityRule.scenario.onActivity { activity ->
+            activity.onBackPressedDispatcher.onBackPressed()
+        }
+        waitForTag("home_room_name", 20_000)
+
         compose.onNodeWithTag("home_room_name").performTextInput("CI Room")
         compose.onNodeWithTag("home_create").performClick()
         waitForTag("room_code")

@@ -305,6 +305,19 @@ private val arabic: Map<String, String> = mapOf(
         "اسمح بتثبيت التطبيقات من ManHunt، ثم اضغط تثبيت التحديث مرة أخرى.",
     "Updates install over the current app (same signing key); Android will ask you to confirm once." to
         "تُثبَّت التحديثات فوق التطبيق الحالي (بنفس مفتاح التوقيع)؛ وسيطلب أندرويد التأكيد مرة واحدة.",
+    "What's new" to "ما الجديد",
+    "Released" to "صدر في",
+    "Predictive back animation when leaving Settings." to
+        "حركة رجوع تنبؤية عند مغادرة الإعدادات.",
+    "Updates page shows the release date and a changelog." to
+        "تعرض صفحة التحديثات تاريخ الإصدار وسجل التغييرات.",
+    "Roles page trimmed to its essentials." to "تم تبسيط صفحة الأدوار إلى الأساسيات.",
+    "Live text-size scaling with a real themed preview." to
+        "تكبير حجم النص مباشرة مع معاينة حقيقية.",
+    "Team selection, use-my-location and typed input fixes." to
+        "إصلاحات لاختيار الفريق واستخدام موقعي وإدخال البيانات.",
+    "Map tile cache is bounded and can be cleared from Settings." to
+        "ذاكرة بلاطات الخريطة محدودة ويمكن مسحها من الإعدادات.",
     "Signed in as" to "مسجّل الدخول باسم",
     "Server" to "الخادم",
     "To change the server, sign out and edit it on the sign-in screen." to
