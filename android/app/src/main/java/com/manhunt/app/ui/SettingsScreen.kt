@@ -8,11 +8,13 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -123,9 +125,12 @@ fun SettingsScreen(onBack: () -> Unit) {
                 state = pagerState,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
             ) { page ->
+                // Adaptive: cap the settings column on larger screens; phones are unchanged.
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                 Column(
                     Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .widthIn(max = 640.dp)
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = ManHuntSpacing.xl, vertical = ManHuntSpacing.lg),
                     verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
@@ -149,6 +154,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                             onSignOut = { repo.logout() },
                         )
                     }
+                }
                 }
             }
         }

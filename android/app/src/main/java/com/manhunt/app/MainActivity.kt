@@ -1,6 +1,7 @@
 package com.manhunt.app
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Graph.install(applicationContext)
         enableEdgeToEdge()
+        // The app paints its own background edge-to-edge; no system scrim is needed behind
+        // gesture/3-button navigation. Icon contrast is handled by ManHuntTheme.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
         handleDeepLink(intent)
         setContent {
             AppRoot()

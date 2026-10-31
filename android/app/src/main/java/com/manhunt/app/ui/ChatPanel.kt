@@ -334,9 +334,11 @@ private fun stableMessageKeys(messages: List<ChatMessage>): List<String> {
     }
 }
 
+private val TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm")
+
 private fun formatTime(epochMs: Long): String {
     if (epochMs <= 0) return ""
     return Instant.ofEpochMilli(epochMs)
         .atZone(ZoneId.systemDefault())
-        .format(DateTimeFormatter.ofPattern("HH:mm"))
+        .format(TIME_FORMATTER)
 }

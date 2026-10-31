@@ -1,6 +1,7 @@
 package com.manhunt.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -120,9 +122,12 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
     }
 
     Surface(Modifier.fillMaxSize()) {
+        // Adaptive: cap the reading width on tablets/foldables while phones keep full width.
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         Column(
             Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .widthIn(max = 640.dp)
                 .verticalScroll(rememberScrollState())
                 .padding(ManHuntSpacing.screen),
             verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
@@ -216,6 +221,7 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                     Text(t("Sign out"))
                 }
             }
+        }
         }
     }
 }

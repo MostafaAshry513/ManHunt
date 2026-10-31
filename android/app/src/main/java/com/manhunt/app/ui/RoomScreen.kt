@@ -77,7 +77,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -106,6 +105,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -1231,7 +1231,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
             // drag detector steals osmdroid's pans (dragging the map scrolls the page).
             // Kept at a fixed height, the map owns its own touch stream in every direction.
             val activeMatchMap: @Composable (Modifier) -> Unit = { outerModifier ->
-                val ownLocation by LiveLocation.current.collectAsState()
+                val ownLocation by LiveLocation.current.collectAsStateWithLifecycle()
                 Column(
                     modifier = outerModifier,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -1583,7 +1583,7 @@ private fun RoomSettingsHost(
 ) {
     // The live GPS fix is only read while the dialog is open, so ordinary location updates
     // do not invalidate the room screen.
-    val ownLocation by LiveLocation.current.collectAsState()
+    val ownLocation by LiveLocation.current.collectAsStateWithLifecycle()
     RoomSettingsDialog(
         state = state,
         currentLocation = ownLocation,

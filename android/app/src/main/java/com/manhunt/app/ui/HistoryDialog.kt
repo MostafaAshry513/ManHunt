@@ -149,9 +149,12 @@ private fun HistoryEntryCard(match: MatchHistoryEntry) {
     }
 }
 
+private val HISTORY_TIME_FORMATTER =
+    DateTimeFormatter.ofPattern("d MMM, HH:mm", Locale.getDefault())
+
 private fun formatTime(epochMs: Long): String {
     if (epochMs <= 0) return "-"
     return Instant.ofEpochMilli(epochMs)
         .atZone(ZoneId.systemDefault())
-        .format(DateTimeFormatter.ofPattern("d MMM, HH:mm", Locale.getDefault()))
+        .format(HISTORY_TIME_FORMATTER)
 }

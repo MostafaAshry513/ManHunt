@@ -11,15 +11,18 @@ SERVER_PID=$!
 
 cleanup() {
   status=$?
-  # Pull whatever the instrumentation test captured before the emulator dies.
+  # Pull whatever the instrumentation test captured before the emulator dies. Preserve the
+  # copy taken before the release smoke replaced the debuggable build (run-as then fails).
   local shots="$ROOT/emulator-screenshots"
-  rm -rf "$shots"; mkdir -p "$shots"
-  echo "==== emulator: screenshot paths ===="
-  adb logcat -d -v brief 2>/dev/null | grep 'ManHuntTest.*screenshot' | tail -n 10 || true
-  adb shell run-as com.manhunt.app ls files/screenshots 2>&1 || true
-  for f in $(adb shell run-as com.manhunt.app ls files/screenshots 2>/dev/null | tr -d '\r'); do
-    adb exec-out run-as com.manhunt.app cat "files/screenshots/$f" > "$shots/$f" 2>/dev/null || true
-  done
+  if [ ! -d "$shots" ] || [ -z "$(ls -A "$shots" 2>/dev/null)" ]; then
+    rm -rf "$shots"; mkdir -p "$shots"
+    echo "==== emulator: screenshot paths ===="
+    adb logcat -d -v brief 2>/dev/null | grep 'ManHuntTest.*screenshot' | tail -n 10 || true
+    adb shell run-as com.manhunt.app ls files/screenshots 2>&1 || true
+    for f in $(adb shell run-as com.manhunt.app ls files/screenshots 2>/dev/null | tr -d '\r'); do
+      adb exec-out run-as com.manhunt.app cat "files/screenshots/$f" > "$shots/$f" 2>/dev/null || true
+    done
+  fi
   ls -l "$shots" 2>&1 || true
   if [ "$status" -ne 0 ]; then
     echo "==== emulator: backend log (tail) ===="

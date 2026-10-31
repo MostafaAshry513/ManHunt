@@ -1,5 +1,6 @@
 package com.manhunt.app.ui.theme
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -8,13 +9,16 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 
 /**
  * ManHunt design tokens.
@@ -175,6 +179,18 @@ fun ManHuntTheme(
     fontScale: Float = 1f,
     content: @Composable () -> Unit,
 ) {
+    // enableEdgeToEdge() derives icon colors from the system theme, but ManHunt can override
+    // the theme in-app. Keep the status/navigation bar icons legible for the app's theme.
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        }
+    }
     val typography = remember(fontScale) { ManHuntTypography.scaledBy(fontScale) }
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColors else LightColors,
