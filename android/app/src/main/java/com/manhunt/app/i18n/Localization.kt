@@ -451,11 +451,11 @@ private val arabic: Map<String, String> = mapOf(
     "Classic hunt" to "المطاردة الكلاسيكية",
     "The original real-world game: Prey hide and share their position, Hunters track them down and tag them in person." to
         "اللعبة الأصلية في العالم الحقيقي: تختبئ الفرائس وتشارك مواقعها، ويتتبعها الصيادون ويوسمونها شخصيًا.",
-    "Tag Relay" to "تتابع الوسم",
-    "Swap sides, keep score." to "بدّلوا الجانبين واحفظوا النقاط.",
-    "Planned: teams alternate between Prey and Hunters each round, scoring tags and survival time." to
-        "مخطط له: تتبادل الفرق بين الفريسة والصياد كل جولة، مع احتساب الوسم ومدة الصمود.",
-    "Zone Lock" to "إغلاق المنطقة",
+    "Single Prey" to "فريسة واحدة",
+    "One prey. No backup." to "فريسة واحدة. بدون دعم.",
+    "Planned: one Prey against a team of Hunters — faster, simpler rounds for small groups." to
+        "مخطط له: فريسة واحدة ضد فريق من الصيادين — جولات أسرع وأبسط للمجموعات الصغيرة.",
+    "Shrinking Zone" to "المنطقة المتقلّصة",
     "The walls close in." to "تضيق الدائرة.",
     "Planned: a shrinking play area with trails off — stay inside the zone and survive as long as you can." to
         "مخطط له: منطقة لعب تتقلص مع إيقاف المسارات — ابقَ داخل المنطقة واصمد أطول وقت ممكن.",

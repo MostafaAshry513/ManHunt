@@ -27,24 +27,24 @@ object GameModes {
         available = true,
     )
 
-    val relay = GameModeInfo(
-        id = "tag_relay",
-        name = "Tag Relay",
-        tagline = "Swap sides, keep score.",
-        summary = "Planned: teams alternate between Prey and Hunters each round, scoring tags and survival time.",
+    val singlePrey = GameModeInfo(
+        id = "single_prey",
+        name = "Single Prey",
+        tagline = "One prey. No backup.",
+        summary = "Planned: one Prey against a team of Hunters — faster, simpler rounds for small groups.",
         available = false,
     )
 
-    val zoneLock = GameModeInfo(
-        id = "zone_lock",
-        name = "Zone Lock",
+    val shrinkingZone = GameModeInfo(
+        id = "shrinking_zone",
+        name = "Shrinking Zone",
         tagline = "The walls close in.",
         summary = "Planned: a shrinking play area with trails off — stay inside the zone and survive as long as you can.",
         available = false,
     )
 
     /** Everything the Roles screen shows, in page order. */
-    val all: List<GameModeInfo> = listOf(classic, relay, zoneLock)
+    val all: List<GameModeInfo> = listOf(classic, singlePrey, shrinkingZone)
 
     /** Modes a room can actually start today. */
     val playable: List<GameModeInfo> = all.filter { it.available }

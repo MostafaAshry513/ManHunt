@@ -159,11 +159,15 @@ private fun ModePage(mode: GameModeInfo) {
         t(mode.name),
         style = MaterialTheme.typography.headlineSmall,
         fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
     )
     Text(
         t(mode.tagline),
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.primary,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth(),
     )
 
     if (!mode.available) {
