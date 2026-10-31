@@ -3,18 +3,24 @@ package com.manhunt.app
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.core.app.ApplicationProvider
 import com.manhunt.app.data.ChatMessage
 import com.manhunt.app.ui.AuthScreen
 import com.manhunt.app.ui.ChatPanel
 import com.manhunt.app.ui.HomeScreen
+import com.manhunt.app.ui.SettingsScreen
 import com.manhunt.app.ui.theme.ManHuntTheme
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,5 +92,22 @@ class ButtonStateTest {
         rule.onNodeWithTag("chat_send").assertIsNotEnabled()
         rule.onNodeWithTag("chat_input").performTextInput("hello")
         rule.onNodeWithTag("chat_send").assertIsEnabled()
+    }
+
+    @Test
+    fun textSizeSliderAppliesTheThemeScaleImmediately() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        val repo = Graph.container.repository
+        rule.setContent {
+            val scale by repo.textScale.collectAsState()
+            ManHuntTheme(darkTheme = true, fontScale = scale) {
+                SettingsScreen(onBack = {})
+            }
+        }
+        rule.onNodeWithTag("text_scale_slider")
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(1.35f) }
+        // The theme flow updates on the drag itself; the old implementation only applied
+        // the value in onValueChangeFinished, after the finger was released.
+        assertEquals(1.35f, repo.textScale.value, 0.001f)
     }
 }

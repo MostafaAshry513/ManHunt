@@ -18,7 +18,7 @@ interaction clarity.
 | Roles — Classic | 8.0 | 8.5 | centered mode title/tagline |
 | Roles — Single Prey | 6.5 | 7.5 | “Play Classic instead” escape hatch instead of a dead end |
 | Roles — Shrinking Zone | 6.5 | 7.5 | same |
-| Settings — Appearance | 8.0 | 8.0 | no changes needed (live preview + 100% stop already in place) |
+| Settings — Appearance | 8.0 | 8.5 | whole app scales live while dragging; preview is real themed text (the old preview double-scaled after the value was persisted) |
 | Settings — Language | 8.0 | 8.0 | no changes needed |
 | Settings — Permissions | 7.5 | 7.5 | clear allow actions and why they are needed; no change |
 | Settings — Updates | 7.5 | 7.5 | split check/download busy states already present |

@@ -41,7 +41,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,13 +56,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.manhunt.app.Graph
@@ -191,35 +188,33 @@ private fun AppearanceTab(
         )
         Slider(
             value = scale,
-            // Preview-only update while dragging: only the sample text rescales live (via
-            // LocalDensity below), so low-end phones do not re-theme the whole app on every
-            // finger move. The choice is applied app-wide when the finger is released.
-            onValueChange = { scale = it },
-            onValueChangeFinished = { onScale(scale) },
+            // Live app-wide scaling while the finger moves: the sample line below is real
+            // themed text, not a locally-detached preview. This is what the design
+            // prototype shows (the whole UI grows as you drag).
+            onValueChange = {
+                scale = it
+                onScale(it)
+            },
             valueRange = 0.85f..1.35f,
             // steps=9 => 11 stops: 85, 90, 95, 100, 105, ... 135. Includes exactly 100%.
             steps = 9,
+            modifier = Modifier.testTag("text_scale_slider"),
         )
         Text(
             t("Preview: the room, chat and buttons scale together."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        val density = LocalDensity.current
-        CompositionLocalProvider(
-            LocalDensity provides Density(density.density, density.fontScale * scale),
+        Surface(
+            shape = RoundedCornerShape(ManHuntRadius.sm),
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Surface(
-                shape = RoundedCornerShape(ManHuntRadius.sm),
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(
-                    t("Hunters see prey positions every few minutes."),
-                    modifier = Modifier.padding(ManHuntSpacing.md),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+            Text(
+                t("Hunters see prey positions every few minutes."),
+                modifier = Modifier.padding(ManHuntSpacing.md).testTag("text_size_preview"),
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

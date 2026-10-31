@@ -2,6 +2,8 @@ package com.manhunt.app
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.material3.MaterialTheme
@@ -137,6 +139,26 @@ class ScreenshotTest {
             rule.onNodeWithTag("settings_tab_$index").performClick()
             rule.waitForIdle()
             save("20-settings-$name.png")
+        }
+    }
+
+    @Test
+    fun captureAppearanceAt135Percent() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        Graph.install(context)
+        val repo = Graph.container.repository
+        repo.setTextScale(1.35f)
+        try {
+            rule.setContent {
+                val scale by repo.textScale.collectAsState()
+                ManHuntTheme(darkTheme = true, fontScale = scale) {
+                    SettingsScreen(onBack = {})
+                }
+            }
+            rule.waitForIdle()
+            save("21-settings-appearance-135.png")
+        } finally {
+            repo.setTextScale(1f)
         }
     }
 
