@@ -2068,7 +2068,6 @@ private fun HuntSheet(
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 HuntStatusLines(
                     match = match,
-                    phase = match.phase,
                     me = me,
                     offset = offset,
                     activePhase = activePhase,
@@ -2131,11 +2130,11 @@ private fun HuntSheet(
     }
 }
 
-/** Phase / timer / sharing-status / zone-shrink lines inside the sheet peek. */
+/** Sharing-status / zone-shrink lines inside the sheet peek. The phase+timer live in the
+ *  HUD above; repeating them here was noisy and visually duplicated the countdown. */
 @Composable
 private fun HuntStatusLines(
     match: MatchDto,
-    phase: String,
     me: MemberDto?,
     offset: Long,
     activePhase: Boolean,
@@ -2146,33 +2145,9 @@ private fun HuntStatusLines(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(7.dp).background(phaseColor(phase), CircleShape))
-            Spacer(Modifier.width(6.dp))
-            Text(
-                t(phase.replace('_', ' ').uppercase()),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = phaseColor(phase),
-            )
-            val target = when (phase) {
-                Phases.HEAD_START -> match.headStartEndsAt
-                Phases.HUNTING -> match.endsAt
-                else -> null
-            }
-            if (target != null) {
-                Spacer(Modifier.width(8.dp))
-                CountdownText(
-                    target = target,
-                    offset = offset,
-                    prefix = "",
-                    style = MaterialTheme.typography.titleSmall.copy(fontFeatureSettings = "tnum"),
-                )
-            }
-        }
         Text(
             huntStatusText(
-                phase = phase,
+                phase = match.phase,
                 me = me,
                 activePhase = activePhase,
                 hasLocation = hasLocation,
