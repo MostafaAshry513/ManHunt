@@ -18,6 +18,12 @@ enum class AppLanguage(val code: String, val nativeName: String, val isRtl: Bool
 private val arabic: Map<String, String> = mapOf(
     // Auth
     "Hide. Hunt. Survive." to "اختبئ. اصطد. انجُ.",
+    "How it works" to "كيف تعمل اللعبة",
+    "Roles, modes and safety" to "الأدوار والأوضاع والسلامة",
+    "Prey hide. Hunters track them down and tag them in person." to
+        "تختبئ الفرائس، ويتتبعها الصيادون ويوسمونها شخصيًا.",
+    "Read the roles" to "اقرأ الأدوار",
+    "Play Classic instead" to "العب الكلاسيكية بدلاً من ذلك",
     "Create your account" to "أنشئ حسابك",
     "Welcome back" to "مرحبًا بعودتك",
     "Username" to "اسم المستخدم",
@@ -217,6 +223,7 @@ private val arabic: Map<String, String> = mapOf(
     "Hide password" to "إخفاء كلمة المرور",
     "Username is required" to "اسم المستخدم مطلوب",
     "Password must be at least 8 characters" to "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "At least 8 characters" to "8 أحرف على الأقل",
     "Enter a valid server address (http:// or https://)" to "أدخل عنوان خادم صالحًا (http:// أو https://)",
     "Change server" to "تغيير الخادم",
     "Something went wrong" to "حدث خطأ ما",

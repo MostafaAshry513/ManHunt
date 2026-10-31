@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -297,7 +299,10 @@ private fun Composer(
             shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences,
-                imeAction = ImeAction.Default,
+                imeAction = ImeAction.Send,
+            ),
+            keyboardActions = KeyboardActions(
+                onSend = { if (draft.isNotBlank() && !sending) onSend() },
             ),
         )
         FilledIconButton(
@@ -305,7 +310,15 @@ private fun Composer(
             enabled = draft.isNotBlank() && !sending,
             modifier = Modifier.size(48.dp).testTag("chat_send"),
         ) {
-            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = t("Send message"))
+            if (sending) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            } else {
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = t("Send message"))
+            }
         }
     }
 }

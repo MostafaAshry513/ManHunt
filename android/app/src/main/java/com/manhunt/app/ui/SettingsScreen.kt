@@ -82,7 +82,7 @@ private enum class SettingsTab(val label: String, val icon: ImageVector) {
 }
 
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(onBack: () -> Unit, initialTab: Int = 0) {
     val repo = Graph.container.repository
     val dark by repo.darkTheme.collectAsState()
     val storedScale by repo.textScale.collectAsState()
@@ -91,7 +91,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     // Single source of truth: the pager. Tapping a tab starts a scroll directly, so rapid
     // taps simply re-target the animation instead of cancelling it mid-flight and sticking.
-    val pagerState = rememberPagerState(pageCount = { SettingsTab.entries.size })
+    val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { SettingsTab.entries.size })
 
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
@@ -109,6 +109,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Tab(
                         selected = pagerState.currentPage == index,
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        modifier = Modifier.testTag("settings_tab_$index"),
                         icon = {
                             Icon(
                                 entry.icon,
@@ -453,9 +454,11 @@ private fun AccountTab(username: String, serverUrl: String, onSignOut: () -> Uni
         )
     }
     ScreenCard(title = t("Server"), icon = Icons.Outlined.Wifi) {
-        InfoRow(
-            label = t("Server"),
-            value = serverUrl,
+        // The card header is already the label; showing "Server" again above the URL was noise.
+        Text(
+            serverUrl,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             t("To change the server, sign out and edit it on the sign-in screen."),

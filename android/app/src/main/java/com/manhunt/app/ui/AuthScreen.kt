@@ -167,6 +167,7 @@ fun AuthScreen() {
 
     val usernameError = ui.submitted && ui.username.isBlank()
     val passwordError = ui.submitted && ui.password.length < 8
+    val canSubmit = !ui.loading && ui.username.isNotBlank() && ui.password.length >= 8
 
     Surface(Modifier.fillMaxSize()) {
         Column(
@@ -216,7 +217,11 @@ fun AuthScreen() {
                     label = t("Password"),
                     enabled = !ui.loading,
                     isError = passwordError,
-                    supportingText = if (passwordError) t("Password must be at least 8 characters") else null,
+                    supportingText = when {
+                        passwordError -> t("Password must be at least 8 characters")
+                        ui.password.isNotEmpty() && ui.password.length < 8 -> t("At least 8 characters")
+                        else -> null
+                    },
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,
                     visualTransformation = if (passwordVisible) {
@@ -226,7 +231,10 @@ fun AuthScreen() {
                     },
                     autofillType = if (ui.register) ContentType.NewPassword else ContentType.Password,
                     trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(
+                            onClick = { passwordVisible = !passwordVisible },
+                            enabled = !ui.loading,
+                        ) {
                             Icon(
                                 if (passwordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
                                 contentDescription = t(if (passwordVisible) "Hide password" else "Show password"),
@@ -234,6 +242,7 @@ fun AuthScreen() {
                         }
                     },
                     testTag = "auth_password",
+                    keyboardActions = KeyboardActions(onDone = { if (canSubmit) vm.submit() }),
                 )
 
                 ErrorBanner(ui.error)
@@ -242,7 +251,7 @@ fun AuthScreen() {
                     text = if (ui.register) t("Create account") else t("Sign in"),
                     onClick = vm::submit,
                     loading = ui.loading,
-                    enabled = !ui.loading,
+                    enabled = canSubmit,
                     modifier = Modifier.testTag("auth_submit"),
                 )
 

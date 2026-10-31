@@ -58,11 +58,12 @@ import kotlinx.coroutines.launch
 fun RolesScreen(
     firstRun: Boolean,
     onClose: () -> Unit,
+    initialPage: Int = 0,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val modes = remember { GameModes.all }
-    val pagerState = rememberPagerState(pageCount = { modes.size })
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { modes.size })
 
     val permissions = remember {
         buildList {
@@ -102,7 +103,10 @@ fun RolesScreen(
                         ),
                         icon = Icons.Outlined.Pets,
                     )
-                    ModePage(modes[page])
+                    ModePage(
+                        mode = modes[page],
+                        onPlayClassic = { scope.launch { pagerState.animateScrollToPage(0) } },
+                    )
                 }
             }
 
@@ -154,7 +158,7 @@ fun RolesScreen(
 }
 
 @Composable
-private fun ModePage(mode: GameModeInfo) {
+private fun ModePage(mode: GameModeInfo, onPlayClassic: () -> Unit) {
     Text(
         t(mode.name),
         style = MaterialTheme.typography.headlineSmall,
@@ -183,6 +187,13 @@ private fun ModePage(mode: GameModeInfo) {
                 color = MaterialTheme.colorScheme.tertiary,
             )
         }
+        // A planned mode should not be a dead end: give the player a way back to the
+        // playable mode without hunting for the pager dots.
+        SecondaryButton(
+            text = t("Play Classic instead"),
+            onClick = onPlayClassic,
+            icon = Icons.Outlined.CheckCircle,
+        )
         return
     }
 

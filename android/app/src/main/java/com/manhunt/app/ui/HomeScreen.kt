@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
@@ -140,6 +141,11 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                         fontWeight = FontWeight.Black,
                         color = MaterialTheme.colorScheme.onBackground,
                     )
+                    Text(
+                        t("Hide. Hunt. Survive."),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 IconButton(
                     onClick = onOpenRoles,
@@ -166,6 +172,8 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                     label = t("Hunt name"),
                     enabled = !ui.busy,
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { if (!ui.busy) vm.createRoom() }),
                     testTag = "home_room_name",
                 )
                 PrimaryButton(
@@ -189,16 +197,43 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                     label = t("Invite code"),
                     enabled = !ui.busy,
                     placeholder = "ABC123",
+                    supportingText = if (ui.joinCode.isNotEmpty() && ui.joinCode.length < 6) {
+                        t("Enter the 6-character invite code")
+                    } else {
+                        null
+                    },
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                    keyboardActions = KeyboardActions(
+                        onDone = { if (!ui.busy && ui.joinCode.length == 6) vm.joinRoom() },
+                    ),
                     testTag = "home_join_code",
                 )
                 PrimaryButton(
                     text = t("Join hunt"),
                     onClick = vm::joinRoom,
-                    enabled = !ui.busy,
+                    enabled = !ui.busy && ui.joinCode.length == 6,
                     icon = Icons.Outlined.Login,
                     modifier = Modifier.testTag("home_join"),
                 )
                 ErrorBanner(ui.joinError)
+            }
+
+            ScreenCard(
+                title = t("How it works"),
+                subtitle = t("Roles, modes and safety"),
+                icon = Icons.Outlined.Info,
+            ) {
+                Text(
+                    t("Prey hide. Hunters track them down and tag them in person."),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                SecondaryButton(
+                    text = t("Read the roles"),
+                    onClick = onOpenRoles,
+                    icon = Icons.Outlined.Info,
+                    modifier = Modifier.testTag("home_roles_card"),
+                )
             }
 
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

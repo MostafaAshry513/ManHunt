@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -332,6 +333,7 @@ fun ManHuntTextField(
     autofillType: ContentType? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
     testTag: String? = null,
+    keyboardActions: KeyboardActions? = null,
 ) {
     var fieldModifier = modifier.fillMaxWidth()
     if (testTag != null) fieldModifier = fieldModifier.testTag(testTag)
@@ -350,6 +352,7 @@ fun ManHuntTextField(
         supportingText = supportingText?.let { hint -> { Text(hint) } },
         visualTransformation = visualTransformation,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
+        keyboardActions = keyboardActions ?: KeyboardActions.Default,
         trailingIcon = trailingIcon,
         textStyle = MaterialTheme.typography.bodyLarge,
     )

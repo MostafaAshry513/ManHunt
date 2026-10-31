@@ -10,7 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import com.manhunt.app.data.ChatMessage
@@ -20,6 +24,9 @@ import com.manhunt.app.i18n.LocalStrings
 import com.manhunt.app.i18n.arabicStrings
 import com.manhunt.app.ui.AuthScreen
 import com.manhunt.app.ui.ChatPanel
+import com.manhunt.app.ui.HomeScreen
+import com.manhunt.app.ui.RolesScreen
+import com.manhunt.app.ui.SettingsScreen
 import com.manhunt.app.ui.theme.ManHuntTheme
 import org.junit.Rule
 import org.junit.Test
@@ -54,6 +61,83 @@ class ScreenshotTest {
         rule.setContent { ManHuntTheme(darkTheme = true) { AuthScreen() } }
         rule.waitForIdle()
         save("01-auth.png")
+    }
+
+    @Test
+    fun captureRegister() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        rule.setContent { ManHuntTheme(darkTheme = true) { AuthScreen() } }
+        rule.waitForIdle()
+        rule.onNodeWithText("New here? Create an account").performClick()
+        rule.waitForIdle()
+        save("01b-auth-register.png")
+    }
+
+    @Test
+    fun captureHome() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        rule.setContent { ManHuntTheme(darkTheme = true) { HomeScreen({}, {}, {}) } }
+        rule.waitForIdle()
+        save("10-home.png")
+    }
+
+    @Test
+    fun captureHomeFilled() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        rule.setContent { ManHuntTheme(darkTheme = true) { HomeScreen({}, {}, {}) } }
+        rule.waitForIdle()
+        rule.onNodeWithTag("home_join_code").performTextInput("ABC123")
+        rule.waitForIdle()
+        save("10b-home-filled.png")
+    }
+
+    @Test
+    fun captureRolesClassic() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        rule.setContent {
+            ManHuntTheme(darkTheme = true) {
+                RolesScreen(firstRun = false, onClose = {}, initialPage = 0)
+            }
+        }
+        rule.waitForIdle()
+        save("11-roles-classic.png")
+    }
+
+    @Test
+    fun captureRolesSinglePrey() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        rule.setContent {
+            ManHuntTheme(darkTheme = true) {
+                RolesScreen(firstRun = false, onClose = {}, initialPage = 1)
+            }
+        }
+        rule.waitForIdle()
+        save("12-roles-single-prey.png")
+    }
+
+    @Test
+    fun captureRolesShrinkingZone() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        rule.setContent {
+            ManHuntTheme(darkTheme = true) {
+                RolesScreen(firstRun = false, onClose = {}, initialPage = 2)
+            }
+        }
+        rule.waitForIdle()
+        save("13-roles-shrinking-zone.png")
+    }
+
+    @Test
+    fun captureSettingsTabs() {
+        Graph.install(ApplicationProvider.getApplicationContext())
+        rule.setContent { ManHuntTheme(darkTheme = true) { SettingsScreen(onBack = {}) } }
+        rule.waitForIdle()
+        val names = listOf("appearance", "language", "permissions", "updates", "account")
+        names.forEachIndexed { index, name ->
+            rule.onNodeWithTag("settings_tab_$index").performClick()
+            rule.waitForIdle()
+            save("20-settings-$name.png")
+        }
     }
 
     @Test
