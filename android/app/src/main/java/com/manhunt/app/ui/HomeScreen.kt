@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.manhunt.app.Graph
 import com.manhunt.app.data.ApiException
+import com.manhunt.app.data.InputRules
 import com.manhunt.app.data.ManHuntRepository
 import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
@@ -66,8 +67,13 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
     var ui by mutableStateOf(HomeUi())
         private set
 
-    fun onRoomName(value: String) { ui = ui.copy(roomName = value, createError = null) }
-    fun onJoinCode(value: String) { ui = ui.copy(joinCode = value.uppercase(), joinError = null) }
+    fun onRoomName(value: String) {
+        ui = ui.copy(roomName = InputRules.roomName(value), createError = null)
+    }
+
+    fun onJoinCode(value: String) {
+        ui = ui.copy(joinCode = InputRules.inviteCode(value), joinError = null)
+    }
     fun consumeNavigation() { ui = ui.copy(enteredRoomId = null) }
 
     fun createRoom() {
@@ -90,7 +96,7 @@ class HomeViewModel(private val repo: ManHuntRepository) : ViewModel() {
 
     fun joinRoom() {
         if (ui.busy) return
-        if (ui.joinCode.length != 6) {
+        if (ui.joinCode.length != InputRules.INVITE_CODE_LENGTH) {
             ui = ui.copy(joinError = translate("Enter the 6-character invite code", repo.language.value))
             return
         }
@@ -197,21 +203,21 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                     label = t("Invite code"),
                     enabled = !ui.busy,
                     placeholder = "ABC123",
-                    supportingText = if (ui.joinCode.isNotEmpty() && ui.joinCode.length < 6) {
+                    supportingText = if (ui.joinCode.isNotEmpty() && ui.joinCode.length < InputRules.INVITE_CODE_LENGTH) {
                         t("Enter the 6-character invite code")
                     } else {
                         null
                     },
                     imeAction = androidx.compose.ui.text.input.ImeAction.Done,
                     keyboardActions = KeyboardActions(
-                        onDone = { if (!ui.busy && ui.joinCode.length == 6) vm.joinRoom() },
+                        onDone = { if (!ui.busy && ui.joinCode.length == InputRules.INVITE_CODE_LENGTH) vm.joinRoom() },
                     ),
                     testTag = "home_join_code",
                 )
                 PrimaryButton(
                     text = t("Join hunt"),
                     onClick = vm::joinRoom,
-                    enabled = !ui.busy && ui.joinCode.length == 6,
+                    enabled = !ui.busy && ui.joinCode.length == InputRules.INVITE_CODE_LENGTH,
                     icon = Icons.Outlined.Login,
                     modifier = Modifier.testTag("home_join"),
                 )

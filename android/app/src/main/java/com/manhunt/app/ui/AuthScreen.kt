@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.manhunt.app.Graph
 import com.manhunt.app.data.ApiException
+import com.manhunt.app.data.InputRules
 import com.manhunt.app.data.ManHuntRepository
 import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
@@ -74,8 +75,13 @@ class AuthViewModel(private val repo: ManHuntRepository) : ViewModel() {
     var ui by mutableStateOf(AuthUi(serverUrl = repo.serverUrl))
         private set
 
-    fun onUsername(value: String) { ui = ui.copy(username = value, error = null) }
-    fun onPassword(value: String) { ui = ui.copy(password = value, error = null) }
+    fun onUsername(value: String) {
+        ui = ui.copy(username = InputRules.username(value), error = null)
+    }
+
+    fun onPassword(value: String) {
+        ui = ui.copy(password = InputRules.password(value), error = null)
+    }
     fun toggleMode() { ui = ui.copy(register = !ui.register, error = null, submitted = false) }
     fun toggleServer() { ui = ui.copy(showServer = !ui.showServer) }
 
@@ -165,9 +171,11 @@ fun AuthScreen() {
     val ui = vm.ui
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val usernameError = ui.submitted && ui.username.isBlank()
+    val usernameError = ui.submitted && ui.username.length < InputRules.MIN_USERNAME
     val passwordError = ui.submitted && ui.password.length < 8
-    val canSubmit = !ui.loading && ui.username.isNotBlank() && ui.password.length >= 8
+    val canSubmit = !ui.loading &&
+        ui.username.length in InputRules.MIN_USERNAME..InputRules.MAX_USERNAME &&
+        ui.password.length in 8..InputRules.MAX_PASSWORD
 
     Surface(Modifier.fillMaxSize()) {
         Column(
@@ -204,7 +212,12 @@ fun AuthScreen() {
                     label = t("Username"),
                     enabled = !ui.loading,
                     isError = usernameError,
-                    supportingText = if (usernameError) t("Username is required") else null,
+                    supportingText = when {
+                        usernameError -> t("Username is required")
+                        ui.username.isNotEmpty() && ui.username.length < InputRules.MIN_USERNAME ->
+                            t("At least 3 characters")
+                        else -> null
+                    },
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next,
                     autofillType = if (ui.register) ContentType.NewUsername else ContentType.Username,

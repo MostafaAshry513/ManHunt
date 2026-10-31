@@ -24,20 +24,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.manhunt.app.data.InputRules
 import com.manhunt.app.data.LatLng
 import com.manhunt.app.data.RoomState
 import com.manhunt.app.data.ZoneDto
 import com.manhunt.app.i18n.t
+import com.manhunt.app.location.DeviceLocation
 import com.manhunt.app.map.MatchMap
 import com.manhunt.app.ui.theme.ManHuntSpacing
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -75,6 +80,10 @@ fun RoomSettingsDialog(
     var shrinkStep by remember { mutableStateOf(settings.shrink.stepM.toInt().toString()) }
     var error by remember { mutableStateOf<String?>(null) }
     var showZonePicker by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var locating by remember { mutableStateOf(false) }
+    var locationError by remember { mutableStateOf<String?>(null) }
 
     fun applyCenter(lat: Double, lng: Double) {
         centerLat = lat
@@ -100,19 +109,19 @@ fun RoomSettingsDialog(
                 SectionLabel(t("Timing"))
                 ManHuntTextField(
                     value = headStart,
-                    onValueChange = { headStart = it.filter(Char::isDigit) },
+                    onValueChange = { headStart = InputRules.digits(it, 3) },
                     label = t("Prey head start (minutes)"),
                     keyboardType = KeyboardType.Number,
                 )
                 ManHuntTextField(
                     value = duration,
-                    onValueChange = { duration = it.filter(Char::isDigit) },
+                    onValueChange = { duration = InputRules.digits(it, 3) },
                     label = t("Match duration (minutes)"),
                     keyboardType = KeyboardType.Number,
                 )
                 ManHuntTextField(
                     value = interval,
-                    onValueChange = { interval = it.filter(Char::isDigit) },
+                    onValueChange = { interval = InputRules.digits(it, 3) },
                     label = t("Location report interval (minutes)"),
                     keyboardType = KeyboardType.Number,
                 )
@@ -131,19 +140,45 @@ fun RoomSettingsDialog(
                 if (mode == "zone") {
                     ManHuntTextField(
                         value = radius,
-                        onValueChange = { radius = it.filter(Char::isDigit) },
+                        onValueChange = { radius = InputRules.digits(it, 5) },
                         label = t("Zone radius (metres)"),
                         keyboardType = KeyboardType.Number,
                     )
 
-                    // One-tap placement: centre the play area on the phone's current
-                    // position, so a host can start a hunt right where they stand.
+                    // One-tap placement: ask for a real fix on demand. The old code read
+                    // LiveLocation, which is only populated by the tracking service during a
+                    // match, so this button was dead in the lobby.
                     SecondaryButton(
-                        text = t("Use my location"),
-                        onClick = { currentLocation?.let { applyCenter(it.lat, it.lng) } },
-                        enabled = currentLocation != null,
+                        text = if (locating) t("Locating…") else t("Use my location"),
+                        onClick = {
+                            if (!locating) {
+                                locating = true
+                                locationError = null
+                                scope.launch {
+                                    val fix = DeviceLocation.current(context)
+                                    locating = false
+                                    if (fix != null) {
+                                        applyCenter(fix.lat, fix.lng)
+                                    } else {
+                                        locationError = if (!DeviceLocation.hasPermission(context)) {
+                                            "Allow location access to use your position"
+                                        } else {
+                                            "Could not get your location. Check location services."
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        enabled = !locating,
                         modifier = Modifier.testTag("zone_use_location"),
                     )
+                    locationError?.let {
+                        Text(
+                            t(it),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
 
                     // Zone placement opens a dedicated, non-scrolling full-screen map:
                     // panning a map inside this dialog's scroll column is unusable because
@@ -169,7 +204,7 @@ fun RoomSettingsDialog(
                         ManHuntTextField(
                             value = latText,
                             onValueChange = { raw ->
-                                latText = raw
+                                latText = InputRules.coordinate(raw)
                                 latText.toDoubleOrNull()?.let { centerLat = it }
                             },
                             label = t("Latitude"),
@@ -179,7 +214,7 @@ fun RoomSettingsDialog(
                         ManHuntTextField(
                             value = lngText,
                             onValueChange = { raw ->
-                                lngText = raw
+                                lngText = InputRules.coordinate(raw)
                                 lngText.toDoubleOrNull()?.let { centerLng = it }
                             },
                             label = t("Longitude"),
@@ -201,14 +236,14 @@ fun RoomSettingsDialog(
                         Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
                             ManHuntTextField(
                                 value = shrinkInterval,
-                                onValueChange = { shrinkInterval = it.filter(Char::isDigit) },
+                                onValueChange = { shrinkInterval = InputRules.digits(it, 3) },
                                 label = t("Every (min)"),
                                 keyboardType = KeyboardType.Number,
                                 modifier = Modifier.weight(1f),
                             )
                             ManHuntTextField(
                                 value = shrinkStep,
-                                onValueChange = { shrinkStep = it.filter(Char::isDigit) },
+                                onValueChange = { shrinkStep = InputRules.digits(it, 4) },
                                 label = t("By (m)"),
                                 keyboardType = KeyboardType.Number,
                                 modifier = Modifier.weight(1f),
@@ -229,33 +264,56 @@ fun RoomSettingsDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                // A cleared field keeps the room's current value - silently inserting
-                // hidden defaults was surprising; the server re-validates everything.
-                val headStartSec = (headStart.toIntOrNull() ?: (settings.headStartSec / 60)) * 60
-                val durationSec = (duration.toIntOrNull() ?: (settings.durationSec / 60)) * 60
-                val intervalSec = (interval.toIntOrNull() ?: (settings.locationIntervalSec / 60)) * 60
-
-                if (mode == "zone" && (centerLat == null || centerLng == null)) {
-                    error = "Place the zone centre on the map first"
+                val headStartMin = headStart.toIntOrNull()
+                val durationMin = duration.toIntOrNull()
+                val intervalMin = interval.toIntOrNull()
+                if (headStartMin == null || durationMin == null || intervalMin == null ||
+                    headStartMin < 0 || durationMin !in 1..999 || intervalMin !in 1..999
+                ) {
+                    error = "Enter whole numbers for the timing fields"
                     return@TextButton
                 }
 
+                var zoneLat = centerLat
+                var zoneLng = centerLng
+                val radiusM = radius.toIntOrNull()
+                val shrinkMin = shrinkInterval.toIntOrNull()
+                val shrinkStepM = shrinkStep.toIntOrNull()
+                if (mode == "zone") {
+                    val lat = latText.toDoubleOrNull()
+                    val lng = lngText.toDoubleOrNull()
+                    if (lat == null || lng == null || lat !in -90.0..90.0 || lng !in -180.0..180.0) {
+                        error = "Enter a valid latitude and longitude"
+                        return@TextButton
+                    }
+                    if (radiusM == null || radiusM <= 0) {
+                        error = "Enter a valid zone radius in metres"
+                        return@TextButton
+                    }
+                    if (shrink && (shrinkMin == null || shrinkMin <= 0 || shrinkStepM == null || shrinkStepM <= 0)) {
+                        error = "Enter valid shrink values"
+                        return@TextButton
+                    }
+                    zoneLat = lat
+                    zoneLng = lng
+                }
+
                 val payload = buildJsonObject {
-                    put("headStartSec", headStartSec)
-                    put("durationSec", durationSec)
-                    put("locationIntervalSec", intervalSec)
+                    put("headStartSec", headStartMin * 60)
+                    put("durationSec", durationMin * 60)
+                    put("locationIntervalSec", intervalMin * 60)
                     put("trailsEnabled", trails)
                     put("mode", mode)
                     if (mode == "zone") {
                         putJsonObject("zone") {
-                            put("centerLat", centerLat!!)
-                            put("centerLng", centerLng!!)
-                            put("radiusM", radius.toDoubleOrNull() ?: (settings.zone?.radiusM ?: 800.0))
+                            put("centerLat", zoneLat!!)
+                            put("centerLng", zoneLng!!)
+                            put("radiusM", radiusM!!.toDouble())
                         }
                         putJsonObject("shrink") {
                             put("enabled", shrink)
-                            put("intervalSec", (shrinkInterval.toIntOrNull() ?: (settings.shrink.intervalSec / 60)) * 60)
-                            put("stepM", shrinkStep.toDoubleOrNull() ?: settings.shrink.stepM)
+                            put("intervalSec", (shrinkMin ?: 0) * 60)
+                            put("stepM", (shrinkStepM ?: 0).toDouble())
                             put("minRadiusM", settings.shrink.minRadiusM)
                             put("warningSec", settings.shrink.warningSec)
                         }

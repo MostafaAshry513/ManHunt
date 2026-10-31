@@ -1612,7 +1612,9 @@ private fun TeamChoiceCard(
         contentColor = if (selected) color else MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(
             if (selected) 3.dp else 2.dp,
-            color.copy(alpha = if (selected) 1f else 0.55f),
+            // Only the selected side gets the team-colour "glow"; otherwise the
+            // auto-assigned default looked like both cards were selected.
+            if (selected) color else MaterialTheme.colorScheme.outline.copy(alpha = 0.55f),
         ),
     ) {
         Column(
