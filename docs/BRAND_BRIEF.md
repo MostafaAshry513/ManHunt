@@ -19,7 +19,7 @@ a timed hunt.
 | Launcher icon | `android/app/src/main/res/drawable/ic_launcher.xml` | Single vector (navy square, cyan crosshair circles, coral target cross, white dot). Manifest points **both** `icon` and `roundIcon` at it. **There is no adaptive icon and no monochrome layer yet.** |
 | Splash / launch background | `res/drawable/launch_background.xml`, `res/values/themes.xml`, `res/values/colors.xml` (`launch_bg` = `#0B1220`) | Dark first frame; the logo can later replace the plain launch background. |
 | Brand colours (dark theme) | `ui/theme/Theme.kt` | Primary cyan `#22D3EE`, Hunters violet `#A79BFF`, Prey coral `#FF7A59`, background navy `#0B1220`, surface `#131C2E`, text `#E6EDF7`. |
-| Voice | — | Direct, outdoorsy, a little dangerous-but-safe: “Hunt or be hunted”, but never glorify trespassing or real harm. Safety copy lives on the Roles screen. |
+| Voice | — | Direct, outdoorsy, a little dangerous-but-safe: “Hunt or be hunted”, but never glorify trespassing or real harm. |
 
 ## 3. Deliverables required
 
@@ -86,7 +86,7 @@ a timed hunt.
 - `README.md` screenshots and product pitch
 - `docs/UI_REVIEW.md` (current UI/UX state and scores)
 - `android/app/src/main/java/com/manhunt/app/ui/theme/Theme.kt` (tokens/typography)
-- `android/app/src/main/java/com/manhunt/app/ui/RolesScreen.kt` (tone/safety copy)
+- `android/app/src/main/java/com/manhunt/app/ui/RolesScreen.kt` (tone/copy)
 - This brief’s constraints above
 
 Do **not** change the product name, gameplay rules, or existing release history while

@@ -24,7 +24,6 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.GpsFixed
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -240,35 +239,6 @@ private fun ModePage(mode: GameModeInfo, onPlayClassic: () -> Unit) {
                     "5. The hunt ends when the timer runs out or all Prey are tagged."
             ),
             style = MaterialTheme.typography.bodyMedium,
-        )
-    }
-
-    ScreenCard(title = t("What you need"), icon = Icons.Outlined.Info) {
-        Text(
-            "📍" + t(" Location access, so Prey can share their position and Hunters can use the map."),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            "🔔" + t(" Notifications, so tag requests and the result reach you when the phone is in a pocket."),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            t("A safe place to play: this is a real-world game, played outdoors."),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-
-    ScreenCard(title = t("Play safe"), icon = Icons.Outlined.LocationOn) {
-        Text(
-            t(
-                "Respect property and local law, watch traffic, and never run while looking at your " +
-                    "phone. ManHunt is a game — not an emergency, rescue or child-tracking service."
-            ),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
