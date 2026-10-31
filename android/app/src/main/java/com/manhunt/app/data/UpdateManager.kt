@@ -48,6 +48,13 @@ class UpdateManager(
             val body = response.body ?: throw IOException("Empty response")
             val dir = File(context.cacheDir, "updates").apply { mkdirs() }
             val file = File(dir, "manhunt-${update.versionCode}.apk")
+            // One update at a time: remove APKs left behind by earlier versions so repeated
+            // in-app updates cannot silently accumulate in cache.
+            dir.listFiles()?.forEach { old ->
+                if (old.name.startsWith("manhunt-") && old.name.endsWith(".apk") && old != file) {
+                    old.delete()
+                }
+            }
             val total = body.contentLength().takeIf { it > 0 } ?: update.size
             var downloaded = 0L
             var lastPercent = -1
@@ -95,11 +102,21 @@ class UpdateManager(
 
     /** The verified APK waiting to be installed, if it is newer than this build. */
     fun pendingApk(currentVersionCode: Int): File? {
+        pruneInstalledApks(currentVersionCode)
         val version = prefs.getInt("apk_version", 0)
         if (version <= currentVersionCode) return null
         val path = prefs.getString("apk_path", null) ?: return null
         val file = File(path)
         return file.takeIf { it.exists() && it.length() > 0 }
+    }
+
+    /** Deletes APKs for versions we are now running or have already skipped past. */
+    private fun pruneInstalledApks(currentVersionCode: Int) {
+        File(context.cacheDir, "updates").listFiles()?.forEach { file ->
+            if (!file.name.startsWith("manhunt-") || !file.name.endsWith(".apk")) return@forEach
+            val version = file.name.removePrefix("manhunt-").removeSuffix(".apk").toIntOrNull()
+            if (version != null && version <= currentVersionCode) file.delete()
+        }
     }
 
     fun canInstall(): Boolean = context.packageManager.canRequestPackageInstalls()

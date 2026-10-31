@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material.icons.outlined.Wifi
@@ -46,6 +47,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -65,13 +67,16 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.manhunt.app.Graph
+import com.manhunt.app.data.AppStorage
 import com.manhunt.app.data.UpdateManager
 import com.manhunt.app.i18n.AppLanguage
 import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
 import com.manhunt.app.ui.theme.ManHuntRadius
 import com.manhunt.app.ui.theme.ManHuntSpacing
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private enum class SettingsTab(val label: String, val icon: ImageVector) {
     Appearance("Appearance", Icons.Outlined.Palette),
@@ -466,11 +471,57 @@ private fun AccountTab(username: String, serverUrl: String, onSignOut: () -> Uni
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+    StorageCacheCard()
     SecondaryButton(
         text = t("Sign out"),
         onClick = onSignOut,
         contentColor = MaterialTheme.colorScheme.error,
     )
+}
+
+/**
+ * Android's storage screen counts the cache: the map tile cache used to expand to
+ * osmdroid's 600 MB default. The cache is now capped and this card gives players a
+ * direct way to reclaim the space without digging through system settings.
+ */
+@Composable
+private fun StorageCacheCard() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var size by remember { mutableLongStateOf(-1L) }
+    var clearing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        size = withContext(Dispatchers.IO) { AppStorage.cacheSizeBytes(context) }
+    }
+
+    ScreenCard(title = t("Storage"), icon = Icons.Outlined.Storage) {
+        Text(
+            t("Map tiles and update downloads are cached here."),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            "${t("Cache")}: " + if (size < 0) t("Calculating…") else AppStorage.formatBytes(size),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        SecondaryButton(
+            text = if (clearing) t("Clearing…") else t("Clear cache"),
+            onClick = {
+                if (!clearing) {
+                    clearing = true
+                    scope.launch {
+                        size = withContext(Dispatchers.IO) {
+                            AppStorage.clearCache(context)
+                            AppStorage.cacheSizeBytes(context)
+                        }
+                        clearing = false
+                    }
+                }
+            },
+            enabled = !clearing && size > 0,
+        )
+    }
 }
 
 private fun hasPermission(context: Context, permission: String): Boolean =

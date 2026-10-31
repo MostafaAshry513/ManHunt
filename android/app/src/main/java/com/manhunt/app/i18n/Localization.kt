@@ -300,6 +300,13 @@ private val arabic: Map<String, String> = mapOf(
     "Server" to "الخادم",
     "To change the server, sign out and edit it on the sign-in screen." to
         "لتغيير الخادم، سجّل الخروج وعدّله في شاشة الدخول.",
+    "Storage" to "التخزين",
+    "Map tiles and update downloads are cached here." to
+        "تُخزَّن بلاطات الخريطة وتنزيلات التحديث هنا مؤقتًا.",
+    "Cache" to "الذاكرة المؤقتة",
+    "Calculating…" to "جارٍ الحساب…",
+    "Clear cache" to "مسح الذاكرة المؤقتة",
+    "Clearing…" to "جارٍ المسح…",
     "Language applies immediately and mirrors the whole layout." to
         "تُطبَّق اللغة فورًا وتنعكس الواجهة بالكامل.",
 
