@@ -1,12 +1,18 @@
-# Map design options (choose one layout + one style)
+# Map design options (chosen: C + 2)
 
-The current hunting map is a fixed **220 dp** card with side margins, so it is boxed in and
-leaves little room for trails. The proposals below use a real OSM tile mosaic around central
+**Status:** the owner chose **Layout C (tactical map-first) + Style 2 (Deep Teal)**. Both are
+implemented in v0.13.0: the live-hunt Game page is now full-bleed map with a bottom hunt
+sheet, and the raster tiles use the Deep Teal matrix. The samples below are kept as the
+design record and as the reference for further additions.
+
+The old hunting map was a fixed **220 dp** card with side margins, so it was boxed in and
+left little room for trails. The proposals below use a real OSM tile mosaic around central
 London with the same zone/trail/prey/own-position overlays, rendered through
 `MapSamplesTest` (Robolectric phone screenshots).
 
 **Nothing here ships until the owner picks.** Once chosen, the production `MatchMap` and the
-room layout will be updated to match.
+room layout will be updated to match. The chosen pair is already implemented; future
+additions should build on it rather than introducing a second layout.
 
 ## Layout options
 

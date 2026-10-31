@@ -1,4 +1,4 @@
-﻿plugins {
+plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
@@ -15,8 +15,8 @@ android {
         applicationId = "com.manhunt.app"
         minSdk = 26
         targetSdk = 37
-        versionCode = 37
-        versionName = "0.12.4"
+        versionCode = 38
+        versionName = "0.13.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -80,6 +80,11 @@ android {
 
 // Robolectric (and its Compose support) reflect into JDK internals, blocked by default on 17+.
 tasks.withType<Test>().configureEach {
+    // Robolectric's native-graphics screenshot tests are memory hungry (full-phone
+    // bitmaps). Without headroom the forked test JVM can die mid-suite and Gradle only
+    // reports an opaque EOFException; fork per class also isolates leaked Robolectric state.
+    maxHeapSize = "2g"
+    forkEvery = 1
     jvmArgs(
         "--add-opens=java.base/java.lang=ALL-UNNAMED",
         "--add-opens=java.base/java.util=ALL-UNNAMED",

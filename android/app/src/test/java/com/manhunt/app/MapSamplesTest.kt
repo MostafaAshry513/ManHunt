@@ -128,6 +128,7 @@ class MapSamplesTest {
         val out = File("build/map-samples/$name.png")
         out.parentFile?.mkdirs()
         out.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        bitmap.recycle()
     }
 
     private fun load(asset: String): ImageBitmap {

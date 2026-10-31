@@ -16,6 +16,15 @@ data class ChangelogEntry(
 object Changelog {
     val recent: List<ChangelogEntry> = listOf(
         ChangelogEntry(
+            version = "0.13.0",
+            date = "2026-10-31",
+            changes = listOf(
+                "Tactical full-screen map with a bottom hunt sheet.",
+                "Deep Teal map palette and a zone/prey fit on open.",
+                "Clear stale/live markers, claim banners and huntmaster details.",
+            ),
+        ),
+        ChangelogEntry(
             version = "0.12.4",
             date = "2026-10-31",
             changes = listOf(

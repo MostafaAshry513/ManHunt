@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -46,6 +47,8 @@ import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.GpsFixed
 import androidx.compose.material.icons.outlined.Groups
 import androidx.compose.material.icons.outlined.History
@@ -88,9 +91,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -119,8 +124,11 @@ import com.manhunt.app.data.ChatMessage
 import com.manhunt.app.data.LatestLocations
 import com.manhunt.app.data.LiveLocation
 import com.manhunt.app.data.ManHuntRepository
+import com.manhunt.app.data.MatchDto
 import com.manhunt.app.data.MatchHistoryEntry
+import com.manhunt.app.data.MemberDto
 import com.manhunt.app.data.Phases
+import com.manhunt.app.data.PreyLocationStatus
 import com.manhunt.app.data.RoomSocket
 import com.manhunt.app.data.RoomState
 import com.manhunt.app.data.SocketEvent
@@ -129,6 +137,9 @@ import com.manhunt.app.data.Teams
 import com.manhunt.app.data.TrailPoint
 import com.manhunt.app.location.TrackingService
 import com.manhunt.app.map.MatchMap
+import com.manhunt.app.ui.theme.ManHuntElevation
+import com.manhunt.app.ui.theme.ManHuntRadius
+import com.manhunt.app.ui.theme.ManHuntSizes
 import com.manhunt.app.ui.theme.Motion
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -177,6 +188,9 @@ private const val MAX_LOADED_MESSAGES = 500
 private const val POLL_CONNECTED_MS = 20_000L
 private const val POLL_FALLBACK_MS = 10_000L
 private const val SOCKET_REFRESH_DEBOUNCE_MS = 350L
+
+/** Required attribution for the OSM tiles; the tactical sheet carries it because it hides the in-map chip. */
+private const val OSM_COPYRIGHT_URL = "https://www.openstreetmap.org/copyright"
 
 class RoomViewModel(
     private val repo: ManHuntRepository,
@@ -1227,74 +1241,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 )
             }
 
-            // The map is deliberately OUTSIDE the scrolling list. A LazyColumn's vertical
-            // drag detector steals osmdroid's pans (dragging the map scrolls the page).
-            // Kept at a fixed height, the map owns its own touch stream in every direction.
-            val activeMatchMap: @Composable (Modifier) -> Unit = { outerModifier ->
-                val ownLocation by LiveLocation.current.collectAsStateWithLifecycle()
-                Column(
-                    modifier = outerModifier,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    MatchMap(
-                        modifier = Modifier.fillMaxWidth().height(220.dp),
-                        ownLocation = ownLocation,
-                        prey = ui.locations?.prey ?: emptyList(),
-                        zone = match?.zone,
-                        showPrey = me?.team == Teams.HUNTERS,
-                        trails = if (ui.trailsVisible) ui.trails else emptyMap(),
-                    )
-                    // Compact HUD row: status text and the one or two actions that matter
-                    // share a single line, so the map does not eat the room screen's height
-                    // (hunter tools used to get their own full-width row).
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            t(
-                                when {
-                                    activePhase && me?.team == Teams.PREY && hasLocation && !locationServicesOn ->
-                                        "Turn on location services"
-                                    me?.team == Teams.HUNTERS -> "Prey positions are the latest reports"
-                                    activePhase && hasLocation && resumed && ownLocation != null -> "Sharing your position"
-                                    activePhase && hasLocation && resumed -> "Waiting for GPS"
-                                    activePhase && hasLocation -> "Open the app to resume sharing"
-                                    activePhase -> "Location off"
-                                    else -> "Map"
-                                }
-                            ),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f),
-                        )
-                        if (activePhase && me?.team == Teams.PREY) {
-                            when {
-                                !hasLocation && locationDenied -> CompactMapAction(t("Allow in settings"), Icons.Outlined.Tune) {
-                                    openAppSettings(context)
-                                }
-                                !hasLocation -> CompactMapAction(t("Enable GPS"), Icons.Outlined.LocationOn) {
-                                    permissionLauncher.launch(trackingPermissions)
-                                }
-                                !locationServicesOn -> CompactMapAction(t("Turn on"), Icons.Outlined.LocationOn) {
-                                    context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-                                }
-                            }
-                        }
-                        if (activePhase && me?.team == Teams.HUNTERS && phase == Phases.HUNTING) {
-                            if (ui.trailsVisible) {
-                                CompactMapAction(t("Hide trails"), Icons.Outlined.Timeline) { vm.toggleTrails() }
-                            } else {
-                                CompactMapAction(t("Trails"), Icons.Outlined.Timeline) { vm.toggleTrails() }
-                            }
-                            CompactMapAction(t("Tag prey"), Icons.Outlined.GpsFixed, filled = true) { showTagPicker = true }
-                        }
-                    }
-                }
-            }
-
             // Swipe between Game and Chat. During a match the map page disables the pager
             // gesture so a horizontal map pan can never flip the tab by accident.
             HorizontalPager(
@@ -1303,15 +1249,36 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 userScrollEnabled = !(pagerState.currentPage == 0 && showMatchMap),
             ) { page ->
                 if (page == 0) {
-                    Column(Modifier.fillMaxSize()) {
-                if (!lobby && match != null && showMatchMap) {
-                    activeMatchMap(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 10.dp)
-                            .testTag("match_map_card"),
-                    )
-                }
+                    val tacticalMatch = match?.takeIf { !lobby && showMatchMap }
+                    if (tacticalMatch != null) {
+                        TacticalHuntPage(
+                            state = state,
+                            match = tacticalMatch,
+                            me = me,
+                            ui = ui,
+                            vm = vm,
+                            activePhase = activePhase,
+                            hasLocation = hasLocation,
+                            locationDenied = locationDenied,
+                            locationServicesOn = locationServicesOn,
+                            resumed = resumed,
+                            onTagPrey = { showTagPicker = true },
+                            onOpenSettings = { showSettings = true },
+                            onEndHunt = { showEndConfirm = true },
+                            onOpenHistory = {
+                                vm.loadHistory()
+                                showHistory = true
+                            },
+                            onEnableGps = { permissionLauncher.launch(trackingPermissions) },
+                            onOpenAppSettings = { openAppSettings(context) },
+                            onOpenLocationSettings = {
+                                context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                            },
+                        )
+                    } else {
+                        // Lobby and finished/cancelled matches keep the original scrolling
+                        // page; only a live hunt switches to the map-first tactical page.
+                        Column(Modifier.fillMaxSize()) {
                 val waitingTagClaim = state?.pendingTags?.firstOrNull { it.preyId == me?.userId && !it.disputed }
                 val waitingDispute = state?.pendingTags?.firstOrNull { it.disputed }
                 LazyColumn(
@@ -1326,38 +1293,11 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 // A dismissed tag dialog must not silently lose the decision: keep it visible
                 // as a banner until the player actually answers it.
                 if (waitingTagClaim != null && ui.pendingTag == null) {
-                    item(key = "tag_waiting") {
-                        ScreenCard {
-                            Text(
-                                t("A tag claim is waiting for your answer."),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                t("Confirm or dispute it to keep the hunt fair."),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Button(
-                                onClick = vm::reviewPendingTag,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                            ) { Text(t("Review tag claim")) }
-                        }
-                    }
+                    item(key = "tag_waiting") { TagClaimWaitingCard(onReview = vm::reviewPendingTag) }
                 }
                 if (me?.isAdmin == true && waitingDispute != null && ui.pendingDispute == null) {
                     item(key = "dispute_waiting") {
-                        ScreenCard {
-                            Text(
-                                t("A disputed tag is waiting for the huntmaster."),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Button(
-                                onClick = vm::reviewPendingDispute,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                            ) { Text(t("Review dispute")) }
-                        }
+                        DisputeWaitingCard(onReview = vm::reviewPendingDispute)
                     }
                 }
 
@@ -1373,109 +1313,16 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     item(key = "phase") { matchCard() }
 
                     if (me?.team == Teams.HUNTERS && ui.locations?.prey?.isNotEmpty() == true) {
-                        item(key = "prey_status") {
-                            ScreenCard {
-                                // Text alternative to the map (UI-03) and per-player staleness (UI-08).
-                                ui.locations!!.prey.forEach { p ->
-                                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                        Text(p.username, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                                        val label = when {
-                                            !p.hasReport -> t("No report")
-                                            p.eliminated -> t("Tagged")
-                                            p.flagged -> t("Unverified")
-                                            p.stale -> t("Stale")
-                                            else -> t("Live")
-                                        }
-                                        val tint = when {
-                                            !p.hasReport || p.stale -> MaterialTheme.colorScheme.tertiary
-                                            p.eliminated -> MaterialTheme.colorScheme.error
-                                            p.flagged -> MaterialTheme.colorScheme.tertiary
-                                            else -> MaterialTheme.colorScheme.primary
-                                        }
-                                        Text(label, style = MaterialTheme.typography.labelSmall, color = tint)
-                                    }
-                                }
-                                if (ui.locations!!.prey.any { it.stale }) {
-                                    Text(
-                                        t("Some prey reports are stale (older than two intervals)."),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.tertiary,
-                                    )
-                                }
-                            }
-                        }
+                        item(key = "prey_status") { PreyStatusCard(prey = ui.locations!!.prey) }
                     }
 
                     if (me?.eliminated == true && phase == Phases.HUNTING) {
-                        item {
-                            ScreenCard {
-                                Text(t("You were tagged"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                                Text(
-                                    "You are spectating this match. You can still chat, but you cannot tag or share new positions.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
+                        item { TaggedNoticeCard() }
                     }
 
                 }
 
-                item {
-                    ScreenCard {
-                        SectionLabel("${t("Hunt roster")} (${state.members.size})", Icons.Outlined.Groups)
-                        state.members.forEach { member ->
-                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Column(Modifier.weight(1f)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            if (member.team == Teams.PREY) Icons.Outlined.Pets else Icons.Outlined.GpsFixed,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(15.dp),
-                                            tint = teamColor(member.team),
-                                        )
-                                        Spacer(Modifier.width(5.dp))
-                                        Text(member.username, fontWeight = FontWeight.SemiBold)
-                                        if (member.isAdmin) {
-                                            Spacer(Modifier.width(6.dp))
-                                            Text(
-                                                t("HUNTMASTER"),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.primary,
-                                            )
-                                        }
-                                        if (member.eliminated && state.room.status != "lobby") {
-                                            Spacer(Modifier.width(6.dp))
-                                            Text(
-                                                t("TAGGED"),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.error,
-                                            )
-                                        }
-                                        if (!member.connected) {
-                                            Spacer(Modifier.width(6.dp))
-                                            Text(
-                                                t("Offline"),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                            )
-                                        }
-                                    }
-                                    if (lobby) {
-                                        Text(
-                                            t(if (member.ready) "Ready" else "Gearing up"),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = if (member.ready) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-                                }
-                                TeamPill(member.team)
-                            }
-                            Spacer(Modifier.height(10.dp))
-                        }
-                    }
-                }
+                item { RosterCard(state = state, lobby = lobby) }
 
                 if (lobby) {
                     item {
@@ -1540,6 +1387,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                 }
 
                 }
+                    }
                     }
                 } else {
                     ChatTabContent(
@@ -1662,16 +1510,10 @@ private fun PhaseCard(
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             SectionLabel(t("The hunt"), Icons.Outlined.SportsEsports)
             Spacer(Modifier.weight(1f))
-            val color: Color = when (phase) {
-                Phases.HUNTING -> MaterialTheme.colorScheme.tertiary
-                Phases.HEAD_START -> MaterialTheme.colorScheme.primary
-                Phases.FINISHED -> MaterialTheme.colorScheme.secondary
-                else -> MaterialTheme.colorScheme.onSurfaceVariant
-            }
             Text(
                 t(phase.replace('_', ' ').uppercase()),
                 style = MaterialTheme.typography.labelMedium,
-                color = color,
+                color = phaseColor(phase),
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -1855,33 +1697,853 @@ private fun formatRemaining(target: Long?, seconds: Long): String {
     return "%02d:%02d".format(seconds / 60, seconds % 60)
 }
 
+/*
+ * ---------------------------------------------------------------------------------------
+ * Layout C - tactical, map-first live hunt page
+ * ---------------------------------------------------------------------------------------
+ * The live hunt page keeps the map on the whole Game page and moves every control into a
+ * bottom sheet, so the map is never boxed into a fixed-height card again. Structure:
+ *   - [TacticalHud]: at most two glance chips (phase+countdown, prey alive) over a scrim;
+ *   - floating pending-claim banner(s) directly above the sheet until answered;
+ *   - [HuntSheet]: a capped peek (status, role actions, attribution) with an expandable,
+ *     scrollable details area for huntmaster controls, history, prey reports and roster.
+ * Game rules stay server-authoritative: this file only renders state and calls the same
+ * ViewModel actions the old layout used.
+ */
+
+/**
+ * Map scrim so HUD chips and the sheet edge stay legible over bright tile labels.
+ *
+ * The top scrim stops at 64% width on purpose: the map's own zoom/recenter controls sit at
+ * the top-end, and a full-width wash would dim the very controls the player needs.
+ */
 @Composable
-private fun CompactMapAction(
-    label: String,
-    icon: ImageVector? = null,
-    filled: Boolean = false,
-    onClick: () -> Unit,
-) {
-    val contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-    val content: @Composable () -> Unit = {
-        if (icon != null) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp))
-            Spacer(Modifier.width(4.dp))
-        }
-        Text(label, maxLines = 1, textAlign = TextAlign.Center)
+private fun ScreenScrim(modifier: Modifier = Modifier, top: Boolean) {
+    val scrim = MaterialTheme.colorScheme.background
+    Box(
+        modifier
+            .fillMaxWidth(if (top) 0.64f else 1f)
+            .height(if (top) 90.dp else 56.dp)
+            .background(
+                Brush.verticalGradient(
+                    if (top) {
+                        listOf(scrim.copy(alpha = 0.72f), Color.Transparent)
+                    } else {
+                        listOf(Color.Transparent, scrim.copy(alpha = 0.9f))
+                    },
+                ),
+            ),
+    )
+}
+
+/** Small floating chip used by the tactical HUD. */
+@Composable
+private fun HudChip(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Surface(
+        modifier = modifier,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = ManHuntElevation.raised,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) { content() }
     }
-    if (filled) {
+}
+
+/** Phase accent colour shared by the old phase card and the tactical HUD/sheet. */
+@Composable
+private fun phaseColor(phase: String): Color = when (phase) {
+    Phases.HUNTING -> MaterialTheme.colorScheme.tertiary
+    Phases.HEAD_START -> MaterialTheme.colorScheme.primary
+    Phases.FINISHED -> MaterialTheme.colorScheme.secondary
+    else -> MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+/**
+ * Glance HUD (top-start): phase + live countdown, then prey alive for hunters. Two chips
+ * maximum and a tiny stale state - the sheet below carries the details.
+ */
+@Composable
+private fun TacticalHud(
+    match: MatchDto,
+    phase: String,
+    offset: Long,
+    isHunter: Boolean,
+    staleReports: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier.testTag("hunt_hud"), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        HudChip {
+            Box(Modifier.size(7.dp).background(phaseColor(phase), CircleShape))
+            Spacer(Modifier.width(6.dp))
+            Text(
+                t(phase.replace('_', ' ').uppercase()),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = phaseColor(phase),
+            )
+            val target = when (phase) {
+                Phases.HEAD_START -> match.headStartEndsAt
+                Phases.HUNTING -> match.endsAt
+                else -> null
+            }
+            if (target != null) {
+                Spacer(Modifier.width(6.dp))
+                CountdownText(
+                    target = target,
+                    offset = offset,
+                    prefix = "",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontFeatureSettings = "tnum",
+                    ),
+                )
+            }
+        }
+        if (isHunter) {
+            HudChip {
+                Icon(
+                    Icons.Outlined.GpsFixed,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                    tint = MaterialTheme.colorScheme.tertiary,
+                )
+                Spacer(Modifier.width(6.dp))
+                // "1/2 Prey" reads correctly in both languages without a new key.
+                Text(
+                    "${match.preyAlive}/${match.preyTotal} ${t("Prey")}",
+                    style = MaterialTheme.typography.labelMedium.copy(fontFeatureSettings = "tnum"),
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            if (staleReports) {
+                // Tiny third state, deliberately not a paragraph.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(6.dp).background(MaterialTheme.colorScheme.tertiary, CircleShape))
+                    Spacer(Modifier.width(5.dp))
+                    Text(
+                        t("Stale"),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The full-bleed tactical live-hunt page. The sheet is a sibling overlay in the same Box,
+ * not a scrolling parent: osmdroid keeps every gesture above the sheet, and the expanded
+ * details area is the only scrollable part.
+ */
+@Composable
+private fun TacticalHuntPage(
+    state: RoomState,
+    match: MatchDto,
+    me: MemberDto?,
+    ui: RoomUi,
+    vm: RoomViewModel,
+    activePhase: Boolean,
+    hasLocation: Boolean,
+    locationDenied: Boolean,
+    locationServicesOn: Boolean,
+    resumed: Boolean,
+    onTagPrey: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onEndHunt: () -> Unit,
+    onOpenHistory: () -> Unit,
+    onEnableGps: () -> Unit,
+    onOpenAppSettings: () -> Unit,
+    onOpenLocationSettings: () -> Unit,
+) {
+    val ownLocation by LiveLocation.current.collectAsStateWithLifecycle()
+    // Server-clock offset, same rule the phase card uses: the countdown is wall-clock
+    // driven from `match.now`, never computed from the local phase.
+    val offset = remember(match.id, match.now) { match.now - System.currentTimeMillis() }
+    // A dismissed-but-unanswered claim must stay visible until it is actually answered.
+    val waitingClaim = state.pendingTags
+        .firstOrNull { it.preyId == me?.userId && !it.disputed }
+        ?.takeIf { ui.pendingTag == null }
+    val waitingDispute = state.pendingTags
+        .firstOrNull { it.disputed }
+        ?.takeIf { me?.isAdmin == true && ui.pendingDispute == null }
+    val staleReports = (ui.locations?.prey ?: emptyList()).any { it.stale && it.hasReport }
+
+    Box(Modifier.fillMaxSize()) {
+        MatchMap(
+            modifier = Modifier.fillMaxSize().testTag("match_map_card"),
+            ownLocation = ownLocation,
+            prey = ui.locations?.prey ?: emptyList(),
+            zone = match.zone,
+            showPrey = me?.team == Teams.HUNTERS,
+            trails = if (ui.trailsVisible) ui.trails else emptyMap(),
+            // Full-bleed tactical mode: the sheet renders its own attribution link, and
+            // the generous fit padding keeps prey/zone markers above the sheet.
+            showAttribution = false,
+            roundedCorners = false,
+            fitPadding = 160.dp,
+        )
+
+        ScreenScrim(modifier = Modifier.align(Alignment.TopStart), top = true)
+
+        TacticalHud(
+            match = match,
+            phase = match.phase,
+            offset = offset,
+            isHunter = me?.team == Teams.HUNTERS,
+            staleReports = staleReports,
+            modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
+        )
+
+        // Bottom stack. Letting each piece size itself (instead of fixed offsets) keeps the
+        // layout intact at fontScale 1.35 and with long Arabic strings.
+        Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth()) {
+            if (waitingClaim != null || waitingDispute != null) {
+                Column(
+                    Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    waitingClaim?.let {
+                        PendingClaimBanner(
+                            title = t("A tag claim is waiting for your answer."),
+                            detail = t("Confirm or dispute it to keep the hunt fair."),
+                            action = t("Review tag claim"),
+                            onAction = vm::reviewPendingTag,
+                            testTag = "hunt_claim_banner",
+                        )
+                    }
+                    waitingDispute?.let {
+                        PendingClaimBanner(
+                            title = t("A disputed tag is waiting for the huntmaster."),
+                            detail = null,
+                            action = t("Review dispute"),
+                            onAction = vm::reviewPendingDispute,
+                            testTag = "hunt_dispute_banner",
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+            ScreenScrim(top = false)
+            HuntSheet(
+                state = state,
+                match = match,
+                me = me,
+                ui = ui,
+                vm = vm,
+                activePhase = activePhase,
+                hasLocation = hasLocation,
+                locationDenied = locationDenied,
+                locationServicesOn = locationServicesOn,
+                resumed = resumed,
+                ownLocationKnown = ownLocation != null,
+                offset = offset,
+                onTagPrey = onTagPrey,
+                onOpenSettings = onOpenSettings,
+                onEndHunt = onEndHunt,
+                onOpenHistory = onOpenHistory,
+                onEnableGps = onEnableGps,
+                onOpenAppSettings = onOpenAppSettings,
+                onOpenLocationSettings = onOpenLocationSettings,
+            )
+        }
+    }
+}
+
+/**
+ * Floating pending-claim banner: overlays the map directly above the sheet and stays there
+ * until the claim is answered, so a dismissed dialog can never lose a tag decision.
+ */
+@Composable
+private fun PendingClaimBanner(
+    title: String,
+    detail: String?,
+    action: String,
+    onAction: () -> Unit,
+    testTag: String,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth().testTag(testTag),
+        shape = RoundedCornerShape(ManHuntRadius.md),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        tonalElevation = ManHuntElevation.raised,
+        shadowElevation = ManHuntElevation.floating,
+    ) {
+        Row(
+            Modifier.padding(start = 14.dp, end = 6.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                if (detail != null) {
+                    Text(detail, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+            TextButton(onClick = onAction) { Text(action) }
+        }
+    }
+}
+
+/** Required OSM attribution link: the tactical map hides its in-map chip. */
+@Composable
+private fun OsmAttribution(modifier: Modifier = Modifier) {
+    val uriHandler = LocalUriHandler.current
+    Text(
+        "© OpenStreetMap contributors",
+        modifier = modifier
+            .testTag("hunt_attribution")
+            .clickable { uriHandler.openUri(OSM_COPYRIGHT_URL) }
+            .padding(vertical = 2.dp),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+/**
+ * Bottom sheet. Collapsed peek: status/timer + zone shrink line, the role's live actions
+ * (primary Tag + trails for hunters, location fix for prey), the attribution link and the
+ * expand chevron. Expanded details (capped, scrollable): huntmaster controls, history,
+ * prey reports, tagged notice and roster.
+ */
+@Composable
+private fun HuntSheet(
+    state: RoomState,
+    match: MatchDto,
+    me: MemberDto?,
+    ui: RoomUi,
+    vm: RoomViewModel,
+    activePhase: Boolean,
+    hasLocation: Boolean,
+    locationDenied: Boolean,
+    locationServicesOn: Boolean,
+    resumed: Boolean,
+    ownLocationKnown: Boolean,
+    offset: Long,
+    onTagPrey: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onEndHunt: () -> Unit,
+    onOpenHistory: () -> Unit,
+    onEnableGps: () -> Unit,
+    onOpenAppSettings: () -> Unit,
+    onOpenLocationSettings: () -> Unit,
+) {
+    var detailsExpanded by rememberSaveable(match.id) { mutableStateOf(false) }
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("hunt_sheet"),
+        shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = ManHuntElevation.floating,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                // Short screens (landscape, big font scale): the sheet scrolls itself
+                // instead of clipping controls; on a normal phone the content fits.
+                .verticalScroll(rememberScrollState())
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp),
+        ) {
+            // Drag-handle affordance: this sheet is the hunt's command surface.
+            Box(
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(36.dp)
+                    .height(4.dp)
+                    .background(
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
+                        RoundedCornerShape(ManHuntRadius.pill),
+                    ),
+            )
+            Spacer(Modifier.height(10.dp))
+
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                HuntStatusLines(
+                    match = match,
+                    phase = match.phase,
+                    me = me,
+                    offset = offset,
+                    activePhase = activePhase,
+                    hasLocation = hasLocation,
+                    locationServicesOn = locationServicesOn,
+                    resumed = resumed,
+                    ownLocationKnown = ownLocationKnown,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(
+                    onClick = { detailsExpanded = !detailsExpanded },
+                    modifier = Modifier.size(ManHuntSizes.touchTarget).testTag("hunt_sheet_expand"),
+                ) {
+                    Icon(
+                        imageVector = if (detailsExpanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                        contentDescription = t(if (detailsExpanded) "Hide details" else "Details"),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+            ErrorBanner(ui.error)
+            HuntActionBar(
+                phase = match.phase,
+                me = me,
+                ui = ui,
+                activePhase = activePhase,
+                hasLocation = hasLocation,
+                locationDenied = locationDenied,
+                locationServicesOn = locationServicesOn,
+                onTagPrey = onTagPrey,
+                onToggleTrails = vm::toggleTrails,
+                onEnableGps = onEnableGps,
+                onOpenAppSettings = onOpenAppSettings,
+                onOpenLocationSettings = onOpenLocationSettings,
+            )
+            Row(
+                Modifier.fillMaxWidth().padding(top = 6.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Attribution stays in the collapsed peek: OSM requires it to be visible,
+                // and hiding it behind the expand toggle would break it on every screen.
+                OsmAttribution()
+            }
+            AnimatedVisibility(visible = detailsExpanded) {
+                HuntDetails(
+                    state = state,
+                    match = match,
+                    me = me,
+                    ui = ui,
+                    vm = vm,
+                    onOpenSettings = onOpenSettings,
+                    onEndHunt = onEndHunt,
+                    onOpenHistory = onOpenHistory,
+                )
+            }
+        }
+    }
+}
+
+/** Phase / timer / sharing-status / zone-shrink lines inside the sheet peek. */
+@Composable
+private fun HuntStatusLines(
+    match: MatchDto,
+    phase: String,
+    me: MemberDto?,
+    offset: Long,
+    activePhase: Boolean,
+    hasLocation: Boolean,
+    locationServicesOn: Boolean,
+    resumed: Boolean,
+    ownLocationKnown: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(7.dp).background(phaseColor(phase), CircleShape))
+            Spacer(Modifier.width(6.dp))
+            Text(
+                t(phase.replace('_', ' ').uppercase()),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = phaseColor(phase),
+            )
+            val target = when (phase) {
+                Phases.HEAD_START -> match.headStartEndsAt
+                Phases.HUNTING -> match.endsAt
+                else -> null
+            }
+            if (target != null) {
+                Spacer(Modifier.width(8.dp))
+                CountdownText(
+                    target = target,
+                    offset = offset,
+                    prefix = "",
+                    style = MaterialTheme.typography.titleSmall.copy(fontFeatureSettings = "tnum"),
+                )
+            }
+        }
+        Text(
+            huntStatusText(
+                phase = phase,
+                me = me,
+                activePhase = activePhase,
+                hasLocation = hasLocation,
+                locationServicesOn = locationServicesOn,
+                resumed = resumed,
+                ownLocationKnown = ownLocationKnown,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        val zone = match.zone
+        val nextShrink = zone?.nextShrinkAt
+        if (zone != null) {
+            if (nextShrink != null) {
+                CountdownText(
+                    target = nextShrink,
+                    offset = offset,
+                    prefix = "${t("Zone")}: ${zone.radiusM.toInt()} ${t("m")} · ${t("Zone shrinks in")} ",
+                    style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+            } else {
+                Text(
+                    "${t("Zone")}: ${zone.radiusM.toInt()} ${t("m")}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+/** One-line hunt status: sharing state for prey, report state for hunters, pause/tagged notices. */
+@Composable
+private fun huntStatusText(
+    phase: String,
+    me: MemberDto?,
+    activePhase: Boolean,
+    hasLocation: Boolean,
+    locationServicesOn: Boolean,
+    resumed: Boolean,
+    ownLocationKnown: Boolean,
+): String = t(
+    when {
+        me?.eliminated == true && phase == Phases.HUNTING ->
+            "You are spectating this match. You can still chat, but you cannot tag or share new positions."
+        phase == Phases.PAUSED -> "The hunt is paused. The clock is stopped."
+        activePhase && me?.team == Teams.PREY && hasLocation && !locationServicesOn ->
+            "Turn on location services"
+        me?.team == Teams.HUNTERS ->
+            if (phase == Phases.HEAD_START) "Prey are hiding. Hunting starts in" else "Prey positions are the latest reports"
+        activePhase && hasLocation && resumed && ownLocationKnown -> "Sharing your position"
+        activePhase && hasLocation && resumed -> "Waiting for GPS"
+        activePhase && hasLocation -> "Open the app to resume sharing"
+        activePhase -> "Location off"
+        else -> "Map"
+    },
+)
+
+/**
+ * The peek actions by role/phase: hunters get the primary Tag + trails pulse; prey get the
+ * existing location-fix actions. Destructive huntmaster actions live in [HuntDetails].
+ */
+@Composable
+private fun HuntActionBar(
+    phase: String,
+    me: MemberDto?,
+    ui: RoomUi,
+    activePhase: Boolean,
+    hasLocation: Boolean,
+    locationDenied: Boolean,
+    locationServicesOn: Boolean,
+    onTagPrey: () -> Unit,
+    onToggleTrails: () -> Unit,
+    onEnableGps: () -> Unit,
+    onOpenAppSettings: () -> Unit,
+    onOpenLocationSettings: () -> Unit,
+) {
+    val isHunter = me?.team == Teams.HUNTERS
+    val isPrey = me?.team == Teams.PREY
+    val eliminated = me?.eliminated == true
+    val gpsAction: Pair<String, () -> Unit>? = when {
+        !isPrey || !activePhase || eliminated -> null
+        !hasLocation && locationDenied -> t("Allow in settings") to onOpenAppSettings
+        !hasLocation -> t("Enable GPS") to onEnableGps
+        !locationServicesOn -> t("Turn on") to onOpenLocationSettings
+        else -> null
+    }
+    // Tag/trails only while the server phase allows tagging; head start and pause show the
+    // countdown/status instead (no tag button to tap by mistake).
+    val showTag = isHunter && !eliminated && phase == Phases.HUNTING
+    if (!showTag && gpsAction == null) return
+
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (showTag) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Button(
+                    onClick = onTagPrey,
+                    modifier = Modifier.weight(1f).heightIn(min = ManHuntSizes.touchTarget).testTag("hunt_tag_button"),
+                ) {
+                    Icon(Icons.Outlined.GpsFixed, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(t("Tag prey"), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                OutlinedButton(
+                    onClick = onToggleTrails,
+                    modifier = Modifier.heightIn(min = ManHuntSizes.touchTarget).testTag("hunt_trails_button"),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+                ) {
+                    Icon(Icons.Outlined.Timeline, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(t(if (ui.trailsVisible) "Hide trails" else "Trails"), maxLines = 1)
+                }
+            }
+        }
+        if (gpsAction != null) {
+            OutlinedButton(
+                onClick = gpsAction.second,
+                modifier = Modifier.fillMaxWidth().heightIn(min = ManHuntSizes.touchTarget).testTag("hunt_gps_button"),
+            ) {
+                Icon(Icons.Outlined.LocationOn, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(gpsAction.first, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+        }
+    }
+}
+
+/** Expandable details: huntmaster controls, history access, prey reports, tagged notice, roster. */
+@Composable
+private fun HuntDetails(
+    state: RoomState,
+    match: MatchDto,
+    me: MemberDto?,
+    ui: RoomUi,
+    vm: RoomViewModel,
+    onOpenSettings: () -> Unit,
+    onEndHunt: () -> Unit,
+    onOpenHistory: () -> Unit,
+) {
+    val phase = match.phase
+    val isAdmin = me?.isAdmin == true
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(max = 300.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(top = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        if (isAdmin) {
+            // Labeled, spaced, destructive-last: these are never icon-only next to Tag.
+            SectionLabel(t("HUNTMASTER"), Icons.Outlined.Tune)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (phase == Phases.HUNTING) {
+                    FullWidthHuntAction(
+                        text = t("Pause hunt"),
+                        icon = Icons.Outlined.Pause,
+                        onClick = vm::pauseMatch,
+                        testTag = "hunt_pause_button",
+                    )
+                }
+                if (phase == Phases.PAUSED) {
+                    FullWidthHuntAction(
+                        text = t("Resume hunt"),
+                        icon = Icons.Outlined.PlayArrow,
+                        onClick = vm::resumeMatch,
+                        testTag = "hunt_resume_button",
+                    )
+                }
+                FullWidthHuntAction(
+                    text = t("Hunt rules"),
+                    icon = Icons.Outlined.Tune,
+                    onClick = onOpenSettings,
+                    testTag = "hunt_rules_button",
+                )
+                if (phase == Phases.HUNTING || phase == Phases.PAUSED) {
+                    FullWidthHuntAction(
+                        text = t("End hunt"),
+                        icon = Icons.Outlined.Stop,
+                        onClick = onEndHunt,
+                        testTag = "hunt_end_button",
+                        destructive = true,
+                    )
+                }
+            }
+        }
+        FullWidthHuntAction(
+            text = t("View hunt history"),
+            icon = Icons.Outlined.History,
+            onClick = onOpenHistory,
+            testTag = "hunt_history_button",
+        )
+        val prey = ui.locations?.prey.orEmpty()
+        if (me?.team == Teams.HUNTERS && prey.isNotEmpty()) {
+            PreyStatusCard(prey = prey)
+        }
+        if (me?.eliminated == true && phase == Phases.HUNTING) {
+            TaggedNoticeCard()
+        }
+        RosterCard(state = state, lobby = false)
+    }
+}
+
+/** Full-width, labeled action used by the expanded huntmaster/details area. */
+@Composable
+private fun FullWidthHuntAction(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    testTag: String,
+    destructive: Boolean = false,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().heightIn(min = ManHuntSizes.touchTarget).testTag(testTag),
+        colors = if (destructive) {
+            ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+        } else {
+            ButtonDefaults.outlinedButtonColors()
+        },
+    ) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/*
+ * Shared hunt cards. The lobby/finished list and the tactical details area render the same
+ * content; extracting them keeps the two paths identical (no "this only works in lobby"
+ * drift) without changing what either surface shows.
+ */
+
+/** Dismissed tag claim banner: the claim is still answerable, so keep it visible. */
+@Composable
+private fun TagClaimWaitingCard(onReview: () -> Unit) {
+    ScreenCard {
+        Text(
+            t("A tag claim is waiting for your answer."),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            t("Confirm or dispute it to keep the hunt fair."),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Button(
-            onClick = onClick,
-            modifier = Modifier.heightIn(min = 44.dp),
-            contentPadding = contentPadding,
-        ) { content() }
-    } else {
-        OutlinedButton(
-            onClick = onClick,
-            modifier = Modifier.heightIn(min = 44.dp),
-            contentPadding = contentPadding,
-        ) { content() }
+            onClick = onReview,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+        ) { Text(t("Review tag claim")) }
+    }
+}
+
+/** Dismissed dispute banner for the huntmaster, until it is resolved. */
+@Composable
+private fun DisputeWaitingCard(onReview: () -> Unit) {
+    ScreenCard {
+        Text(
+            t("A disputed tag is waiting for the huntmaster."),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Button(
+            onClick = onReview,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+        ) { Text(t("Review dispute")) }
+    }
+}
+
+/** Text alternative to the map (accessibility) with per-player stale/live states. */
+@Composable
+private fun PreyStatusCard(prey: List<PreyLocationStatus>) {
+    ScreenCard {
+        prey.forEach { p ->
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(p.username, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                val label = when {
+                    !p.hasReport -> t("No report")
+                    p.eliminated -> t("Tagged")
+                    p.flagged -> t("Unverified")
+                    p.stale -> t("Stale")
+                    else -> t("Live")
+                }
+                val tint = when {
+                    !p.hasReport || p.stale -> MaterialTheme.colorScheme.tertiary
+                    p.eliminated -> MaterialTheme.colorScheme.error
+                    p.flagged -> MaterialTheme.colorScheme.tertiary
+                    else -> MaterialTheme.colorScheme.primary
+                }
+                Text(label, style = MaterialTheme.typography.labelSmall, color = tint)
+            }
+        }
+    }
+}
+
+/** Spectating notice after being tagged while the hunt is still running. */
+@Composable
+private fun TaggedNoticeCard() {
+    ScreenCard {
+        Text(t("You were tagged"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+        Text(
+            t("You are spectating this match. You can still chat, but you cannot tag or share new positions."),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** Roster card shared by the lobby list and the tactical details area. */
+@Composable
+private fun RosterCard(state: RoomState, lobby: Boolean) {
+    ScreenCard {
+        SectionLabel("${t("Hunt roster")} (${state.members.size})", Icons.Outlined.Groups)
+        state.members.forEach { member ->
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            if (member.team == Teams.PREY) Icons.Outlined.Pets else Icons.Outlined.GpsFixed,
+                            contentDescription = null,
+                            modifier = Modifier.size(15.dp),
+                            tint = teamColor(member.team),
+                        )
+                        Spacer(Modifier.width(5.dp))
+                        Text(member.username, fontWeight = FontWeight.SemiBold)
+                        if (member.isAdmin) {
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                t("HUNTMASTER"),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                        if (member.eliminated && state.room.status != "lobby") {
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                t("TAGGED"),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                        if (!member.connected) {
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                t("Offline"),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    if (lobby) {
+                        Text(
+                            t(if (member.ready) "Ready" else "Gearing up"),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (member.ready) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                TeamPill(member.team)
+            }
+            Spacer(Modifier.height(10.dp))
+        }
     }
 }
 

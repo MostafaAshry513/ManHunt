@@ -318,6 +318,12 @@ private val arabic: Map<String, String> = mapOf(
         "إصلاحات لاختيار الفريق واستخدام موقعي وإدخال البيانات.",
     "Map tile cache is bounded and can be cleared from Settings." to
         "ذاكرة بلاطات الخريطة محدودة ويمكن مسحها من الإعدادات.",
+    "Tactical full-screen map with a bottom hunt sheet." to
+        "خريطة تكتيكية بملء الشاشة مع لوحة مطاردة سفلية.",
+    "Deep Teal map palette and a zone/prey fit on open." to
+        "لوحة ألوان خريطة زرقاء داكنة، وملاءمة المنطقة والفرائس عند الفتح.",
+    "Clear stale/live markers, claim banners and huntmaster details." to
+        "علامات واضحة للتقارير القديمة والحديثة، ولافتات المطالبات وتفاصيل قائد المطاردة.",
     "Signed in as" to "مسجّل الدخول باسم",
     "Server" to "الخادم",
     "To change the server, sign out and edit it on the sign-in screen." to
@@ -397,6 +403,8 @@ private val arabic: Map<String, String> = mapOf(
     "Winner" to "الفائز",
     "Play again" to "العب مرة أخرى",
     "View hunt history" to "عرض سجل المطاردات",
+    "Details" to "التفاصيل",
+    "Hide details" to "إخفاء التفاصيل",
     "Back to lobby" to "العودة إلى غرفة الانتظار",
 
     // Zone picker

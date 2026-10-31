@@ -1,8 +1,12 @@
 package com.manhunt.app.map
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Outline
+import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.view.View
 import android.view.ViewOutlineProvider
 import androidx.compose.foundation.background
@@ -40,6 +44,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
@@ -54,12 +59,16 @@ import com.manhunt.app.ui.theme.ManHuntRadius
 import com.manhunt.app.ui.theme.ManHuntSizes
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.Polyline
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 /**
  * Dark-tile color filter. The raw matrix and its 0..255-scale contract live in
@@ -81,6 +90,11 @@ fun MatchMap(
     showOwnMarker: Boolean = true,
     fallbackCenter: LatLng = LatLng(0.0, 0.0),
     fallbackZoom: Double = 16.0,
+    showAttribution: Boolean = true,
+    roundedCorners: Boolean = true,
+    /** Extra map-pixel padding for the initial fit; tactical layouts pass a larger value
+     *  so prey markers do not open underneath the bottom action sheet. */
+    fitPadding: Dp = 40.dp,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -94,10 +108,16 @@ fun MatchMap(
     val zoneColor = MaterialTheme.colorScheme.primary.toArgb()
     val zoneFill = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f).toArgb()
     val trailColor = MaterialTheme.colorScheme.tertiary.toArgb()
+    val preyLiveColor = MaterialTheme.colorScheme.tertiary.toArgb()
+    // Amber deliberately differs from the coral live marker: stale/flagged reports are
+    // the map's primary safety signal and must not look identical to a fresh one.
+    val preyStaleColor = 0xFFF0A43A.toInt()
+    val ownColor = MaterialTheme.colorScheme.primary.toArgb()
     val strokePx = with(density) { 3.dp.toPx() }
+    val casingPx = with(density) { 2.dp.toPx() }
+    val fitPaddingPx = with(density) { fitPadding.roundToPx() }
 
     // Localized strings are read in composition and captured for the AndroidView update lambda.
-    val taggedLabel = t("Tagged")
     val staleLabel = t("Stale report")
     val flaggedLabel = t("Unverified report")
     val liveLabel = t("Live report")
@@ -127,7 +147,7 @@ fun MatchMap(
             clipToOutline = true
             outlineProvider = object : ViewOutlineProvider() {
                 override fun getOutline(view: View, outline: Outline) {
-                    val radius = 20f * view.resources.displayMetrics.density
+                    val radius = if (roundedCorners) 20f * view.resources.displayMetrics.density else 0f
                     outline.setRoundRect(0, 0, view.width, view.height, radius)
                 }
             }
@@ -179,12 +199,18 @@ fun MatchMap(
 
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(ManHuntRadius.lg))
+            .clip(if (roundedCorners) RoundedCornerShape(ManHuntRadius.lg) else RoundedCornerShape(0.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .border(
-                1.dp,
-                MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
-                RoundedCornerShape(ManHuntRadius.lg),
+            .then(
+                if (roundedCorners) {
+                    Modifier.border(
+                        1.dp,
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                        RoundedCornerShape(ManHuntRadius.lg),
+                    )
+                } else {
+                    Modifier
+                },
             )
             .semantics { contentDescription = mapLabel },
     ) {
@@ -205,9 +231,21 @@ fun MatchMap(
                 )
 
                 zone?.let { z ->
+                    val zonePoints = MapMath.circle(z)
+                    // Dark casing under the cyan outline keeps the zone readable on
+                    // bright teal roads/labels where a 2px cyan line is only ~2:1.
                     view.overlays.add(
                         Polygon(view).apply {
-                            points = MapMath.circle(z)
+                            points = zonePoints
+                            outlinePaint.color = android.graphics.Color.argb(150, 0, 0, 0)
+                            outlinePaint.strokeWidth = strokePx + casingPx
+                            fillPaint.color = android.graphics.Color.TRANSPARENT
+                            title = null
+                        },
+                    )
+                    view.overlays.add(
+                        Polygon(view).apply {
+                            points = zonePoints
                             outlinePaint.color = zoneColor
                             outlinePaint.strokeWidth = strokePx
                             fillPaint.color = zoneFill
@@ -220,9 +258,18 @@ fun MatchMap(
                     // Trails connect real reported points; no interpolation across gaps.
                     trails.values.forEach { points ->
                         if (points.size >= 2) {
+                            val geoPoints = points.map { GeoPoint(it.lat, it.lng) }
+                            // Same casing rule as the zone: coral on bright teal is weak.
                             view.overlays.add(
                                 Polyline(view).apply {
-                                    setPoints(points.map { GeoPoint(it.lat, it.lng) })
+                                    setPoints(geoPoints)
+                                    outlinePaint.color = android.graphics.Color.argb(135, 0, 0, 0)
+                                    outlinePaint.strokeWidth = strokePx + casingPx
+                                },
+                            )
+                            view.overlays.add(
+                                Polyline(view).apply {
+                                    setPoints(geoPoints)
                                     outlinePaint.color = trailColor
                                     outlinePaint.strokeWidth = strokePx
                                 },
@@ -230,18 +277,27 @@ fun MatchMap(
                         }
                     }
 
-                    prey.filter { it.hasReport && it.lat != null && it.lng != null }.forEach { p ->
+                    // Stale/live reports use different marker colours instead of the
+                    // library's identical default pin; eliminated prey stay off the map.
+                    prey.filter { it.hasReport && !it.eliminated && it.lat != null && it.lng != null }.forEach { p ->
+                        val stale = p.stale || p.flagged
                         view.overlays.add(
                             Marker(view).apply {
                                 position = GeoPoint(p.lat!!, p.lng!!)
                                 title = p.username
                                 snippet = when {
-                                    p.eliminated -> taggedLabel
                                     p.stale -> staleLabel
                                     p.flagged -> flaggedLabel
                                     else -> liveLabel
                                 }
-                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                icon = dotMarkerIcon(
+                                    context = context,
+                                    fillColor = if (stale) preyStaleColor else preyLiveColor,
+                                    ringColor = android.graphics.Color.WHITE,
+                                    radiusDp = if (stale) 12f else 13f,
+                                    hollow = stale,
+                                )
+                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                             },
                         )
                     }
@@ -253,30 +309,79 @@ fun MatchMap(
                             Marker(view).apply {
                                 position = GeoPoint(me.lat, me.lng)
                                 title = youLabel
-                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                icon = dotMarkerIcon(
+                                    context = context,
+                                    fillColor = ownColor,
+                                    ringColor = android.graphics.Color.WHITE,
+                                    radiusDp = 10f,
+                                )
+                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                             },
                         )
                     }
                 }
 
                 if (!centered) {
-                    // Center on the first thing that will actually be drawn: own
-                    // position, else a prey report ONLY when prey are visible on
-                    // this map (centering on hidden prey would leak their location),
-                    // else the zone centre, else the caller's fallback view.
-                    val focus = ownLocation?.let { GeoPoint(it.lat, it.lng) }
-                        ?: prey.firstOrNull {
-                            showPrey && !it.stale && !it.eliminated && it.lat != null && it.lng != null
-                        }?.let { GeoPoint(it.lat!!, it.lng!!) }
-                        ?: zone?.let { GeoPoint(it.centerLat, it.centerLng) }
-                    if (focus != null) {
-                        view.controller.setCenter(focus)
-                        view.controller.setZoom(17.0)
-                        centered = true
+                    centered = true
+                    // Fit the first view to the live hunt, not just to the player's own
+                    // dot: zone + visible prey reports (including stale ones) + own
+                    // position when it is plausibly inside the play area. Hidden prey are
+                    // excluded even when they exist in state (showPrey == false).
+                    val zoneRadiusM = zone?.radiusM ?: 0.0
+                    val ownInPlay = ownLocation?.let { own ->
+                        zone == null || distanceMeters(
+                            own.lat, own.lng, zone.centerLat, zone.centerLng,
+                        ) <= zoneRadiusM * 1.25
+                    } == true
+                    val visiblePrey = if (showPrey) {
+                        prey.filter { it.hasReport && !it.eliminated && it.lat != null && it.lng != null }
                     } else {
-                        view.controller.setCenter(GeoPoint(fallbackCenter.lat, fallbackCenter.lng))
-                        view.controller.setZoom(fallbackZoom)
-                        centered = true
+                        emptyList()
+                    }
+                    val fitPoints = buildList {
+                        if (ownInPlay) {
+                            ownLocation?.let { add(GeoPoint(it.lat, it.lng)) }
+                        }
+                        visiblePrey.forEach { add(GeoPoint(it.lat!!, it.lng!!)) }
+                        zone?.let { z ->
+                            val dLat = z.radiusM / 111_320.0
+                            val dLng = z.radiusM /
+                                (111_320.0 * cos(Math.toRadians(z.centerLat)).coerceAtLeast(0.2))
+                            add(GeoPoint(z.centerLat, z.centerLng))
+                            add(GeoPoint(z.centerLat + dLat, z.centerLng + dLng))
+                            add(GeoPoint(z.centerLat + dLat, z.centerLng - dLng))
+                            add(GeoPoint(z.centerLat - dLat, z.centerLng + dLng))
+                            add(GeoPoint(z.centerLat - dLat, z.centerLng - dLng))
+                        }
+                    }
+                    val focus = fitPoints.firstOrNull()
+                    when {
+                        fitPoints.size >= 2 -> {
+                            val box = BoundingBox.fromGeoPoints(fitPoints)
+                            // Wait for a real layout size before fitting: a fit at 0x0 is
+                            // discarded. The caller-supplied padding keeps markers above
+                            // the tactical sheet.
+                            var attempts = 0
+                            view.post(object : Runnable {
+                                override fun run() {
+                                    if ((view.width <= 0 || view.height <= 0) && attempts++ < 10) {
+                                        view.postDelayed(this, 32)
+                                        return
+                                    }
+                                    view.zoomToBoundingBox(box, false, fitPaddingPx)
+                                    if (view.zoomLevelDouble > 17.0) view.controller.setZoom(17.0)
+                                    view.invalidate()
+                                }
+                            })
+                        }
+                        focus != null -> {
+                            view.controller.setCenter(focus)
+                            view.controller.setZoom(17.0)
+                        }
+                        else -> {
+                            view.controller.setCenter(GeoPoint(fallbackCenter.lat, fallbackCenter.lng))
+                            view.controller.setZoom(fallbackZoom)
+                        }
                     }
                 }
 
@@ -322,21 +427,65 @@ fun MatchMap(
             }
         }
 
-        Surface(
-            onClick = { uriHandler.openUri(OSM_COPYRIGHT_URL) },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(6.dp),
-            shape = RoundedCornerShape(ManHuntRadius.xs),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
-            contentColor = MaterialTheme.colorScheme.onSurface,
-        ) {
-            Text(
-                attribution,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelSmall,
-            )
+        if (showAttribution) {
+            Surface(
+                onClick = { uriHandler.openUri(OSM_COPYRIGHT_URL) },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(6.dp),
+                shape = RoundedCornerShape(ManHuntRadius.xs),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.86f),
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ) {
+                Text(
+                    attribution,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
         }
     }
+}
+
+/**
+ * Small circular marker bitmap. Live prey use a filled coral dot; stale/flagged reports
+ * use a hollow amber ring so the two states are distinguishable on the tactical map.
+ */
+private fun dotMarkerIcon(
+    context: android.content.Context,
+    fillColor: Int,
+    ringColor: Int,
+    radiusDp: Float,
+    hollow: Boolean = false,
+): BitmapDrawable {
+    val density = context.resources.displayMetrics.density
+    val radiusPx = radiusDp * density
+    val ringPx = 2f * density
+    val size = ((radiusPx + ringPx) * 2f).roundToInt().coerceAtLeast(2)
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val center = size / 2f
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    paint.color = ringColor
+    canvas.drawCircle(center, center, radiusPx + ringPx, paint)
+    if (hollow) {
+        paint.color = fillColor
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = ringPx
+        canvas.drawCircle(center, center, radiusPx - ringPx / 2f, paint)
+    } else {
+        paint.color = fillColor
+        paint.style = Paint.Style.FILL
+        canvas.drawCircle(center, center, radiusPx, paint)
+    }
+    return BitmapDrawable(context.resources, bitmap)
+}
+
+private fun distanceMeters(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
+    val dLat = Math.toRadians(lat2 - lat1)
+    val dLng = Math.toRadians(lng2 - lng1)
+    val meanLat = Math.toRadians((lat1 + lat2) / 2.0)
+    val x = dLng * cos(meanLat)
+    return sqrt(dLat * dLat + x * x) * 6_371_008.8
 }
 
 @Composable

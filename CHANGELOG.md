@@ -4,6 +4,28 @@ All notable changes to ManHunt are recorded here. The release workflow copies th
 for a tag into the GitHub Release body, and the in-app Updates page shows that text plus the
 release date.
 
+## [0.13.0] — 2026-10-31
+
+### Added
+
+- **Tactical map-first hunt screen** (layout C): the live-hunt map now fills the whole Game
+  page, with a two-chip HUD, floating claim/dispute banners and a bottom hunt sheet for Tag,
+  Trails or location actions. Roster, hunt history, rules, pause/end and prey reports live in
+  the expandable details area; lobby and chat are unchanged.
+- **Deep Teal map palette**: navy/teal raster treatment tuned for the app's dark theme, with
+  dark casings under the play zone and trails so they stay readable over bright roads.
+- The map now fits the play zone, visible prey reports and own position on first open
+  (instead of jumping to own position at max zoom), with hidden prey never included in bounds.
+- Stale/unverified prey reports get a hollow amber marker and a small HUD state; live prey
+  keep the coral marker. Eliminated prey are no longer drawn.
+- OSM attribution stays visible and clickable in the hunt sheet, and huntmaster actions are
+  labeled and separated from the primary Tag action.
+
+### Changed
+
+- Hunt sheet expands to a capped, scrollable details panel; no fixed-height map box and no
+  duplicated phase card during a live hunt.
+
 ## [0.12.4] — 2026-10-31
 
 ### Added
