@@ -102,3 +102,21 @@ if adb logcat -d -v brief | grep -q 'FATAL EXCEPTION'; then
   exit 1
 fi
 echo "release smoke: OK"
+
+# The debug run above does not prove the R8 build works in a real match. The test APK
+# installed by connectedDebugAndroidTest is signed with the same (debug) key as this smoke
+# release, so run the same in-app match against the shrunk release build.
+echo "==== release (R8) full in-app match ===="
+adb shell pm list instrumentation | grep -i com.manhunt || true
+# The debug run left a session and accepted onboarding behind; the test expects first-run.
+adb shell pm clear com.manhunt.app || true
+adb shell am force-stop com.manhunt.app || true
+adb shell am instrument -w -e class com.manhunt.app.InGameSmokeTest \
+  com.manhunt.app.test/androidx.test.runner.AndroidJUnitRunner > release-instrument.log 2>&1 || true
+cat release-instrument.log
+if ! grep -q 'OK (1 test)' release-instrument.log; then
+  echo "release-mode in-app match FAILED"
+  adb logcat -d -v brief | grep -A 25 'FATAL EXCEPTION' | tail -n 120 || true
+  exit 1
+fi
+echo "release-mode in-app match: OK"

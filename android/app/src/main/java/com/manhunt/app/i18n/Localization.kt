@@ -471,6 +471,8 @@ private val arabic: Map<String, String> = mapOf(
     "Review tag claim" to "مراجعة ادعاء الوسم",
     "A disputed tag is waiting for the huntmaster." to "يوجد وسم متنازع عليه بانتظار حكم المطاردة.",
     "Review dispute" to "مراجعة الاعتراض",
+    "Could not join that room. Check the invite link." to
+        "تعذّر الانضمام إلى الغرفة. تحقق من رابط الدعوة.",
 )
 
 val LocalLanguage = compositionLocalOf { AppLanguage.English }

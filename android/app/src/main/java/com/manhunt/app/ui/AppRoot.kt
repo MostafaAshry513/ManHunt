@@ -22,13 +22,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import android.widget.Toast
 import com.manhunt.app.Graph
 import com.manhunt.app.i18n.AppLanguage
 import com.manhunt.app.i18n.LocalLanguage
 import com.manhunt.app.i18n.LocalStrings
 import com.manhunt.app.i18n.arabicStrings
+import com.manhunt.app.i18n.t
 import com.manhunt.app.ui.theme.ManHuntTheme
 import com.manhunt.app.ui.theme.Motion
 
@@ -44,10 +47,12 @@ sealed interface Route {
 @Composable
 fun AppRoot() {
     val repo = Graph.container.repository
+    val context = LocalContext.current
     val session by repo.session.collectAsState()
     val dark by repo.darkTheme.collectAsState()
     val textScale by repo.textScale.collectAsState()
     val language by repo.language.collectAsState()
+    val joinFailedMessage = t("Could not join that room. Check the invite link.")
 
     // Saveable so rotation keeps the user where they were (audit UI-06).
     var routeKey by rememberSaveable { mutableStateOf("auth") }
@@ -90,6 +95,7 @@ fun AppRoot() {
             routeKey = "room"
         } else {
             routeKey = "home"
+            Toast.makeText(context, joinFailedMessage, Toast.LENGTH_LONG).show()
         }
     }
 
