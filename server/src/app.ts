@@ -151,6 +151,14 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   app.get('/', async (req, reply) => {
     const raw = await readManifestText(manifestPath);
     const manifest = raw === null ? null : parseManifest(raw);
+    // Aggregate community stats only: never expose account details on a public page.
+    const totalAccounts = get<{ n: number }>(deps.db, 'SELECT COUNT(*) AS n FROM users')?.n ?? 0;
+    const weekAgo = clock() - 7 * 24 * 60 * 60 * 1000;
+    const newAccounts = get<{ n: number }>(
+      deps.db,
+      'SELECT COUNT(*) AS n FROM users WHERE created_at >= ?',
+      weekAgo,
+    )?.n ?? 0;
     return reply
       .type('text/html; charset=utf-8')
       .header('cache-control', 'no-store')
@@ -159,7 +167,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .header('x-frame-options', 'DENY')
       .header('referrer-policy', 'no-referrer')
       .header('content-security-policy', "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
-      .send(renderInstallPage(manifest, publicBaseUrl(req)));
+      .send(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }));
   });
 
   app.get('/join', async (req, reply) => {
@@ -450,13 +458,22 @@ function formatDate(iso: string | undefined): string {
  * The install page. Metadata (version, size, checksum) comes from the update manifest on
  * every request; everything else is static and dependency-free so the page works on any phone.
  */
-function renderInstallPage(manifest: LatestManifest | null, serverUrl: string): string {
+function renderInstallPage(
+  manifest: LatestManifest | null,
+  serverUrl: string,
+  stats: { totalAccounts: number; newAccounts: number },
+): string {
   const version = typeof manifest?.versionName === 'string' ? manifest.versionName.trim() : '';
   const size = formatBytes(manifest?.size);
   const sha = typeof manifest?.sha256 === 'string' ? manifest.sha256.trim() : '';
   const published = formatDate(manifest?.publishedAt);
   const manifestUrl = typeof manifest?.url === 'string' ? manifest.url.trim() : '';
   const downloadHref = /^\/[\w./-]+$/.test(manifestUrl) ? manifestUrl : '/app.apk';
+
+  const statsBlock = `<section class="stats" aria-label="Community growth">
+    <div class="stat"><b>${stats.totalAccounts}</b><span>accounts created</span></div>
+    <div class="stat"><b>+${stats.newAccounts}</b><span>new this week</span></div>
+  </section>`;
 
   const chips = [
     version ? `<span class="chip chip-version">v${escapeHtml(version)}</span>` : '',
@@ -499,6 +516,10 @@ function renderInstallPage(manifest: LatestManifest | null, serverUrl: string): 
   h1{margin:0;font-size:clamp(24px,6vw,32px);letter-spacing:-.01em}
   h2{margin:0 0 12px;font-size:18px}
   .pitch{color:var(--muted);margin:16px 0 22px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .stat b{display:block;font-size:24px;line-height:1.1;color:var(--text)}
+  .stat span{display:block;margin-top:4px;font-size:12.5px;color:var(--muted)}
   .card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0)) var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
   .chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;color:var(--muted)}
@@ -543,6 +564,8 @@ function renderInstallPage(manifest: LatestManifest | null, serverUrl: string): 
   <p class="pitch">Real-world hide-and-seek for Android. Prey hide while their phones report
   position; Hunters follow on a live map and tag them in person. One server keeps the timers,
   teams and tag rules fair.</p>
+
+  ${statsBlock}
 
   <section class="card" aria-labelledby="download-heading">
     <h2 id="download-heading">Download for Android</h2>

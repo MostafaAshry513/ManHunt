@@ -53,6 +53,24 @@ test('install page renders version, size, checksum and server from the update ma
   assert.match(res.body, /github\.com\/MostafaAshry513\/ManHunt/);
 });
 
+test('install page shows aggregate account count and weekly growth', async (t) => {
+  const app = await makeApp();
+  t.after(() => app.close());
+
+  for (const username of ['alpha', 'bravo']) {
+    const registered = await app.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      payload: { username, password: 'password123' },
+    });
+    assert.equal(registered.statusCode, 200, registered.body);
+  }
+
+  const page = await app.inject({ method: 'GET', url: '/' });
+  assert.match(page.body, /<b>2<\/b><span>accounts created<\/span>/);
+  assert.match(page.body, /<b>\+2<\/b><span>new this week<\/span>/);
+});
+
 test('/api/app/latest serves the manifest JSON without a PowerShell BOM', async (t) => {  const dir = await mkdtemp(join(tmpdir(), 'manhunt-install-page-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const manifestPath = join(dir, 'app-latest.json');
