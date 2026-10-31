@@ -1,6 +1,7 @@
 package com.manhunt.app.location
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -32,6 +33,7 @@ object DeviceLocation {
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
 
+    @SuppressLint("MissingPermission") // hasPermission() is checked above.
     suspend fun current(context: Context): LatLng? = withContext(Dispatchers.IO) {
         if (!hasPermission(context)) return@withContext null
         val manager = context.getSystemService(LocationManager::class.java) ?: return@withContext null
@@ -52,6 +54,7 @@ object DeviceLocation {
         fresh ?: cached?.let { LatLng(it.latitude, it.longitude) }
     }
 
+    @SuppressLint("MissingPermission") // Only called from current() after the permission check.
     private suspend fun awaitFix(manager: LocationManager): LatLng? =
         suspendCancellableCoroutine { continuation ->
             val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
