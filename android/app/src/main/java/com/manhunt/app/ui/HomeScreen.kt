@@ -154,12 +154,6 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                     )
                 }
                 IconButton(
-                    onClick = onOpenRoles,
-                    modifier = Modifier.size(ManHuntSizes.touchTarget).testTag("home_roles"),
-                ) {
-                    Icon(Icons.Outlined.Info, contentDescription = t("Roles"))
-                }
-                IconButton(
                     onClick = onOpenSettings,
                     modifier = Modifier.size(ManHuntSizes.touchTarget).testTag("home_settings"),
                 ) {

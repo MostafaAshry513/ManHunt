@@ -11,15 +11,19 @@ chat — so a phone can lose signal or restart without breaking the game.
 
 ## Screenshots
 
-| Sign in | Lobby | Chat (dark) |
+| Sign in | Home | Roles |
 |---|---|---|
-| ![Sign in](docs/screenshots/01-auth.png) | ![Lobby with teams and ready-up](docs/screenshots/05-lobby.png) | ![Chat in dark mode](docs/screenshots/02-chat-dark.png) |
+| ![Sign in](docs/screenshots/01-auth.png) | ![Home: host or join a hunt](docs/screenshots/02-home.png) | ![Roles and game modes](docs/screenshots/03-roles.png) |
 
-| Chat (Arabic, RTL) | Hunting map | Hunt result |
+| Lobby | Hunting map | Chat |
 |---|---|---|
-| ![Arabic RTL chat](docs/screenshots/03-chat-arabic-rtl.png) | ![Hunting map with zone, trail and prey markers](docs/screenshots/04-hunting-map.png) | ![Hunt result dialog](docs/screenshots/06-hunt-result.png) |
+| ![Lobby with teams and ready-up](docs/screenshots/04-lobby.png) | ![Hunting map with zone, trail and prey markers](docs/screenshots/05-hunting-map.png) | ![Chat with match updates](docs/screenshots/06-chat.png) |
 
-The lobby and result screenshots are captured by the real-emulator CI job; the rest come from the
+| Settings | Hunt result |
+|---|---|
+| ![Settings: appearance and text size](docs/screenshots/07-settings.png) | ![Hunt result dialog](docs/screenshots/08-hunt-result.png) |
+
+The room screenshots are captured by the real-emulator CI job; the rest come from the
 Robolectric screenshot tests. Map tiles come from OpenStreetMap at runtime and need network access;
 a render captured without network shows a blank tile layer (the Robolectric hunting-map shot draws
 the zone, trail and prey markers on top of a deliberately blank tile layer).
@@ -32,11 +36,9 @@ with its SHA-256.** You can also take the release straight from GitHub:
 | Source | Link |
 |---|---|
 | Install page (hosted test server) | <http://74.208.99.178/> |
-| GitHub release | [v0.9.0 release notes](https://github.com/MostafaAshry513/ManHunt/releases/latest) |
-| Direct APK | [manhunt-v0.9.0.apk](https://github.com/MostafaAshry513/ManHunt/releases/download/v0.9.0/manhunt-v0.9.0.apk) |
-| Checksum | [manhunt-v0.9.0.apk.sha256](https://github.com/MostafaAshry513/ManHunt/releases/download/v0.9.0/manhunt-v0.9.0.apk.sha256) |
+| GitHub releases | [latest release](https://github.com/MostafaAshry513/ManHunt/releases/latest) — APK + `.sha256` |
 
-- **Requires Android 8.0 (API 26) or newer**; about 14 MB. The release APK is a signed
+- **Requires Android 8.0 (API 26) or newer**; the APK is about 2 MB. The release APK is a signed
   `assembleRelease` build produced and signed by GitHub Actions.
 - ManHunt is **not on Google Play**. Install it as a sideloaded APK:
   1. Download the APK on the phone.
@@ -115,7 +117,7 @@ not a production service.
 - **Live hunter map.** Prey positions, an optional movement trail and the hunt zone on an
   OpenStreetMap map (osmdroid). Positions are visible only to Hunters during the hunting phase —
   never to Prey, and Admins get no extra location power.
-- **Durable tag claims (v0.9.0).** A tag request is stored on the server, so the Prey still sees
+- **Durable tag claims.** A tag request is stored on the server, so the Prey still sees
   it after a reconnect. If it is not confirmed, disputed or resolved within 90 seconds it becomes
   a dispute the Huntmaster must settle.
 - **Tag flow with fair resolution.** Hunter claims → Prey confirms or disputes → Huntmaster
@@ -133,7 +135,7 @@ not a production service.
 
 ## Status and limitations
 
-The project is an **active hobby project at v0.9.0**, not a polished consumer product. What is
+The project is an **active hobby project**, not a polished consumer product. What is
 verified in CI on every push:
 
 - **Backend:** TypeScript typecheck, the full `node --test` suite (auth, rooms, match lifecycle,
@@ -161,16 +163,15 @@ Still true and worth knowing:
 5. **Match history rosters use current room membership**, not a per-match snapshot.
 6. **Not on Google Play.** Sideloading means "unknown sources" and possible Play Protect warnings,
    and no store-managed updates.
-7. **The current build is verified on an Android emulator**, not re-verified on physical phones
-   (the last on-device verification was an earlier version). Real GPS battery behaviour in the
-   field is therefore not guaranteed.
+7. **The current build is verified on an Android emulator**, not re-verified on physical phones.
+   Real GPS battery behaviour in the field is therefore not guaranteed.
 
 Planned next: TLS/domain in front of the public deployment, Play Store distribution, server-side
 zone enforcement, and per-match history rosters.
 
 ## Requirements
 
-- **To play:** an Android 8.0+ phone with GPS and a network connection (about 14 MB free).
+- **To play:** an Android 8.0+ phone with GPS and a network connection (the APK is ~2 MB).
 - **To self-host:** Node.js 24 or newer. That is the whole runtime — no database server, no
   Docker, no reverse proxy required for a small game.
 - **To build the Android app:** JDK 21 and Android SDK platform 37 / build-tools 36. Android
