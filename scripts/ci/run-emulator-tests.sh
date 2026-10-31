@@ -67,3 +67,28 @@ cd ../android
 ./gradlew :app:connectedDebugAndroidTest \
   -Pandroid.injected.androidTest.leaveApksInstalledAfterRun=true \
   --console=plain
+
+# R8/resource-shrunk release build must at least install and boot: this is the runtime
+# gate for the release configuration that ships to players (debug tests do not cover it).
+echo "==== release (R8) build + launch smoke ===="
+cd "$ROOT/android"
+./gradlew :app:assembleRelease --console=plain
+RELEASE_APK="$ROOT/android/app/build/outputs/apk/release/app-release.apk"
+ls -l "$RELEASE_APK"
+adb install -r -d "$RELEASE_APK"
+adb shell am force-stop com.manhunt.app
+adb shell am start -W -n com.manhunt.app/.MainActivity
+sleep 8
+PID="$(adb shell pidof com.manhunt.app 2>/dev/null | tr -d '\r' || true)"
+if [ -z "$PID" ]; then
+  echo "release build did not stay running"
+  adb logcat -d -v brief | grep -Ei 'FATAL|AndroidRuntime' | tail -n 80 || true
+  exit 1
+fi
+echo "release build running (pid=$PID)"
+if adb logcat -d -v brief | grep -q 'FATAL EXCEPTION'; then
+  echo "fatal exception in the release build"
+  adb logcat -d -v brief | grep -A 25 'FATAL EXCEPTION' | tail -n 120 || true
+  exit 1
+fi
+echo "release smoke: OK"

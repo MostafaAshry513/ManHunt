@@ -73,7 +73,8 @@ private val DarkColors = darkColorScheme(
     onPrimary = Color(0xFF04222B),
     primaryContainer = Color(0xFF0E3B47),
     onPrimaryContainer = Color(0xFFB7F3FF),
-    secondary = Color(0xFF8B7BFF),
+    // #A79BFF keeps the HUNTERS pill above WCAG AA (4.5:1) on its tinted background.
+    secondary = Color(0xFFA79BFF),
     onSecondary = Color(0xFF14102E),
     secondaryContainer = Color(0xFF241E4A),
     onSecondaryContainer = Color(0xFFDAD1FF),
@@ -100,7 +101,7 @@ private val DarkColors = darkColorScheme(
 
 // Light: soft neutral, darker teal/orange/violet that keep AA contrast.
 private val LightColors = lightColorScheme(
-    primary = Color(0xFF0E7490),
+    primary = Color(0xFF0C6B84),
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFCDEFF7),
     onPrimaryContainer = Color(0xFF062E38),
@@ -108,7 +109,8 @@ private val LightColors = lightColorScheme(
     onSecondary = Color(0xFFFFFFFF),
     secondaryContainer = Color(0xFFEDE8FF),
     onSecondaryContainer = Color(0xFF2A1660),
-    tertiary = Color(0xFFC2410C),
+    // Darker orange so PREY labels keep AA contrast on their tinted pill (light theme).
+    tertiary = Color(0xFFB33A0F),
     onTertiary = Color(0xFFFFFFFF),
     tertiaryContainer = Color(0xFFFFE4D8),
     onTertiaryContainer = Color(0xFF3F1404),

@@ -349,22 +349,34 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     socket.on('message', (raw: unknown) => {
       let msg: { type?: string; roomId?: string };
       try {
-        msg = JSON.parse(String(raw));
+        const parsed: unknown = JSON.parse(String(raw));
+        // "null", "42", "[]" are valid JSON but not protocol messages. Dereferencing
+        // them used to throw inside the socket handler and could take the process down.
+        if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return;
+        msg = parsed as { type?: string; roomId?: string };
       } catch {
         return;
       }
-      if (msg.type === 'ping') {
-        deps.hub.send(client, { type: 'pong', data: { now: clock() } });
-        return;
-      }
-      if (msg.type === 'subscribe' && typeof msg.roomId === 'string') {
-        if (!isMember(deps.db, msg.roomId, user.id)) {
-          deps.hub.send(client, { type: 'error', data: { code: 'forbidden', message: 'Not a room member' } });
+      try {
+        if (msg.type === 'ping') {
+          deps.hub.send(client, { type: 'pong', data: { now: clock() } });
           return;
         }
-        deps.hub.subscribe(client, msg.roomId);
-        deps.hub.send(client, { type: 'room', data: deps.rooms.state(msg.roomId) });
-        deps.rooms.broadcastRoom(msg.roomId);
+        if (msg.type === 'subscribe' && typeof msg.roomId === 'string') {
+          if (!isMember(deps.db, msg.roomId, user.id)) {
+            deps.hub.send(client, { type: 'error', data: { code: 'forbidden', message: 'Not a room member' } });
+            return;
+          }
+          deps.hub.subscribe(client, msg.roomId);
+          deps.hub.send(client, { type: 'room', data: deps.rooms.state(msg.roomId) });
+          deps.rooms.broadcastRoom(msg.roomId);
+        }
+      } catch {
+        // One bad frame must never crash the whole server; answer and keep the socket.
+        deps.hub.send(client, {
+          type: 'error',
+          data: { code: 'bad_message', message: 'Could not process that message' },
+        });
       }
     });
 

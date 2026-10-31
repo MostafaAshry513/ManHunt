@@ -103,6 +103,10 @@ jobs:
       - name: JVM tests
         run: ./gradlew :app:testDebugUnitTest --console=plain
 
+      # R8 + resource shrinking must keep building on every change (release risk gate).
+      - name: Build release APK (R8 + shrink)
+        run: ./gradlew :app:assembleRelease --console=plain
+
       - name: Android lint
         run: ./gradlew :app:lintDebug --console=plain
 

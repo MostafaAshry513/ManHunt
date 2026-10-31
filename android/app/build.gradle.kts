@@ -15,8 +15,8 @@ android {
         applicationId = "com.manhunt.app"
         minSdk = 26
         targetSdk = 37
-        versionCode = 27
-        versionName = "0.9.9"
+        versionCode = 28
+        versionName = "0.10.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -41,11 +41,18 @@ android {
             }
         }
         release {
-            isMinifyEnabled = false
+            // Low-end phones are the target: R8 + resource shrinking cut install size
+            // and dex parsing/startup cost. The release workflow injects the real
+            // keystore; local/CI smoke builds fall back to the debug key so the release
+            // APK can still be installed on an emulator and exercised.
+            isMinifyEnabled = true
+            isShrinkResources = true
             // Real phones must reach the public server out of the box; debug keeps 10.0.2.2 for CI.
             buildConfigField("String", "DEFAULT_SERVER_URL", "\"http://74.208.99.178\"")
-            if (!ciKeystorePath.isNullOrBlank()) {
-                signingConfig = signingConfigs.getByName("ci")
+            signingConfig = if (!ciKeystorePath.isNullOrBlank()) {
+                signingConfigs.getByName("ci")
+            } else {
+                signingConfigs.getByName("debug")
             }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
