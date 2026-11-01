@@ -18,9 +18,9 @@ a timed hunt.
 | Asset | Where | Notes |
 |---|---|---|
 | App name | `android/app/src/main/res/values/strings.xml` → `app_name` = `ManHunt` | Keep the name unless the owner explicitly renames the product. |
-| Current slogan | `Hide. Hunt. Survive.` | Used in onboarding, Auth, Home subtitle and README. A new slogan must replace this consistently or be an approved alternate. |
-| Launcher icon | `android/app/src/main/res/drawable/ic_launcher.xml` | Single vector (navy square, cyan crosshair circles, coral target cross, white dot). Manifest points **both** `icon` and `roundIcon` at it. **There is no adaptive icon and no monochrome layer yet.** |
-| Splash / launch background | `res/drawable/launch_background.xml`, `res/values/themes.xml`, `res/values/colors.xml` (`launch_bg` = `#0B1220`) | Dark first frame; the logo can later replace the plain launch background. |
+| Current line | **“Hide from your friends.”** (permanent); hook **“Your friends are hunting you.”**; campaign CTA **“Create a hunt. Send the code. Hide.”** | Copy is provisional pending owner sign-off; the earlier “No gear. No fee. Just players.” is rejected. Keep the family consistent across app, install page, identity and social. |
+| Launcher icon | `res/mipmap-anydpi-v26/ic_launcher.xml` + `res/drawable/ic_launcher_foreground.xml` / `ic_launcher_monochrome.xml` | Adaptive + monochrome Open Zone mark; legacy PNG fallbacks for API 26; manifest points **both** `icon` and `roundIcon` at `@mipmap/ic_launcher` / `_round`. |
+| Splash / launch background | `res/drawable/launch_background.xml`, `res/values/themes.xml`, `res/values-v31/themes.xml`, `res/values/colors.xml` (`launch_bg` = `#0B1220`) | Dark first frame with the Open Zone launcher mark; Android 12+ splash uses the same mipmap. |
 | Brand colours (dark theme) | `ui/theme/Theme.kt` | Primary cyan `#22D3EE`, Hunters violet `#A79BFF`, Prey coral `#FF7A59`, background navy `#0B1220`, surface `#131C2E`, text `#E6EDF7`. |
 | Voice | — | Direct, outdoorsy, a little dangerous-but-safe: “Hunt or be hunted”, but never glorify trespassing or real harm. |
 

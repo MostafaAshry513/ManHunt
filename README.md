@@ -221,6 +221,13 @@ CI (`.github/workflows/ci.yml`) runs all of the above against every push, includ
 in-app test; the release workflow (`.github/workflows/release.yml`) builds and signs the APK for
 every `v*` tag. Current commands and coverage are documented in [docs/TESTING.md](docs/TESTING.md).
 
+## Brand & social kit
+
+The app, install page and GitHub README share one Open Zone identity and copy family. See the
+[brand & social kit index](docs/brand/README.md) for the animated README hero, avatar/header
+exports, editable post templates, and the 60s/30s/15s shorts under `design/social/motion/`.
+Copy is provisional pending owner sign-off; the app is a free sideloaded APK, not on Google Play.
+
 ## Documentation
 
 Start at the [documentation index](docs/README.md) for a guide by audience (`Start here`,
