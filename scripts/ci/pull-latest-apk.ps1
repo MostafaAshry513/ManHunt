@@ -91,8 +91,13 @@ try {
         $body = $body -replace '(?m)^#{1,6}\s*', ''
         $body = $body -replace '\[([^\]]+)\]\([^)]+\)', '$1'
         $body = $body -replace '(?m)^\*\s+', '- '
+        # Windows PowerShell 5.1 can still mis-decode gh's UTF-8 punctuation to mojibake
+        # despite the explicit encodings above. The manifest is English source text, so
+        # keep it ASCII rather than ship "â€œUse my locationâ€�" to the Updates sheet.
+        $body = $body -replace '[^\x09\x0A\x0D\x20-\x7E]', ''
+        $body = $body.Trim()
         if ($body.Length -gt 4000) { $body = $body.Substring(0, 4000).Trim() + '…' }
-        $manifest.notes = $body
+        if (-not [string]::IsNullOrWhiteSpace($body)) { $manifest.notes = $body }
     }
     if ($release.publishedAt) {
         $manifest.publishedAt = ([DateTimeOffset]$release.publishedAt).ToUniversalTime().ToString('o')
