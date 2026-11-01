@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0B1220">
+<title>ManHunt — 14-day launch plan (campaign one-pager)</title>
+<!--
+  Campaign one-pager · growth/ads workstream · 2026-11-01 · draft for owner approval.
+  Design system: "Chalk on Night Asphalt" (design/brand/strategy/visual-direction.md), applied here as a
+  custom artifact theme. Flat fills, hairlines, chalk-edge geometry. Cyan = the game/referee, coral = Prey,
+  violet = Hunters — colour is never decoration.
+  Type: Big Shoulders (display) + Instrument Sans (body) + Red Hat Mono (telemetry only), all OFL,
+  referenced from the motion workstream's font folder; system fallbacks. Do not bundle Bahnschrift.
+  Nothing here has been posted; no accounts, no spend. The PICKUP direction and slogan are provisional.
+-->
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --field:#0B1220;
+  --surface:#131C2E;
+  --chalk:#E6EDF7;
+  --muted:#A7B6CC;
+  --cyan:#22D3EE;
+  --coral:#FF7A59;
+  --violet:#A79BFF;
+  --hair:#2A3550;
+  --hair2:#3A4867;
+  --display:"Big Shoulders","Bahnschrift Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"Instrument Sans","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:"Red Hat Mono",Consolas,"Cascadia Mono",monospace;
+  --pad:clamp(18px,4.4vw,40px);
+  --measure:66ch;
+}
+@font-face{font-family:"Big Shoulders";src:url("../motion/assets/fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+@font-face{font-family:"Big Shoulders";src:url("../motion/assets/fonts/BigShoulders-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Instrument Sans";src:url("../motion/assets/fonts/InstrumentSans-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Instrument Sans";src:url("../motion/assets/fonts/InstrumentSans-Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+@font-face{font-family:"Red Hat Mono";src:url("../motion/assets/fonts/RedHatMono-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--field);color:var(--chalk);overflow-x:hidden;
+  font:400 clamp(15px,1.05rem + .1vw,17px)/1.55 var(--body);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--cyan);text-underline-offset:.18em}
+a:focus-visible{outline:2px solid var(--chalk);outline-offset:3px;border-radius:2px}
+.sheet{
+  position:relative;max-width:1120px;margin:0 auto;
+  padding:clamp(22px,4vw,52px) var(--pad) clamp(40px,6vw,72px);
+  border-left:1px solid var(--hair);border-right:1px solid var(--hair);
+}
+/* registration / crop ticks: print feeling, structure not pattern */
+.tick{position:absolute;width:18px;height:18px;border:0 solid var(--hair2)}
+.tick.tl{top:14px;left:14px;border-top-width:1px;border-left-width:1px}
+.tick.tr{top:14px;right:14px;border-top-width:1px;border-right-width:1px}
+.tick.bl{bottom:14px;left:14px;border-bottom-width:1px;border-left-width:1px}
+.tick.br{bottom:14px;right:14px;border-bottom-width:1px;border-right-width:1px}
+
+/* ---------- masthead ---------- */
+.masthead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px 18px;
+  padding-bottom:14px;border-bottom:1px solid var(--hair)}
+.brandline{display:flex;align-items:center;gap:10px}
+.brand{
+  font:700 clamp(15px,1.4vw,18px)/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:var(--chalk)
+}
+.brandline .slash{color:var(--hair2)}
+.status{font:400 12px/1.4 var(--mono);letter-spacing:.01em;color:var(--muted)}
+.status b{color:var(--cyan);font-weight:400}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(26px,5vw,56px) 0 clamp(20px,3.5vw,34px);position:relative}
+.hero .zone{position:absolute;right:-1%;top:6%;width:min(38vw,360px);height:min(38vw,360px);pointer-events:none;opacity:.85}
+.hero .zone svg{width:100%;height:100%;overflow:visible}
+.hero .zone .ring{fill:none;stroke:var(--cyan);stroke-width:2.5;stroke-linecap:round;
+  stroke-dasharray:1200;stroke-dashoffset:1200;animation:draw 1100ms linear 120ms forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.hero .zone .ring{animation:none;stroke-dashoffset:0}}
+.kicker{
+  display:inline-block;font:400 12.5px/1.3 var(--mono);letter-spacing:.01em;
+  color:var(--muted);border:1px solid var(--hair2);padding:5px 9px;margin:0 0 18px
+}
+.hero h1{
+  margin:0;max-width:14ch;
+  font:700 clamp(46px,10.4vw,118px)/.9 var(--display);letter-spacing:-.012em;
+  text-wrap:balance;
+}
+.hero .provisional{display:block;font:400 clamp(11px,1.4vw,13px)/1.4 var(--mono);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+.hero h1 .swap{color:var(--cyan)}
+.hero .descriptor{max-width:var(--measure);margin:24px 0 0;color:var(--chalk);font-size:clamp(17px,1.4vw,20px)}
+.hero .descriptor span{color:var(--muted)}
+
+/* ---------- telemetry band ---------- */
+.telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+  margin:clamp(24px,4vw,44px) 0 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.telemetry .cell{padding:16px 14px 18px;border-left:1px solid var(--hair)}
+.telemetry .cell:first-child{border-left:0;padding-left:0}
+.telemetry b{display:block;font:400 clamp(26px,4.4vw,44px)/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--chalk);letter-spacing:-.03em}
+.telemetry b em{font-style:normal;font-size:.5em;color:var(--cyan);vertical-align:super;margin-left:2px}
+.telemetry span{display:block;margin-top:7px;font:400 12px/1.35 var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.note{color:var(--muted);font-size:13.5px;margin:12px 0 0}
+.note code{font:400 12.5px/1.4 var(--mono);color:var(--chalk)}
+
+/* ---------- sections ---------- */
+section{margin-top:clamp(38px,6vw,72px)}
+section > h2{
+  margin:0 0 18px;font:700 clamp(26px,3.4vw,40px)/1 var(--display);letter-spacing:-.01em;
+  display:flex;align-items:baseline;gap:14px;
+}
+section > h2 .rule{flex:1;height:1px;background:var(--hair);min-width:24px;transform:translateY(-.32em)}
+section > h2 .count{font:400 12px/1 var(--mono);letter-spacing:.01em;color:var(--cyan)}
+.lede{max-width:var(--measure);margin:0 0 22px;color:var(--chalk)}
+.lede strong{font-weight:700}
+.muted{color:var(--muted)}
+
+/* the one thing callout: a chalk under-line, not a card */
+.callout{border-top:1px solid var(--hair2);border-bottom:1px solid var(--hair2);padding:20px 0;margin:0 0 24px;max-width:var(--measure)}
+.callout p{margin:0;font-size:clamp(18px,1.7vw,23px);line-height:1.35;text-wrap:balance}
+.callout p b{color:var(--cyan);font-weight:700}
+
+/* ---------- scoreboard (3 concepts) ---------- */
+.board{width:100%;border-collapse:collapse;margin:0 0 8px}
+.board caption{text-align:left;color:var(--muted);font:400 12px/1.4 var(--mono);letter-spacing:.01em;padding-bottom:8px}
+.board th{font:400 11.5px/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 10px 8px 0;border-bottom:1px solid var(--hair2);font-weight:400}
+.board td{vertical-align:top;padding:16px 10px 16px 0;border-bottom:1px solid var(--hair)}
+.board td:first-child{white-space:nowrap}
+.board .name{font:700 clamp(18px,2vw,23px)/1.05 var(--display);letter-spacing:.005em;color:var(--chalk)}
+.board .tickmark{display:block;width:26px;height:3px;background:var(--coral);margin:9px 0 0}
+.board tr:nth-child(3) .tickmark{background:var(--violet)}
+.board tr:nth-child(4) .tickmark{background:var(--cyan)}
+.board .what{color:var(--chalk);max-width:46ch}
+.board .cta{color:var(--muted);font-size:13.5px;margin-top:6px}
+.board .pri{font:400 12px/1.3 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+/* ---------- 14-day chalk strip ---------- */
+.strip{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:6px;margin:0 0 4px}
+.day{position:relative;display:flex;flex-direction:column;border-top:1px solid var(--hair2);padding-top:8px;min-height:116px}
+.day .n{font:400 11px/1 var(--mono);color:var(--muted)}
+.day .bar{display:block;width:100%;background:var(--hair2);height:4px;margin:8px 0 6px}
+.day.video .bar{background:var(--cyan);height:10px}
+.day.rest .bar{background:transparent;border-top:1px dashed var(--hair);height:0;margin-top:12px}
+.day .tag{display:block;font:400 10.5px/1.3 var(--mono);letter-spacing:.01em;color:var(--muted);word-break:break-word}
+.day.video .tag{color:var(--chalk)}
+.day .when{margin-top:auto;position:absolute;bottom:0;left:0;font:400 9.5px/1.2 var(--mono);color:var(--hair2)}
+.strip-legend{display:flex;flex-wrap:wrap;gap:16px;margin:6px 0 0;color:var(--muted);font:400 12px/1.4 var(--mono)}
+.strip-legend i{display:inline-block;width:22px;height:6px;background:var(--cyan);margin-right:6px;vertical-align:middle}
+.strip-legend .rest i{background:transparent;border-top:1px dashed var(--hair2);height:0}
+
+/* ---------- measure ---------- */
+.sources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:0 0 22px}
+.sources h3{margin:0 0 6px;font:700 15px/1.2 var(--body);letter-spacing:0}
+.sources p{margin:0;color:var(--muted);font-size:13.5px}
+.utm{border:1px solid var(--hair);padding:14px 16px;margin:0 0 14px;max-width:100%;overflow-x:auto}
+.utm code{font:400 12.5px/1.6 var(--mono);color:var(--chalk);white-space:nowrap}
+.utm .v{color:var(--cyan)}
+.utm .k{color:var(--muted)}
+
+/* ---------- guardrails & decisions ---------- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px)}
+ul.clean{list-style:none;margin:0;padding:0}
+ul.clean li{position:relative;padding:0 0 10px 20px;color:var(--chalk);font-size:14.5px}
+ul.clean li::before{content:"";position:absolute;left:0;top:.55em;width:7px;height:1px;background:var(--cyan)}
+ul.clean li b{font-weight:700}
+ul.clean li.no::before{background:var(--coral)}
+ul.clean li em{font-style:normal;color:var(--muted)}
+.fieldnote{color:var(--muted);font-size:13px;margin:10px 0 0}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{padding:11px 0 11px 30px;border-bottom:1px solid var(--hair);position:relative;font-size:14.5px}
+.checks li::before{content:"";position:absolute;left:2px;top:14px;width:13px;height:13px;border:1px solid var(--hair2)}
+.checks .tag{display:inline-block;margin-left:8px;font:400 10.5px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--cyan);vertical-align:1px}
+.checks .tag.block{color:var(--coral)}
+
+/* ---------- footer ---------- */
+footer{margin-top:clamp(44px,7vw,84px);border-top:1px solid var(--hair);padding-top:18px;
+  display:flex;flex-wrap:wrap;gap:10px 26px;justify-content:space-between;color:var(--muted);font-size:12.5px}
+footer .files{font:400 11.5px/1.6 var(--mono);letter-spacing:.02em}
+footer a{color:var(--chalk)}
+.credits{margin-top:10px;font-size:12px;color:var(--muted);opacity:.85;max-width:var(--measure)}
+
+/* ---------- responsive ---------- */
+@media (max-width:820px){
+  .telemetry{grid-template-columns:1fr 1fr}
+  .telemetry .cell:nth-child(3){border-left:0;padding-left:0}
+  .telemetry .cell{border-top:1px solid var(--hair)}
+  .telemetry .cell:nth-child(1),.telemetry .cell:nth-child(2){border-top:0}
+  .sources{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+  .strip{grid-template-columns:repeat(7,minmax(0,1fr));row-gap:18px}
+  .day{min-height:96px}
+  .board .what{max-width:none}
+  .board td,.board th{padding-right:8px}
+  .board .name{font-size:17px}
+}
+@media (max-width:520px){
+  .hero h1{font-size:clamp(40px,13.4vw,64px)}
+  .hero .zone{opacity:.4;width:52vw;height:52vw;right:-10%;top:8%;}
+  section > h2{flex-wrap:wrap;row-gap:3px}
+  section > h2 .rule{display:none}
+  section > h2 .count{flex-basis:100%}
+  .board thead{display:none}
+  .board tr{display:grid;grid-template-columns:1fr;border-bottom:1px solid var(--hair);padding:12px 0}
+  .board td{border:0;padding:2px 0}
+  .board td:first-child{padding-top:0}
+  .board .tickmark{margin:6px 0 8px}
+  .telemetry b{font-size:clamp(24px,7vw,32px)}
+  .day .when{display:none}
+}
+@media print{
+  body{background:#fff;color:#0B1220}
+  .sheet{border:0}
+  .hero .zone{display:none}
+  a{color:#0B1220}
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+  <span class="tick tl" aria-hidden="true"></span><span class="tick tr" aria-hidden="true"></span>
+  <span class="tick bl" aria-hidden="true"></span><span class="tick br" aria-hidden="true"></span>
+
+  <header class="masthead">
+    <div class="brandline">
+      <span class="brand">ManHunt</span><span class="slash" aria-hidden="true">/</span>
+      <span class="status">14-day launch plan · draft for owner approval</span>
+    </div>
+    <div class="status">2026-11-01 · no accounts, no posts, no spend made by this workstream</div>
+  </header>
+
+  <div class="hero">
+    <div class="zone" aria-hidden="true">
+      <svg viewBox="0 0 400 400" role="presentation">
+        <defs>
+          <filter id="chalk" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="2" seed="7" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+        <path class="ring" d="M 240 38 A 160 158 0 1 1 214 62" filter="url(#chalk)"/>
+        <circle cx="240" cy="38" r="3.4" fill="#22D3EE"/>
+      </svg>
+    </div>
+    <p class="kicker">Campaign one-pager · growth workstream</p>
+    <p class="provisional">Provisional brand line — owner approval pending</p>
+    <h1>No gear.<br>No fee.<br><span class="swap">Just players.</span></h1>
+    <p class="descriptor">
+      ManHunt is real-world hide-and-seek for Android: Prey hide, their phones report position, Hunters
+      follow a live map and tag them in person. Free signed APK, about 2 MB. Not on the Play Store.
+      <span>This plan is built for a brand-new account and a $0 media budget.</span>
+    </p>
+
+    <div class="telemetry" aria-label="Baseline measured 2026-11-01">
+      <div class="cell"><b>9</b><span>accounts created</span></div>
+      <div class="cell"><b>48</b><span>rooms created</span></div>
+      <div class="cell"><b>6</b><span>matches started</span></div>
+      <div class="cell"><b>12.5<em>%</em></b><span>lobby → match</span></div>
+    </div>
+    <p class="note">Baseline from the live install page and the server database (<code>manhunt.db</code>).
+      Raw page hits are excluded: the public IP receives constant scanner traffic, so hits are not a KPI.
+      See <code>launch-playbook.md</code> §1, §8.</p>
+  </div>
+
+  <section aria-labelledby="one-thing">
+    <h2 id="one-thing">The one thing <span class="rule"></span><span class="count">strategy</span></h2>
+    <div class="callout">
+      <p>One phone can't play. <b>The campaign converts groups, not individuals</b> — every asset's primary
+      call to action is “send this to the group chat”, and the download is secondary.</p>
+    </div>
+    <p class="lede">
+      The product's own funnel leaks before marketing matters: 48 rooms created, only 6 matches started.
+      Content has to show the room-code moment and real groups playing, or traffic lands in a lobby and
+      leaves. So the order is: <strong>fix activation → seed local clusters → measure matches</strong>,
+      not "buy reach".
+    </p>
+  </section>
+
+  <section aria-labelledby="concepts">
+    <h2 id="concepts">Three concepts <span class="rule"></span><span class="count">3 territories, 1 operator</span></h2>
+    <table class="board">
+      <caption>Each has its own hook, proof and CTA — not three edits of one video.</caption>
+      <thead>
+        <tr><th scope="col">Concept</th><th scope="col">What it proves</th><th scope="col">Primary CTA</th><th scope="col">Priority</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="name">The map is the game</span><span class="tickmark" aria-hidden="true"></span></td>
+          <td><div class="what">Screen-led novelty: a live map where the dots are your friends hiding in the real world.
+            Real UIs only — hunting map, room code, tag confirm.</div>
+            <div class="cta">Hook: “My friend is on this map right now.”</div></td>
+          <td>Share to group chat</td>
+          <td class="pri">Days 2–5</td>
+        </tr>
+        <tr>
+          <td><span class="name">The group-chat challenge</span><span class="tickmark" aria-hidden="true"></span></td>
+          <td><div class="what">The dare is the product requirement: tag 3 friends or you can't play. Real
+            consent-cleared group footage, one room code, a real tag.</div>
+            <div class="cta">Hook: “Tag 3 friends or you can't play.”</div></td>
+          <td>Tag / send / save</td>
+          <td class="pri">Days 5–10</td>
+        </tr>
+        <tr>
+          <td><span class="name">I built GPS hide-and-seek</span><span class="tickmark" aria-hidden="true"></span></td>
+          <td><div class="what">Maker credibility for Android/indie/open-source audiences: GitHub, CI, the
+            server-authoritative rule set, honest limitations.</div>
+            <div class="cta">Hook: “Rules you can't argue with.”</div></td>
+          <td>Source + install</td>
+          <td class="pri">Day 1</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="calendar">
+    <h2 id="calendar">First 14 days <span class="rule"></span><span class="count">organic only</span></h2>
+    <div class="strip" aria-label="14-day posting calendar">
+      <div class="day video"><span class="n">1</span><span class="bar"></span><span class="tag">founder</span></div>
+      <div class="day video"><span class="n">2</span><span class="bar"></span><span class="tag">hero</span></div>
+      <div class="day video"><span class="n">3</span><span class="bar"></span><span class="tag">how-to</span></div>
+      <div class="day video"><span class="n">4</span><span class="bar"></span><span class="tag">dare</span></div>
+      <div class="day video"><span class="n">5</span><span class="bar"></span><span class="tag">POV prey</span></div>
+      <div class="day video"><span class="n">6</span><span class="bar"></span><span class="tag">saturday</span></div>
+      <div class="day video"><span class="n">7</span><span class="bar"></span><span class="tag">recap · gate 1</span></div>
+      <div class="day video"><span class="n">8</span><span class="bar"></span><span class="tag">reply</span></div>
+      <div class="day video"><span class="n">9</span><span class="bar"></span><span class="tag">no play store</span></div>
+      <div class="day video"><span class="n">10</span><span class="bar"></span><span class="tag">carousel</span></div>
+      <div class="day video"><span class="n">11</span><span class="bar"></span><span class="tag">engage</span></div>
+      <div class="day video"><span class="n">12</span><span class="bar"></span><span class="tag">weekend</span></div>
+      <div class="day video"><span class="n">13</span><span class="bar"></span><span class="tag">QR invite</span></div>
+      <div class="day video"><span class="n">14</span><span class="bar"></span><span class="tag">recap · gate 2</span></div>
+    </div>
+    <p class="strip-legend"><span><i aria-hidden="true"></i>one post per day — 13 videos + 1 carousel, cross-posted clean master</span></p>
+    <p class="note">Day 0 is setup only (accounts, bio, baseline snapshot) — no post. 14 posts in 14 days · TikTok
+      primary, Instagram Reels secondary, YouTube Shorts cross-post · no paid spend before day 8 · 1 post per
+      community per 14 days · a 2-minute measurement snapshot daily. Full table in <code>launch-playbook.md</code> §5.</p>
+  </section>
+
+  <section aria-labelledby="measure">
+    <h2 id="measure">What we can actually measure <span class="rule"></span><span class="count">no analytics SDK</span></h2>
+    <div class="sources">
+      <div><h3>Install page</h3><p>Live “accounts created” and “new this week” stats at the hosted server.
+        Snapshot daily; includes test accounts.</p></div>
+      <div><h3>Server request log</h3><p><code>logs/server.out.log</code> records request URLs — including
+        query strings. Filter <code>utm_campaign=launch14</code> for tagged visits; <code>/app.apk</code> is directional.</p></div>
+      <div><h3>Game database</h3><p>Read-only queries on users, rooms with ≥2 members, matches started/finished
+        and tags — the only trustworthy funnel.</p></div>
+    </div>
+    <div class="utm" role="img" aria-label="UTM link convention example">
+      <code><span class="k">http://74.208.99.178/?</span><span class="v">utm_source</span>=tiktok<span class="k">&amp;</span><span class="v">utm_medium</span>=social<span class="k">&amp;</span><span class="v">utm_campaign</span>=launch14<span class="k">&amp;</span><span class="v">utm_content</span>=cap-02</code>
+    </div>
+    <p class="note">Attribution is directional, not precise: no cookies, no user IDs, shared devices, scanner
+      noise, log rotation. Report tagged visits as a floor and label test accounts. Success in 14 days is one
+      real group finishing one real hunt — not follower count.</p>
+  </section>
+
+  <section aria-labelledby="limits">
+    <h2 id="limits">Honest expectations <span class="rule"></span><span class="count">new account · $0 budget</span></h2>
+    <div class="two">
+      <div>
+        <ul class="clean">
+          <li><b>Median first posts:</b> roughly 100–500 views on a new TikTok account. A first post can
+            outperform; that is luck, not a forecast.</li>
+          <li><b>Follower growth:</b> 0–50 in 14 days is the realistic range. One video over 10k views is an outlier.</li>
+          <li><b>Conversion cap:</b> viewers must own an Android phone, have a friend present, and accept a
+            sideload. Base case: 4–9 rooms with 2+ members, 2–5 matches started.</li>
+          <li><b>Fail signal, day 8:</b> median views &lt;100 and 0 tagged visits and 0 new accounts → change
+            the hook and first frame, not the posting volume.</li>
+        </ul>
+      </div>
+      <div>
+        <ul class="clean">
+          <li class="no"><b>No paid spend</b> before day 8; no app-install ad formats exist (the app is not on
+            Google Play) — only traffic ads to a plain-HTTP test page. Optional paid test is capped at $100.</li>
+          <li class="no"><b>No public stranger matchmaking:</b> a GPS game that pairs strangers is a safety
+            liability. The game is in person, with people you already trust.</li>
+          <li class="no"><b>No fake anything:</b> no testimonials, player counts, reviews, store badges,
+            privacy/safety promises, fake urgency, purchased followers or engagement pods.</li>
+          <li class="no"><b>No spam:</b> disclose you are the maker, read each community's rules, one post per
+            community, never mass-DM download links.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="decisions">
+    <h2 id="decisions">Owner decisions <span class="rule"></span><span class="count">before day 1</span></h2>
+    <ul class="checks">
+      <li>Approve the brand direction (<b>PICKUP</b>) and slogan — provisional line is “No gear. No fee. Just players.”; alternate “Rules you can't argue with.” <span class="tag block">blocking</span></li>
+      <li>Decide the product name/trademark position and social handles — <code>MANHUNT</code> collides in the game class; keep handles change-tolerant <span class="tag block">blocking</span></li>
+      <li>Confirm who creates the accounts and posts (this workstream cannot) and whether a TikTok Business account (bio link) or a 1k-follower personal account <span class="tag block">blocking</span></li>
+      <li>Approve the claims ledger and disclosure line; no safety/privacy promises <span class="tag block">blocking</span></li>
+      <li>Run 2–3 real local test games and capture consent-cleared footage (the campaign's first job is real groups, not stock footage)</li>
+      <li>Approve “no public stranger matchmaking” policy</li>
+      <li>Approve paid test (≤ $100, day 8+) or keep $0 and print QR cards for local venues with permission</li>
+      <li>Snapshot the baseline and preserve <code>logs/server.out.log</code> during the campaign</li>
+    </ul>
+    <p class="fieldnote">The working files hold the detail: <span class="muted">launch-playbook.md</span> (strategy,
+      calendar, community, UTM), <span class="muted">captions-and-hooks.md</span> (16 captions, 10 hooks, CTAs,
+      Arabic, claims/safety), <span class="muted">creative-briefs.md</span> (12 asset briefs mapped to identity,
+      motion and brand workstreams).</p>
+  </section>
+
+  <footer>
+    <div class="files">
+      design/social/campaign/launch-playbook.md<br>
+      design/social/campaign/captions-and-hooks.md<br>
+      design/social/campaign/creative-briefs.md<br>
+      design/social/campaign/measure-log.ps1
+    </div>
+    <div>
+      <div>ManHunt · real-world hide-and-seek · Android only · free sideload</div>
+      <div class="muted">This is a game, not a safety service. Play with people you trust.</div>
+      <div class="muted">Hosted server is a test deployment on plain HTTP.</div>
+    </div>
+  </footer>
+  <p class="credits">Type: Big Shoulders and Instrument Sans, SIL Open Font License, referenced from
+    <code>design/social/motion/assets/fonts/</code>. Map data © OpenStreetMap contributors (ODbL) where
+    map tiles appear. Brand system: “Chalk on Night Asphalt” (design/brand/strategy/visual-direction.md).
+    PICKUP direction and slogan are provisional, pending owner approval. Nothing in this document has been
+    posted; no accounts or ad spend were created.</p>
+</main>
+</body>
+</html>
+

@@ -22,7 +22,7 @@ object GameModes {
     val classic = GameModeInfo(
         id = "classic",
         name = "Classic hunt",
-        tagline = "Hide. Hunt. Survive.",
+        tagline = "Two teams. One block. One clock.",
         summary = "The original real-world game: Prey hide and share their position, Hunters track them down and tag them in person.",
         available = true,
     )

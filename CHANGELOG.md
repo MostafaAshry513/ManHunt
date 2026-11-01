@@ -4,6 +4,26 @@ All notable changes to ManHunt are recorded here. The release workflow copies th
 for a tag into the GitHub Release body, and the in-app Updates page shows that text plus the
 release date.
 
+## [0.14.0] — 2026-11-01
+
+### Added
+
+- New **Open Zone** brand identity: adaptive launcher icon (normal/round, Android 13+ monochrome),
+  legacy density exports, splash icon and install-page mark/favicon/OG metadata.
+- New primary slogan: **“No gear. No fee. Just players.”** across onboarding, Home, Roles,
+  README and the install page. The Classic mode line is now “Two teams. One block. One clock.”
+- Social launch kit staged under `design/`: Open Zone logo candidates/exports, PICKUP brand
+  platform, 15-second vertical short + GIF, captions, creative briefs and a 14-day launch plan.
+
+### Changed
+
+- PICKUP positioning: ManHunt as a free pickup field sport — borrowed pitch, server-kept rules,
+  no gear, no fee.
+- Install page now identifies the app with the Open Zone mark, approved slogan, group-chat CTA
+  and proper social preview metadata.
+- Team marker colouring remains cyan=field, coral=Prey, violet=Hunters in brand assets; the app
+  map marker/icon pass is tracked as follow-up.
+
 ## [0.13.1] — 2026-11-01
 
 ### Added

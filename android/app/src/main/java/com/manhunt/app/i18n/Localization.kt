@@ -17,7 +17,8 @@ enum class AppLanguage(val code: String, val nativeName: String, val isRtl: Bool
 /** Arabic strings keyed by their English source text. Missing keys fall back to English. */
 private val arabic: Map<String, String> = mapOf(
     // Auth
-    "Hide. Hunt. Survive." to "اختبئ. اصطد. انجُ.",
+    "No gear. No fee. Just players." to "لا عتاد. لا رسوم. لاعبون فقط.",
+    "Two teams. One block. One clock." to "فريقان. ساحة واحدة. ساعة واحدة.",
     "How it works" to "كيف تعمل اللعبة",
     "Roles, modes and safety" to "الأدوار والأوضاع والسلامة",
     "Prey hide. Hunters track them down and tag them in person." to
@@ -334,6 +335,12 @@ private val arabic: Map<String, String> = mapOf(
         "معاينة حجم النص تغيّر النص التجريبي فقط ويُطبَّق الحجم عند الإفلات.",
     "Predictive back reveals Home while you slide back." to
         "الرجوع التنبؤي يُظهر الصفحة الرئيسية أثناء السحب للخلف.",
+    "New Open Zone icon system and adaptive launcher icon." to
+        "نظام أيقونة Open Zone الجديد وأيقونة المشغّل التكيفية.",
+    "New slogan: no gear. no fee. just players." to
+        "شعار جديد: لا عتاد. لا رسوم. لاعبون فقط.",
+    "ManHunt is now presented as a free pickup field sport." to
+        "أصبح ManHunt يُقدَّم كرياضة ميدانية مجانية تُلعب في أي وقت.",
     "Signed in as" to "مسجّل الدخول باسم",
     "Server" to "الخادم",
     "To change the server, sign out and edit it on the sign-in screen." to

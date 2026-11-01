@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Borrowed Field — generative pitch explorer · ManHunt</title>
+<!--
+  Companion to docs/algorithmic-philosophy.md.
+  Same four-layer grammar as src/map.js: street grid → flat blocks → chalk
+  markings → field traces. Seed 20261101 in the renderer reproduces this
+  composition family. p5.js is loaded from a CDN; everything else is inline.
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+<style>
+  :root{
+    --asphalt:#0B1220; --panel:#0E1727; --line:#1D2840; --chalk:#E6EDF7;
+    --muted:#A7B6CC; --dim:#6F8199; --cyan:#22D3EE; --coral:#FF7A59; --violet:#A79BFF;
+    --display:'Arial Narrow','Helvetica Neue',Arial,sans-serif;
+    --mono:'Consolas','SF Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#080D16;color:var(--chalk);
+    font-family:var(--mono);font-size:13px;}
+  #app{display:flex;min-height:100vh;}
+  aside{width:320px;flex:0 0 320px;background:var(--panel);border-right:1px solid var(--line);
+    padding:22px 20px 28px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;}
+  h1{font-family:var(--display);font-size:30px;letter-spacing:.04em;margin:0;text-transform:uppercase;}
+  .sub{color:var(--muted);font-size:11px;line-height:1.6;letter-spacing:.04em;}
+  .sub b{color:var(--cyan);font-weight:400;}
+  h2{font-size:10px;letter-spacing:.24em;color:var(--dim);text-transform:uppercase;margin:0 0 8px;}
+  .group{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:14px;}
+  label{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:11px;letter-spacing:.04em;}
+  label span{color:var(--chalk);}
+  input[type=range]{width:100%;accent-color:var(--cyan);height:16px;background:transparent;}
+  .seedrow{display:flex;gap:6px;}
+  .seedrow input[type=number]{flex:1;min-width:0;background:var(--asphalt);border:1px solid var(--line);
+    color:var(--chalk);padding:7px 8px;font-family:var(--mono);font-size:12px;}
+  button{background:var(--asphalt);border:1px solid var(--line);color:var(--chalk);
+    padding:8px 9px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;cursor:pointer;border-radius:0;}
+  button:hover{border-color:var(--cyan);color:var(--cyan);}
+  button.primary{background:var(--cyan);border-color:var(--cyan);color:#04222B;font-weight:700;}
+  button.primary:hover{background:#5BE4F7;color:#04222B;}
+  .row{display:flex;gap:6px;flex-wrap:wrap;}
+  .row button{flex:1;}
+  .seeddisp{font-family:var(--display);font-size:44px;letter-spacing:.03em;color:var(--chalk);line-height:1;}
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;min-width:0;}
+  .stage{position:relative;height:calc(100vh - 48px);aspect-ratio:9/16;max-width:100%;}
+  .stage canvas{display:block;width:100%!important;height:100%!important;border:1px solid var(--line);}
+  .cap{position:absolute;left:0;right:0;bottom:-22px;display:flex;justify-content:space-between;
+    color:var(--dim);font-size:10px;letter-spacing:.14em;text-transform:uppercase;}
+  @media (max-width:820px){
+    #app{flex-direction:column}
+    aside{width:auto;flex:none;border-right:0;border-bottom:1px solid var(--line)}
+    main{padding:16px}
+    .stage{height:auto;width:100%}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside>
+    <div>
+      <h1>Borrowed Field</h1>
+      <p class="sub">A generative pitch for <b>ManHunt</b>. Four layers: street grid &rarr; flat blocks &rarr; chalk markings &rarr; field traces. Same seed, same picture. See <b>docs/algorithmic-philosophy.md</b>.</p>
+    </div>
+
+    <div class="group">
+      <h2>Seed</h2>
+      <div class="seeddisp" id="seedDisp">20261101</div>
+      <div class="seedrow">
+        <button id="prev" title="Previous seed">&larr; Prev</button>
+        <button id="next" title="Next seed">Next &rarr;</button>
+        <button id="random" title="Random seed">Random</button>
+      </div>
+      <div class="seedrow">
+        <input type="number" id="seedIn" min="1" step="1" value="20261101">
+        <button id="go">Go</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Parameters</h2>
+      <label>Block density <span id="densityV">0.90</span></label>
+      <input type="range" id="density" min="0.45" max="1" step="0.01" value="0.90">
+
+      <label>Street jitter <span id="jitterV">1.00</span></label>
+      <input type="range" id="jitter" min="0" max="2" step="0.05" value="1.00">
+
+      <label>Dot spacing <span id="dotsV">54</span></label>
+      <input type="range" id="dots" min="30" max="90" step="2" value="54">
+
+      <label>Zone radius <span id="zoneV">336</span></label>
+      <input type="range" id="zone" min="180" max="460" step="4" value="336">
+
+      <label>Field traces <span id="tracesV">240</span></label>
+      <input type="range" id="traces" min="0" max="600" step="10" value="240">
+    </div>
+
+    <div class="group">
+      <h2>Actions</h2>
+      <div class="row">
+        <button id="regen" class="primary">Regenerate</button>
+        <button id="reset">Reset</button>
+      </div>
+      <button id="download">Download PNG (1080×1920)</button>
+    </div>
+
+    <p class="sub">Flat fills only. Cyan belongs to the field; coral and violet are the two kit colours. No gradients, no glow — the same rules as the film.</p>
+  </aside>
+
+  <main>
+    <div class="stage">
+      <div id="canvasHolder"></div>
+      <div class="cap"><span>generative study · seed <span id="capSeed">20261101</span></span><span>1080 × 1920</span></div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ── Borrowed Field: seeded generative pitch ───────────────────────────────
+   Layers are identical in grammar to src/map.js so a seed explored here can be
+   promoted into the film renderer by changing the map seed. */
+const DEFAULTS = { seed: 20261101, density: 0.90, jitter: 1.0, dots: 54, zone: 336, traces: 240 };
+let P = Object.assign({}, DEFAULTS);
+let traceData = [];
+
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function buildTraces() {
+  const rnd = mulberry32(P.seed ^ 0x9e3779b9);
+  traceData = [];
+  for (let i = 0; i < P.traces; i++) {
+    traceData.push({
+      x: rnd() * 1080, y: rnd() * 1920,
+      amp: 26 + rnd() * 118, phase: rnd() * Math.PI * 2,
+      speed: 0.16 + rnd() * 0.62,
+      tone: rnd() < 0.84 ? 0 : (rnd() < 0.5 ? 1 : 2),
+      len: 12 + rnd() * 46
+    });
+  }
+}
+
+function setup() {
+  const c = createCanvas(1080, 1920);
+  c.parent('canvasHolder');
+  pixelDensity(1);
+  noLoop();
+  wireUI();
+  drawField();
+}
+
+function wireUI() {
+  const on = (id, ev, fn) => document.getElementById(id).addEventListener(ev, fn);
+  on('prev', 'click', () => setSeed(P.seed - 1));
+  on('next', 'click', () => setSeed(P.seed + 1));
+  on('random', 'click', () => setSeed(1 + Math.floor(Math.random() * 99999999)));
+  on('go', 'click', () => setSeed(Math.max(1, Math.floor(Number(document.getElementById('seedIn').value) || 1))));
+  on('seedIn', 'keydown', (e) => { if (e.key === 'Enter') document.getElementById('go').click(); });
+  const slider = (id, key, fmt) => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      P[key] = Number(el.value);
+      document.getElementById(id + 'V').textContent = fmt ? fmt(P[key]) : P[key];
+      if (key === 'traces') buildTraces();
+      drawField();
+    });
+  };
+  slider('density', 'density', (v) => v.toFixed(2));
+  slider('jitter', 'jitter', (v) => v.toFixed(2));
+  slider('dots', 'dots');
+  slider('zone', 'zone');
+  slider('traces', 'traces');
+  on('regen', 'click', () => drawField());
+  on('reset', 'click', () => {
+    P = Object.assign({}, DEFAULTS);
+    document.getElementById('density').value = P.density;
+    document.getElementById('jitter').value = P.jitter;
+    document.getElementById('dots').value = P.dots;
+    document.getElementById('zone').value = P.zone;
+    document.getElementById('traces').value = P.traces;
+    ['densityV'].forEach(() => {});
+    document.getElementById('densityV').textContent = P.density.toFixed(2);
+    document.getElementById('jitterV').textContent = P.jitter.toFixed(2);
+    document.getElementById('dotsV').textContent = P.dots;
+    document.getElementById('zoneV').textContent = P.zone;
+    document.getElementById('tracesV').textContent = P.traces;
+    setSeed(DEFAULTS.seed);
+  });
+  on('download', 'click', () => saveCanvas('manhunt-borrowed-field-seed-' + P.seed, 'png'));
+}
+
+function setSeed(s) {
+  P.seed = Math.max(1, Math.floor(s));
+  document.getElementById('seedDisp').textContent = P.seed;
+  document.getElementById('seedIn').value = P.seed;
+  document.getElementById('capSeed').textContent = P.seed;
+  buildTraces();
+  drawField();
+}
+
+/* ── the composition ─────────────────────────────────────────────────────── */
+function drawField() {
+  const rnd = mulberry32(P.seed);
+  background('#0B1220');
+
+  /* layer 1 · dot grid */
+  noStroke();
+  fill(34, 211, 238, 28);
+  for (let x = P.dots / 2; x < 1080; x += P.dots)
+    for (let y = P.dots / 2; y < 1920; y += P.dots) circle(x, y, 3);
+  fill(34, 211, 238, 46);
+  for (let x = 135; x < 1080; x += P.dots * 5)
+    for (let y = 135; y < 1920; y += P.dots * 5) circle(x, y, 5);
+
+  /* layer 2 · flat blocks from an irregular street grid */
+  const cols = [-60, 170, 430, 690, 950, 1140];
+  const rows = [-80, 240, 610, 980, 1350, 1740, 2000];
+  for (let ci = 0; ci < cols.length - 1; ci++) {
+    for (let ri = 0; ri < rows.length - 1; ri++) {
+      if (rnd() > P.density) continue;
+      const gap = (26 + rnd() * 26) * P.jitter;
+      const x = cols[ci] + gap / 2 + rnd() * 12;
+      const y = rows[ri] + gap / 2 + rnd() * 12;
+      const w = cols[ci + 1] - cols[ci] - gap - rnd() * 22;
+      const h = rows[ri + 1] - rows[ri] - gap - rnd() * 18;
+      if (w < 60 || h < 60) continue;
+      if (rnd() < 0.10) continue;
+      const park = rnd() < 0.08;
+      strokeWeight(2);
+      stroke(park ? color(34, 211, 238, 42) : color(230, 237, 247, 20));
+      fill(park ? color(12, 32, 38, 230) : color(14, 23, 39, 185));
+      rect(x, y, w, h, 10);
+      if (!park && rnd() < 0.28) {
+        noStroke(); fill(230, 237, 247, 10);
+        rect(x + w * 0.35, y + h * 0.35, w * 0.3, h * 0.3, 4);
+      }
+    }
+  }
+
+  /* layer 3 · chalk markings + the official zone */
+  const inset = 64;
+  noFill();
+  stroke(230, 237, 247, 108); strokeWeight(3);
+  rect(inset, inset, 1080 - inset * 2, 1920 - inset * 2);
+  stroke(230, 237, 247, 76); strokeWeight(2);
+  drawingContext.setLineDash([14, 18]);
+  line(inset, 960, 1080 - inset, 960);
+  drawingContext.setLineDash([]);
+  stroke(230, 237, 247, 88);
+  arc(1080 - inset, inset, 148, 148, HALF_PI, PI);
+  arc(inset, 1920 - inset, 148, 148, PI + HALF_PI, TWO_PI);
+  stroke(34, 211, 238, 255); strokeWeight(4);
+  circle(540, 960, P.zone * 2);
+  stroke(34, 211, 238, 76);
+  drawingContext.setLineDash([8, 20]);
+  circle(540, 960, P.zone * 2 + 48);
+  drawingContext.setLineDash([]);
+
+  /* layer 4 · field traces (closed-form, deterministic) */
+  for (let i = 0; i < traceData.length; i++) {
+    const p = traceData[i];
+    const x1 = p.x + sin(p.phase + 0.42 * p.speed) * p.amp;
+    const y1 = p.y + cos(p.phase * 1.31 + 0.31 * p.speed) * p.amp * 1.18;
+    const x2 = p.x + sin(p.phase) * p.amp;
+    const y2 = p.y + cos(p.phase * 1.31) * p.amp * 1.18;
+    const c = p.tone === 0 ? [34, 211, 238] : p.tone === 1 ? [255, 122, 89] : [167, 155, 255];
+    stroke(c[0], c[1], c[2], 70); strokeWeight(2);
+    line(x1, y1, x2, y2);
+    noStroke(); fill(c[0], c[1], c[2], 150);
+    circle(x1, y1, 3);
+  }
+
+  /* the two kit tokens, at opposite corners of the borrowed pitch */
+  noStroke();
+  fill(255, 122, 89); circle(286, 1178, 38);
+  noFill(); stroke(255, 122, 89, 150); strokeWeight(2); circle(286, 1178, 66);
+  noStroke(); fill(167, 155, 255); circle(806, 512, 30); circle(874, 606, 30);
+  noFill(); stroke(167, 155, 255, 150); strokeWeight(2); circle(806, 512, 52); circle(874, 606, 52);
+
+  /* sparse field notation, never more than needed */
+  noStroke(); fill(230, 237, 247, 105);
+  textFont('monospace'); textSize(20); textAlign(LEFT, BASELINE);
+  text('PITCH 04', 100, 120);
+  text('SEED ' + P.seed, 100, 150);
+  fill(34, 211, 238, 125); text('N', 142, 1824);
+  stroke(230, 237, 247, 80); strokeWeight(2);
+  line(118, 1798, 118, 1850); line(111, 1812, 118, 1798); line(118, 1798, 125, 1812);
+}
+
+function windowResized() { drawField(); }
+</script>
+</body>
+</html>

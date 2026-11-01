@@ -148,6 +148,24 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     process.cwd(), '..', 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk',
   );
 
+  app.get('/favicon.png', async (_req, reply) => {
+    try {
+      const bytes = await readFile(resolve(process.cwd(), 'public', 'favicon.png'));
+      return reply.type('image/png').header('cache-control', 'public, max-age=86400').send(bytes);
+    } catch {
+      return reply.code(404).send();
+    }
+  });
+
+  app.get('/og-image.png', async (_req, reply) => {
+    try {
+      const bytes = await readFile(resolve(process.cwd(), 'public', 'og-image.png'));
+      return reply.type('image/png').header('cache-control', 'public, max-age=86400').send(bytes);
+    } catch {
+      return reply.code(404).send();
+    }
+  });
+
   app.get('/', async (req, reply) => {
     const raw = await readManifestText(manifestPath);
     const manifest = raw === null ? null : parseManifest(raw);
@@ -495,6 +513,10 @@ function renderInstallPage(
       <p class="hint">This page is served by that server, and the build offered here is already pointed at it. Self-hosting? Set your own address on the app's sign-in screen after installing.</p>`
     : '<p class="hint">Set the server address on the app\'s sign-in screen after installing.</p>';
 
+  // og:image must be absolute for social scrapers. The page is served from the same
+  // public server in production; for a self-hosted deployment this resolves correctly too.
+  const ogImageUrl = `${(serverUrl || '').replace(/\/$/, '')}/og-image.png`;
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -502,8 +524,16 @@ function renderInstallPage(
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0B1220">
-<meta name="description" content="ManHunt — real-world GPS hide-and-seek for Android. Download the signed APK.">
-<title>ManHunt — hide, hunt, survive</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta name="description" content="ManHunt - real-world GPS hide-and-seek for Android. No gear. No fee. Just players. Download the free signed APK.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ManHunt - No gear. No fee. Just players.">
+<meta property="og:description" content="Real-world hide-and-seek for Android. Prey hide, Hunters track on a live map and tag in person. Free APK.">
+<meta property="og:image" content="${escapeHtml(ogImageUrl)}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<title>ManHunt - No gear. No fee. Just players.</title>
 <style>
   :root{color-scheme:dark;--bg:#0B1220;--card:#111B2E;--line:#1E2B44;--text:#E6EDF7;--muted:#93A4BF;--cyan:#22D3EE}
   *{box-sizing:border-box}
@@ -548,22 +578,21 @@ function renderInstallPage(
 <body>
 <main class="wrap">
   <header class="hero">
-    <svg class="icon" width="68" height="68" viewBox="0 0 108 108" role="img" aria-label="ManHunt icon">
+    <svg class="icon" width="68" height="68" viewBox="0 0 108 108" role="img" aria-label="ManHunt Open Zone icon">
       <rect width="108" height="108" rx="26" fill="#0B1220"/>
-      <circle cx="54" cy="54" r="32" fill="#22D3EE" opacity=".18"/>
-      <circle cx="54" cy="54" r="26" fill="none" stroke="#22D3EE" stroke-width="4"/>
-      <path d="M54 26v56M26 54h56" stroke="#FF7A59" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="54" cy="54" r="4" fill="#FFFFFF"/>
+      <path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4"/>
+      <circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/>
     </svg>
     <div>
       <p class="eyebrow">MANHUNT</p>
-      <h1>Hide. Hunt. Survive.</h1>
+      <h1>No gear. No fee. Just players.</h1>
     </div>
   </header>
 
   <p class="pitch">Real-world hide-and-seek for Android. Prey hide while their phones report
   position; Hunters follow on a live map and tag them in person. One server keeps the timers,
   teams and tag rules fair.</p>
+  <p class="hint">ManHunt needs at least two phones in one place — send this page to your group chat.</p>
 
   ${statsBlock}
 

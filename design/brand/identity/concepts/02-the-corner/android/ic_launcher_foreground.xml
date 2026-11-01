@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108"
+    android:alpha="1">
+  <!-- The Corner — adaptive foreground (108dp viewport, mark inside the 66dp safe zone) -->
+  <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="-9">
+        <path
+              android:pathData="M42,31L42,62L69,62"
+              android:strokeColor="#22D3EE"
+              android:strokeWidth="11.4"
+              android:strokeLineCap="butt"
+              android:strokeLineJoin="miter" />
+            <path
+              android:fillColor="#FF7A59"
+              android:pathData="M50.1,44.1a9.8,9.8 0 1,0 19.6,0a9.8,9.8 0 1,0 -19.6,0" />
+      </group>
+</vector>

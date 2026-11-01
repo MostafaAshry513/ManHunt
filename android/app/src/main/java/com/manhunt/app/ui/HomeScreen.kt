@@ -148,7 +148,7 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                         color = MaterialTheme.colorScheme.onBackground,
                     )
                     Text(
-                        t("Hide. Hunt. Survive."),
+                        t("No gear. No fee. Just players."),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

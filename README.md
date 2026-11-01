@@ -5,6 +5,10 @@ their GPS positions; Hunters follow those positions on a live map and tag prey b
 touching them. The server is authoritative — it owns timers, teams, tags, location visibility and
 chat — so a phone can lose signal or restart without breaking the game.
 
+> **No gear. No fee. Just players.**
+
+<img src="docs/brand/icon-512.png" width="88" alt="ManHunt Open Zone icon">
+
 [![CI](https://github.com/MostafaAshry513/ManHunt/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/MostafaAshry513/ManHunt/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/MostafaAshry513/ManHunt?label=release)](https://github.com/MostafaAshry513/ManHunt/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)

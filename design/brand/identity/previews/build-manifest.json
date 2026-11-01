@@ -1,0 +1,30 @@
+{
+  "generated": "2026-11-01T13:49:38.791Z",
+  "renderer": "headless Chrome, native device pixels",
+  "concepts": [
+    {
+      "slug": "01-open-zone",
+      "name": "Open Zone",
+      "strategy": "chase / pursuit tension",
+      "sources": "concepts/01-open-zone/",
+      "previews": "previews/01-open-zone/"
+    },
+    {
+      "slug": "02-the-corner",
+      "name": "The Corner",
+      "strategy": "real place / borrowed pitch",
+      "sources": "concepts/02-the-corner/",
+      "previews": "previews/02-the-corner/"
+    },
+    {
+      "slug": "03-the-tag",
+      "name": "The Tag",
+      "strategy": "predator / prey tension",
+      "sources": "concepts/03-the-tag/",
+      "previews": "previews/03-the-tag/"
+    }
+  ],
+  "exports": "previews/<slug>/exports/",
+  "fonts": "Preview sheets use Barlow Condensed + IBM Plex Mono (OFL), fetched at build time into the temp dir and embedded only in generated HTML. No font is stored in this folder.",
+  "licence": "Original vector work for ManHunt — see LICENSE-assets.md"
+}

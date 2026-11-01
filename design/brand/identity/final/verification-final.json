@@ -1,0 +1,253 @@
+{
+  "generated": "2026-11-01T14:51:12.596Z",
+  "pass": true,
+  "checks": 49,
+  "failures": [],
+  "results": [
+    {
+      "name": "lockup/lockup-horizontal-dark-on-light.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/lockup-horizontal-dark-on-light.svg · palette only",
+      "ok": true,
+      "detail": "10 paint values, all tokens"
+    },
+    {
+      "name": "lockup/lockup-horizontal-light-on-dark.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/lockup-horizontal-light-on-dark.svg · palette only",
+      "ok": true,
+      "detail": "10 paint values, all tokens"
+    },
+    {
+      "name": "lockup/lockup-horizontal-mono.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/lockup-horizontal-mono.svg · palette only",
+      "ok": true,
+      "detail": "10 paint values, all tokens"
+    },
+    {
+      "name": "lockup/lockup-stacked-dark-on-light.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/lockup-stacked-dark-on-light.svg · palette only",
+      "ok": true,
+      "detail": "10 paint values, all tokens"
+    },
+    {
+      "name": "lockup/lockup-stacked-light-on-dark.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/lockup-stacked-light-on-dark.svg · palette only",
+      "ok": true,
+      "detail": "10 paint values, all tokens"
+    },
+    {
+      "name": "lockup/lockup-stacked-mono.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/lockup-stacked-mono.svg · palette only",
+      "ok": true,
+      "detail": "10 paint values, all tokens"
+    },
+    {
+      "name": "lockup/mark-dark-on-light.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/mark-dark-on-light.svg · palette only",
+      "ok": true,
+      "detail": "3 paint values, all tokens"
+    },
+    {
+      "name": "lockup/mark-light-on-dark.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/mark-light-on-dark.svg · palette only",
+      "ok": true,
+      "detail": "3 paint values, all tokens"
+    },
+    {
+      "name": "lockup/mark-mono.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/mark-mono.svg · palette only",
+      "ok": true,
+      "detail": "3 paint values, all tokens"
+    },
+    {
+      "name": "lockup/wordmark-dark-on-light.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/wordmark-dark-on-light.svg · palette only",
+      "ok": true,
+      "detail": "7 paint values, all tokens"
+    },
+    {
+      "name": "lockup/wordmark-light-on-dark.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/wordmark-light-on-dark.svg · palette only",
+      "ok": true,
+      "detail": "7 paint values, all tokens"
+    },
+    {
+      "name": "lockup/wordmark-mono.svg · no text/font/links",
+      "ok": true,
+      "detail": "vector-only, no text, no external references"
+    },
+    {
+      "name": "lockup/wordmark-mono.svg · palette only",
+      "ok": true,
+      "detail": "7 paint values, all tokens"
+    },
+    {
+      "name": "install/og-image-1200x630.png",
+      "ok": true,
+      "detail": "1200x630 opaque"
+    },
+    {
+      "name": "install/favicon-32.png",
+      "ok": true,
+      "detail": "32x32 opaque"
+    },
+    {
+      "name": "install/favicon-48.png",
+      "ok": true,
+      "detail": "48x48 opaque"
+    },
+    {
+      "name": "install/install-page-icon-192.png",
+      "ok": true,
+      "detail": "192x192 opaque"
+    },
+    {
+      "name": "android/play-512.png",
+      "ok": true,
+      "detail": "512x512 opaque"
+    },
+    {
+      "name": "android/mipmap-mdpi/ic_launcher.png",
+      "ok": true,
+      "detail": "48x48 opaque"
+    },
+    {
+      "name": "android/mipmap-mdpi/ic_launcher_round.png",
+      "ok": true,
+      "detail": "48x48"
+    },
+    {
+      "name": "android/mipmap-hdpi/ic_launcher.png",
+      "ok": true,
+      "detail": "72x72 opaque"
+    },
+    {
+      "name": "android/mipmap-hdpi/ic_launcher_round.png",
+      "ok": true,
+      "detail": "72x72"
+    },
+    {
+      "name": "android/mipmap-xhdpi/ic_launcher.png",
+      "ok": true,
+      "detail": "96x96 opaque"
+    },
+    {
+      "name": "android/mipmap-xhdpi/ic_launcher_round.png",
+      "ok": true,
+      "detail": "96x96"
+    },
+    {
+      "name": "android/mipmap-xxhdpi/ic_launcher.png",
+      "ok": true,
+      "detail": "144x144 opaque"
+    },
+    {
+      "name": "android/mipmap-xxhdpi/ic_launcher_round.png",
+      "ok": true,
+      "detail": "144x144"
+    },
+    {
+      "name": "android/mipmap-xxxhdpi/ic_launcher.png",
+      "ok": true,
+      "detail": "192x192 opaque"
+    },
+    {
+      "name": "android/mipmap-xxxhdpi/ic_launcher_round.png",
+      "ok": true,
+      "detail": "192x192"
+    },
+    {
+      "name": "lockup/previews/lockup-horizontal-light-on-dark.png",
+      "ok": true,
+      "detail": "19819 B"
+    },
+    {
+      "name": "lockup/previews/lockup-stacked-light-on-dark.png",
+      "ok": true,
+      "detail": "16106 B"
+    },
+    {
+      "name": "lockup/previews/wordmark-light-on-dark.png",
+      "ok": true,
+      "detail": "14594 B"
+    },
+    {
+      "name": "lockup/previews/lockup-sheet.png",
+      "ok": true,
+      "detail": "162653 B"
+    },
+    {
+      "name": "android/ic_launcher_foreground.xml",
+      "ok": true,
+      "detail": "108dp VectorDrawable with path data"
+    },
+    {
+      "name": "android/ic_launcher_monochrome.xml",
+      "ok": true,
+      "detail": "single-colour monochrome layer (no team colours)"
+    },
+    {
+      "name": "android/mipmap-anydpi-v26/ic_launcher.xml",
+      "ok": true,
+      "detail": "adaptive-icon with background, foreground and monochrome"
+    },
+    {
+      "name": "android/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "ok": true,
+      "detail": "adaptive-icon with background, foreground and monochrome"
+    },
+    {
+      "name": "install/app-icon.svg",
+      "ok": true,
+      "detail": "108 dp composite: field #0B1220 + approved mark, vector only"
+    },
+    {
+      "name": "lockup horizontal viewBox",
+      "ok": true,
+      "detail": "806 x 220 units (cap 100, clear space 50)"
+    }
+  ]
+}

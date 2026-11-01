@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, initial-scale=1">
+<title>ManHunt — "No gear. No fee. Just players." (15 s vertical social short, 1080×1920)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="stage">
+
+  <!-- asphalt field -->
+  <div id="bg"></div>
+  <canvas id="field" width="1080" height="1920" aria-hidden="true"></canvas>
+
+  <!-- the borrowed pitch: generated block map + chalk geometry + team tokens -->
+  <div id="world" aria-hidden="true">
+    <div id="mapArt"></div>
+
+    <svg id="marks" width="1080" height="1920" viewBox="0 0 1080 1920" fill="none">
+      <!-- touchlines & halfway line (chalk) -->
+      <path id="touchline" stroke="#E6EDF7" stroke-opacity="0.42" stroke-width="3"/>
+      <path id="halfway" stroke="#E6EDF7" stroke-opacity="0.30" stroke-width="2" stroke-dasharray="14 18"/>
+      <!-- corner arcs (chalk) -->
+      <path id="cornerA" stroke="#E6EDF7" stroke-opacity="0.34" stroke-width="3"/>
+      <path id="cornerB" stroke="#E6EDF7" stroke-opacity="0.34" stroke-width="3"/>
+      <!-- official zone = the centre circle (cyan) -->
+      <circle id="zoneRing" cx="540" cy="960" r="336" stroke="#22D3EE" stroke-width="4"/>
+      <circle id="zoneDash" cx="540" cy="960" r="360" stroke="#22D3EE" stroke-opacity="0.30"
+              stroke-width="2" stroke-dasharray="8 20"/>
+      <circle id="zoneDot" cx="540" cy="960" r="7" fill="#22D3EE"/>
+      <!-- pursuit trail (coral chalk) -->
+      <path id="trail" stroke="#FF7A59" stroke-width="5" stroke-linecap="round" fill="none" stroke-dasharray="1 0"/>
+      <!-- the tag: violet ring closing on the coral dot -->
+      <circle id="snapRing" stroke="#A79BFF" stroke-width="7" fill="none"/>
+      <circle id="snapRing2" stroke="#A79BFF" stroke-width="3" fill="none" stroke-dasharray="10 14"/>
+    </svg>
+
+    <div id="tokens">
+      <div class="token prey" id="preyDot"><i class="dot"></i></div>
+      <div class="token hunter" id="hunterA"><i class="dot"></i></div>
+      <div class="token hunter" id="hunterB"><i class="dot"></i></div>
+      <div class="toklabel prey" id="labelPrey">PREY</div>
+      <div class="toklabel hunter" id="labelHunters">HUNTERS</div>
+    </div>
+  </div>
+
+  <!-- real app render: the live hunt map (sourced from docs/screenshots) -->
+  <div id="appPanel" aria-hidden="true">
+    <div class="app-card">
+      <div class="app-mat">
+        <img id="imgMap" src="../assets/05-map-crop.png" alt="ManHunt app: live hunting map with zone, coral trail and prey markers">
+      </div>
+      <div class="app-credit mono">© OpenStreetMap contributors</div>
+    </div>
+  </div>
+
+  <!-- pings expand from the app's prey marker across the whole frame -->
+  <svg id="stagePings" width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" aria-hidden="true">
+    <circle id="pinHalo" cx="657" cy="801" r="30" stroke="#FF7A59" stroke-width="3"/>
+    <circle id="sping1" cx="657" cy="801" r="40" stroke="#FF7A59" stroke-width="5"/>
+    <circle id="sping2" cx="657" cy="801" r="40" stroke="#FF7A59" stroke-width="4"/>
+    <circle id="sping3" cx="657" cy="801" r="40" stroke="#FF7A59" stroke-width="3"/>
+  </svg>
+
+  <!-- the recurring visual: the server clock -->
+  <div id="clock" aria-hidden="true">
+    <div class="clock-label mono">HUNT CLOCK</div>
+    <div class="clock-num display" id="clockNum">60:00</div>
+    <div class="clock-foot"><span class="live-dot"></span><span class="mono">SERVER</span></div>
+  </div>
+
+  <!-- hook: one chalk line sweeps the frame -->
+  <div id="hookBrand" aria-hidden="true">
+    <span class="hb-name">
+      <!-- Official wordmark (530×100, 7 drawn paths). Inlined verbatim from
+           design/brand/identity/final/lockup/wordmark-light-on-dark.svg
+           sha256 BF6E14937B34DDCD27DE3FE21B83726A7DAC7324746882121F1CDCBE0964600D
+           No retyping, no letter-spacing, no font dependency. -->
+      <svg id="hookWordmarkSvg" viewBox="0 0 530 100" role="img" aria-label="ManHunt">
+        <path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/>
+        <path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/>
+        <path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+        <path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/>
+        <path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/>
+        <path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+        <path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/>
+      </svg>
+    </span>
+    <span class="mono hb-sub">REAL-WORLD HIDE &amp; SEEK</span>
+  </div>
+  <div id="hookLine" aria-hidden="true">
+    <i id="hookGhost"></i><i id="hookMain"></i><i id="hookHead"></i>
+  </div>
+
+  <!-- captions (lower-third, silent-first) -->
+  <div id="captions">
+    <div class="cap" id="cap1"><span class="cap-rule"></span><span class="cap-text display">your street has<br>rules now</span></div>
+    <div class="cap" id="cap2"><span class="cap-rule coral"></span><span class="cap-text display"><span class="coral">two</span> teams</span></div>
+    <div class="cap" id="cap3"><span class="cap-rule"></span><span class="cap-text display">one clock</span></div>
+    <div class="cap" id="cap4"><span class="cap-rule coral"></span><span class="cap-text display">the map<br>already knows</span></div>
+    <div class="cap" id="cap5"><span class="cap-rule violet"></span><span class="cap-text display"><span class="violet">tagged</span><span class="x">.</span></span></div>
+  </div>
+
+  <!-- end card -->
+  <section id="endcard" aria-label="ManHunt end card">
+    <div class="rule" id="endRuleTop"></div>
+    <div id="endSlogan">No gear. No fee.<br>Just players.</div>
+    <!-- Official approved lockup (Task-37): mark above wordmark, 630×376, clear
+         space baked in. Inlined verbatim (paths, transforms, fills unchanged) from
+         design/brand/identity/final/lockup/lockup-stacked-light-on-dark.svg
+         sha256 BF72BFDF1175CA9DCDEC44FA7F22CB94D1D60975B1DE825E72399BA69FBB859B
+         Slogan sits OUTSIDE this lockup; never retype/letter-space the wordmark. -->
+    <h1 class="display" id="endWordmark" aria-label="ManHunt">
+      <svg id="endLockupSvg" viewBox="0 0 630 376" role="img" aria-hidden="true">
+        <g transform="translate(214.69 9.69) scale(1.86)">
+          <g transform="rotate(0 54 54)">
+            <path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4" stroke-linecap="butt"/>
+            <circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/>
+          </g>
+        </g>
+        <g transform="translate(50 226)">
+          <path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/>
+          <path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/>
+          <path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+          <path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/>
+          <path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/>
+          <path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+          <path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/>
+        </g>
+      </svg>
+    </h1>
+    <div class="end-install">
+      <div id="endCta">Install free for Android</div>
+      <div id="endUrl" class="mono">http://74.208.99.178/</div>
+      <div id="endMicro" class="mono">free APK · Android 8+ · not on Play Store</div>
+      <div id="endTrust">Play with people you trust.</div>
+    </div>
+    <div class="rule" id="endRuleBottom"></div>
+  </section>
+
+  <!-- cover / thumbnail composition (?cover=1) -->
+  <section id="cover" aria-label="ManHunt cover art">
+    <!-- Official wordmark, inlined verbatim from
+         design/brand/identity/final/lockup/wordmark-light-on-dark.svg
+         sha256 BF6E14937B34DDCD27DE3FE21B83726A7DAC7324746882121F1CDCBE0964600D -->
+    <div id="coverTop" aria-hidden="true">
+      <svg id="coverWordmarkSvg" viewBox="0 0 530 100" role="img" aria-label="ManHunt">
+        <path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/>
+        <path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/>
+        <path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+        <path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/>
+        <path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/>
+        <path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+        <path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/>
+      </svg>
+    </div>
+    <div id="coverClock"><span class="mono">HUNT CLOCK</span><b class="display">60:00</b></div>
+    <div id="coverSlogan" class="display">NO GEAR.<br>NO FEE.<br><span class="cyan">JUST PLAYERS.</span></div>
+    <div id="coverRule"></div>
+    <div id="coverSub" class="mono">REAL-WORLD HIDE &amp; SEEK</div>
+    <div id="coverLegend"><span class="leg prey"><i></i>PREY</span><span class="leg hunter"><i></i>HUNTERS</span></div>
+    <div id="coverCta">Install free for Android</div>
+    <div id="coverUrl" class="mono">http://74.208.99.178/</div>
+    <div id="coverMicro" class="mono">free APK · Android 8+ · not on Play Store</div>
+    <div id="coverBottomRule"></div>
+  </section>
+
+  <div id="blackout"></div>
+  <div id="invert"></div>
+  <div id="grain"></div>
+  <div id="guides" aria-hidden="true"></div>
+</div>
+
+<script src="field.js"></script>
+<script src="map.js"></script>
+<script src="animate.js"></script>
+</body>
+</html>

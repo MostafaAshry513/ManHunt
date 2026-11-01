@@ -39,7 +39,9 @@ test('install page renders version, size, checksum and server from the update ma
   assert.equal(res.statusCode, 200);
   assert.match(String(res.headers['content-type']), /text\/html/);
   assert.match(res.body, /<title>ManHunt/);
-  assert.match(res.body, /Hide\. Hunt\. Survive\./);
+  assert.match(res.body, /No gear\. No fee\. Just players\./);
+  assert.match(res.body, /href="\/favicon\.png"/);
+  assert.match(res.body, /og-image\.png/);
   assert.match(res.body, /v0\.9\.0/);
   assert.match(res.body, /13\.2 MB/);
   assert.ok(res.body.includes(SHA), 'page shows the published SHA-256 checksum');
@@ -69,6 +71,21 @@ test('install page shows aggregate account count and weekly growth', async (t) =
   const page = await app.inject({ method: 'GET', url: '/' });
   assert.match(page.body, /<b>2<\/b><span>accounts created<\/span>/);
   assert.match(page.body, /<b>\+2<\/b><span>new this week<\/span>/);
+});
+
+test('install page favicon and social preview assets are served', async (t) => {
+  const app = await makeApp();
+  t.after(() => app.close());
+
+  const favicon = await app.inject({ method: 'GET', url: '/favicon.png' });
+  assert.equal(favicon.statusCode, 200);
+  assert.equal(favicon.headers['content-type'], 'image/png');
+  assert.ok(favicon.rawPayload.length > 100);
+
+  const og = await app.inject({ method: 'GET', url: '/og-image.png' });
+  assert.equal(og.statusCode, 200);
+  assert.equal(og.headers['content-type'], 'image/png');
+  assert.ok(og.rawPayload.length > 1000);
 });
 
 test('/api/app/latest serves the manifest JSON without a PowerShell BOM', async (t) => {  const dir = await mkdtemp(join(tmpdir(), 'manhunt-install-page-'));

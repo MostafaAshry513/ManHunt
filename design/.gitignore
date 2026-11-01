@@ -1,0 +1,5 @@
+# Generated design toolchains and caches; do not commit.
+.tools/node_modules/
+social/motion/out/frames/
+brand/identity/tools/build/
+brand/identity/previews/_lab/

@@ -187,7 +187,7 @@ fun AuthScreen() {
         ) {
             HeroBanner(
                 title = t("MANHUNT"),
-                subtitle = t("Hide. Hunt. Survive."),
+                subtitle = t("No gear. No fee. Just players."),
                 icon = Icons.Outlined.Person,
             )
 

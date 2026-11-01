@@ -144,7 +144,7 @@ fun RolesScreen(
                     SecondaryButton(text = t("Close"), onClick = onClose)
                 }
                 Text(
-                    "ManHunt · ${t("Hide. Hunt. Survive.")}",
+                    "ManHunt · ${t("No gear. No fee. Just players.")}",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.labelSmall,

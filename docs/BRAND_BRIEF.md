@@ -1,8 +1,9 @@
 # ManHunt brand brief — icon & slogan team
 
-Status: **open for design** (the next major deliverable). This file is the contract for the
-icon/slogan team and the design skills that will produce it. Nothing here ships until the
-owner picks a direction.
+Status: **approved 2026-11-01** — keep the name ManHunt; direction **PICKUP**; primary slogan
+**“No gear. No fee. Just players.”**; logo/icon concept **01 Open Zone**. Full platform:
+`design/brand/strategy/brand-platform.md`; identity sources/exports: `design/brand/identity/`.
+This brief remains the constraint contract for future brand work.
 
 ## 1. Product in one line
 

@@ -1,0 +1,303 @@
+{
+  "generated": "2026-11-01T14:51:11.237Z",
+  "status": "APPROVED — owner approved Open Zone + \"No gear. No fee. Just players.\"",
+  "wordmark": "MANHUNT (drawn, 7 glyph paths, cap 100 units, stem 16, tracking 10)",
+  "mark": "Open Zone, unchanged geometry from concepts/01-open-zone/mark.svg",
+  "canonicalForMotion": "final/lockup/lockup-stacked-light-on-dark.svg and final/lockup/wordmark-light-on-dark.svg",
+  "files": [
+    {
+      "path": "android/favicon-32.png",
+      "bytes": 728,
+      "sha256": "84af907dec51edd4e94baec2b1d733d68c5255aefe08367b9a994c68fb2da85b",
+      "note": "web favicon 32x32"
+    },
+    {
+      "path": "android/favicon-48.png",
+      "bytes": 1005,
+      "sha256": "759f362f484b6e848cee7bfc10ac47a8032b16124ed34c7e2674c5d7fb484ec1",
+      "note": "web favicon 48x48"
+    },
+    {
+      "path": "android/ic_launcher_foreground.xml",
+      "bytes": 793,
+      "sha256": "8a86a818a87e4e432c346bdc6bdedcdcd8ca211deef8df0fa1de9712617ed092",
+      "note": "VectorDrawable for res/drawable/"
+    },
+    {
+      "path": "android/ic_launcher_monochrome.xml",
+      "bytes": 768,
+      "sha256": "f6075d3c898bb898db166c232632d43b247f575a044006be07e27af7e5ce322d",
+      "note": "VectorDrawable for res/drawable/"
+    },
+    {
+      "path": "android/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "bytes": 334,
+      "sha256": "322ce1181720705845e81b3399e87b815edd457d404a5c3b0604429e2cff82c8",
+      "note": "adaptive icon definition for res/mipmap-anydpi-v26/"
+    },
+    {
+      "path": "android/mipmap-anydpi-v26/ic_launcher.xml",
+      "bytes": 334,
+      "sha256": "322ce1181720705845e81b3399e87b815edd457d404a5c3b0604429e2cff82c8",
+      "note": "adaptive icon definition for res/mipmap-anydpi-v26/"
+    },
+    {
+      "path": "android/mipmap-hdpi/ic_launcher_round.png",
+      "bytes": 2168,
+      "sha256": "954d73644659ec4dee41263ddc4b8c6854b29cbd7fb65d9f5082e15944c440d5",
+      "note": "legacy round 72px → res/mipmap-hdpi/"
+    },
+    {
+      "path": "android/mipmap-hdpi/ic_launcher.png",
+      "bytes": 1482,
+      "sha256": "c696cd6286931ae7d80ef12af13409aaa5c456fbfc4c431c5167b0be9c591f7b",
+      "note": "legacy launcher 72px → res/mipmap-hdpi/"
+    },
+    {
+      "path": "android/mipmap-mdpi/ic_launcher_round.png",
+      "bytes": 1471,
+      "sha256": "f9fbcdb0ed4aba6acc1bae838c404dd4651f645f51eb852173efa14fd6fc4db1",
+      "note": "legacy round 48px → res/mipmap-mdpi/"
+    },
+    {
+      "path": "android/mipmap-mdpi/ic_launcher.png",
+      "bytes": 1005,
+      "sha256": "759f362f484b6e848cee7bfc10ac47a8032b16124ed34c7e2674c5d7fb484ec1",
+      "note": "legacy launcher 48px → res/mipmap-mdpi/"
+    },
+    {
+      "path": "android/mipmap-xhdpi/ic_launcher_round.png",
+      "bytes": 2895,
+      "sha256": "f2cc67423cae3ee40cd50774f2dc1ac6010a06fe6fe804d9288e5490c40dd1ce",
+      "note": "legacy round 96px → res/mipmap-xhdpi/"
+    },
+    {
+      "path": "android/mipmap-xhdpi/ic_launcher.png",
+      "bytes": 1941,
+      "sha256": "989e52f43b57ebb00fd65f53c7d6b1243130f7e04f86fd8994cb135496506124",
+      "note": "legacy launcher 96px → res/mipmap-xhdpi/"
+    },
+    {
+      "path": "android/mipmap-xxhdpi/ic_launcher_round.png",
+      "bytes": 4343,
+      "sha256": "14de428d62e26f8fa86ab08935a04c56de107375eddeb49937fcf7f7e54f2aa0",
+      "note": "legacy round 144px → res/mipmap-xxhdpi/"
+    },
+    {
+      "path": "android/mipmap-xxhdpi/ic_launcher.png",
+      "bytes": 2910,
+      "sha256": "96f699418747cd9180941bacb5eb66d56c8dea6ea8f1178a5ded16c0b3e8ca90",
+      "note": "legacy launcher 144px → res/mipmap-xxhdpi/"
+    },
+    {
+      "path": "android/mipmap-xxxhdpi/ic_launcher_round.png",
+      "bytes": 5997,
+      "sha256": "b35ecc4f0dc1fd993d122ab1d3f6d3dd06af0cd176b60ed1ea8534df6056a726",
+      "note": "legacy round 192px → res/mipmap-xxxhdpi/"
+    },
+    {
+      "path": "android/mipmap-xxxhdpi/ic_launcher.png",
+      "bytes": 4132,
+      "sha256": "de6ce12679b82cf5916e2f68d277fb426db735884acf4f236dcd479a972cf154",
+      "note": "legacy launcher 192px → res/mipmap-xxxhdpi/"
+    },
+    {
+      "path": "android/play-512.png",
+      "bytes": 9807,
+      "sha256": "584b7d48f7e2b101c4e0da112b8f6bd23a4d3fa577e8c8c753a2b35124d28d4e",
+      "note": "Google Play store icon 512x512"
+    },
+    {
+      "path": "android/README.md",
+      "bytes": 3972,
+      "sha256": "bfdbf1b5d20e7d47e4cf66981b1e58e85f3072bdb75883b4b7c020316db48615",
+      "note": "handoff document"
+    },
+    {
+      "path": "android/values/icon_colors.xml",
+      "bytes": 284,
+      "sha256": "89150b0c9c1009dc16124ddd302a0911b4e374573b2727637a14d9c53cd81ee5",
+      "note": "new values resource (additive) for res/values/"
+    },
+    {
+      "path": "install/app-icon.svg",
+      "bytes": 464,
+      "sha256": "17b09c22ec9519c0863cba087fd73b5783790eccea6a8a6295f1271f98eca5a5",
+      "note": "inline-ready app icon SVG (108 dp composite)"
+    },
+    {
+      "path": "install/favicon-32.png",
+      "bytes": 728,
+      "sha256": "84af907dec51edd4e94baec2b1d733d68c5255aefe08367b9a994c68fb2da85b",
+      "note": "install page favicon 32x32"
+    },
+    {
+      "path": "install/favicon-48.png",
+      "bytes": 1005,
+      "sha256": "759f362f484b6e848cee7bfc10ac47a8032b16124ed34c7e2674c5d7fb484ec1",
+      "note": "install page favicon 48x48"
+    },
+    {
+      "path": "install/install-page-icon-192.png",
+      "bytes": 3801,
+      "sha256": "0e93b6cfc57d1260431ec8c46090f1d6c1691431b5962adea2aeef4ab9d0e8ed",
+      "note": "web app / touch icon 192x192"
+    },
+    {
+      "path": "install/og-image-1200x630.png",
+      "bytes": 38835,
+      "sha256": "c7dc05607618eda495fb561d766c6507bcfee92d2bfad2f4f3f84b9324f6d27a",
+      "note": "Open Graph / social card 1200x630"
+    },
+    {
+      "path": "install/README.md",
+      "bytes": 3616,
+      "sha256": "e72e9b96be616ddce13fe71cf5b632157ea297e65fb87c59e1157e4040068713",
+      "note": "handoff document"
+    },
+    {
+      "path": "LOCKUP.md",
+      "bytes": 6941,
+      "sha256": "461b72586856031ba9f4a3f1423cdb55ae097d05a0ada52f7104761bb8842fb5",
+      "note": "handoff document"
+    },
+    {
+      "path": "lockup/lockup-horizontal-dark-on-light.svg",
+      "bytes": 1377,
+      "sha256": "a0403611b18ceea21eac376b954778334621a2aca36287349a88ad5346fd5345",
+      "note": "horizontal lockup, dark on light — chalk ground"
+    },
+    {
+      "path": "lockup/lockup-horizontal-light-on-dark.svg",
+      "bytes": 1377,
+      "sha256": "1cd1975e01c63c68d7339a8fc8fbb717b9be3759a4c5aed434e79c515b55e022",
+      "note": "horizontal lockup, light on dark — navy field"
+    },
+    {
+      "path": "lockup/lockup-horizontal-mono.svg",
+      "bytes": 1377,
+      "sha256": "64e7350bb7f757cabcb27ff8b61a8fe73c761798098dcc368f4ac159965749bf",
+      "note": "horizontal lockup, monochrome — one ink"
+    },
+    {
+      "path": "lockup/lockup-stacked-dark-on-light.svg",
+      "bytes": 1376,
+      "sha256": "33c5b6a729ecba6e563491827c6d64ebd6d8ea114acae556eff85943793f0a27",
+      "note": "stacked lockup, dark on light — chalk ground"
+    },
+    {
+      "path": "lockup/lockup-stacked-light-on-dark.svg",
+      "bytes": 1376,
+      "sha256": "bf72bfdf1175ca9dcdec44fa7f22cb94d1d60975b1de825e72399ba69fbb859b",
+      "note": "stacked lockup, light on dark — navy field"
+    },
+    {
+      "path": "lockup/lockup-stacked-mono.svg",
+      "bytes": 1376,
+      "sha256": "ee02a6a2defd99de12c850e238dc41461d4525a5946076f71dad1f7037d32395",
+      "note": "stacked lockup, monochrome — one ink"
+    },
+    {
+      "path": "lockup/mark-dark-on-light.svg",
+      "bytes": 357,
+      "sha256": "aee817288f13acd35dd6bad0f64ce416d6bde9fb1dc77cc17a46cc3fd4ff7671",
+      "note": "Open Zone mark only, dark-on-light"
+    },
+    {
+      "path": "lockup/mark-light-on-dark.svg",
+      "bytes": 357,
+      "sha256": "c41eb92f02a888114c1eb3ce1f2e3b8cc9484576d6407e8fdf780f784de960ad",
+      "note": "Open Zone mark only, light-on-dark"
+    },
+    {
+      "path": "lockup/mark-mono.svg",
+      "bytes": 357,
+      "sha256": "8535f84cf9d4642fb827bd19f77d4ea3eed566846b3ee2b87eda6de035fe180d",
+      "note": "Open Zone mark only, mono"
+    },
+    {
+      "path": "lockup/previews/lockup-horizontal-dark-on-light.png",
+      "bytes": 20049,
+      "sha256": "a0d5f78b491966501e5a202646d39c5fd0d4337b6bab11de4a298112c450a4b8",
+      "note": "PNG preview horizontal dark-on-light, 1200x328"
+    },
+    {
+      "path": "lockup/previews/lockup-horizontal-light-on-dark.png",
+      "bytes": 19819,
+      "sha256": "d04f5738c5f0b7d6678f50d92ba2fc5ba5083d2f6e912501c79300580fc89b08",
+      "note": "PNG preview horizontal light-on-dark, 1200x328"
+    },
+    {
+      "path": "lockup/previews/lockup-horizontal-mono.png",
+      "bytes": 13451,
+      "sha256": "45a846f4b5d4f4d3272ad2dbc8dca77a7ecc440087d857505737302fca064c86",
+      "note": "PNG preview horizontal mono, 1200x328"
+    },
+    {
+      "path": "lockup/previews/lockup-sheet.png",
+      "bytes": 162653,
+      "sha256": "8dbc3d4ba4c446843f9a37d806ead581204694b0cbd3c2d897e912d18bd1600a",
+      "note": "lockup specimen sheet 1600x1180"
+    },
+    {
+      "path": "lockup/previews/lockup-stacked-dark-on-light.png",
+      "bytes": 16266,
+      "sha256": "f799301fb96eee41df9b14e101c681708ccfc6cf5f96765069950eb121638dfe",
+      "note": "PNG preview stacked dark-on-light, 760x454"
+    },
+    {
+      "path": "lockup/previews/lockup-stacked-light-on-dark.png",
+      "bytes": 16106,
+      "sha256": "702cf40cbc979b6b79b33434b0ea742483d00ea4422cd2f9433da4b9ac235ec0",
+      "note": "PNG preview stacked light-on-dark, 760x454"
+    },
+    {
+      "path": "lockup/previews/lockup-stacked-mono.png",
+      "bytes": 11463,
+      "sha256": "b883cf0c138181178248c20faac3c9eee361ee25f312ad4633124a7b205a42d1",
+      "note": "PNG preview stacked mono, 760x454"
+    },
+    {
+      "path": "lockup/previews/wordmark-dark-on-light.png",
+      "bytes": 14641,
+      "sha256": "06e5cd445f10a961d23de66a4314e6279a2577397aad0061ad852c3366557264",
+      "note": "PNG preview wordmark dark-on-light, 1000x189"
+    },
+    {
+      "path": "lockup/previews/wordmark-light-on-dark.png",
+      "bytes": 14594,
+      "sha256": "27d18f87455a08a57acc10029abfb4fd0a79a3c91079b772bd3481e561b9b16b",
+      "note": "PNG preview wordmark light-on-dark, 1000x189"
+    },
+    {
+      "path": "lockup/previews/wordmark-mono.png",
+      "bytes": 9918,
+      "sha256": "517e317e96f73f40d94c49264e47226cc1fc352476081647c568e600daa66027",
+      "note": "PNG preview wordmark mono, 1000x189"
+    },
+    {
+      "path": "lockup/wordmark-dark-on-light.svg",
+      "bytes": 1054,
+      "sha256": "b2025d9d1bb9b1dad49893af6b5efad16c2eec6317505694e2cad175d57cec52",
+      "note": "MANHUNT wordmark, dark-on-light"
+    },
+    {
+      "path": "lockup/wordmark-light-on-dark.svg",
+      "bytes": 1054,
+      "sha256": "bf6e14937b34ddcd27de3fe21b83726a7dac7324746882121f1cdcbe0964600d",
+      "note": "MANHUNT wordmark, light-on-dark"
+    },
+    {
+      "path": "lockup/wordmark-mono.svg",
+      "bytes": 1054,
+      "sha256": "1183beff387da364bc6dd1b3c085a9fecb35845e722b350dc279fc30273d331f",
+      "note": "MANHUNT wordmark, mono"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3536,
+      "sha256": "edeab8c169e978356ea0f798c77bc95e35f6d4391d1aa8e106cc29e6337c9247",
+      "note": "handoff document"
+    }
+  ]
+}
