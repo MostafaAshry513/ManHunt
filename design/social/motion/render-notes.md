@@ -8,13 +8,13 @@ Everything here was produced from source in this folder. No fonts, images, music
 
 | File | Duration | Size | Format |
 |---|---|---|---|
-| `manhunt_short_1080x1920.mp4` | **15.00 s** | **1.62 MB** | H.264 High/L4.2, yuv420p, 30 fps, 1080×1920, AAC-LC 192 kb/s 48 kHz stereo, `+faststart` |
+| `manhunt_short_1080x1920.mp4` | **15.00 s** | **1.61 MB** | H.264 High/L4.2, yuv420p, 30 fps, 1080×1920, AAC-LC 192 kb/s 48 kHz stereo, `+faststart` |
 | `manhunt_short_1080x1920.webm` | 15.01 s | 0.82 MB | VP9 yuv420p 30 fps + Opus 96 kb/s 48 kHz stereo |
-| `manhunt_cutdown_720x1280.gif` | **5.99 s** (90 frames) | **2.72 MB** | GIF, 720×1280, 15 fps, 128-colour palette, bayer dither, `-loop 0` |
-| `manhunt_cover_1080x1920.png` | still | 0.40 MB | 1080×1920 PNG cover / thumbnail |
-| `manhunt_poster_1080x1920.png` | still | 0.28 MB | 1080×1920 PNG poster frame (t = 0.9 s) |
+| `manhunt_cutdown_720x1280.gif` | **5.99 s** (90 frames) | **2.62 MB** | GIF, 720×1280, 15 fps, 128-colour palette, bayer dither, `-loop 0` |
+| `manhunt_cover_1080x1920.png` | still | 0.39 MB | 1080×1920 PNG cover / thumbnail |
+| `manhunt_poster_1080x1920.png` | still | 0.27 MB | 1080×1920 PNG poster frame (t = 0.9 s) |
 | `out/audio/manhunt_score.wav` | 15.00 s | 2.52 MB | 44.1 kHz stereo PCM16, original synthesised score |
-| `out/qa/*.png` | — | — | legibility/proof frames: first frame, phone-size shots, GIF end-card frame |
+| `out/qa/*.png` | — | — | legibility/proof frames: first frame, phone-size shots, end-card, GIF end-card, cover |
 
 Verified with the build ffmpeg: MP4 metadata is 1080×1920 / 30 fps / 15.00 s, full decode exits 0; WebM decodes 0; GIF is 90 frames @15 fps / 5.99 s. MP4 integrated loudness −17.4 LUFS (EBU R128), LRA 6.4 LU.
 
@@ -144,6 +144,6 @@ tools/build.ps1     one-command rebuild of every deliverable
 4. **Audio is a deliberately restrained synth bed** (chalk scratch, sub pulse, ticks, ping, snap, silence on the end card, per the brand beat sheet). It is original and royalty-free but it is not a music track; a licensed/picked track can replace it by swapping `out/audio/manhunt_score.wav` and re-running the encode steps.
 5. **Arabic/RTL is not rendered.** `captions.md` has proposed Arabic lines using the app's own terminology, but an RTL layout pass is needed before shipping an Arabic cut.
 6. **Slogan approved; one typography open item.** "No gear. No fee. Just players." is owner-approved and is what the shipped renders use. `LOCKUP.md` §5 says live slogan copy is set in the brand display face; this film sets it in Instrument Sans on the end card (the typography brand-director signed off in v2) and in Big Shoulders on the cover. Left unchanged in task-37 to avoid re-opening a signed-off card — flag to brand-director/owner if the end-card slogan should be re-set in Big Shoulders (one CSS edit + re-render).
-7. **MP4 is 1.62 MB / 15 s**, which is fine for Reels/TikTok/Shorts; the WebM (0.82 MB) is the lighter web/install-page option. The GIF is silent by nature.
+7. **MP4 is 1.61 MB / 15 s**, which is fine for Reels/TikTok/Shorts; the WebM (0.82 MB) is the lighter web/install-page option. The GIF is silent by nature.
 8. **No platform is claimed.** The end card says "not on Play Store"; install is a sideloaded APK at `http://74.208.99.178/`, and no safety/rescue/trespassing claims or fake social proof appear anywhere.
 9. **Identity markup is inline, not a runtime asset.** The official SVG paths are inlined verbatim in `src/index.html` (per `LOCKUP.md` §1) instead of being loaded as a file, so there is no external asset to go missing at render time. If the identity package is re-issued, re-inline the canonical SVG markup, update the two sha256 values in `MH_LOCKUP`, and rebuild.
