@@ -4,6 +4,26 @@ All notable changes to ManHunt are recorded here. The release workflow copies th
 for a tag into the GitHub Release body, and the in-app Updates page shows that text plus the
 release date.
 
+## [0.13.1] — 2026-11-01
+
+### Added
+
+- Lobby team sides keep their team-colour outlines again, but only the chosen side looks
+  active: full-strength 3dp outline, tinted background and a selected check badge; the other
+  side gets a thin translucent team-colour outline.
+- Predictive back now reveals the actual Home page behind the shrinking Settings/Roles screen
+  while the system gesture is in progress, instead of leaving a blank background.
+
+### Changed
+
+- Text-size slider is preview-only while dragging: only the sample line rescales (using the
+  same theme scaling as the app) and the whole app applies the size when the slider is released.
+
+### Fixed
+
+- “Use my location” requests a fresh live GPS/network fix on every press (cached fix only as
+  a timeout fallback), so placing the zone while moving no longer reuses a stale position.
+
 ## [0.13.0] — 2026-10-31
 
 ### Added

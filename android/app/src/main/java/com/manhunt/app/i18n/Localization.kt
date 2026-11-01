@@ -74,6 +74,7 @@ private val arabic: Map<String, String> = mapOf(
     "Live" to "مباشر",
     "Polling" to "تحديث دوري",
     "Choose your side" to "اختر جانبك",
+    "Selected" to "مختار",
     "The hunt" to "المطاردة",
     "Pick a side. Ready up. The huntmaster starts the hunt." to
         "اختر جانبك واستعد؛ يبدأ حكم المطاردة المطاردة.",
@@ -278,7 +279,8 @@ private val arabic: Map<String, String> = mapOf(
     "Dark" to "داكن",
     "Light" to "فاتح",
     "Text size" to "حجم النص",
-    "Preview: the room, chat and buttons scale together." to "معاينة: تتغير الغرفة والدردشة والأزرار معًا.",
+    "Preview only: the app applies this size when you release the slider." to
+        "معاينة فقط: يُطبَّق هذا الحجم عند إفلات شريط التمرير.",
     "Hunters see prey positions every few minutes." to "يرى الصيادون مواقع الفرائس كل بضع دقائق.",
     "Location" to "الموقع",
     "Precise location" to "الموقع الدقيق",
@@ -324,6 +326,14 @@ private val arabic: Map<String, String> = mapOf(
         "لوحة ألوان خريطة زرقاء داكنة، وملاءمة المنطقة والفرائس عند الفتح.",
     "Clear stale/live markers, claim banners and huntmaster details." to
         "علامات واضحة للتقارير القديمة والحديثة، ولافتات المطالبات وتفاصيل قائد المطاردة.",
+    "Team sides keep their colours with a clear selected outline and badge." to
+        "يحتفظ فريقا اللعبة بألوانهما مع إطار وشارة واضحين للفريق المحدد.",
+    "Use my location now requests a fresh fix on every press." to
+        "زر استخدام موقعي يطلب موقعًا حديثًا في كل ضغطة.",
+    "Text-size preview scales only the sample and applies on release." to
+        "معاينة حجم النص تغيّر النص التجريبي فقط ويُطبَّق الحجم عند الإفلات.",
+    "Predictive back reveals Home while you slide back." to
+        "الرجوع التنبؤي يُظهر الصفحة الرئيسية أثناء السحب للخلف.",
     "Signed in as" to "مسجّل الدخول باسم",
     "Server" to "الخادم",
     "To change the server, sign out and edit it on the sign-in screen." to

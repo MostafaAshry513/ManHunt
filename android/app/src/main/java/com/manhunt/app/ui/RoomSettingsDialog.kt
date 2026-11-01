@@ -155,7 +155,9 @@ fun RoomSettingsDialog(
                                 locating = true
                                 locationError = null
                                 scope.launch {
-                                    val fix = DeviceLocation.current(context)
+                                    // forceFresh on EVERY press: the player may have moved
+                                    // since the last press, so a cached fix is not good enough.
+                                    val fix = DeviceLocation.current(context, forceFresh = true)
                                     locating = false
                                     if (fix != null) {
                                         applyCenter(fix.lat, fix.lng)

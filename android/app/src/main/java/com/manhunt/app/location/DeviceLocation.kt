@@ -21,6 +21,10 @@ import kotlin.coroutines.resume
  * One-shot location lookup for actions that are not in a tracking match (e.g. placing a
  * zone centre from the room settings dialog). Falls back to the freshest cached fix if
  * the device cannot produce a live one.
+ *
+ * Callers that must reflect the player's current position (repeated "use my location"
+ * presses) pass [current]'s `forceFresh = true`: live GPS/network updates are requested
+ * on every call and the cached fix is only the timeout fallback.
  */
 object DeviceLocation {
 
@@ -34,25 +38,35 @@ object DeviceLocation {
             PackageManager.PERMISSION_GRANTED
 
     @SuppressLint("MissingPermission") // hasPermission() is checked above.
-    suspend fun current(context: Context): LatLng? = withContext(Dispatchers.IO) {
+    suspend fun current(context: Context, forceFresh: Boolean = false): LatLng? = withContext(Dispatchers.IO) {
         if (!hasPermission(context)) return@withContext null
         val manager = context.getSystemService(LocationManager::class.java) ?: return@withContext null
+        val cached = lastKnown(manager)
 
-        val cached = listOf(
+        // Fast path for callers that only need "some recent position" (dialog seeding).
+        // forceFresh callers skip it on purpose: a player pressing "use my location" again
+        // while moving must get a NEW fix, not a cached one from the last few minutes.
+        if (!forceFresh && cached != null && System.currentTimeMillis() - cached.time <= FRESH_FIX_MS) {
+            return@withContext LatLng(cached.latitude, cached.longitude)
+        }
+
+        // Ask for a live fix first; the cached fix is only a timeout fallback. awaitFix()
+        // unregisters its listener on first fix AND on cancellation (timeout/dialog close),
+        // so repeated presses cannot leak listeners.
+        val fresh = withTimeoutOrNull(FIX_TIMEOUT_MS) { awaitFix(manager) }
+        fresh ?: cached?.let { LatLng(it.latitude, it.longitude) }
+    }
+
+    /** Freshest of the cached fixes, whatever its age; null when none exists. */
+    @SuppressLint("MissingPermission") // Only called from current() after the permission check.
+    private fun lastKnown(manager: LocationManager): Location? =
+        listOf(
             LocationManager.GPS_PROVIDER,
             LocationManager.NETWORK_PROVIDER,
             LocationManager.PASSIVE_PROVIDER,
         ).mapNotNull { provider ->
             runCatching { manager.getLastKnownLocation(provider) }.getOrNull()
         }.maxByOrNull { it.time }
-
-        if (cached != null && System.currentTimeMillis() - cached.time <= FRESH_FIX_MS) {
-            return@withContext LatLng(cached.latitude, cached.longitude)
-        }
-
-        val fresh = withTimeoutOrNull(FIX_TIMEOUT_MS) { awaitFix(manager) }
-        fresh ?: cached?.let { LatLng(it.latitude, it.longitude) }
-    }
 
     @SuppressLint("MissingPermission") // Only called from current() after the permission check.
     private suspend fun awaitFix(manager: LocationManager): LatLng? =

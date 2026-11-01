@@ -74,6 +74,7 @@ import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
 import com.manhunt.app.ui.theme.ManHuntRadius
 import com.manhunt.app.ui.theme.ManHuntSpacing
+import com.manhunt.app.ui.theme.ManHuntTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -180,6 +181,8 @@ private fun AppearanceTab(
     onTheme: (Boolean) -> Unit,
     onScale: (Float) -> Unit,
 ) {
+    // Draft scale for the drag. It feeds ONLY the nested preview theme below: the app-wide
+    // theme is committed on release, so dragging never rescales the Settings screen itself.
     var scale by remember(storedScale) { mutableFloatStateOf(storedScale) }
 
     ScreenCard(title = t("Theme"), icon = Icons.Outlined.Palette) {
@@ -197,33 +200,35 @@ private fun AppearanceTab(
         )
         Slider(
             value = scale,
-            // Live app-wide scaling while the finger moves: the sample line below is real
-            // themed text, not a locally-detached preview. This is what the design
-            // prototype shows (the whole UI grows as you drag).
-            onValueChange = {
-                scale = it
-                onScale(it)
-            },
+            // Drag only moves the draft + preview. Committing here would rescale the whole
+            // app under the finger (and reflow every card while sliding).
+            onValueChange = { scale = it },
+            // Release (finger up / keyboard commit) is the only thing that rescales the app.
+            onValueChangeFinished = { onScale(scale) },
             valueRange = 0.85f..1.35f,
             // steps=9 => 11 stops: 85, 90, 95, 100, 105, ... 135. Includes exactly 100%.
             steps = 9,
             modifier = Modifier.testTag("text_scale_slider"),
         )
         Text(
-            t("Preview: the room, chat and buttons scale together."),
+            t("Preview only: the app applies this size when you release the slider."),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Surface(
-            shape = RoundedCornerShape(ManHuntRadius.sm),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                t("Hunters see prey positions every few minutes."),
-                modifier = Modifier.padding(ManHuntSpacing.md).testTag("text_size_preview"),
-                style = MaterialTheme.typography.bodyMedium,
-            )
+        // Same ManHuntTheme call the app root uses, at the draft scale: the sample is
+        // pixel-identical to the final look once the value is committed.
+        ManHuntTheme(darkTheme = dark, fontScale = scale) {
+            Surface(
+                shape = RoundedCornerShape(ManHuntRadius.sm),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    t("Hunters see prey positions every few minutes."),
+                    modifier = Modifier.padding(ManHuntSpacing.md).testTag("text_size_preview"),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
         }
     }
 }

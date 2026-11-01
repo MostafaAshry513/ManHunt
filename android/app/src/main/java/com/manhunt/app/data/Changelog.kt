@@ -16,6 +16,16 @@ data class ChangelogEntry(
 object Changelog {
     val recent: List<ChangelogEntry> = listOf(
         ChangelogEntry(
+            version = "0.13.1",
+            date = "2026-11-01",
+            changes = listOf(
+                "Team sides keep their colours with a clear selected outline and badge.",
+                "Use my location now requests a fresh fix on every press.",
+                "Text-size preview scales only the sample and applies on release.",
+                "Predictive back reveals Home while you slide back.",
+            ),
+        ),
+        ChangelogEntry(
             version = "0.13.0",
             date = "2026-10-31",
             changes = listOf(

@@ -16,6 +16,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -39,6 +40,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -97,6 +99,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -1450,39 +1453,69 @@ private fun TeamChoiceCard(
 ) {
     val color = teamColor(team)
     val icon = if (team == Teams.PREY) Icons.Outlined.Pets else Icons.Outlined.GpsFixed
-    Surface(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.heightIn(min = 128.dp),
-        shape = RoundedCornerShape(20.dp),
-        color = if (selected) color.copy(alpha = 0.18f)
+    // Both sides keep their team-colour identity, but only the chosen side looks active:
+    // a full-strength 3dp outline + tint + check badge versus a thin translucent outline on
+    // a neutral surface (the earlier fix against "both cards look selected", improved).
+    val outlineWidth by animateDpAsState(
+        targetValue = if (selected) 3.dp else 1.5.dp,
+        animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
+        label = "team-outline-width",
+    )
+    val outlineColor by animateColorAsState(
+        targetValue = if (selected) color else color.copy(alpha = 0.45f),
+        animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
+        label = "team-outline-color",
+    )
+    val background by animateColorAsState(
+        targetValue = if (selected) color.copy(alpha = 0.16f)
         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
+        label = "team-card-background",
+    )
+    Surface(
+        modifier = modifier
+            .heightIn(min = 128.dp)
+            // selectable() adds the selected/disabled semantics (radio-group style) and the
+            // ripple; tapping your current side stays disabled as before.
+            .selectable(
+                selected = selected,
+                enabled = enabled,
+                role = Role.RadioButton,
+                onClick = onClick,
+            ),
+        shape = RoundedCornerShape(20.dp),
+        color = background,
         contentColor = if (selected) color else MaterialTheme.colorScheme.onSurface,
-        border = BorderStroke(
-            if (selected) 3.dp else 2.dp,
-            // Only the selected side gets the team-colour "glow"; otherwise the
-            // auto-assigned default looked like both cards were selected.
-            if (selected) color else MaterialTheme.colorScheme.outline.copy(alpha = 0.55f),
-        ),
+        border = BorderStroke(outlineWidth, outlineColor),
     ) {
-        Column(
-            Modifier.fillMaxSize().padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(36.dp), tint = color)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                t(teamLabel(team)),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                t(if (team == Teams.PREY) "Hide. Survive." else "Track. Tag."),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+        Box(Modifier.fillMaxSize().padding(10.dp)) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(36.dp), tint = color)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    t(teamLabel(team)),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    t(if (team == Teams.PREY) "Hide. Survive." else "Track. Tag."),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (selected) {
+                // Visible "this is your side" marker; TalkBack also reads the localized label.
+                Icon(
+                    Icons.Outlined.CheckCircle,
+                    contentDescription = t("Selected"),
+                    modifier = Modifier.align(Alignment.TopEnd).size(20.dp),
+                    tint = color,
+                )
+            }
         }
     }
 }

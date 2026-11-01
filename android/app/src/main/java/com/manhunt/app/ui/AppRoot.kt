@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -79,6 +80,14 @@ fun AppRoot() {
     // screen follows the finger (scale/slide) and then navigates Home on completion.
     var backProgress by remember { mutableFloatStateOf(0f) }
     val canPredictiveBack = routeKey == "settings" || routeKey == "roles"
+    // Show the destination behind the shrinking screen while the gesture is active, so the
+    // predictive-back animation reveals Home instead of the app's blank window background.
+    // derivedStateOf matters here: a plain read would recompose both screens every frame.
+    val showBackDestination by remember {
+        derivedStateOf {
+            backProgress > 0.001f && (routeKey == "settings" || routeKey == "roles")
+        }
+    }
     PredictiveBackHandler(enabled = canPredictiveBack) { progressEvents ->
         try {
             progressEvents.collect { event -> backProgress = event.progress }
@@ -122,12 +131,37 @@ fun AppRoot() {
             LocalStrings provides if (language == AppLanguage.Arabic) arabicStrings() else emptyMap(),
             LocalLayoutDirection provides if (language.isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
         ) {
+        val homeScreen: @Composable () -> Unit = {
+            HomeScreen(
+                onOpenRoom = { id ->
+                    activeRoomId = id
+                    routeKey = "room"
+                },
+                onOpenSettings = { routeKey = "settings" },
+                onOpenRoles = { routeKey = "roles" },
+            )
+        }
         // Edge-to-edge: keep every screen inside the status bar, cutout, nav bar and IME.
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Box(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                 // Screen slides must mirror with the layout, or Arabic navigation animates
                 // in the "wrong" direction while the UI itself is fully mirrored.
                 val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+                if (showBackDestination) {
+                    // Destination page is already composed underneath: Settings/Roles scale
+                    // and slide away to reveal Home, matching the Android predictive-back
+                    // feel and making the navigation read as forward motion, not a blank gap.
+                    Box(
+                        modifier = Modifier.fillMaxSize().graphicsLayer {
+                            val p = backProgress.coerceIn(0f, 1f)
+                            scaleX = 0.98f + 0.02f * p
+                            scaleY = 0.98f + 0.02f * p
+                            translationX = size.width * 0.02f * p * (if (isRtl) 1f else -1f)
+                        },
+                    ) {
+                        homeScreen()
+                    }
+                }
                 AnimatedContent(
                     targetState = route,
                     modifier = Modifier.graphicsLayer {
@@ -166,14 +200,7 @@ fun AppRoot() {
                             onClose = { routeKey = "home" },
                         )
                         Route.Auth -> AuthScreen()
-                        Route.Home -> HomeScreen(
-                            onOpenRoom = { id ->
-                                activeRoomId = id
-                                routeKey = "room"
-                            },
-                            onOpenSettings = { routeKey = "settings" },
-                            onOpenRoles = { routeKey = "roles" },
-                        )
+                        Route.Home -> homeScreen()
                         Route.Settings -> SettingsScreen(onBack = { routeKey = "home" })
                         is Route.Room -> RoomScreen(
                             roomId = current.id,
