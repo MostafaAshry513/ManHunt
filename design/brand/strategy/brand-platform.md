@@ -185,8 +185,8 @@ cold for its own sake.
 left." Numbers spelled as numerals. Micro-labels in mono.
 
 **Visual cues.** Concentric ranges, scan sweeps, coordinate ticks, hairline vectors, a dot-grid
-ground — the blue-black of the hunting-map screenshot (`docs/screenshots/05-hunting-map.png`)
-turned into a system. One hot accent only.
+ground — the blue-black of the Open Zone field art (`docs/brand/readme-hero.gif`) turned into a
+system. One hot accent only.
 
 **Icon metaphors to explore.** A ring with a deliberate gap (the hidden player); a widening ping
 anchored at a dot; a vector pinned at both ends; a path that turns a corner out of frame.

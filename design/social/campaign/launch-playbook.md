@@ -224,7 +224,8 @@ audience, hook, proof and CTA. Full copy is in `captions-and-hooks.md` (CAP-01�
 - **Hooks (first 1–2 s):** "This is my friend on my map right now." / "Hide and seek just got a tracker."
   / "POV: you can see where everyone is hiding."
 - **Proof shown (only real, only from the app):** live map, room code, Prey/Hunters sides, tag
-  confirm/dispute, countdown. Use `docs/screenshots/05-hunting-map.png` and real screen recordings.
+  confirm/dispute, countdown. Use real screen recordings; CI static captures cannot render live
+  map tiles, so use the 60s explainer for map motion and record the real app separately.
 - **Primary CTA:** "Send this to the group chat — then download it together." Secondary: "Free Android APK
   in bio."
 - **Why it wins:** it explains the product in one second and is impossible to confuse with a static app ad.
