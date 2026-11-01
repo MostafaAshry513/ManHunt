@@ -15,6 +15,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# gh emits UTF-8 JSON. Windows PowerShell 5.1 decodes native-command stdout using the
+# OEM code page unless these are set, which mangles curly quotes in release notes.
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+$OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 $gh = 'C:\Program Files\GitHub CLI\gh.exe'
 if (-not (Test-Path $gh)) { $gh = 'gh' }
 $repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
