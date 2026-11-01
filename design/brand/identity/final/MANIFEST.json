@@ -1,6 +1,13 @@
 {
-  "generated": "2026-11-01T14:51:11.237Z",
-  "status": "APPROVED — owner approved Open Zone + \"No gear. No fee. Just players.\"",
+  "generated": "2026-11-01T16:43:31.156Z",
+  "status": "IDENTITY APPROVED (Open Zone) — COPY PROVISIONAL, owner approval pending.",
+  "copy": {
+    "permanentLine": "Hide from your friends.",
+    "hook": "Your friends are hunting you.",
+    "cta": "Create a hunt. Send the code. Hide.",
+    "descriptor": "Real-world GPS hide-and-seek",
+    "rejected": "No gear. No fee. Just players."
+  },
   "wordmark": "MANHUNT (drawn, 7 glyph paths, cap 100 units, stem 16, tracking 10)",
   "mark": "Open Zone, unchanged geometry from concepts/01-open-zone/mark.svg",
   "canonicalForMotion": "final/lockup/lockup-stacked-light-on-dark.svg and final/lockup/wordmark-light-on-dark.svg",
@@ -145,20 +152,20 @@
     },
     {
       "path": "install/og-image-1200x630.png",
-      "bytes": 38835,
-      "sha256": "c7dc05607618eda495fb561d766c6507bcfee92d2bfad2f4f3f84b9324f6d27a",
+      "bytes": 31983,
+      "sha256": "a6156583ae6eb3eb9fc988a8c0d4b5e8a1b3e730fb3087ffd8d8c71cb9dd54b1",
       "note": "Open Graph / social card 1200x630"
     },
     {
       "path": "install/README.md",
-      "bytes": 3616,
-      "sha256": "e72e9b96be616ddce13fe71cf5b632157ea297e65fb87c59e1157e4040068713",
+      "bytes": 5144,
+      "sha256": "8d5e1f1480ceddccbf842be07f0ac29e797afbecea950f55d14de29941e8b46e",
       "note": "handoff document"
     },
     {
       "path": "LOCKUP.md",
-      "bytes": 6941,
-      "sha256": "461b72586856031ba9f4a3f1423cdb55ae097d05a0ada52f7104761bb8842fb5",
+      "bytes": 8348,
+      "sha256": "70310ab41d406e7017f21358ee1c4445d614ace23d02e22338507911baf9cdad",
       "note": "handoff document"
     },
     {
@@ -235,8 +242,8 @@
     },
     {
       "path": "lockup/previews/lockup-sheet.png",
-      "bytes": 162653,
-      "sha256": "8dbc3d4ba4c446843f9a37d806ead581204694b0cbd3c2d897e912d18bd1600a",
+      "bytes": 169581,
+      "sha256": "77c2a27657d71402a35a030d6d9fd56b2cf2673016a7b3004b1c79e4dd04a1b2",
       "note": "lockup specimen sheet 1600x1180"
     },
     {
@@ -295,8 +302,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 3536,
-      "sha256": "edeab8c169e978356ea0f798c77bc95e35f6d4391d1aa8e106cc29e6337c9247",
+      "bytes": 3825,
+      "sha256": "1b22ee95a4f1cc0f144abb54aa491f96942bd9b45bcf4fbbe1ed8bbf53a8b5c5",
       "note": "handoff document"
     }
   ]

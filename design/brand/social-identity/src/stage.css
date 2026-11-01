@@ -1,0 +1,47 @@
+/* ============================================================================
+   ManHunt social identity kit — render stage (headless-Chrome capture only)
+   Fonts come from the motion-kit (shared OFL render set), not duplicated here.
+   ============================================================================ */
+@font-face { font-family: 'Big Shoulders'; src: url('../../motion-kit/assets/fonts/BigShoulders-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: block; }
+@font-face { font-family: 'Big Shoulders'; src: url('../../motion-kit/assets/fonts/BigShoulders-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: 'Instrument Sans'; src: url('../../motion-kit/assets/fonts/InstrumentSans-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: 'Instrument Sans'; src: url('../../motion-kit/assets/fonts/InstrumentSans-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: block; }
+@font-face { font-family: 'Red Hat Mono'; src: url('../../motion-kit/assets/fonts/RedHatMono-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: 'Red Hat Mono'; src: url('../../motion-kit/assets/fonts/RedHatMono-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: block; }
+
+:root {
+  --field: #0B1220;
+  --chalk: #E6EDF7;
+  --muted: #A7B6CC;
+  --dim: #7C8DA8;
+  --cyan: #22D3EE;
+  --coral: #FF7A59;
+  --violet: #A79BFF;
+  --sans: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Red Hat Mono', 'Consolas', monospace;
+  --display: 'Big Shoulders', 'Arial Narrow', sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--field); overflow: hidden; }
+body { font-family: var(--sans); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+#stage { position: relative; overflow: hidden; background: var(--field); isolation: isolate; }
+#artHost, #ui { position: absolute; inset: 0; }
+#artHost svg { display: block; }
+
+.mh-lockup { position: absolute; }
+.mh-lockup svg { display: block; width: 100%; height: auto; }
+
+.mh-rule { position: absolute; background: var(--chalk); opacity: 0.92; }
+.mh-hook {
+  position: absolute; margin: 0; padding: 0; font-family: var(--sans); font-weight: 700;
+  color: var(--chalk); letter-spacing: -0.022em; line-height: 0.99; white-space: nowrap;
+}
+.mh-desc { position: absolute; margin: 0; font-family: var(--sans); font-weight: 400; color: var(--muted); letter-spacing: -0.004em; white-space: nowrap; }
+.mh-cta { position: absolute; margin: 0; font-family: var(--sans); font-weight: 400; color: #C9D5E7; letter-spacing: -0.004em; white-space: nowrap; }
+.mh-legend { position: absolute; display: flex; align-items: center; gap: 22px; font-family: var(--mono); letter-spacing: 0.16em; color: var(--muted); }
+.mh-legend .lg { display: inline-flex; align-items: center; gap: 8px; }
+.mh-legend .dot { display: inline-block; border-radius: 50%; }
+.mh-micro { position: absolute; margin: 0; font-family: var(--mono); color: var(--dim); letter-spacing: 0.055em; white-space: nowrap; }
+.mh-url { position: absolute; margin: 0; font-family: var(--mono); color: var(--chalk); opacity: 0.78; letter-spacing: 0.02em; white-space: nowrap; }
+.mh-trust { position: absolute; margin: 0; font-family: var(--sans); color: var(--muted); letter-spacing: -0.004em; white-space: nowrap; }

@@ -104,6 +104,9 @@ a:focus-visible{outline:2px solid var(--chalk);outline-offset:3px;border-radius:
 .telemetry span{display:block;margin-top:7px;font:400 12px/1.35 var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
 .note{color:var(--muted);font-size:13.5px;margin:12px 0 0}
 .note code{font:400 12.5px/1.4 var(--mono);color:var(--chalk)}
+.copy-lock{border-top:1px solid var(--hair);margin:18px 0 0;padding-top:12px;color:var(--muted);
+  font:400 12.5px/1.65 var(--mono);max-width:var(--measure)}
+.copy-lock b{color:var(--chalk);font-weight:400}
 
 /* ---------- sections ---------- */
 section{margin-top:clamp(38px,6vw,72px)}
@@ -244,13 +247,17 @@ footer a{color:var(--chalk)}
       </svg>
     </div>
     <p class="kicker">Campaign one-pager · growth workstream</p>
-    <p class="provisional">Provisional brand line — owner approval pending</p>
-    <h1>No gear.<br>No fee.<br><span class="swap">Just players.</span></h1>
+    <p class="provisional">Provisional copy family — owner approval pending</p>
+    <h1>Your friends<br>are hunting<br><span class="swap">you.</span></h1>
     <p class="descriptor">
       ManHunt is real-world hide-and-seek for Android: Prey hide, their phones report position, Hunters
       follow a live map and tag them in person. Free signed APK, about 2 MB. Not on the Play Store.
       <span>This plan is built for a brand-new account and a $0 media budget.</span>
     </p>
+    <p class="copy-lock"><b>Copy lock (provisional):</b> hook “Your friends are hunting you.” ·
+      short line “Hide from your friends.” · end-card CTA “Create a hunt. Send the code. Hide.”
+      Owner approval pending. Supersedes the rejected v1 slogan “No gear. No fee. Just players.”
+      (owner-rejected 2026-11-01).</p>
 
     <div class="telemetry" aria-label="Baseline measured 2026-11-01">
       <div class="cell"><b>9</b><span>accounts created</span></div>
@@ -387,7 +394,9 @@ footer a{color:var(--chalk)}
   <section aria-labelledby="decisions">
     <h2 id="decisions">Owner decisions <span class="rule"></span><span class="count">before day 1</span></h2>
     <ul class="checks">
-      <li>Approve the brand direction (<b>PICKUP</b>) and slogan — provisional line is “No gear. No fee. Just players.”; alternate “Rules you can't argue with.” <span class="tag block">blocking</span></li>
+      <li>Approve the provisional copy family (v2): hook “Your friends are hunting you.” · short line
+        “Hide from your friends.” · end-card CTA “Create a hunt. Send the code. Hide.” The v1 slogan is
+        rejected. <span class="tag block">blocking</span></li>
       <li>Decide the product name/trademark position and social handles — <code>MANHUNT</code> collides in the game class; keep handles change-tolerant <span class="tag block">blocking</span></li>
       <li>Confirm who creates the accounts and posts (this workstream cannot) and whether a TikTok Business account (bio link) or a 1k-follower personal account <span class="tag block">blocking</span></li>
       <li>Approve the claims ledger and disclosure line; no safety/privacy promises <span class="tag block">blocking</span></li>
@@ -407,6 +416,7 @@ footer a{color:var(--chalk)}
       design/social/campaign/launch-playbook.md<br>
       design/social/campaign/captions-and-hooks.md<br>
       design/social/campaign/creative-briefs.md<br>
+      design/social/campaign/hooks-v2.md · platform-rollout.md<br>
       design/social/campaign/measure-log.ps1
     </div>
     <div>
@@ -418,8 +428,8 @@ footer a{color:var(--chalk)}
   <p class="credits">Type: Big Shoulders and Instrument Sans, SIL Open Font License, referenced from
     <code>design/social/motion/assets/fonts/</code>. Map data © OpenStreetMap contributors (ODbL) where
     map tiles appear. Brand system: “Chalk on Night Asphalt” (design/brand/strategy/visual-direction.md).
-    PICKUP direction and slogan are provisional, pending owner approval. Nothing in this document has been
-    posted; no accounts or ad spend were created.</p>
+    PICKUP direction is provisional; the copy family (v2) is provisional pending owner approval, and the
+    v1 slogan is rejected. Nothing in this document has been posted; no accounts or ad spend were created.</p>
 </main>
 </body>
 </html>

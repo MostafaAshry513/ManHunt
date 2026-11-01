@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt — YouTube channel art safe-area guide (2560×1440)</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #05080f; overflow: hidden; }
+  .stage { position: relative; width: 2560px; height: 1440px; overflow: hidden; }
+  .stage img { display: block; width: 2560px; height: 1440px; }
+  .safe {
+    position: absolute; left: 507px; top: 508px; width: 1546px; height: 423px;
+    border: 3px dashed #22D3EE; box-sizing: border-box;
+  }
+  .safe::after {
+    content: "SAFE AREA 1546 × 423 — all text and the lockup live here";
+    position: absolute; left: 0; bottom: -42px;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 26px; letter-spacing: 0.06em; color: #22D3EE; white-space: nowrap;
+  }
+  .edge {
+    position: absolute; inset: 24px; border: 2px solid rgba(230, 237, 247, 0.32);
+    box-sizing: border-box;
+  }
+  .tag {
+    position: absolute; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 24px; letter-spacing: 0.08em; color: #A7B6CC;
+    background: rgba(11, 18, 32, 0.82); padding: 6px 12px;
+  }
+  .tag.tv { left: 40px; top: 40px; color: #E6EDF7; }
+  .tag.center { left: 50%; top: 50%; transform: translate(-50%, -50%); color: #22D3EE; display: none; }
+  .hint {
+    position: absolute; left: 507px; top: 1016px;
+    font-family: "Segoe UI", system-ui, sans-serif; font-size: 25px; line-height: 1.5;
+    color: #A7B6CC; max-width: 1180px;
+  }
+  .hint b { color: #E6EDF7; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <img src="../out/social/youtube-2560x1440-safe-area.png" alt="ManHunt YouTube channel art with safe area overlay">
+  <div class="edge"></div>
+  <div class="tag tv">TV / desktop: 2560 × 1440 (16:9)</div>
+  <div class="safe"></div>
+  <div class="hint"><b>Mobile crops to the centre of the canvas.</b> The dashed box is the only region that is
+  guaranteed visible on desktop, tablet, mobile and TV — the lockup, hook, descriptor, legend and the honest
+  “free APK · Android 8+ · not on Play Store” line all sit inside it. The radar and the block map are
+  decoration and may crop.</div>
+</div>
+</body>
+</html>

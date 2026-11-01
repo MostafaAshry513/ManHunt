@@ -73,9 +73,12 @@ Nothing in this folder renames the product.
 
 ## 6. Status
 
-**Approved.** The owner selected 01 Open Zone (2026-11-01) with direction PICKUP and the slogan
-“No gear. No fee. Just players.”; the frozen assets, wordmark and lockups are in `final/`. The two
-unselected directions (The Corner, The Tag) remain in this folder as design history under the same terms.
+**Approved identity; copy provisional, owner approval pending.** The owner selected 01 Open Zone
+(2026-11-01) with direction PICKUP; the frozen assets, wordmark and lockups are in `final/`. The slogan
+“No gear. No fee. Just players.” was **rejected** by the owner (task-46) and is superseded by the
+provisional copy family — permanent line “Hide from your friends.”, hook “Your friends are hunting you.”,
+CTA “Create a hunt. Send the code. Hide.”. The two unselected directions (The Corner, The Tag) remain in
+this folder as design history under the same terms.
 
 - Prepared by: identity-designer (task-33 / task-36)
 - Date: 2026-11-01

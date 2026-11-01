@@ -1,5 +1,16 @@
 # ManHunt — brand platform and positioning
 
+> ## ⚠️ PARTIALLY SUPERSEDED — read `slogan-v2.md` and `script-v2.md` first
+>
+> The **direction (PICKUP)** and the analysis in §1–§3 still stand, and the identity work was built
+> on them. **Everything copy-related in this file is history:**
+> - §4/§5 recommend `No gear. No fee. Just players.` — **rejected by the owner.**
+> - The slogan table in §5.6 / §8 and decision **D3** are superseded by `slogan-v2.md`
+>   (`Your friends are hunting you.` / `Hide from your friends.` / `Create a hunt. Send the code. Hide.`).
+> - The 15 s beat sheet and end-card copy in §6 are superseded by `script-v2.md`.
+>
+> Do not ship a slogan from this file. The moodboard plate in this folder also predates the change.
+
 **Status:** proposal for owner approval. Nothing here is applied to code, the install page or a
 social channel yet. Owner decisions are listed in §10 and only the owner can close them.
 

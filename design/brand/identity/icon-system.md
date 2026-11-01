@@ -1,8 +1,11 @@
 # ManHunt icon system
 
-**Status: APPROVED — the owner selected 01 Open Zone (2026-11-01)**, with direction PICKUP and the slogan
-“No gear. No fee. Just players.” The approved mark, wordmark and all integration exports now live in
-[`final/`](final/README.md); [`final/LOCKUP.md`](final/LOCKUP.md) is the canonical lockup spec.
+**Status: APPROVED — the owner selected 01 Open Zone (2026-11-01)**, with direction PICKUP and product name
+unchanged. **Copy is provisional, owner approval pending**: the permanent line is
+“Hide from your friends.”, the hook “Your friends are hunting you.” and the CTA “Create a hunt. Send the
+code. Hide.” — the line “No gear. No fee. Just players.” is **rejected** and must not be used. The approved
+mark, wordmark and all integration exports now live in [`final/`](final/README.md);
+[`final/LOCKUP.md`](final/LOCKUP.md) is the canonical lockup + copy spec.
 This document remains the icon-system build spec — geometry, clear space, minimum sizes, palette tokens
 and the export pipeline — for the chosen direction.
 
@@ -281,9 +284,13 @@ Nothing becomes final until the owner picks a direction.
 
 ## 9. Owner decisions — resolved and remaining
 
-**Resolved by the owner, 2026-11-01:** direction PICKUP; mark 01 Open Zone; slogan “No gear. No fee. Just
-players.”; product name stays ManHunt. The adaptive background is the solid field `#0B1220` (no gradient,
-per the brand rule), and the icon palette mapping is cyan = field / coral = prey.
+**Resolved by the owner, 2026-11-01:** direction PICKUP; mark 01 Open Zone; product name stays ManHunt.
+The adaptive background is the solid field `#0B1220` (no gradient, per the brand rule), and the icon
+palette mapping is cyan = field / coral = prey.
+
+**Superseded:** the slogan “No gear. No fee. Just players.” was **rejected** by the owner (task-46).
+Identity surfaces now use the provisional copy family — permanent line “Hide from your friends.”, hook
+“Your friends are hunting you.”, CTA “Create a hunt. Send the code. Hide.” — pending final copy approval;
 
 **Still the owner's (not solvable in the identity assets):**
 

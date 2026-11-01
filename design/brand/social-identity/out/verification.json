@@ -1,0 +1,532 @@
+{
+  "generatedAt": "2026-11-01T17:03:37.037Z",
+  "kit": "design/brand/social-identity",
+  "runtime": "v24.22.1",
+  "summary": {
+    "total": 104,
+    "passed": 104,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "name": "avatar 1024: 1024×1024 PNG",
+      "pass": true,
+      "detail": "1024×1024, 47.8 KB"
+    },
+    {
+      "name": "avatar 1024: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 38.0% (limit 46%)"
+    },
+    {
+      "name": "avatar 1024: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 800: 800×800 PNG",
+      "pass": true,
+      "detail": "800×800, 36.0 KB"
+    },
+    {
+      "name": "avatar 800: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 38.0% (limit 46%)"
+    },
+    {
+      "name": "avatar 800: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 512: 512×512 PNG",
+      "pass": true,
+      "detail": "512×512, 21.9 KB"
+    },
+    {
+      "name": "avatar 512: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 37.9% (limit 46%)"
+    },
+    {
+      "name": "avatar 512: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 460: 460×460 PNG",
+      "pass": true,
+      "detail": "460×460, 18.9 KB"
+    },
+    {
+      "name": "avatar 460: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 37.9% (limit 46%)"
+    },
+    {
+      "name": "avatar 460: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 400: 400×400 PNG",
+      "pass": true,
+      "detail": "400×400, 16.5 KB"
+    },
+    {
+      "name": "avatar 400: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 37.8% (limit 46%)"
+    },
+    {
+      "name": "avatar 400: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 320: 320×320 PNG",
+      "pass": true,
+      "detail": "320×320, 12.8 KB"
+    },
+    {
+      "name": "avatar 320: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 37.7% (limit 46%)"
+    },
+    {
+      "name": "avatar 320: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 256: 256×256 PNG",
+      "pass": true,
+      "detail": "256×256, 9.8 KB"
+    },
+    {
+      "name": "avatar 256: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 37.5% (limit 46%)"
+    },
+    {
+      "name": "avatar 256: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 200: 200×200 PNG",
+      "pass": true,
+      "detail": "200×200, 7.6 KB"
+    },
+    {
+      "name": "avatar 200: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 37.5% (limit 46%)"
+    },
+    {
+      "name": "avatar 200: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 128: 128×128 PNG",
+      "pass": true,
+      "detail": "128×128, 4.7 KB"
+    },
+    {
+      "name": "avatar 128: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 36.9% (limit 46%)"
+    },
+    {
+      "name": "avatar 128: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 64: 64×64 PNG",
+      "pass": true,
+      "detail": "64×64, 1.9 KB"
+    },
+    {
+      "name": "avatar 64: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 28.0% (limit 46%)"
+    },
+    {
+      "name": "avatar 64: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 48: 48×48 PNG",
+      "pass": true,
+      "detail": "48×48, 1.2 KB"
+    },
+    {
+      "name": "avatar 48: all mark pixels inside the circular safe area",
+      "pass": true,
+      "detail": "max radius 28.0% (limit 46%)"
+    },
+    {
+      "name": "avatar 48: corners empty (safe clockwise crop)",
+      "pass": true,
+      "detail": "0 painted corner px"
+    },
+    {
+      "name": "avatar 48: mark still legible (cyan ring + coral dot)",
+      "pass": true,
+      "detail": "162 cyan / 34 coral px"
+    },
+    {
+      "name": "avatar GIF: 512×512",
+      "pass": true,
+      "detail": "512×512"
+    },
+    {
+      "name": "avatar GIF: 80 frames @ 20 fps",
+      "pass": true,
+      "detail": "80 frames / 20 fps"
+    },
+    {
+      "name": "avatar GIF: 4.00 s loop, infinite",
+      "pass": true,
+      "detail": "4s, loop=0"
+    },
+    {
+      "name": "avatar GIF: small enough for an avatar upload (<2 MB)",
+      "pass": true,
+      "detail": "106 KB"
+    },
+    {
+      "name": "avatar WebM: 512×512 VP9, ~4 s, silent",
+      "pass": true,
+      "detail": "512×512 vp9 4s"
+    },
+    {
+      "name": "out/headers/reddit-profile-banner-1600x480.png",
+      "pass": true,
+      "detail": "1600×480, 98 KB"
+    },
+    {
+      "name": "out/headers/reddit-subreddit-banner-1920x384.png",
+      "pass": true,
+      "detail": "1920×384, 79 KB"
+    },
+    {
+      "name": "out/headers/instagram-profile-card-1080x1350.png",
+      "pass": true,
+      "detail": "1080×1350, 148 KB"
+    },
+    {
+      "name": "out/headers/facebook-profile-cover-851x315.png",
+      "pass": true,
+      "detail": "851×315, 59 KB"
+    },
+    {
+      "name": "out/headers/facebook-page-cover-1640x624.png",
+      "pass": true,
+      "detail": "1640×624, 100 KB"
+    },
+    {
+      "name": "out/headers/tiktok-profile-card-1080x1080.png",
+      "pass": true,
+      "detail": "1080×1080, 127 KB"
+    },
+    {
+      "name": "out/headers/link-in-bio-background-1080x1920.png",
+      "pass": true,
+      "detail": "1080×1920, 186 KB"
+    },
+    {
+      "name": "out/templates/feed-square-1080x1080.png",
+      "pass": true,
+      "detail": "1080×1080, 130 KB"
+    },
+    {
+      "name": "out/templates/story-1080x1920.png",
+      "pass": true,
+      "detail": "1080×1920, 190 KB"
+    },
+    {
+      "name": "out/templates/carousel-cover-1080x1350.png",
+      "pass": true,
+      "detail": "1080×1350, 155 KB"
+    },
+    {
+      "name": "out/templates/end-card-1080x1350.png",
+      "pass": true,
+      "detail": "1080×1350, 131 KB"
+    },
+    {
+      "name": "gallery contact sheet: 1600 px wide, full page",
+      "pass": true,
+      "detail": "1600×3585"
+    },
+    {
+      "name": "out/headers/reddit-profile-banner-1600x480.png: field + chalk + cyan + coral + violet",
+      "pass": true,
+      "detail": "{\"field\":112532,\"chalk\":3590,\"cyan\":726,\"coral\":85,\"violet\":106}"
+    },
+    {
+      "name": "out/headers/reddit-subreddit-banner-1920x384.png: field + chalk + cyan + coral + violet",
+      "pass": true,
+      "detail": "{\"field\":111004,\"chalk\":1661,\"cyan\":472,\"coral\":55,\"violet\":92}"
+    },
+    {
+      "name": "out/headers/instagram-profile-card-1080x1350.png: field + chalk + cyan + coral + violet",
+      "pass": true,
+      "detail": "{\"field\":214667,\"chalk\":4635,\"cyan\":971,\"coral\":94,\"violet\":111}"
+    },
+    {
+      "name": "out/templates/feed-square-1080x1080.png: field + chalk + cyan + coral + violet",
+      "pass": true,
+      "detail": "{\"field\":169102,\"chalk\":3188,\"cyan\":871,\"coral\":84,\"violet\":101}"
+    },
+    {
+      "name": "out/templates/story-1080x1920.png: field + chalk + cyan + coral + violet",
+      "pass": true,
+      "detail": "{\"field\":299564,\"chalk\":6381,\"cyan\":979,\"coral\":83,\"violet\":94}"
+    },
+    {
+      "name": "out/templates/carousel-cover-1080x1350.png: field + chalk + cyan + coral + violet",
+      "pass": true,
+      "detail": "{\"field\":213003,\"chalk\":5770,\"cyan\":980,\"coral\":83,\"violet\":94}"
+    },
+    {
+      "name": "out/templates/end-card-1080x1350.png: field + chalk + cyan + coral + violet",
+      "pass": true,
+      "detail": "{\"field\":215513,\"chalk\":4488,\"cyan\":644,\"coral\":74,\"violet\":89}"
+    },
+    {
+      "name": "templates/: four editable HTML sources",
+      "pass": true,
+      "detail": "carousel-cover-1080x1350.html, end-card-1080x1350.html, feed-square-1080x1080.html, story-1080x1920.html"
+    },
+    {
+      "name": "carousel-cover-1080x1350.html: copy lives in marked COPY blocks",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "carousel-cover-1080x1350.html: official lockup paths inlined verbatim",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "carousel-cover-1080x1350.html: honest install line present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "carousel-cover-1080x1350.html: no <script>",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "carousel-cover-1080x1350.html: fonts/art resolve locally (no external asset URLs)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "end-card-1080x1350.html: copy lives in marked COPY blocks",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "end-card-1080x1350.html: official lockup paths inlined verbatim",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "end-card-1080x1350.html: honest install line present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "end-card-1080x1350.html: no <script>",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "end-card-1080x1350.html: fonts/art resolve locally (no external asset URLs)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "feed-square-1080x1080.html: copy lives in marked COPY blocks",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "feed-square-1080x1080.html: official lockup paths inlined verbatim",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "feed-square-1080x1080.html: honest install line present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "feed-square-1080x1080.html: no <script>",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "feed-square-1080x1080.html: fonts/art resolve locally (no external asset URLs)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "story-1080x1920.html: copy lives in marked COPY blocks",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "story-1080x1920.html: official lockup paths inlined verbatim",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "story-1080x1920.html: honest install line present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "story-1080x1920.html: no <script>",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "story-1080x1920.html: fonts/art resolve locally (no external asset URLs)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "end-card: short line + CTA + URL + trust",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "story: hook + CTA + honest line",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "motion-kit reuse: out/social/youtube-2560x1440-safe-area.png",
+      "pass": true,
+      "detail": "2560×1440"
+    },
+    {
+      "name": "motion-kit reuse: out/social/x-header-1500x500.png",
+      "pass": true,
+      "detail": "1500×500"
+    },
+    {
+      "name": "motion-kit reuse: out/social/github-social-1280x640.png",
+      "pass": true,
+      "detail": "1280×640"
+    },
+    {
+      "name": "motion-kit reuse: out/social/discord-960x540.png",
+      "pass": true,
+      "detail": "960×540"
+    },
+    {
+      "name": "stage loads the motion-kit radar + lockup directly",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "art.js consumes MHCore (single motion source)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "no duplicated font files in this kit (shared from motion-kit)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "templates read the official SVGs from motion-kit/assets/lockup",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions YouTube",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions X / Twitter",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions Instagram",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions TikTok",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions Discord",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions Reddit",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions GitHub",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions 1546",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions circular",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions owner-approval-pending",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README mentions animated",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README carries the file→platform mapping + reuse pointers",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README flags what cannot be uploaded as-is",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "copy: hook / short form / CTA documented",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "out/: no stray working files",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

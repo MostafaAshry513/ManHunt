@@ -60,7 +60,8 @@ Three rules underneath that:
 | Do | Don't |
 |---|---|
 | "Two teams. One block. One clock." | "The city is your playground." |
-| "No gear. No fee. Just players." | "100% free forever!" |
+| "Your friends are hunting you." (copy v2 — see `slogan-v2.md`) | "Your friends are out to get you." |
+| "No ads, no in-app purchases." | "100% free forever!" |
 | "Play in places you're allowed to be. Ask before you cross private ground." | "Nowhere is off-limits." |
 | "Free APK. Android may warn you about apps from outside the Play Store — that warning is expected; the release is built and signed by the project." | "Totally safe, no warnings." |
 | "The server keeps the clock, the teams and the tags. Nobody can fake a tag." | "100% fair and hack-proof." |

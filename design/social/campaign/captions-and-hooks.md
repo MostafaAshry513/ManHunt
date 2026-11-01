@@ -4,9 +4,11 @@ Status: **copy bank, draft for owner approval.** Prepared 2026-11-01 by the grow
 Nothing here has been posted. Only the owner publishes.
 
 Read with `launch-playbook.md` (claim IDs C1–C11, §11 guardrails, §5 posting plan) and
-`design/brand/strategy/tone-of-voice.md` (voice rules) + `design/brand/strategy/slogans.md` §4
-(approved Arabic renderings). The brand direction is provisional (**PICKUP**) and the slogan is
-**unapproved** — this file therefore A/B-tests incumbent vs provisional lines.
+`design/brand/strategy/tone-of-voice.md` (voice rules) + `design/brand/strategy/slogan-v2.md` §6
+(provisional Arabic renderings). The brand direction is provisional (**PICKUP**); **copy family v2 is
+provisionally adopted, owner approval pending**: flagship hook “Your friends are hunting you.”, permanent
+short line “Hide from your friends.”, end-card CTA “Create a hunt. Send the code. Hide.” The earlier v1
+slogan was rejected by the owner (2026-11-01) and is not used as active copy in this file.
 
 **Voice in one line:** the friend who organises the game. Short beats, full stops, no exclamation marks,
 no emoji in product copy, no fake urgency, no claim that is not in the ledger.
@@ -32,7 +34,7 @@ be readable at arm's length: ≤ 6 words, one line if possible. Spoken line can 
 | H6 | It's 8pm. Group chat's dead. | "It's 8pm, your group chat is dead, and everyone is on their phone." | Group chat screenshot (blurred names), then someone grabbing shoes | 2 | Names the moment of boredom and offers the plan | C1 |
 | H7 | 5 screens. 2 phones. 1 hunt. | "Five screens, two phones, one hunt. Here's how it works." | Screen-capture montage of the app (auth → home → lobby → map → result) | 1 | Explainer shape for carousels/photo posts | C1, C7 |
 | H8 | It's not on Google Play. | "It's not on Google Play. Here's why, and here's how to install it." | Install page on a phone, "Download APK" button | 3 | Turns the biggest objection into the topic; trust | C2, C3 |
-| H9 | No gear. No fee. Just players. | "No gear. No fee. Just players." | Chalk lines on asphalt, no people yet; hands drawing a zone ring | 2 | Provisional brand slogan — the category in three beats | C1, C2 |
+| H9 | Your friends are hunting you. | "Your friends are hunting you. That's the game." | Chalk grid + coral dot ping; violet dots converge | 1 | Copy family v2 flagship — social threat in five words, no app knowledge needed | C1, C7 |
 | H10 | You can't fake a tag. | "You can't fake a tag in this game. The server owns the rules." | Tag confirmation dialog on a phone, then the two players high-fiving | 3 | Fairness pillar; credible to technical audiences | C6, C11 |
 
 ### Hook alternates (same concepts, different first frame for A/B)
@@ -100,7 +102,7 @@ trending tags). Never put hashtags inside the first sentence.
 > [hashtags: §2.1-TT] · CTA: CTA-03 + CTA-01 · Claims: C1 C7 C6
 
 ### CAP-06 — Saturday ritual (day 6) · pairs H6/H9 · TT/IG/YT
-> It's Saturday. Pick a place, split into teams, start a hunt. No gear, no fee, just players.
+> It's Saturday. Pick a place, split into teams, start a hunt. Hide from your friends.
 >
 > Free APK, Android 8+, not on the Play Store. Link in bio. Play in places you're allowed to be.
 >
@@ -154,8 +156,8 @@ trending tags). Never put hashtags inside the first sentence.
 > [hashtags: §2.1-TT] · CTA: CTA-07 · Claims: C1 C2 C7
 
 ### CAP-12 — Last-minute weekend plan (day 12) · pairs H6/H9 · TT/IG
-> Last-minute weekend plan: send this to 3 people, pick a park, and start a hunt at 8. No gear, no fee, just
-> players.
+> Last-minute weekend plan: send this to 3 people, pick a park, and start a hunt at 8. Hide from your
+> friends.
 >
 > Free Android APK in bio. It needs 2+ phones — don't be the only one.
 >
@@ -178,13 +180,13 @@ trending tags). Never put hashtags inside the first sentence.
 > [hashtags: §2.1-TT] · CTA: CTA-08 + CTA-03 · Claims: C2 C9 — **only fill the numbers from the install
 > page/DB snapshot; say "includes test accounts"**
 
-### CAP-15 — Provisional slogan test (A/B days) · pairs H9 · TT/IG
-> No gear. No fee. Just players. Real-world hide-and-seek for Android — two teams, a live map and a clock
-> the players can't bend. Free, 2 MB, Android 8+.
+### CAP-15 — Copy family v2 test (A/B days) · pairs H9 / SNITCH variant · TT/IG
+> Your friends are hunting you. Real-world hide-and-seek for Android — two teams, a live map and a clock
+> the players can't bend. Free, 2 MB, Android 8+. Hide from your friends.
 >
 > Send this to your group chat. You need 2+ phones.
 >
-> [hashtags: §2.1-TT] · CTA: CTA-01 + CTA-03 · Claims: C1 C2 C3
+> [hashtags: §2.1-TT] · CTA: CTA-01 + CTA-03 · Claims: C1 C2 C3 — copy family v2, owner approval pending
 
 ### CAP-16 — Fairness / community cut (dev audiences) · pairs H10 · IG + Reddit-style text
 > Rules you can't argue with. The server owns the clock, the teams and the tags; the Prey confirms or
@@ -244,17 +246,16 @@ for social/invite copy only — **never mix the two registers in one asset**. Al
 adaptations from `design/brand/strategy/slogans.md` §4 and `tone-of-voice.md` §3 (reuse those approved
 lines rather than inventing new ones). Every Arabic string needs a native-speaker review before publishing.
 
-### 4.1 Slogan / brand lines (from the brand workstream — provisional)
+### 4.1 Brand lines (copy family v2 — provisional, owner approval pending)
 
 | English | MSA | Egyptian (social only) |
 |---|---|---|
-| No gear. No fee. Just players. | لا عتاد. لا رسوم. لاعبون فقط. | من غير عتاد. من غير فلوس. لاعبين وبس. |
-| Rules you can't argue with. | قواعد لا جدال فيها. | قواعد مفيش جدال فيها. |
-| A sport you can start tonight. | رياضة تبدأها الليلة. | لعبة تبدأها النهارده. |
+| Your friends are hunting you. | أصدقاؤك يطاردونك. | أصحابك بيطاردوك. |
+| Hide from your friends. | اختبئ من أصدقائك. | استخبى من أصحابك. |
+| Your phone is a snitch. | هاتفك يفضحك. | موبايلك يفضحك. |
+| Bet you can't hide. | أتحداك أن تختبئ. | أتحداك تستخبى. |
+| Create a hunt. Send the code. Hide. | أنشئ مطاردة. أرسل الرمز. اختبئ. | اعمل مطاردة. ابعت الكود. استخبى. |
 | Two teams. One block. One clock. | فريقان. حي واحد. ساعة واحدة. | فريقين. حي واحد. ساعة واحدة. |
-| The neighbourhood is the pitch. | الحي هو الملعب. | الحي هو الملعب. |
-| Start a hunt tonight. | ابدأ مطاردة الليلة. | ابدأ مطاردة النهارده. |
-| Your street has rules now. | لشارعك قواعد الآن. | لشارعك قواعد دلوقتي. |
 
 ### 4.2 Arabic hooks (first 1–2 s)
 
@@ -450,7 +451,7 @@ huntmaster resolves (90 s timeout).
 | CAP-03 | C1 C7 C11 | ✅ | Room code 6 characters (true) |
 | CAP-04 | C1 C2 C7 | ✅ | No giveaway, no prize |
 | CAP-05 | C1 C6 C7 | ✅ | Zone "closing" only if host enabled shrink — say "the zone can shrink" |
-| CAP-06 | C1 C2 C3 C9 | ✅ | "No gear, no fee" provisional line — owner approval pending |
+| CAP-06 | C1 C2 C3 C9 | ✅ | Uses v2 short line “Hide from your friends.” — owner approval pending |
 | CAP-07 | C1 C2 C3 | ⚠ | Only real numbers from install page/DB; label "includes test accounts" |
 | CAP-08 | C6 C11 | ✅ | 90 s timeout not stated — fine |
 | CAP-09 | C2 C3 C5 C9 | ✅ | "built by GitHub Actions" = true per README |

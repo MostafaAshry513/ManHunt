@@ -140,8 +140,11 @@ async function launch() {
   return { child, profile };
 }
 
-async function captureFrame(cdp, file) {
-  const shot = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true, captureBeyondViewport: false });
+async function captureFrame(cdp, file, fmt, quality) {
+  const params = fmt === 'jpeg'
+    ? { format: 'jpeg', quality: quality || 90, fromSurface: true, captureBeyondViewport: false }
+    : { format: 'png', fromSurface: true, captureBeyondViewport: false };
+  const shot = await cdp.send('Page.captureScreenshot', params);
   await writeFile(file, Buffer.from(shot.data, 'base64'));
 }
 
@@ -156,6 +159,16 @@ async function main() {
   const extraQuery = urlFlagIdx >= 0 ? args[urlFlagIdx + 1] : '';
   const evalIdx = args.indexOf('--eval');
   const evalExpr = evalIdx >= 0 ? args[evalIdx + 1] : null;
+  const fmtIdx = args.indexOf('--format');
+  const frameFormat = fmtIdx >= 0 ? args[fmtIdx + 1] : 'png';
+  const qIdx = args.indexOf('--quality');
+  const frameQuality = qIdx >= 0 ? Number(args[qIdx + 1]) : 90;
+  const limIdx = args.indexOf('--limit');
+  const frameLimit = limIdx >= 0 ? Number(args[limIdx + 1]) : 0;
+  const startIdx = args.indexOf('--startFrame');
+  const frameStart = startIdx >= 0 ? Number(args[startIdx + 1]) : 0;
+  const endIdx = args.indexOf('--endFrame');
+  const frameEnd = endIdx >= 0 ? Number(args[endIdx + 1]) : 0;
 
   let timeline = null;
   let out = null;
@@ -199,16 +212,25 @@ async function main() {
       // Timing table is duplicated here on purpose so the capture tool can be
       // run standalone; it must match window.MH_TIMELINES in src/animate.js.
       const tables = {
-        master: { fps: 30, duration: 15.0 },
-        cut: { fps: 15, duration: 6.0 }
+        master: { fps: 30, duration: 15.0, query: '' },
+        short15: { fps: 30, duration: 15.0, query: '&timeline=master15' },
+        cut: { fps: 15, duration: 6.0, query: '&cut=1' },
+        long60: { fps: 30, duration: 60.0, query: '&timeline=long60' },
+        short30: { fps: 30, duration: 30.0, query: '&timeline=short30' },
+        gif6: { fps: 15, duration: 6.0, query: '&timeline=gif6' }
       };
       const t = tables[timeline];
       if (!t) throw new Error('unknown timeline: ' + timeline);
       fps = t.fps; duration = t.duration;
       await mkdir(out, { recursive: true });
-      const total = Math.round(t.duration * t.fps);
-      const query = `?capture=1${timeline === 'cut' ? '&cut=1' : ''}`;
-      console.log(`[capture] ${timeline}: ${total} frames @ ${t.fps} fps → ${out}`);
+      let total = Math.round(t.duration * t.fps);
+      if (frameLimit > 0) total = Math.min(total, frameLimit);
+      const first = Math.max(0, frameStart);
+      const last = frameEnd > 0 ? Math.min(total, frameEnd) : total;
+      total = last;
+      const query = `?capture=1${t.query}`;
+      const ext = frameFormat === 'jpeg' ? 'jpg' : 'png';
+      console.log(`[capture] ${timeline}: frames ${first}..${last - 1} @ ${t.fps} fps ${frameFormat} → ${out}`);
       await cdp.send('Page.navigate', { url: base + query });
       await waitFor(async () => {
         const r = await cdp.send('Runtime.evaluate', { expression: 'window.MH_READY === true', returnByValue: true });
@@ -216,13 +238,13 @@ async function main() {
       }, 25000, 'animation ready');
 
       const t0 = Date.now();
-      for (let i = 0; i < total; i++) {
+      for (let i = first; i < last; i++) {
         const time = i / t.fps;
         await cdp.send('Runtime.evaluate', { expression: `window.renderAt(${time})`, returnByValue: true });
-        await captureFrame(cdp, path.join(out, `frame_${String(i).padStart(5, '0')}.png`));
-        if (i % 30 === 0 || i === total - 1) {
+        await captureFrame(cdp, path.join(out, `frame_${String(i).padStart(5, '0')}.${ext}`), frameFormat, frameQuality);
+        if (i % 30 === 0 || i === last - 1) {
           const el = (Date.now() - t0) / 1000;
-          process.stdout.write(`\r[capture] frame ${i + 1}/${total}  ${el.toFixed(1)}s`);
+          process.stdout.write(`\r[capture] frame ${i + 1}/${last}  ${el.toFixed(1)}s`);
         }
       }
       console.log(`\n[capture] done in ${((Date.now() - t0) / 1000).toFixed(1)}s`);

@@ -1,33 +1,38 @@
 # ManHunt design system
 
-Owner-approved on 2026-11-01:
+Owner-approved identity on 2026-11-01; copy is **provisional pending final owner sign-off**:
 
 - **Name:** ManHunt (keep for now; trademark screening noted in the brand platform)
 - **Direction:** **PICKUP** — a free pickup field sport. Borrowed pitch, server-kept rules, no gear.
-- **Primary slogan:** **No gear. No fee. Just players.**
+- **Permanent line:** **“Hide from your friends.”**
+- **Social hook:** **“Your friends are hunting you.”** — rejected: “No gear. No fee. Just players.”
 - **Logo/icon:** **01 Open Zone** — cyan zone ring that does not close, coral prey dot in the gap.
 - **Palette:** field `#0B1220`, chalk `#E6EDF7`, signal cyan `#22D3EE`, prey coral `#FF7A59`,
   hunters violet `#A79BFF`.
 
 Everything here was produced by independent design agents (brand-director, identity-designer,
-motion-designer, growth-strategist) using dedicated design skills; the Lead only coordinated,
-reviewed and integrated. No design asset in this tree was authored by the Lead.
+motion-designer, growth-strategist, brand-animator) using dedicated design skills; the Lead only
+coordinated, reviewed and integrated. No design asset in this tree was authored by the Lead.
 
 ## Start here
 
 | What | Where |
 |---|---|
-| Brand strategy, 17 screened slogans, tone, visual direction, moodboard | [`brand/strategy/`](brand/strategy/) |
+| Brand strategy, copy v2, tone, visual direction, moodboards | [`brand/strategy/`](brand/strategy/) |
 | Approved logo/icon system, final lockup, Android/web exports | [`brand/identity/`](brand/identity/) — final handoff in [`brand/identity/final/`](brand/identity/final/) |
-| 15s vertical social short, GIF cutdown, cover, storyboard, render source | [`social/motion/`](social/motion/) |
-| 14-day launch campaign, captions/hooks, creative briefs, one-pager | [`social/campaign/`](social/campaign/) |
+| Motion kit: animated README/GitHub hero, install-page CSS/SVG hero, social headers, app motion spec | [`brand/motion-kit/`](brand/motion-kit/) |
+| Full social identity kit: avatars, headers, editable post templates | [`brand/social-identity/`](brand/social-identity/) |
+| 60s game explainer + 30s/15s/GIF cuts, storyboard, render source | [`social/motion/`](social/motion/) |
+| 14-day launch campaign, platform rollout, captions/hooks, creative briefs | [`social/campaign/`](social/campaign/) |
 
 ## Canonical files
 
 - Lockup: `brand/identity/final/lockup/lockup-stacked-light-on-dark.svg` (spec: `final/LOCKUP.md`)
 - Play/store icon: `brand/identity/final/android/play-512.png`
-- Social short: `social/motion/out/manhunt_short_1080x1920.mp4`
-- GIF: `social/motion/out/manhunt_cutdown_720x1280.gif`
+- README/GitHub animated hero: `brand/motion-kit/out/readme/manhunt-readme-hero-1280x480.gif`
+- Install-page animated hero: `brand/motion-kit/site-hero/hero-snippet.html`
+- Social avatars/headers/templates: `brand/social-identity/out/`
+- 60s explainer: `social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4`
 - Campaign: `social/campaign/launch-playbook.md`
 
 ## Reproducing deliverables

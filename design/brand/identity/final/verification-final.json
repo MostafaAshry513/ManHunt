@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-01T14:51:12.596Z",
+  "generated": "2026-11-01T16:43:32.114Z",
   "pass": true,
   "checks": 49,
   "failures": [],
@@ -217,7 +217,7 @@
     {
       "name": "lockup/previews/lockup-sheet.png",
       "ok": true,
-      "detail": "162653 B"
+      "detail": "169581 B"
     },
     {
       "name": "android/ic_launcher_foreground.xml",

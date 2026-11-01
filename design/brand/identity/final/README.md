@@ -1,7 +1,10 @@
 # ManHunt identity — final package (approved)
 
-**Status: APPROVED by the owner, 2026-11-01.** Product name unchanged: **ManHunt**. Direction **PICKUP**,
-mark **01 Open Zone**, slogan **“No gear. No fee. Just players.”**
+**Status: identity APPROVED by the owner, 2026-11-01 — copy PROVISIONAL, owner approval pending.**
+Product name unchanged: **ManHunt**. Direction **PICKUP**, mark **01 Open Zone**. The rejected line
+“No gear. No fee. Just players.” is superseded by the provisional copy family: permanent line
+**“Hide from your friends.”**, hook **“Your friends are hunting you.”**, CTA
+**“Create a hunt. Send the code. Hide.”** (see [`LOCKUP.md`](LOCKUP.md) §5).
 
 This folder is the frozen handoff. Nothing here redesigns anything — the mark geometry is the approved
 `concepts/01-open-zone/mark.svg`, and the wordmark is the drawn logotype specified in

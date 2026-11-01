@@ -2,7 +2,7 @@
 
 **Movement:** Chalk & Clock (aligns with the interim PICKUP brand direction)
 **Status:** design philosophy for the ManHunt motion workstream (`design/social/motion/`)
-**Derived from:** `design/brand/strategy/brand-platform.md` §2 "PICKUP", §6.1 beat sheet, `docs/BRAND_BRIEF.md`, `docs/MAP_SAMPLES.md`, the app's dark-theme tokens, and the ManHunt-owned app renders.
+**Derived from:** `design/brand/strategy/brand-platform.md` §2 "PICKUP", `design/brand/strategy/script-v2.md` (copy v2), `design/brand/identity/final/LOCKUP.md`, `docs/BRAND_BRIEF.md`, `docs/MAP_SAMPLES.md`, and the app's dark-theme tokens. No photographic or screenshot material is used: the film is original generated geometry and drawn vector only.
 
 ---
 

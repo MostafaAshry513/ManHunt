@@ -1,0 +1,3 @@
+﻿ManHunt v5 explainer — copy status: PROVISIONAL — OWNER APPROVAL PENDING.
+All lines are provisional per brand-director one-pass review; do not publish until the owner approves.
+SRT files are UTF-8 with BOM, narrative lines only (URL/micro/trust stay as on-screen UI, not captions).

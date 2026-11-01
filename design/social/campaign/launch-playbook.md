@@ -7,6 +7,8 @@ are **not executed**. No account creation, no posting, no spend, no app/server e
 Companion files (same folder):
 
 - `captions-and-hooks.md` — copy bank (captions, hooks, CTAs, Arabic, claims/safety rules)
+- `hooks-v2.md` — independent hook challenge + A/B hook bank
+- `platform-rollout.md` — platform setup, 14-day 60 s/30 s/15 s/GIF rollout, per-platform captions
 - `creative-briefs.md` — asset briefs + platform dimensions mapped to the other design workstreams
 - `campaign-onepager.html` / `campaign-onepager-*.png` — visual summary of this plan
 - `measure-log.ps1` — optional helper that reads the server request log for campaign UTM traffic
@@ -31,27 +33,31 @@ Companion files (same folder):
    server — play with people you trust" is both the truthful disclosure **and** the most shareable framing
    for the developer/Android audience that is cheapest to reach first.
 
-### Provisional brand platform (interim, **pending owner approval**)
+### Provisional brand platform and copy family (interim, **pending owner approval**)
 
-The brand workstream (`design/brand/strategy/`) has recommended direction **PICKUP** — ManHunt as a
-free pickup field sport — with a provisional primary slogan, alternates, and a descriptor. The owner has
-**not approved** the name, direction or slogan yet. The campaign therefore:
+The brand workstream (`design/brand/strategy/`) recommends direction **PICKUP** and, after the owner
+rejected the first slogan, **copy family v2** (`slogan-v2.md`): hook **“Your friends are hunting you.”**,
+permanent short line **“Hide from your friends.”**, end-card CTA **“Create a hunt. Send the code. Hide.”**
+The exact wording is a recommendation, not owner-approved. The campaign therefore:
 
-- uses the current slogan **"Hide. Hunt. Survive."** and the provisional **"No gear. No fee. Just
-  players."** as an explicit **A/B test** (see §4 and §5), not as a settled identity;
+- works in **copy family v2** (see §4 and §5): the hook on the video's first beat and end card, the short
+  line on trust-critical surfaces (bio, install page, headers), the CTA on the closing card;
+- does **not** use the rejected v1 slogan “No gear. No fee. Just players.” in active copy — it survives only
+  in historical design/QA documents that record the rejection;
 - keeps the product name **ManHunt** in all copy for now, with no ™/® claims;
 - avoids committing money to name-dependent assets (merch, printed permanent signage) until the owner
   decides, because the name itself is a pending owner decision with a trademark-collision risk
   (`design/brand/strategy/brand-platform.md` §1, §10 D1 — `MANHUNT` is a Take-Two mark in the video-game
   class and a same-category app already uses "Manhunt: Hide & Seek").
 
-| Role | Provisional line | Use in campaign |
+| Role | Provisional line (copy family v2) | Use in campaign |
 |---|---|---|
-| Primary | **No gear. No fee. Just players.** | Bio, end card variant B, caption A/B; always paired with the descriptor on first contact |
-| Alternate A (fairness) | **Rules you can't argue with.** | Concept 3 credibility post, community/Reddit copy |
-| Alternate B (action) | **A sport you can start tonight.** | Weekend CTA cards (days 6, 12, 13) |
-| Mode line (not a slogan) | **Two teams. One block. One clock.** | Explainer/carousel copy, never instead of the primary |
-| Descriptor (always paired with the provisional primary) | Real-world hide-and-seek. Two teams, a live map and a clock the players can't bend. Free, 2 MB, Android 8+. | Under the provisional slogan on first contact |
+| Flagship hook | **Your friends are hunting you.** | Video first beat (0–1.5 s) and end-card line; social captions |
+| Permanent short line | **Hide from your friends.** | Bio, install-page hero, headers, trust-critical surfaces |
+| End-card CTA | **Create a hunt. Send the code. Hide.** | Closing card / caption CTA; teaches the invite loop |
+| A/B hook variant | **Your phone is a snitch.** | Second hook treatment (SNITCH), same edit — tests mechanic-led humour against the social threat |
+| Descriptor (always paired on first contact) | Real-world hide-and-seek. Two teams, a live map and a clock the players can't bend. Free, 2 MB, Android 8+. | Under the hook/short line; never merged into the wordmark |
+| Mode line (not a slogan) | **Two teams. One block. One clock.** | Explainer/carousel copy, never instead of the hook |
 | Category tag | PICKUP SPORT | Bios/footers only, never a headline |
 
 **Not doing (deliberate):** follower buying, engagement pods, mass DMs, fake testimonials/reviews, spam
@@ -130,9 +136,11 @@ are the numbers that matter for a game.
 ### Positioning statement
 
 > **For friend groups who already hang out in the same neighborhood, ManHunt is the free pickup field
-> sport of real-world hide-and-seek: phones do the tracking, the server keeps the rules, and the place
-> you already live becomes the pitch. No gear, no fee, no account email — Android only.**
+> sport of real-world hide-and-seek: phones report position, Hunters follow a live map, and the place
+> you already live becomes the pitch. Free on Android — no account email, one fair server.**
 
+Provisional copy family v2: **“Your friends are hunting you.”** (hook) · **“Hide from your friends.”**
+(permanent short line) · **“Create a hunt. Send the code. Hide.”** (end-card CTA) — owner approval pending.
 The provisional brand direction calls this *PICKUP*: a sport you can start tonight, on ground you
 already have, with players instead of equipment. The campaign's job is to make that category obvious in
 the first two seconds ("this is a game you play with your friends in the street") **without** promising
@@ -264,22 +272,22 @@ audience, hook, proof and CTA. Full copy is in `captions-and-hooks.md` (CAP-01�
 (share loop) → re-run the best performer in new formats days 11–14. This ordering also buys time for the
 motion-designer's hero video to be ready.
 
-### Slogan in the concepts (A/B, provisional)
+### Copy family in the concepts (A/B, provisional)
 
-Because the brand slogan is unapproved, the campaign runs a **low-cost A/B** rather than picking:
+The video ships copy family v2; the A/B is at the **hook** level, not “old vs new”:
 
-| Days | End card / bio line | Why |
+| Days | Hook / end-card line | Why |
 |---|---|---|
-| 1, 3, 5, 8, 10, 13 | Incumbent: **Hide. Hunt. Survive.** | Continuity with the current app/install page and the owner's existing equity |
-| 2, 4, 6, 9, 12, 14 | Provisional: **No gear. No fee. Just players.** + descriptor line | Tests the recommended PICKUP line against the incumbent on the same concepts |
-| 7, 11 | Concept 3 posts: **Rules you can't argue with.** | Fairness cut for the developer/community audience |
+| 1, 3, 5, 8, 10, 13 | HUNTING: **Your friends are hunting you.** | Strongest social-threat hook; the map then proves it in the same second |
+| 2, 4, 6, 9, 12, 14 | SNITCH A/B: **Your phone is a snitch.** | Tests mechanic-led humour against social threat; same edit, only the copy lines change |
+| 7, 11 | Short line on bio/caption: **Hide from your friends.** | Trust-critical surfaces; never put the threat line next to an APK warning |
 
-Rules: one slogan per surface, never both in one video; the provisional line always ships with the
-descriptor ("Real-world hide-and-seek. Two teams, a live map and a clock the players can't bend. Free,
-2 MB, Android 8+."); no slogan in a CTA button; no ™/®; Arabic only from the approved renderings in
-`design/brand/strategy/slogans.md` §4 (MSA in-app, Egyptian for social copy, never mixed). Compare
-3-second hold, shares and tagged install-page visits — not likes. **If the owner approves a different
-slogan, re-render only the end card (a 2–3 s card), not the whole video.**
+Rules: one line per surface, never both hooks in one video; v2 is **provisional** — keep the end card as a
+separate 2–3 s layer so lines can be re-rendered; the short line always ships with the descriptor; the
+end-card CTA is **“Create a hunt. Send the code. Hide.”**; no slogan in a CTA button; no ™/®; Arabic only
+from the v2 renderings in `design/brand/strategy/slogan-v2.md` §6 (MSA on screen, Egyptian for social
+copy, never mixed). Compare 3-second hold, shares and tagged install-page visits — not likes.
+**The v4 cover still carries the rejected v1 slogan — re-render the cover before posting.**
 
 ---
 
@@ -302,11 +310,12 @@ slogan, re-render only the end card (a 2–3 s card), not the whole video.**
   real gameplay with consent; (3) screen recordings of the app; (4) founder talking-head; (5) stills from
   `docs/screenshots/` in carousels. **Do not invent gameplay footage** (no fake UI, no stock people
   pretending to use the app).
-- **Every video:** burned-in captions (sound-off first), one concept, one CTA, no fake claims; end card
-  uses the incumbent slogan on A/B days 1/3/5/8/10/13 and the provisional "No gear. No fee. Just players."
-  (with the descriptor) on days 2/4/6/9/12/14 — see §4 "Slogan in the concepts". The end card must be a
-  separate 2–3 s card so it can be re-rendered after the owner approves the brand workstream
-  (dependency note in `creative-briefs.md`).
+- **Every video:** burned-in captions (sound-off first), one concept, one CTA, no fake claims; the end card
+  uses the v2 flagship hook **"Your friends are hunting you."** (or the SNITCH A/B hook on A/B days) plus
+  the end-card CTA **"Create a hunt. Send the code. Hide."**; trust-critical surfaces (bio, install page,
+  headers) use the short line **"Hide from your friends."** The end card must be a separate 2–3 s card so
+  copy can be re-rendered after the owner approves (dependency note in `creative-briefs.md`). The rejected
+  v1 slogan stays out of every active campaign asset.
 
 ### Daily plan
 
@@ -706,7 +715,7 @@ this stage.
 | # | Decision | Why it matters now | Recommendation |
 |---|---|---|---|
 | 1 | **Fix activation before scaling reach?** 48 rooms → 6 matches (12.5%), 31 memberships for 48 rooms. Most rooms are solo. | Ads/content amplify whatever the lobby does. If a group can't get into a match easily, traffic is wasted. Also: the first campaign videos need *real group footage* — which requires the owner to run 2–3 real test games. | Run 3 real local games this week (the most valuable campaign prep). If lobbies are confusing, fix UX before spend. |
-| 2 | **Slogan approval + A/B** | Brand-director recommends replacing "Hide. Hunt. Survive." with the provisional **"No gear. No fee. Just players."** (alternates: "Rules you can't argue with.", "A sport you can start tonight."). The owner has not approved. The campaign A/B-tests incumbent vs provisional on end cards (§4). A late change only requires re-rendering a 2–3 s end card — if the end card is a separate layer. | Owner picks a slogan (or keeps the incumbent) before the motion short locks its end card; if it changes later, re-render the end card only. |
+| 2 | **Copy family v2 approval + A/B** | The owner rejected the v1 slogan. Brand v2 (`slogan-v2.md`) proposes flagship **“Your friends are hunting you.”**, short line **“Hide from your friends.”**, end-card CTA **“Create a hunt. Send the code. Hide.”** — provisionally adopted by this plan, not yet owner-approved. The A/B is HUNTING vs SNITCH at hook level (§4), and the v4/v5 cover must be re-rendered off the rejected v1 line before any post. | Owner approves v2 (or edits it); keep the end card a separate layer; re-render the cover; no active copy on the rejected v1 line. |
 | 3 | **Who creates and operates the accounts** | Growth workstream cannot create accounts or post. Someone must register handles, write the bio, choose business vs personal on TikTok, and post daily. | Owner or a named operator; TikTok free Business Account for a clickable bio link from day 1 (trade-off: Commercial Music Library only — use original audio). |
 | 4 | **Platform shortlist** | More platforms = worse execution for one person. | TikTok + Instagram Reels primary; YouTube Shorts cross-post; skip the rest for 14 days. |
 | 5 | **Language priority** | App is EN+AR; owner network is likely MENA. | English-first captions (global dev/Android reach) + Arabic adaptations (provided) for local/community posts. Owner decides if a fully Arabic channel is warranted later. |

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt social identity kit — gallery</title>
+<style>
+  :root {
+    --field: #0B1220; --panel: #101A2C; --line: #24314A; --chalk: #E6EDF7; --muted: #A7B6CC;
+    --dim: #7C8DA8; --cyan: #22D3EE; --coral: #FF7A59; --violet: #A79BFF;
+    --sans: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--field); color: var(--chalk); font-family: var(--sans); }
+  .sheet { max-width: 1600px; margin: 0 auto; padding: 52px 48px 72px; }
+  header { display: flex; justify-content: space-between; gap: 40px; border-bottom: 1px solid var(--line); padding-bottom: 26px; }
+  h1 { margin: 0 0 10px; font-size: 32px; letter-spacing: -0.02em; }
+  .lede { margin: 0; max-width: 860px; color: var(--muted); font-size: 15px; line-height: 1.55; }
+  .lede b { color: var(--chalk); }
+  .meta { text-align: right; font-family: var(--mono); font-size: 12px; line-height: 1.8; color: var(--dim); white-space: nowrap; }
+  .meta b { color: var(--chalk); }
+  h2 { margin: 44px 0 6px; font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); }
+  .hint { margin: 0 0 18px; color: var(--muted); font-size: 13.5px; line-height: 1.5; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .grid.three { grid-template-columns: repeat(3, 1fr); }
+  .grid.two { grid-template-columns: repeat(2, 1fr); }
+  .masonry { column-gap: 18px; }
+  .masonry.c3 { column-count: 3; }
+  .masonry.c4 { column-count: 4; }
+  .masonry .card { margin: 0 0 18px; break-inside: avoid; }
+  .card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); }
+  .card img { display: block; width: 100%; height: auto; background: var(--field); }
+  .card .lab { padding: 9px 12px 12px; }
+  .card .n { font-size: 13px; font-weight: 600; }
+  .card .f { font-family: var(--mono); font-size: 11px; color: var(--cyan); margin-top: 3px; }
+  .card .u { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .avatar-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; align-items: start; }
+  .avatar { text-align: center; }
+  .avatar img { width: 100%; height: auto; border-radius: 50%; border: 1px solid var(--line); }
+  .avatar .mask { position: relative; }
+  .avatar .mask::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    border: 1px dashed rgba(34, 211, 238, 0.55); pointer-events: none;
+  }
+  .avatar .n { font-family: var(--mono); font-size: 11.5px; color: var(--cyan); margin-top: 8px; }
+  .avatar .u { font-size: 11px; color: var(--dim); }
+  .flat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .reuse { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .note { margin-top: 30px; border-top: 1px solid var(--line); padding-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  .note h3 { margin: 0 0 8px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); }
+  .note p, .note li { color: var(--muted); font-size: 13px; line-height: 1.55; margin: 0 0 7px; }
+  .note b { color: var(--chalk); }
+  .note ul { margin: 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <header>
+    <div>
+      <h1>ManHunt — social identity kit</h1>
+      <p class="lede">One coherent identity across every platform: the <b>Open Zone mark</b> as the avatar (circular-crop safe),
+      the drawn MANHUNT lockup on headers, and editable post templates that carry the provisional copy family.
+      Extends <b>design/brand/motion-kit</b> — same radar algorithm, palette, lockup and OFL fonts; the banner
+      surfaces already delivered there are reused below rather than duplicated.</p>
+    </div>
+    <div class="meta">
+      kit <b>design/brand/social-identity</b><br>
+      base <b>design/brand/motion-kit</b><br>
+      copy <b>owner-approval-pending</b><br>
+      rendered <b>headless Chrome · exact sizes</b>
+    </div>
+  </header>
+
+  <h2>Profile avatars — mark + animated radar</h2>
+  <p class="hint">Same master art everywhere; every element sits inside 43 % of the square so a circular crop
+  (dashed guide, radius 50 %) never clips it. The animated 512 GIF/WebM runs a 4 s loop: sweep arc, report pings,
+  slow bearing-ring rotation.</p>
+  <div class="avatar-grid">
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-1024.png" alt="ManHunt avatar 1024"></div><div class="n">1024</div><div class="u">master</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-800.png" alt="ManHunt avatar 800"></div><div class="n">800</div><div class="u">YouTube</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-460.png" alt="ManHunt avatar 460"></div><div class="n">460</div><div class="u">GitHub</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-400.png" alt="ManHunt avatar 400"></div><div class="n">400</div><div class="u">X</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-320.png" alt="ManHunt avatar 320"></div><div class="n">320</div><div class="u">Instagram</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-256.png" alt="ManHunt avatar 256"></div><div class="n">256</div><div class="u">Reddit</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-200.png" alt="ManHunt avatar 200"></div><div class="n">200</div><div class="u">TikTok</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-128.png" alt="ManHunt avatar 128"></div><div class="n">128</div><div class="u">Discord</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-64.png" alt="ManHunt avatar 64"></div><div class="n">64</div><div class="u">derivative</div></div>
+    <div class="avatar"><div class="mask"><img src="../out/avatars/manhunt-avatar-48.png" alt="ManHunt avatar 48"></div><div class="n">48</div><div class="u">derivative</div></div>
+    <div class="avatar"><img src="../out/avatars/manhunt-avatar-animated-512.gif" alt="Animated ManHunt avatar" style="border-radius:50%"><div class="n">512 GIF · 4 s</div><div class="u">Discord / Telegram</div></div>
+  </div>
+
+  <h2>New headers, covers and profile cards</h2>
+  <p class="hint">Where a platform has no header upload (Instagram, TikTok) the closest real surface is delivered and
+  labelled as such in the README — nothing is presented as a channel banner it cannot be.</p>
+  <div class="masonry c3">
+    <div class="card"><img src="../out/headers/reddit-profile-banner-1600x480.png" alt="Reddit profile banner"><div class="lab"><div class="n">Reddit — profile banner</div><div class="f">reddit-profile-banner-1600x480.png</div><div class="u">1600×480 · static upload</div></div></div>
+    <div class="card"><img src="../out/headers/reddit-subreddit-banner-1920x384.png" alt="Reddit subreddit banner"><div class="lab"><div class="n">Reddit — subreddit banner</div><div class="f">reddit-subreddit-banner-1920x384.png</div><div class="u">1920×384 · copy inside centre 1280×384</div></div></div>
+    <div class="card"><img src="../out/headers/instagram-profile-card-1080x1350.png" alt="Instagram profile card"><div class="lab"><div class="n">Instagram — profile card</div><div class="f">instagram-profile-card-1080x1350.png</div><div class="u">1080×1350 · no header exists; pinned post</div></div></div>
+    <div class="card"><img src="../out/headers/facebook-profile-cover-851x315.png" alt="Facebook profile cover"><div class="lab"><div class="n">Facebook — profile cover</div><div class="f">facebook-profile-cover-851x315.png</div><div class="u">851×315 · avatar-safe left</div></div></div>
+    <div class="card"><img src="../out/headers/facebook-page-cover-1640x624.png" alt="Facebook page cover"><div class="lab"><div class="n">Facebook — page cover</div><div class="f">facebook-page-cover-1640x624.png</div><div class="u">1640×624 · key content in centre</div></div></div>
+    <div class="card"><img src="../out/headers/tiktok-profile-card-1080x1080.png" alt="TikTok profile card"><div class="lab"><div class="n">TikTok — profile card</div><div class="f">tiktok-profile-card-1080x1080.png</div><div class="u">1080×1080 · no header exists; pinned post</div></div></div>
+    <div class="card"><img src="../out/headers/link-in-bio-background-1080x1920.png" alt="Link-in-bio background"><div class="lab"><div class="n">Link-in-bio / mobile landing background</div><div class="f">link-in-bio-background-1080x1920.png</div><div class="u">1080×1920 · centre band kept clear for link buttons; copy within top 1200 px</div></div></div>
+  </div>
+
+  <h2>Reused from the motion kit (not duplicated)</h2>
+  <div class="masonry c4">
+    <div class="card"><img src="../../motion-kit/out/social/youtube-2560x1440-safe-area.png" alt="YouTube channel art"><div class="lab"><div class="n">YouTube — channel art</div><div class="f">motion-kit/out/social/youtube-2560x1440-safe-area.png</div><div class="u">2560×1440 · 1546×423 safe area</div></div></div>
+    <div class="card"><img src="../../motion-kit/out/social/x-header-1500x500.png" alt="X header"><div class="lab"><div class="n">X — header</div><div class="f">motion-kit/out/social/x-header-1500x500.png</div><div class="u">1500×500 · avatar-safe left</div></div></div>
+    <div class="card"><img src="../../motion-kit/out/social/github-social-1280x640.png" alt="GitHub social preview"><div class="lab"><div class="n">GitHub — social preview</div><div class="f">motion-kit/out/social/github-social-1280x640.png</div><div class="u">1280×640 · OG/social card</div></div></div>
+    <div class="card"><img src="../../motion-kit/out/social/discord-960x540.png" alt="Discord server banner"><div class="lab"><div class="n">Discord — server banner</div><div class="f">motion-kit/out/social/discord-960x540.png</div><div class="u">960×540 · server icon = avatar 512</div></div></div>
+  </div>
+
+  <h2>Post templates — editable HTML/CSS</h2>
+  <p class="hint">Copy lives in marked blocks inside each template; the rendered PNG is a cache of that edit.
+  <b>No redrawing</b> is needed to change a line.</p>
+  <div class="masonry c4">
+    <div class="card"><img src="../out/templates/feed-square-1080x1080.png" alt="Feed square template"><div class="lab"><div class="n">Feed square</div><div class="f">feed-square-1080x1080.png</div><div class="u">1080×1080 · IG/X/Discord posts</div></div></div>
+    <div class="card"><img src="../out/templates/story-1080x1920.png" alt="Story template"><div class="lab"><div class="n">Story</div><div class="f">story-1080x1920.png</div><div class="u">1080×1920 · IG/TikTok/YouTube Shorts cover</div></div></div>
+    <div class="card"><img src="../out/templates/carousel-cover-1080x1350.png" alt="Carousel cover template"><div class="lab"><div class="n">Carousel cover</div><div class="f">carousel-cover-1080x1350.png</div><div class="u">1080×1350 · IG carousel slide 1</div></div></div>
+    <div class="card"><img src="../out/templates/end-card-1080x1350.png" alt="End card template"><div class="lab"><div class="n">End card — lockup + CTA</div><div class="f">end-card-1080x1350.png</div><div class="u">1080×1350 · carousel end / pinned CTA</div></div></div>
+  </div>
+
+  <div class="note">
+    <div>
+      <h3>Crop-safe rules</h3>
+      <p><b>Avatars:</b> all art inside 43 % radius; circular crops at 50 % radius keep it intact — verified by
+      pixel test on every avatar file.</p>
+      <p><b>YouTube:</b> text inside 1546×423 safe area (motion kit).</p>
+      <p><b>X:</b> avatar overlaps bottom-left; copy kept right of x≈190 (motion kit).</p>
+      <p><b>Reddit subreddit:</b> mobile shows the centre 1280×384 — all copy sits inside it.</p>
+      <p><b>Facebook:</b> profile cover reserves bottom-left for the avatar; page cover keeps copy in the centre.</p>
+      <p><b>Link-in-bio:</b> buttons overlay the middle band; copy lives in the top 1200 px, bottom is decoration.</p>
+    </div>
+    <div>
+      <h3>Upload flags</h3>
+      <ul>
+        <li><b>Animated avatars</b>: accepted by Discord and Telegram (GIF). X, GitHub, YouTube, TikTok, Reddit, Instagram display avatars statically — use the PNG there.</li>
+        <li><b>WebM</b> is not accepted as an avatar anywhere; it is the high-quality animated master for posts/embeds.</li>
+        <li><b>Instagram / TikTok have no header upload</b> — the cards here are the profile-adjacent surfaces, not fake banners.</li>
+        <li><b>YouTube channel art and Discord banners</b> are static uploads; the animated GIF/WebM variants in the motion kit are for posts.</li>
+        <li>Copy is <b>owner-approval-pending</b>; edit the template COPY blocks, don't redraw.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+</body>
+</html>

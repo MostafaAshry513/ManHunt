@@ -11,9 +11,14 @@ Read with: `launch-playbook.md` (§4 concepts, §5 posting plan, §11 guardrails
 §7 applications), `design/brand/strategy/tone-of-voice.md` (claims ledger, safety), `design/brand/identity/`
 (mark in progress), `design/social/motion/` (hero short in progress).
 
-**Brand state:** direction **PICKUP** and slogan **"No gear. No fee. Just players."** are *provisional,
-pending owner approval*; the product name is pending a trademark decision. Every asset therefore ships
-with a **re-renderable slogan end card** and no ™/® marks.
+**Brand state:** direction **PICKUP** is provisional and the copy is **copy family v2** — flagship hook
+**"Your friends are hunting you."**, permanent short line **"Hide from your friends."**, end-card CTA
+**"Create a hunt. Send the code. Hide."** (`design/brand/strategy/slogan-v2.md`). All of it is
+*provisional, pending owner approval*; the product name is pending a trademark decision. **The earlier v1
+slogan “No gear. No fee. Just players.” was rejected by the owner (2026-11-01) and must not appear in any
+asset; only historical decision/QA documents may cite it.** Every asset therefore ships with a
+**re-renderable copy end card** and no ™/® marks. The shipped v4 cover still carries the rejected v1 line —
+re-render it before use.
 
 ---
 
@@ -169,14 +174,17 @@ Per `docs/BRAND_BRIEF.md` §3 and `visual-direction.md`:
   at launch because UIs change).
 - **Story beats:** 0.0–1.0 s hook (screen text H1/H2/H3 style); 1.0–4 s the map and the hide; 4–9 s the
   chase/tag beat (tag snap per motion vocab); 9–12 s result/group reaction; 12–15 s end card.
-- **End card (critical dependency):** the slogan is unapproved, so deliver the end card as a **separate
-  re-renderable segment/source** with two text variants — **A: "Hide. Hunt. Survive."** and **B: "No gear.
-  No fee. Just players."** + descriptor line. Also deliver a 3 s standalone end-card MP4 per variant so the
-  campaign can assemble A/B posts without re-rendering the whole video.
+- **End card (critical dependency):** the copy family is provisional, so deliver the end card as a
+  **separate re-renderable segment/source** with two text variants from copy family v2 —
+  **A (flagship): "Your friends are hunting you."** and **B (short line): "Hide from your friends."** —
+  each with the end-card CTA **"Create a hunt. Send the code. Hide."** and the descriptor line. Also deliver
+  a 3 s standalone end-card MP4 per variant so the campaign can assemble A/B posts without re-rendering the
+  whole video.
 - **Copy:** caption/lower-third lines from `captions-and-hooks.md` (H1–H10, CAP-02/04/05). End card must
-  include: slogan (one variant), honest install line ("Free Android APK · 2 MB · not on the Play Store" or
-  shorter "Free Android APK — not on the Play Store"), install URL `74.208.99.178`, "Play with people you
-  trust. It's a game, not a safety service." (can be small), and OSM credit if map tiles are shown.
+  include: one line from the v2 family, the CTA, honest install line ("Free Android APK · 2 MB · not on the
+  Play Store" or shorter "Free Android APK — not on the Play Store"), install URL `74.208.99.178`, "Play
+  with people you trust. It's a game, not a safety service." (can be small), and OSM credit if map tiles are
+  shown. **Never** the rejected v1 slogan.
 - **Footage:** real gameplay footage (owner's consent-cleared session) preferred; original motion graphics
   allowed; app screenshots from `docs/screenshots/` are clean sources. No stock people pretending to play;
   no fake UI; no borrowed game footage.
@@ -275,16 +283,20 @@ Per `docs/BRAND_BRIEF.md` §3 and `visual-direction.md`:
 - Field background, mark left, one slogan line, optionally "Free Android APK · 2 MB". No screenshots
   collage, no fake player faces.
 
-### BR-12 — Install-page hero copy / slogan A/B (design only, integration owner)
+### BR-12 — Install-page hero copy / copy-family A/B (design only, integration owner)
 **Owner:** brand-director · **Destination:** `design/brand/strategy/`
 
 - The install page is the highest-stakes surface and currently says `Hide. Hunt. Survive.` with a plain
-  `<h1>` and no OG image. Produce two hero variants for the owner's A/B (once the page is integrated):
-  - **A (incumbent):** MANHUNT / Hide. Hunt. Survive. + current descriptor
-  - **B (provisional):** MANHUNT / No gear. No fee. Just players. + descriptor "Real-world hide-and-seek.
-    Two teams, a live map and a clock the players can't bend. Free, 2 MB, Android 8+."
+  `<h1>` and no OG image. Produce two hero variants for the owner's A/B (once the page is integrated), both
+  from the provisional copy family v2 (`slogan-v2.md`):
+  - **A (trust-critical / short line):** MANHUNT / **Hide from your friends.** + descriptor "Real-world
+    hide-and-seek. Two teams, a live map and a clock the players can't bend. Free, 2 MB, Android 8+."
+  - **B (flagship hook):** MANHUNT / **Your friends are hunting you.** + the same descriptor.
+- Never pair the flagship hook alone with an APK-download warning (it reads menacing next to a trust
+  decision) — A is the recommended install-page default; B is the social/OG variant.
 - Both keep the install steps, privacy/safety notes and the plain-HTTP test-server caveat. The owner/server
-  integration (`server/src/app.ts`) is **not** part of the design workstream.
+  integration (`server/src/app.ts`) is **not** part of the design workstream; the rejected v1 slogan is not
+  a variant and must not appear.
 
 ---
 

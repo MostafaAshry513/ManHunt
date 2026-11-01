@@ -1,5 +1,13 @@
 # ManHunt — slogan system
 
+> ## ⚠️ SUPERSEDED — see `slogan-v2.md`
+>
+> The owner rejected the recommendation in this file (`No gear. No fee. Just players.`) and the
+> on-screen lines it fed. **`slogan-v2.md` is the current copy source**: flagship
+> `Your friends are hunting you.`, short form `Hide from your friends.`, end-card/caption CTA
+> `Create a hunt. Send the code. Hide.` This file is kept only for the reasoning trail — its
+> migration map (§8) must not be applied.
+
 **Status:** proposal for owner approval. Nothing applied. The keep/replace decision is §1; the
 recommendation is §6.
 

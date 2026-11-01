@@ -213,8 +213,10 @@ const sheetBody = `<div class="sheet">
         <div><span class="k">mono</span><span class="v">one ink, black</span></div>
       </div>
       <div class="rule"></div>
-      <div class="note">slogan pairing: set the approved line “No gear. No fee. Just players.” outside the
-      lockup's clear space, never inside the mark. Files: final/lockup/, final/LOCKUP.md.</div>
+      <div class="note">copy (provisional, owner approval pending): permanent line “Hide from your friends.”,
+      hook “Your friends are hunting you.”, CTA “Create a hunt. Send the code. Hide.” — set outside the
+      lockup's clear space, never inside the mark. The line “No gear. No fee. Just players.” is rejected.
+      Files: final/lockup/, final/LOCKUP.md §5.</div>
     </div>
     <div class="grid">
       <div class="panel" style="grid-column:span 7">
@@ -328,7 +330,7 @@ const ogBody = `<div class="og">
   <div class="left">
     <svg class="wm" viewBox="0 0 ${P(WM_TINY.width)} 34" width="${P(WM_TINY.width)}" height="34">${wordmarkInner({ height: 34, fill: TOKENS.chalk })}</svg>
     <div class="rule"></div>
-    <h1>No gear. No fee.<br><span class="coral">Just players.</span></h1>
+    <h1>Hide from<br><span class="coral">your friends.</span></h1>
     <div class="sub">Real-world GPS hide-and-seek</div>
   </div>
   <svg class="mark" viewBox="0 0 108 108" width="286" height="286">${openZone().inner}</svg>
@@ -348,7 +350,14 @@ write(
   JSON.stringify(
     {
       generated: new Date().toISOString(),
-      status: 'APPROVED — owner approved Open Zone + "No gear. No fee. Just players."',
+      status: 'IDENTITY APPROVED (Open Zone) — COPY PROVISIONAL, owner approval pending.',
+      copy: {
+        permanentLine: 'Hide from your friends.',
+        hook: 'Your friends are hunting you.',
+        cta: 'Create a hunt. Send the code. Hide.',
+        descriptor: 'Real-world GPS hide-and-seek',
+        rejected: 'No gear. No fee. Just players.',
+      },
       wordmark: 'MANHUNT (drawn, 7 glyph paths, cap 100 units, stem 16, tracking 10)',
       mark: 'Open Zone, unchanged geometry from concepts/01-open-zone/mark.svg',
       canonicalForMotion: 'final/lockup/lockup-stacked-light-on-dark.svg and final/lockup/wordmark-light-on-dark.svg',

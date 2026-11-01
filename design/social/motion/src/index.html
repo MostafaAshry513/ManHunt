@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=1080, initial-scale=1">
-<title>ManHunt — "No gear. No fee. Just players." (15 s vertical social short, 1080×1920)</title>
+<title>ManHunt — "Hide from your friends." · 60s explainer + cuts (1080×1920)</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -31,6 +31,15 @@
       <circle id="zoneDot" cx="540" cy="960" r="7" fill="#22D3EE"/>
       <!-- pursuit trail (coral chalk) -->
       <path id="trail" stroke="#FF7A59" stroke-width="5" stroke-linecap="round" fill="none" stroke-dasharray="1 0"/>
+      <!-- the chase: coral pings from the Prey dot (flat rings, world space) -->
+      <circle id="chasePing1" stroke="#FF7A59" stroke-width="4" fill="none"/>
+      <circle id="chasePing2" stroke="#FF7A59" stroke-width="3" fill="none"/>
+      <circle id="chasePing3" stroke="#FF7A59" stroke-width="2" fill="none"/>
+      <!-- hunter pursuit traces (violet chalk, dashed) -->
+      <line id="hunterTraceA" stroke="#A79BFF" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+      <line id="hunterTraceB" stroke="#A79BFF" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+      <!-- report link (cyan chalk, dashed) — phone → position ping -->
+      <line id="reportLine" stroke="#22D3EE" stroke-width="2" stroke-dasharray="3 12" stroke-linecap="round"/>
       <!-- the tag: violet ring closing on the coral dot -->
       <circle id="snapRing" stroke="#A79BFF" stroke-width="7" fill="none"/>
       <circle id="snapRing2" stroke="#A79BFF" stroke-width="3" fill="none" stroke-dasharray="10 14"/>
@@ -40,34 +49,39 @@
       <div class="token prey" id="preyDot"><i class="dot"></i></div>
       <div class="token hunter" id="hunterA"><i class="dot"></i></div>
       <div class="token hunter" id="hunterB"><i class="dot"></i></div>
+      <div class="token hunter" id="hunterC"><i class="dot"></i></div>
+      <div class="token hunter" id="hunterD"><i class="dot"></i></div>
+      <div class="token hunter" id="hunterE"><i class="dot"></i></div>
       <div class="toklabel prey" id="labelPrey">PREY</div>
       <div class="toklabel hunter" id="labelHunters">HUNTERS</div>
     </div>
   </div>
-
-  <!-- real app render: the live hunt map (sourced from docs/screenshots) -->
-  <div id="appPanel" aria-hidden="true">
-    <div class="app-card">
-      <div class="app-mat">
-        <img id="imgMap" src="../assets/05-map-crop.png" alt="ManHunt app: live hunting map with zone, coral trail and prey markers">
-      </div>
-      <div class="app-credit mono">© OpenStreetMap contributors</div>
-    </div>
-  </div>
-
-  <!-- pings expand from the app's prey marker across the whole frame -->
-  <svg id="stagePings" width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" aria-hidden="true">
-    <circle id="pinHalo" cx="657" cy="801" r="30" stroke="#FF7A59" stroke-width="3"/>
-    <circle id="sping1" cx="657" cy="801" r="40" stroke="#FF7A59" stroke-width="5"/>
-    <circle id="sping2" cx="657" cy="801" r="40" stroke="#FF7A59" stroke-width="4"/>
-    <circle id="sping3" cx="657" cy="801" r="40" stroke="#FF7A59" stroke-width="3"/>
-  </svg>
 
   <!-- the recurring visual: the server clock -->
   <div id="clock" aria-hidden="true">
     <div class="clock-label mono">HUNT CLOCK</div>
     <div class="clock-num display" id="clockNum">60:00</div>
     <div class="clock-foot"><span class="live-dot"></span><span class="mono">SERVER</span></div>
+  </div>
+
+  <!-- explainer diagrams: flat vector only (no screenshots, no app UI) -->
+  <div id="phones" aria-hidden="true">
+    <div class="phone-schematic" id="phoneBig"><div class="ps-screen"><span class="ps-grid"></span><i class="ps-ping"></i></div><span class="ps-notch"></span></div>
+    <div class="phone-schematic" id="phoneLeft"><div class="ps-screen"><span class="ps-grid"></span><i class="ps-ping"></i></div></div>
+    <div class="phone-schematic" id="phoneRight"><div class="ps-screen"><span class="ps-grid"></span><i class="ps-ping"></i></div></div>
+  </div>
+  <div id="diagramLabels" aria-hidden="true">
+    <div class="dl" id="dlZone"><i></i><span class="mono">PLAY ZONE</span></div>
+    <div class="dl" id="dlClock"><i></i><span class="mono">SERVER CLOCK</span></div>
+    <div class="dl" id="dlTrail"><i></i><span class="mono">TRAIL</span></div>
+    <div class="dl" id="dlMap"><i></i><span class="mono">HUNT MAP</span></div>
+  </div>
+  <div id="codeChip" class="mono" aria-hidden="true">2+ PHONES · 6-CHARACTER CODE</div>
+  <div id="installCard" aria-hidden="true">
+    <span class="mono ic-kicker">FREE ANDROID APK</span>
+    <span class="ic-big" id="installWordmark"></span>
+    <span class="mono ic-line">Android 8+ · not on Play Store</span>
+    <span class="mono ic-url">http://74.208.99.178/</span>
   </div>
 
   <!-- hook: one chalk line sweeps the frame -->
@@ -93,6 +107,11 @@
     <i id="hookGhost"></i><i id="hookMain"></i><i id="hookHead"></i>
   </div>
 
+  <!-- longform captions (same band as the 15s film) -->
+  <div id="captionsL" aria-hidden="true">
+    <div class="cap" id="capL"><span class="cap-rule" id="capLRule"></span><span class="cap-text display" id="capLText"></span></div>
+  </div>
+
   <!-- captions (lower-third, silent-first) -->
   <div id="captions">
     <div class="cap" id="cap1"><span class="cap-rule"></span><span class="cap-text display">your street has<br>rules now</span></div>
@@ -105,7 +124,7 @@
   <!-- end card -->
   <section id="endcard" aria-label="ManHunt end card">
     <div class="rule" id="endRuleTop"></div>
-    <div id="endSlogan">No gear. No fee.<br>Just players.</div>
+    <div id="endSlogan">Your friends are<br>hunting you.</div>
     <!-- Official approved lockup (Task-37): mark above wordmark, 630×376, clear
          space baked in. Inlined verbatim (paths, transforms, fills unchanged) from
          design/brand/identity/final/lockup/lockup-stacked-light-on-dark.svg
@@ -156,11 +175,11 @@
       </svg>
     </div>
     <div id="coverClock"><span class="mono">HUNT CLOCK</span><b class="display">60:00</b></div>
-    <div id="coverSlogan" class="display">NO GEAR.<br>NO FEE.<br><span class="cyan">JUST PLAYERS.</span></div>
+    <div id="coverSlogan" class="display">HIDE FROM<br><span class="cyan">YOUR FRIENDS.</span></div>
     <div id="coverRule"></div>
     <div id="coverSub" class="mono">REAL-WORLD HIDE &amp; SEEK</div>
     <div id="coverLegend"><span class="leg prey"><i></i>PREY</span><span class="leg hunter"><i></i>HUNTERS</span></div>
-    <div id="coverCta">Install free for Android</div>
+    <div id="coverCta">Create a hunt. Send the code. Hide.</div>
     <div id="coverUrl" class="mono">http://74.208.99.178/</div>
     <div id="coverMicro" class="mono">free APK · Android 8+ · not on Play Store</div>
     <div id="coverBottomRule"></div>

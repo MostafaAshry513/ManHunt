@@ -1,8 +1,10 @@
 # ManHunt — logo & app icon identity
 
-**Status: APPROVED — 01 Open Zone** (owner, 2026-11-01), with direction PICKUP, the slogan
-“No gear. No fee. Just players.” and the product name unchanged. The frozen integration package (lockup,
-wordmark, Android resources, install-page assets) is in [`final/`](final/README.md); the canonical lockup
+**Status: identity APPROVED — 01 Open Zone** (owner, 2026-11-01), direction PICKUP, product name unchanged
+(**ManHunt**). **Copy is provisional, owner approval pending:** permanent line “Hide from your friends.”,
+hook “Your friends are hunting you.”, CTA “Create a hunt. Send the code. Hide.” — the rejected line
+“No gear. No fee. Just players.” must not be used. The frozen integration package (lockup, wordmark,
+Android resources, install-page assets) is in [`final/`](final/README.md); the canonical lockup + copy
 spec is [`final/LOCKUP.md`](final/LOCKUP.md).
 
 This folder holds the identity workstream (task-33 + finalisation task-36). Three complete directions were

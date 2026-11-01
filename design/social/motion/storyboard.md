@@ -1,60 +1,70 @@
-# Storyboard — ManHunt vertical social short
+# Storyboard — ManHunt 15 s hook cut (v5 series)
 
-**Working title:** "Tonight's Hunt — one clock"
-**Format:** 1080 × 1920 (9:16), 15.00 s, 30 fps, silent-first (captions on), original synthesised audio
-**Cutdown:** 6.00 s loop, 720 × 1280 GIF (beats 2 → 4 → 5 → end card)
-**Cover:** 1080 × 1920 PNG poster still
-**Direction lock:** PICKUP — read as interim-authoritative copy from `design/brand/strategy/brand-platform.md` §6.1 (owner approval pending). Chalk on asphalt, flat fills, two kit colours, the server clock recurring. Copy is centralised in `src/animate.js` → `MH_COPY`; the slogan line can be swapped and re-rendered in one edit.
+**COPY STATUS: PROVISIONAL — OWNER APPROVAL PENDING.** This file documents the 15 s cut. The 60 s explainer (primary deliverable) is in `storyboard-60s.md`; copy/caption/SRT detail is in `captions-60s.md`.
+**Working title:** Treatment 1 "HUNTING" — 15 s cut
+**Format:** 1080 × 1920 (9:16), **15.00 s**, 30 fps, silent-first (captions on), original synthesised score
+**Cutdown:** 6.00 s loop, 720 × 1280 GIF (hook → tag → end card; v5 series)
+**Cover:** 1080 × 1920 PNG cover; poster frame at t = 0.9 s
+**Copy:** brand copy family v2 (`design/brand/strategy/script-v2.md` + `slogan-v2.md`), owner approval pending for the v5 lines. Every on-screen string lives in `src/animate.js` → `COPY`.
+**Direction lock:** PICKUP · owner-approved Open Zone identity (task-37) · 15 s cut of the v5 series.
+
+---
+
+## v4 change (owner feedback)
+
+The old beat 4 (**7.0–10.0 s**) was a crop of the real app screenshot (`docs/screenshots/05-hunting-map.png`) with an OSM credit. **It is removed completely** — no real image, no photo, no map tiles, no app UI anywhere in the film, and the screenshot assets are deleted from the workstream. The same 3 s is now **continuous original animated field action**: the zone closes, the Prey runs a new line, all five Hunters close the net and coral pings leave the Prey. Everything else (chalk/asphalt kit, block grid, clock, team colours, lockup, end card, trust line, install CTA) is unchanged.
+
+**Consequences:** no OSM attribution is required any more (the map is original geometry, not OSM data). The green-osmdroid-pin palette break is gone; the film is palette-clean. The clock may count down, but no copy states a duration (host-set default 60 min).
 
 ---
 
 ## Concept
 
-ManHunt is treated as a **pickup field sport**, not an app. The frame is a borrowed pitch: asphalt navy, chalk markings, a dot-grid block map, an official cyan zone, and the two kit colours — coral for Prey, violet for Hunters. Nothing is a testimonial and nothing is a promise; the only "voice" is the caption band and the **server clock** counting down in the corner. The whole film is one idea: *the field already knows where everyone is* — the map is not a feature, it is the referee.
+ManHunt is a pickup field sport, so the film is shot **on the borrowed pitch**: asphalt navy, chalk markings, a dot-grid block map, an official cyan zone, coral for Prey and violet for Hunters. There is no product screenshot and no stock footage — the entire 15 s is generated geometry and drawn vector, which is also why it can be re-rendered after a copy or identity change. The only "voice" is the caption band plus the server clock counting down in the corner.
 
-**Hook logic (0–1.5 s):** the first frame is already a complete sentence — the official Open Zone MANHUNT wordmark and the line "your street has rules now" are on screen, and a chalk line is sweeping across the frame. A scroll-stopper does not get a pre-roll.
+**Hook logic (0–1.5 s):** the first frame is already the hook — the official MANHUNT wordmark sits top-left and "Your friends are hunting you." is fully readable while a chalk line sweeps across the field. Readable at phone size inside 1.5 s; no black frame.
 
-**Silent-first:** every beat carries its information as on-screen text; the audio is a texture, never the message. The last 3 s are silent by design (brand beat sheet: end-card audio = silence), so the piece works muted and loops cleanly.
+**Silent-first:** every beat carries its message as on-screen text. The brand VO direction is written into `captions.md` but is **not recorded** in this build (original score only); the film is designed to work muted.
 
 ---
 
 ## Beat-by-beat
 
-| # | Time | Picture | Caption | Audio |
+| # | Time | Picture (original geometry only) | Caption | Audio |
 |---|---|---|---|---|
-| 1 | 0.00–1.50 s | Flat asphalt + dot grid. A chalk line sweeps left → right, leaving a lit edge and a cyan head. Official MANHUNT wordmark + REAL-WORLD HIDE & SEEK sits top-left. | `your street has rules now` | scratching chalk (synthesised noise scrape) |
-| 2 | 1.50–4.00 s | Hard cut to the field: touchlines and corner arcs draw in chalk; the official cyan centre circle (the zone) draws clockwise over the block map. Coral Prey dot appears bottom-left, two violet Hunter dots top-right, labelled. | `two teams` (`two` in coral) | low sub pulse |
-| 3 | 4.00–7.00 s | The stadium clock locks into the top-right corner at 60:00 and ticks. The coral trail draws behind the Prey dot as it runs the pursuit line; the two violet Hunters close the distance. | `one clock` | clock ticks + low pulse |
-| 4 | 7.00–10.00 s | Hard cut to a real app render: the live hunt map, framed as evidence on the field, with a coral ping expanding from the prey marker. OSM credit carried. One-frame cut to black at 9.97 s. | `the map already knows` | single ping |
-| 5 | 10.00–12.00 s | Back to the field. The Prey dot holds the centre; the violet Hunter ring snaps onto it. Two-frame coral inversion on the snap. | `tagged` | snap + impact |
-| 6 | 12.00–15.00 s | End card on navy: chalk rule, slogan, official Open Zone stacked lockup (mark above the drawn wordmark, clear space baked in), install CTA, URL, honest install line, confidence line, chalk rule. | `No gear. No fee. Just players.` + `Install free for Android` + `http://74.208.99.178/` + `free APK · Android 8+ · not on Play Store` + `Play with people you trust.` | silence |
+| 1 | 0.00–1.50 s | Flat asphalt + dot grid; a chalk line sweeps left → right leaving a lit edge and a cyan head; official wordmark top-left. | `Your friends are hunting you.` | chalk scratch |
+| 2 | 1.50–4.20 s | Hard cut to the field: touchlines and corner arcs draw in chalk; the official cyan zone circle draws over the block map. Coral Prey dot appears bottom-left, two violet Hunters top-right, labelled. | `One of you is the prey.` | low sub pulse |
+| 3 | 4.20–6.80 s | The stadium clock locks into the top-right corner at 60:00 (host-set default) and ticks. The coral trail draws behind the Prey as it runs the pursuit line; the two Hunters close the distance. | `Your phone tells them where you are.` | clock ticks + low pulse |
+| 4 | 6.80–9.40 s | No cut — the field keeps moving: the cyan zone ring shrinks 336 → 246 while the Prey runs a new dodge line and the coral trail keeps growing. The two Hunters continue converging and three more violet Hunters fade in to close the net (5 dots). Three coral ping rings leave the Prey and die before the caption band; violet dashed pursuit traces. One-frame cut to black at 9.3667 s. | `Move. Or get tagged.` | clock ticks + rising pings |
+| 5 | 9.40–11.60 s | Back to the field centre: the Prey dot holds the middle; the violet Hunter ring snaps onto it; two-frame coral inversion at the snap. | `Tagged. Round over.` | snap + impact |
+| 6 | 11.60–15.00 s | End card on navy: chalk rules, campaign line, official Open Zone stacked lockup (mark above the drawn wordmark, clear space baked in), invite CTA, URL, honest install microcopy, confidence line, chalk rule. | `Your friends are hunting you.` + `Create a hunt. Send the code. Hide.` + `http://74.208.99.178/` + `free APK · Android 8+ · not on Play Store` + `Play with people you trust.` | silence |
 
-The end card also carries the brand-required confidence line **"Play with people you trust."** — muted ink, between the install microcopy and the bottom chalk rule (tone-of-voice §4 "always include"; the video is forwarded without its caption). The MANHUNT mark is the owner-approved **Open Zone** lockup, inlined verbatim from the identity package (`design/brand/identity/final/lockup/lockup-stacked-light-on-dark.svg`); the slogan sits outside the lockup and the wordmark is never retyped or letter-spaced.
+The end card carries the brand-required confidence line **"Play with people you trust."** — muted ink, between the install microcopy and the bottom chalk rule (tone-of-voice "always include"). The MANHUNT mark is the owner-approved **Open Zone** stacked lockup, inlined verbatim from `design/brand/identity/final/lockup/lockup-stacked-light-on-dark.svg`; the campaign line sits outside the lockup and the wordmark is never retyped or letter-spaced. The **cover** uses the permanent line "Hide from your friends." (the earlier PICKUP positioning line is owner-rejected).
 
 ---
 
 ## Visual rules applied
 
-- **Palette:** asphalt `#0B1220`, chalk `#E6EDF7`, official cyan `#22D3EE` (field/referee — never a team), Prey coral `#FF7A59`, Hunters violet `#A79BFF`. No other colours.
-- **Flat only:** flat fills, no gradients, no glow, no photographic background. The single exception is a 5 % monochrome grain overlay for asphalt texture.
-- **Chalk geometry is the only decoration:** touchlines, corner arcs, halfway line, centre circle, pursuit line. No icons, no emoji, no stock art.
-- **Type:** Big Shoulders (condensed athletic display) for captions and the cover slogan, Instrument Sans (plain sans) for end-card slogan/CTA, Red Hat Mono for clock, labels, URL and install microcopy. The MANHUNT lockup is the owner-approved drawn vector (Open Zone, no font dependency), inlined verbatim from `design/brand/identity/final/`. All fonts are OFL, bundled in `assets/fonts/`.
-- **Safe area:** all type inside 84 px side margins and above the bottom 320 px (Reels / TikTok / Shorts chrome). Captions bottom edge at 1560 px.
-- **Clock:** monospaced-like tabular digits, top-right, from 60:00 (the host-set default; the host can change the length — no fixed duration is claimed in copy).
-- **Real app visual:** `05-hunting-map.png` crop from `docs/screenshots/` (ManHunt-owned render), carrying "© OpenStreetMap contributors" on screen during the shot.
+- **Palette:** asphalt `#0B1220`, flat block `#0E1727`, chalk `#E6EDF7`, official cyan `#22D3EE` (field/referee — never a team), Prey coral `#FF7A59`, Hunters violet `#A79BFF`. Flat fills only; no gradients, no glow (5 % mono grain is the only texture).
+- **No real imagery:** no screenshots, no photos, no OSM tiles, no app UI. Everything on screen is original generated/drawn vector geometry; no third-party map data → no OSM attribution is required in this cut.
+- **Chalk geometry is the only decoration:** touchlines, corner arcs, halfway line, zone circle, pursuit trail, pursuit traces.
+- **Type:** Big Shoulders (condensed display: captions, cover slogan, clock), Instrument Sans (end-card line, CTA), Red Hat Mono (clock label, URL, install microcopy, team labels). The official lockup is drawn vector, not type.
+- **Sentence case:** captions are rendered in sentence case with full stops (no `text-transform`); no exclamation marks.
+- **Safe area:** all type inside 84 px side margins and above the bottom 320 px (Reels / TikTok / Shorts chrome); captions bottom edge at 1560 px.
+- **Clock:** tabular digits, top-right, from 60:00 (the host-set default); no copy states a fixed duration.
+- **Five Hunter dots:** the chase uses five violet Hunters (two from the setup + three joining the closing net) against the single coral Prey.
 
-## Accuracy / safety guardrails (verified against repo)
+## Accuracy / safety guardrails
 
 - No "forty minutes" or any claimed fixed hunt length — default is 60 min, host-set in `server/src/domain/match.ts`. The clock is shown as a default, not a rule.
 - No "survive"/safety/rescue language. No trespassing imagery or "anywhere is yours" claims; the field is borrowed public ground.
 - No real people, no faces, no fake testimonials, no fake player counts or scores.
 - Not on Google Play is stated on the end card; the install is a free sideloaded APK.
-- Map tiles: the only OSM-derived visual is the ManHunt screenshot of the live map; the required attribution is displayed on screen. No external tiles are used in the motion graphics.
+- No OSM tiles or OSM-derived imagery appear in v4 (the old screenshot beat and its credit are removed).
+- Arabic variants are written in `captions.md` but not rendered (needs an RTL layout pass + native review).
 
-## Alternate endings (re-render only, no redesign)
+## Alternate cuts (re-render only, no redesign)
 
-`src/animate.js` → `MH_COPY.sloganLines`:
-
-- **Approved and shipped:** `['No gear. No fee.', 'Just players.']` — owner-approved 2026-11-01 together with the PICKUP direction and the Open Zone mark.
-- Former slogan `['Hide. Hunt.', 'Survive.']` is retired for external use (LOCKUP.md §5). Do not pair it with the approved lockup; only re-enable if the owner reverses the decision.
-- The short's visual grammar does not depend on the slogan — only the end card, cover and poster change. The lockup itself is not slogan-dependent.
+- **Treatment 3 "THE SNITCH"** (brand copy v2 §3): same structure and kit, only `COPY` lines change. Not built — available as an A/B once Treatment 1 is approved.
+- **Treatment 2 "THE BET"**: not to be built (brand instruction).
+- Copy changes are one edit in `COPY` plus a rebuild; no animation-system change is needed for an A/B copy cut.

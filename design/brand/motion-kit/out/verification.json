@@ -1,0 +1,397 @@
+{
+  "generatedAt": "2026-11-01T16:31:34.275Z",
+  "kit": "design/brand/motion-kit",
+  "runtime": "v24.22.1",
+  "summary": {
+    "total": 77,
+    "passed": 77,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "name": "out/readme/manhunt-readme-hero-1280x480.gif · GIF 1280×480",
+      "pass": true,
+      "detail": "1280×480"
+    },
+    {
+      "name": "out/readme/manhunt-readme-hero-1280x480-static.png · PNG 1280×480",
+      "pass": true,
+      "detail": "1280×480, 92.1 KB"
+    },
+    {
+      "name": "out/readme/manhunt-readme-hero-noslogan-1280x480.png · PNG 1280×480",
+      "pass": true,
+      "detail": "1280×480, 79.2 KB"
+    },
+    {
+      "name": "out/readme/manhunt-readme-hero-noslogan-1280x640.png · PNG 1280×640",
+      "pass": true,
+      "detail": "1280×640, 106.6 KB"
+    },
+    {
+      "name": "out/social/github-social-1280x640.png · PNG 1280×640",
+      "pass": true,
+      "detail": "1280×640, 120.2 KB"
+    },
+    {
+      "name": "out/social/github-social-1280x640.gif · GIF 1280×640",
+      "pass": true,
+      "detail": "1280×640"
+    },
+    {
+      "name": "out/social/github-social-1280x640-noslogan.png · PNG 1280×640",
+      "pass": true,
+      "detail": "1280×640, 106.6 KB"
+    },
+    {
+      "name": "out/social/x-header-1500x500.png · PNG 1500×500",
+      "pass": true,
+      "detail": "1500×500, 94.6 KB"
+    },
+    {
+      "name": "out/social/youtube-2560x1440-safe-area.png · PNG 2560×1440",
+      "pass": true,
+      "detail": "2560×1440, 167.5 KB"
+    },
+    {
+      "name": "out/social/youtube-2560x1440-safe-area-guide.png · PNG 2560×1440",
+      "pass": true,
+      "detail": "2560×1440, 244.3 KB"
+    },
+    {
+      "name": "out/social/discord-960x540.png · PNG 960×540",
+      "pass": true,
+      "detail": "960×540, 83.9 KB"
+    },
+    {
+      "name": "out/social/discord-960x540.gif · GIF 960×540",
+      "pass": true,
+      "detail": "960×540"
+    },
+    {
+      "name": "out/site/manhunt-site-hero-1200x600.png · PNG 1200×600",
+      "pass": true,
+      "detail": "1200×600, 101.3 KB"
+    },
+    {
+      "name": "out/site/manhunt-site-hero-1200x600-poster.png · PNG 1200×600",
+      "pass": true,
+      "detail": "1200×600, 101.5 KB"
+    },
+    {
+      "name": "out/app/manhunt-app-hero-1080x480-tau-00.png · PNG 1080×480",
+      "pass": true,
+      "detail": "1080×480, 56.6 KB"
+    },
+    {
+      "name": "out/app/manhunt-app-hero-1080x480-tau-20.png · PNG 1080×480",
+      "pass": true,
+      "detail": "1080×480, 57.6 KB"
+    },
+    {
+      "name": "out/app/manhunt-app-hero-1080x480-tau-40.png · PNG 1080×480",
+      "pass": true,
+      "detail": "1080×480, 63.8 KB"
+    },
+    {
+      "name": "out/app/manhunt-app-hero-1080x480-tau-60.png · PNG 1080×480",
+      "pass": true,
+      "detail": "1080×480, 61.8 KB"
+    },
+    {
+      "name": "out/app/manhunt-app-hero-1080x480-tau-80.png · PNG 1080×480",
+      "pass": true,
+      "detail": "1080×480, 57.4 KB"
+    },
+    {
+      "name": "out/readme/manhunt-readme-hero-1280x480.gif: 100 frames @ 20 fps",
+      "pass": true,
+      "detail": "100 frames, 20 fps"
+    },
+    {
+      "name": "out/readme/manhunt-readme-hero-1280x480.gif: 5.00 s loop metadata",
+      "pass": true,
+      "detail": "5s"
+    },
+    {
+      "name": "out/readme/manhunt-readme-hero-1280x480.gif: infinite loop flag (NETSCAPE2.0 loop=0)",
+      "pass": true,
+      "detail": "loop=0"
+    },
+    {
+      "name": "out/readme/manhunt-readme-hero-1280x480.gif: under 4 MB",
+      "pass": true,
+      "detail": "1.10 MB"
+    },
+    {
+      "name": "out/social/github-social-1280x640.gif: 100 frames @ 20 fps",
+      "pass": true,
+      "detail": "100 frames, 20 fps"
+    },
+    {
+      "name": "out/social/github-social-1280x640.gif: 5.00 s loop metadata",
+      "pass": true,
+      "detail": "5s"
+    },
+    {
+      "name": "out/social/github-social-1280x640.gif: infinite loop flag (NETSCAPE2.0 loop=0)",
+      "pass": true,
+      "detail": "loop=0"
+    },
+    {
+      "name": "out/social/github-social-1280x640.gif: under 4 MB",
+      "pass": true,
+      "detail": "1.49 MB"
+    },
+    {
+      "name": "out/social/discord-960x540.gif: 100 frames @ 20 fps",
+      "pass": true,
+      "detail": "100 frames, 20 fps"
+    },
+    {
+      "name": "out/social/discord-960x540.gif: 5.00 s loop metadata",
+      "pass": true,
+      "detail": "5s"
+    },
+    {
+      "name": "out/social/discord-960x540.gif: infinite loop flag (NETSCAPE2.0 loop=0)",
+      "pass": true,
+      "detail": "loop=0"
+    },
+    {
+      "name": "out/social/discord-960x540.gif: under 4 MB",
+      "pass": true,
+      "detail": "0.91 MB"
+    },
+    {
+      "name": "out/social/github-social-1280x640.png: field + chalk + cyan + coral + violet present",
+      "pass": true,
+      "detail": "{\"field\":353879,\"chalk\":8425,\"cyan\":2552,\"coral\":225,\"violet\":343}"
+    },
+    {
+      "name": "out/social/x-header-1500x500.png: field + chalk + cyan + coral + violet present",
+      "pass": true,
+      "detail": "{\"field\":315905,\"chalk\":6406,\"cyan\":1835,\"coral\":192,\"violet\":326}"
+    },
+    {
+      "name": "out/social/youtube-2560x1440-safe-area.png: field + chalk + cyan + coral + violet present",
+      "pass": true,
+      "detail": "{\"field\":1659732,\"chalk\":12310,\"cyan\":2608,\"coral\":295,\"violet\":383}"
+    },
+    {
+      "name": "out/social/discord-960x540.png: field + chalk + cyan + coral + violet present",
+      "pass": true,
+      "detail": "{\"field\":219837,\"chalk\":3218,\"cyan\":1485,\"coral\":174,\"violet\":320}"
+    },
+    {
+      "name": "out/site/manhunt-site-hero-1200x600-poster.png: field + chalk + cyan + coral + violet present",
+      "pass": true,
+      "detail": "{\"field\":304112,\"chalk\":12640,\"cyan\":1602,\"coral\":141,\"violet\":312}"
+    },
+    {
+      "name": "site hero: renders 1200×600 frame",
+      "pass": true,
+      "detail": "1200×600"
+    },
+    {
+      "name": "site hero: no JavaScript at all",
+      "pass": true,
+      "detail": "0 script tags"
+    },
+    {
+      "name": "site hero: no external resources requested",
+      "pass": true,
+      "detail": "[]"
+    },
+    {
+      "name": "site hero: CSS animations running",
+      "pass": true,
+      "detail": "12 animations"
+    },
+    {
+      "name": "site hero: wordmark is 7 drawn paths (no retyped text)",
+      "pass": true,
+      "detail": "7 paths, 0 <text> nodes"
+    },
+    {
+      "name": "site hero: hook is the approved short form",
+      "pass": true,
+      "detail": "\"Hide from your friends.\""
+    },
+    {
+      "name": "site hero: hook scales with the frame (container query)",
+      "pass": true,
+      "detail": "75.96px"
+    },
+    {
+      "name": "site hero: exactly one h1 in the hero",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "site hero: no horizontal overflow",
+      "pass": true,
+      "detail": "overflow 0px"
+    },
+    {
+      "name": "site hero: svg viewBox 1200×600",
+      "pass": true,
+      "detail": "0 0 1200 600"
+    },
+    {
+      "name": "site hero: live still is 1200×600 PNG",
+      "pass": true,
+      "detail": "1200×600"
+    },
+    {
+      "name": "site hero: reduced-motion poster is 1200×600 PNG",
+      "pass": true,
+      "detail": "1200×600"
+    },
+    {
+      "name": "site hero: prefers-reduced-motion disables all animation",
+      "pass": true,
+      "detail": "0 active"
+    },
+    {
+      "name": "site hero: reduced motion hides ping rings",
+      "pass": true,
+      "detail": "none"
+    },
+    {
+      "name": "site hero: poster keeps the hook + composition",
+      "pass": true,
+      "detail": "Hide from your friends. @ 75.96px"
+    },
+    {
+      "name": "site hero install width: fits the 640 px page column",
+      "pass": true,
+      "detail": "640px, overflow 0px"
+    },
+    {
+      "name": "site hero install width: hook stays readable (≥30 px)",
+      "pass": true,
+      "detail": "40.512px"
+    },
+    {
+      "name": "site hero install width: descriptor stays visible",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "site hero mobile 390: no horizontal overflow",
+      "pass": true,
+      "detail": "overflow 0px"
+    },
+    {
+      "name": "site hero mobile 390: hook ≥24 px",
+      "pass": true,
+      "detail": "29.64px"
+    },
+    {
+      "name": "site hero mobile 390: wordmark stays above min size (≥117 px wide)",
+      "pass": true,
+      "detail": "176px"
+    },
+    {
+      "name": "site hero mobile 390: secondary copy hidden",
+      "pass": true,
+      "detail": "none"
+    },
+    {
+      "name": "snippet: no <script> tag",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: safe inside a TS template literal (no backticks, no ${)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: scoped under .mh-hero",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: reduced-motion media query present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: container query present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: contains the approved short line",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: contains the honest install line",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: no network asset references",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet: wordmark inlined as official drawn paths",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "snippet docs mention the paste target",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "generated lockup module is provenance-stamped",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "lockup: byte-identical to identity/final/lockup for all 6 files",
+      "pass": true,
+      "detail": "6 files verified"
+    },
+    {
+      "name": "lockup: every official path is inlined verbatim (never retyped)",
+      "pass": true,
+      "detail": "8 paths, 0 missing"
+    },
+    {
+      "name": "lockup: mark geometry present in inlined lockup",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "stage: approved hook used on social/README artboards",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "stage: honest install microcopy used",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "stage: banners carry the invite CTA",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "stage: no hand-drawn wordmark paths (uses generated official lockup)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "out/: no stray working files",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

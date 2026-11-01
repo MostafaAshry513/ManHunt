@@ -1,0 +1,59 @@
+﻿1
+00:00:00,000 --> 00:00:02,500
+Your friends are hunting you.
+
+2
+00:00:02,500 --> 00:00:08,500
+It's hide-and-seek in the real world.
+
+3
+00:00:08,500 --> 00:00:11,800
+One team hides.
+
+4
+00:00:11,800 --> 00:00:16,000
+One team hunts.
+
+5
+00:00:16,000 --> 00:00:24,000
+Your phone reports your position.
+
+6
+00:00:24,000 --> 00:00:32,000
+Hunters see your last report.
+
+7
+00:00:32,000 --> 00:00:34,720
+Find them.
+
+8
+00:00:34,720 --> 00:00:36,960
+Touch them to tag.
+
+9
+00:00:36,960 --> 00:00:40,000
+Tagged. They’re out.
+
+10
+00:00:40,000 --> 00:00:47,000
+The server keeps the clock.
+
+11
+00:00:47,000 --> 00:00:49,700
+Create a hunt.
+
+12
+00:00:49,700 --> 00:00:53,000
+Share the code.
+
+13
+00:00:53,000 --> 00:00:57,000
+Free Android APK. Not on Play Store.
+
+14
+00:00:57,000 --> 00:00:58,600
+Hide from your friends.
+
+15
+00:00:58,600 --> 00:01:00,000
+Install free for Android.

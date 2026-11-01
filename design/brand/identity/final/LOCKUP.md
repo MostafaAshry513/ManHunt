@@ -1,11 +1,14 @@
 # ManHunt — approved lockup
 
-**Status: APPROVED by the owner, 2026-11-01.**
-Direction **PICKUP** · mark **01 Open Zone** · slogan **“No gear. No fee. Just players.”** · product
-name unchanged (**ManHunt**).
+**Status: identity APPROVED by the owner, 2026-11-01 — copy is PROVISIONAL, owner approval pending.**
+Direction **PICKUP** · mark **01 Open Zone** · product name unchanged (**ManHunt**).
 
-This file is the single source of truth for the lockup. Motion (`task-37`), the install page and any
-other surface consume the files below — do not retype, re-crop or re-draw anything from this document.
+The copy family below replaces the rejected line “No gear. No fee. Just players.” (rejected by the owner;
+do not use it anywhere). It is provisional authority for identity surfaces, motion and social until the
+owner approves final copy.
+
+This file is the single source of truth for the lockup. Motion, the install page and any other surface
+consume the files below — do not retype, re-crop or re-draw anything from this document.
 
 ---
 
@@ -21,7 +24,7 @@ other surface consume the files below — do not retype, re-crop or re-draw anyt
 | Lockup raster (horizontal) | `final/lockup/previews/lockup-horizontal-light-on-dark.png` | 1200 × 328 px, transparent |
 | Mark only | `final/lockup/mark-light-on-dark.svg` | transparent, 108 dp artboard, mark inside the 66 dp safe circle |
 | App icon (field square) | `final/install/app-icon.svg` | 108 × 108 dp composite, field `#0B1220` |
-| All variants sheet | `final/lockup/previews/lockup-sheet.png` | 1600 × 916 spec plate |
+| All variants sheet | `final/lockup/previews/lockup-sheet.png` | 1600 × 1180 spec plate |
 
 Dark-on-light (`*-dark-on-light.svg`) and monochrome (`*-mono.svg`) versions of every file exist in the
 same folder. **Motion should use the `light-on-dark` set**: the short's end card is on the navy field.
@@ -30,12 +33,17 @@ same folder. **Motion should use the `light-on-dark` set**: the short's end card
 
 ```js
 // design/social/motion/src/animate.js
+const MH_COPY = {                       // PROVISIONAL — owner approval pending
+  permanentLine: 'Hide from your friends.',            // identity / app tagline / install page / OG card
+  hook: 'Your friends are hunting you.',               // campaign + social hook
+  cta: 'Create a hunt. Send the code. Hide.',          // end-card CTA
+  descriptor: 'Real-world GPS hide-and-seek',          // secondary descriptor line
+};
 const MH_LOCKUP = {
   wordmarkSvg: 'C:/dev/ManHunt/design/brand/identity/final/lockup/wordmark-light-on-dark.svg',
   lockupSvg: 'C:/dev/ManHunt/design/brand/identity/final/lockup/lockup-stacked-light-on-dark.svg',
   wordmarkPng: 'C:/dev/ManHunt/design/brand/identity/final/lockup/previews/wordmark-light-on-dark.png',
   fill: '#E6EDF7',
-  slogan: 'No gear. No fee. Just players.',
 };
 ```
 
@@ -104,18 +112,31 @@ team colour; coral is Prey; violet is Hunters; flat fills only — no gradients,
 
 ---
 
-## 5. Slogan pairing
+## 5. Copy — provisional, owner approval pending
 
-Approved primary slogan: **“No gear. No fee. Just players.”** (three beats, 30 characters).
+The owner **rejected** “No gear. No fee. Just players.”. The identity package uses this provisional family
+until final copy is approved:
 
-- Set the slogan **outside** the lockup's clear space — never inside the mark, never inside the icon.
-- Recommended order on a surface: slogan first, then the lockup (as on the end card and the OG card), or
-  lockup first and slogan under it. One of the two per surface.
-- The slogan is live copy, set in the brand display face — it is **not** part of the wordmark drawing.
-  Do not draw the slogan or turn it into paths from this package.
-- The old line “Hide. Hunt. Survive.” is retired for external use; do not pair it with this lockup.
-- Descriptor line (install page / OG card, optional): **“Real-world GPS hide-and-seek”** — sentence case,
-  under the slogan, never merged into the wordmark.
+| Role | Line | Use |
+|---|---|---|
+| **Permanent line** | **“Hide from your friends.”** | identity surfaces, install page `<h1>`/OG card, app tagline slot, README lead |
+| **Hook** | “Your friends are hunting you.” | campaign / social video hook, ad creative |
+| **CTA** | “Create a hunt. Send the code. Hide.” | end-card / install-page call to action |
+| Descriptor (secondary) | “Real-world GPS hide-and-seek” | under the permanent line where a description is needed |
+
+Rules:
+
+- Set copy **outside** the lockup's clear space — never inside the mark, never inside the icon.
+- Recommended order on a surface: hook or permanent line first, then the lockup (as on the end card and the
+  OG card), or lockup first and the line under it. One copy line per surface, plus at most the descriptor.
+- Copy is live text set in the brand display face — it is **not** part of the wordmark drawing. Do not draw
+  it or turn it into paths from this package. Never retype the wordmark itself.
+- **Do not use** “No gear. No fee. Just players.” anywhere, and do not resurrect “Hide. Hunt. Survive.” for
+  external use.
+- The OG card (`final/install/og-image-1200x630.png`) uses the permanent line; its `og:title` /
+  `og:image:alt` snippets live in `final/install/README.md`.
+- Arabic adaptation is a separate copy workstream; do not machine-translate these lines into identity
+  assets without the copy owner.
 
 ---
 
