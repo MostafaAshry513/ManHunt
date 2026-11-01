@@ -6,8 +6,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.manhunt.app.ui.AppRoot
 import com.manhunt.app.ui.DeepLink
+import com.manhunt.app.ui.StartupBrandScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +29,15 @@ class MainActivity : ComponentActivity() {
         }
         handleDeepLink(intent)
         setContent {
-            AppRoot()
+            // Cold-start only: a short Open Zone reveal bridges the system splash and Home.
+            // It runs over the already-composing UI, so session restore is never blocked.
+            var showStartup by rememberSaveable { mutableStateOf(true) }
+            Box(Modifier.fillMaxSize()) {
+                AppRoot()
+                if (showStartup) {
+                    StartupBrandScreen(onFinished = { showStartup = false })
+                }
+            }
         }
     }
 

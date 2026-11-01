@@ -337,6 +337,10 @@ private val arabic: Map<String, String> = mapOf(
         "الرجوع التنبؤي يُظهر الصفحة الرئيسية أثناء السحب للخلف.",
     "New Open Zone icon system and adaptive launcher icon." to
         "نظام أيقونة Open Zone الجديد وأيقونة المشغّل التكيفية.",
+    "Short Open Zone startup reveal on cold launch." to
+        "كشف قصير لـ Open Zone عند بدء التشغيل البارد.",
+    "Reduced-motion launches show a calm static mark." to
+        "عند تقليل الحركة يظهر الشعار الثابت الهادئ.",
     "New slogan: hide from your friends." to
         "شعار جديد: اختبئ من أصدقائك.",
     "Animated Open Zone radar hero on Home and sign-in." to

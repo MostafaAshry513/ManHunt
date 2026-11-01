@@ -15,8 +15,8 @@ android {
         applicationId = "com.manhunt.app"
         minSdk = 26
         targetSdk = 37
-        versionCode = 41
-        versionName = "0.15.0"
+        versionCode = 42
+        versionName = "0.15.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

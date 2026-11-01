@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -49,6 +50,7 @@ import com.manhunt.app.data.InputRules
 import com.manhunt.app.data.ManHuntRepository
 import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
+import com.manhunt.app.ui.theme.ManHuntElevation
 import com.manhunt.app.ui.theme.ManHuntSizes
 import com.manhunt.app.ui.theme.ManHuntSpacing
 import kotlinx.coroutines.launch
@@ -138,19 +140,26 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                 .padding(ManHuntSpacing.screen),
             verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
         ) {
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm),
-            ) {
-                // Animated brand hero (Open Zone radar + drawn MANHUNT lockup + campaign
-                // line). Kept compact so the join/create cards stay on the first screen.
-                BrandMotionBanner(modifier = Modifier.weight(1f), compact = true)
-                IconButton(
-                    onClick = onOpenSettings,
-                    modifier = Modifier.size(ManHuntSizes.touchTarget).testTag("home_settings"),
+            Box(Modifier.fillMaxWidth()) {
+                // Full-bleed brand hero. The settings control floats in the empty top-right
+                // corner instead of taking a column away from the banner.
+                BrandMotionBanner(modifier = Modifier.fillMaxWidth(), compact = true)
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(ManHuntSpacing.sm),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
+                    tonalElevation = ManHuntElevation.card,
                 ) {
-                    Icon(Icons.Outlined.Settings, contentDescription = t("Settings"))
+                    IconButton(
+                        onClick = onOpenSettings,
+                        modifier = Modifier
+                            .size(ManHuntSizes.touchTarget)
+                            .testTag("home_settings"),
+                    ) {
+                        Icon(Icons.Outlined.Settings, contentDescription = t("Settings"))
+                    }
                 }
             }
 

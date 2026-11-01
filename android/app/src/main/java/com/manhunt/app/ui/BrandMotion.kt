@@ -667,8 +667,10 @@ private val BrandWordmarkGlyphs: List<BrandGlyph> by lazy {
 
 /** Draws the wordmark into the given box; the box aspect is the lockup's 5.30:1. */
 @Composable
-private fun BrandWordmark(modifier: Modifier = Modifier) {
-    val color = MaterialTheme.colorScheme.onSurface
+internal fun BrandWordmark(
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurface,
+) {
     Canvas(modifier) {
         val scale = size.height / 100f
         withTransform({ scale(scale, scale, pivot = Offset.Zero) }) {

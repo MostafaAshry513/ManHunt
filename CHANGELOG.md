@@ -4,6 +4,15 @@ All notable changes to ManHunt are recorded here. The release workflow copies th
 for a tag into the GitHub Release body, and the in-app Updates page shows that text plus the
 release date.
 
+## [0.15.1] — 2026-11-01
+
+### Added
+
+- **Short Open Zone startup reveal** on cold launch: a 1.4 s drawn radar mark, coral Prey dot
+  and MANHUNT wordmark that bridge the system splash into the first screen. It runs over the
+  already-composing UI, so session restore is never blocked; reduced-motion shows a static
+  mark briefly and never animates.
+
 ## [0.15.0] — 2026-11-01
 
 ### Added
