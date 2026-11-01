@@ -39,7 +39,8 @@ test('install page renders version, size, checksum and server from the update ma
   assert.equal(res.statusCode, 200);
   assert.match(String(res.headers['content-type']), /text\/html/);
   assert.match(res.body, /<title>ManHunt/);
-  assert.match(res.body, /No gear\. No fee\. Just players\./);
+  assert.match(res.body, /Hide from your friends\./);
+  assert.match(res.body, /mh-hero/);
   assert.match(res.body, /href="\/favicon\.png"/);
   assert.match(res.body, /og-image\.png/);
   assert.match(res.body, /v0\.9\.0/);

@@ -50,6 +50,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.manhunt.app.data.LatLng
 import com.manhunt.app.data.PreyLocationStatus
 import com.manhunt.app.data.TrailPoint
@@ -57,6 +58,8 @@ import com.manhunt.app.data.ZoneDto
 import com.manhunt.app.i18n.t
 import com.manhunt.app.ui.theme.ManHuntRadius
 import com.manhunt.app.ui.theme.ManHuntSizes
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
@@ -65,10 +68,11 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
-import org.osmdroid.views.overlay.Polyline
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+
+/** 30 fps is the ceiling for the in-game brand motion. */
 
 /**
  * Dark-tile color filter. The raw matrix and its 0..255-scale contract live in
@@ -107,12 +111,13 @@ fun MatchMap(
     val darkTiles = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val zoneColor = MaterialTheme.colorScheme.primary.toArgb()
     val zoneFill = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f).toArgb()
-    val trailColor = MaterialTheme.colorScheme.tertiary.toArgb()
     val preyLiveColor = MaterialTheme.colorScheme.tertiary.toArgb()
     // Amber deliberately differs from the coral live marker: stale/flagged reports are
     // the map's primary safety signal and must not look identical to a fresh one.
     val preyStaleColor = 0xFFF0A43A.toInt()
     val ownColor = MaterialTheme.colorScheme.primary.toArgb()
+    val fieldColor = MaterialTheme.colorScheme.background.toArgb()
+    val chalkColor = MaterialTheme.colorScheme.onSurface.toArgb()
     val strokePx = with(density) { 3.dp.toPx() }
     val casingPx = with(density) { 2.dp.toPx() }
     val fitPaddingPx = with(density) { fitPadding.roundToPx() }
@@ -162,6 +167,12 @@ fun MatchMap(
         }
     }
 
+    // Animated brand layer (radar sweep, report rings, zone pulse, flowing trails, vignette).
+    // It is a plain osmdroid overlay, so it follows pan/zoom natively and only repaints when
+    // the driver ticks at 30 fps or the map invalidates for another reason.
+    val motionOverlay = remember { BrandRadarOverlay() }
+    val mapMotionEnabled = rememberBrandMapMotionEnabled()
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -195,6 +206,24 @@ fun MatchMap(
     // relying on an implicit redraw that may have already happened.
     LaunchedEffect(ownLocation, prey, zone, trails, showPrey, showOwnMarker) {
         mapView.post { mapView.invalidate() }
+    }
+
+    // 30 fps driver for the brand layer: one tick per frame budget, paused automatically
+    // with the screen (repeatOnLifecycle RESUMED) and switched off entirely for reduced
+    // motion / previews / Robolectric stills (rememberBrandMapMotionEnabled).
+    LaunchedEffect(mapMotionEnabled, mapView, lifecycleOwner) {
+        motionOverlay.setMotion(mapMotionEnabled)
+        if (!mapMotionEnabled) {
+            mapView.invalidate()
+            return@LaunchedEffect
+        }
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (isActive) {
+                delay(BRAND_MAP_FRAME_MS)
+                motionOverlay.tick(BRAND_MAP_FRAME_MS.toFloat())
+                mapView.invalidate()
+            }
+        }
     }
 
     Box(
@@ -254,29 +283,27 @@ fun MatchMap(
                     )
                 }
 
-                if (showPrey) {
-                    // Trails connect real reported points; no interpolation across gaps.
-                    trails.values.forEach { points ->
-                        if (points.size >= 2) {
-                            val geoPoints = points.map { GeoPoint(it.lat, it.lng) }
-                            // Same casing rule as the zone: coral on bright teal is weak.
-                            view.overlays.add(
-                                Polyline(view).apply {
-                                    setPoints(geoPoints)
-                                    outlinePaint.color = android.graphics.Color.argb(135, 0, 0, 0)
-                                    outlinePaint.strokeWidth = strokePx + casingPx
-                                },
-                            )
-                            view.overlays.add(
-                                Polyline(view).apply {
-                                    setPoints(geoPoints)
-                                    outlinePaint.color = trailColor
-                                    outlinePaint.strokeWidth = strokePx
-                                },
-                            )
-                        }
-                    }
+                // Brand motion layer: added after the static zone fill so its animated
+                // boundary sits on top of the fill, and before the markers so report rings
+                // draw under the dots. All state is pushed here; the driver only ticks time.
+                motionOverlay.update(
+                    ownLocation = ownLocation,
+                    prey = prey,
+                    zone = zone,
+                    trails = trails,
+                    showPrey = showPrey,
+                    showOwnMarker = showOwnMarker,
+                )
+                motionOverlay.setColors(
+                    primary = zoneColor,
+                    prey = preyLiveColor,
+                    stale = preyStaleColor,
+                    field = fieldColor,
+                    chalk = chalkColor,
+                )
+                view.overlays.add(motionOverlay)
 
+                if (showPrey) {
                     // Stale/live reports use different marker colours instead of the
                     // library's identical default pin; eliminated prey stay off the map.
                     prey.filter { it.hasReport && !it.eliminated && it.lat != null && it.lng != null }.forEach { p ->

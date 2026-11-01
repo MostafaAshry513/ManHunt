@@ -37,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -139,20 +138,14 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                 .padding(ManHuntSpacing.screen),
             verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
         ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        t("MANHUNT"),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
-                    Text(
-                        t("No gear. No fee. Just players."),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm),
+            ) {
+                // Animated brand hero (Open Zone radar + drawn MANHUNT lockup + campaign
+                // line). Kept compact so the join/create cards stay on the first screen.
+                BrandMotionBanner(modifier = Modifier.weight(1f), compact = true)
                 IconButton(
                     onClick = onOpenSettings,
                     modifier = Modifier.size(ManHuntSizes.touchTarget).testTag("home_settings"),

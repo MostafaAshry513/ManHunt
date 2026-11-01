@@ -5,7 +5,9 @@ their GPS positions; Hunters follow those positions on a live map and tag prey b
 touching them. The server is authoritative — it owns timers, teams, tags, location visibility and
 chat — so a phone can lose signal or restart without breaking the game.
 
-> **No gear. No fee. Just players.**
+<img src="docs/brand/readme-hero.gif" alt="ManHunt — Open Zone radar: coral Prey evading violet Hunters" width="100%">
+
+> **Hide from your friends.**
 
 <img src="docs/brand/icon-512.png" width="88" alt="ManHunt Open Zone icon">
 

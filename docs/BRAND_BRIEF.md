@@ -1,7 +1,9 @@
 # ManHunt brand brief — icon & slogan team
 
-Status: **approved 2026-11-01** — keep the name ManHunt; direction **PICKUP**; primary slogan
-**“No gear. No fee. Just players.”**; logo/icon concept **01 Open Zone**. Full platform:
+Status: **identity approved 2026-11-01; copy provisional** — keep the name ManHunt; mark
+**01 Open Zone** approved; logo/lockup geometry frozen. Copy family currently provisional:
+permanent line **“Hide from your friends.”**, social hook **“Your friends are hunting you.”**;
+the earlier “No gear. No fee. Just players.” is rejected. Full platform:
 `design/brand/strategy/brand-platform.md`; identity sources/exports: `design/brand/identity/`.
 This brief remains the constraint contract for future brand work.
 

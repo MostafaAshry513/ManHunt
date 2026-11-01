@@ -185,11 +185,9 @@ fun AuthScreen() {
                 .padding(horizontal = ManHuntSpacing.xl, vertical = ManHuntSpacing.section),
             verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.xl),
         ) {
-            HeroBanner(
-                title = t("MANHUNT"),
-                subtitle = t("No gear. No fee. Just players."),
-                icon = Icons.Outlined.Person,
-            )
+            // Animated brand hero: Open Zone radar with the drawn MANHUNT lockup and the
+            // campaign line. The sign-in card stays directly below it.
+            BrandMotionBanner(modifier = Modifier.fillMaxWidth())
 
             ScreenCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {

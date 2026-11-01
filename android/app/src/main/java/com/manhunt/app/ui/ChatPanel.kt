@@ -36,10 +36,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.manhunt.app.data.ChatMessage
 import com.manhunt.app.i18n.t
@@ -290,11 +292,23 @@ private fun Composer(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        // TextField direction is content-driven, so an Arabic placeholder can stay
+        // visually LTR even when the rest of the screen is RTL. Align both the entered
+        // text and the placeholder explicitly with the app's layout direction.
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        val inputAlign = if (isRtl) TextAlign.Right else TextAlign.Left
         OutlinedTextField(
             value = draft,
             onValueChange = onDraftChange,
             modifier = Modifier.weight(1f).testTag("chat_input"),
-            placeholder = { Text(t("Message")) },
+            textStyle = MaterialTheme.typography.bodyLarge.copy(textAlign = inputAlign),
+            placeholder = {
+                Text(
+                    t("Message"),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = inputAlign,
+                )
+            },
             maxLines = 4,
             shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(

@@ -4,6 +4,24 @@ All notable changes to ManHunt are recorded here. The release workflow copies th
 for a tag into the GitHub Release body, and the in-app Updates page shows that text plus the
 release date.
 
+## [0.15.0] — 2026-11-01
+
+### Added
+
+- **Animated brand hero** on Home and Auth: a Canvas “Perpetual Pursuit” radar with the
+  Open Zone ring, coral Prey trail/pings and violet Hunters, reduced-motion/lifecycle safe.
+- **In-game field-radar map motion**: radar sweep, pulsing fresh-report rings, breathing zone
+  boundary, flowing trail dashes, asphalt/scanline/vignette grade and a short open transition —
+  still free OpenStreetMap raster data and attribution; hidden/eliminated prey never drawn.
+- **Install-page animated hero** and **animated README hero** generated from the same brand kit.
+- Full social identity/banner kit staged under `design/` for posting everywhere.
+
+### Changed
+
+- New provisional copy family replaces the rejected "No gear. No fee. Just players.":
+  app tagline **“Hide from your friends.”**, social hook **“Your friends are hunting you.”**.
+- Arabic chat input/placeholder now follows RTL layout direction explicitly.
+
 ## [0.14.0] — 2026-11-01
 
 ### Added

@@ -16,11 +16,21 @@ data class ChangelogEntry(
 object Changelog {
     val recent: List<ChangelogEntry> = listOf(
         ChangelogEntry(
+            version = "0.15.0",
+            date = "2026-11-01",
+            changes = listOf(
+                "Animated Open Zone radar hero on Home and sign-in.",
+                "The hunting map is now alive with radar, pings and trails.",
+                "New animated install-page and README heroes.",
+                "Arabic chat placeholder now follows RTL.",
+            ),
+        ),
+        ChangelogEntry(
             version = "0.14.0",
             date = "2026-11-01",
             changes = listOf(
+                "New slogan: hide from your friends.",
                 "New Open Zone icon system and adaptive launcher icon.",
-                "New slogan: no gear. no fee. just players.",
                 "ManHunt is now presented as a free pickup field sport.",
             ),
         ),
