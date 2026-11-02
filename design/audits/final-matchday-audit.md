@@ -3,7 +3,7 @@
 Independent adversarial audit of the v0.16.0 "MATCHDAY BOARD" sprint. Read-only: no code/assets changed; this document plus `design/audits/evidence/` are the only additions.
 Date: 2026-11-02 · Repo: `C:\dev\ManHunt` @ `1a2c441` (master, working tree had only in-flight `design/social/matchday/`) · Live: http://74.208.99.178/
 
-> **Re-audit banner (task-60, 2026-11-02 post-cleanup):** the findings below are the first-pass audit; every blocker was re-tested after cleanup — see **“Re-audit — 2026-11-02 (post-cleanup, task-60)”** at the end of this document. Current status: **app captures, live site, GitHub README and brand assets MEET THE BAR; the whole sprint still NEEDS ANOTHER PASS for the social pack only (two composition defects) plus one APK-size copy nit.** All eight original blockers B1–B8 are resolved on the app/site/GitHub surfaces.
+> **Final status banner (task-63, 2026-11-02):** first-pass audit and the task-60 re-audit follow below. After the R1/R2 social fixes (commit `05c08ff`), the social pack was re-verified at 1080 px and 390 px and the APK-size nit was closed — see **“Social pack verification addendum — 2026-11-02 (task-63)”** at the very end. **FINAL WHOLE-SPRINT VERDICT: MEETS THE BAR.** The MATCHDAY redesign is premium and coherent across app captures, live site, GitHub README, brand assets and the now-clean social pack; social publication remains intentionally gated on the owner's copy approval (disclosed in `design/social/matchday/out/COPY-STATUS.txt`).
 
 **Verdict: NEEDS ANOTHER PASS.** The design direction is genuinely premium and internally consistent, the app captures are real (no mockups), the live site is current, the README is pushed and its assets resolve, and the APK hash claim verifies byte-for-byte. But the "final" evidence set ships a handful of visible defects and one factually wrong product claim: a dev server URL in the flagship auth frame, a visually broken slider in the Settings frame, a clipped expanded sheet, cross-surface clock/code/size drift (41:14 vs 41:12, WNWHA3 vs VMJYBU, 2.2 MB vs 2.48 MB), and "Prey never see the map" — which the app (and the sprint's own prey-view capture S08) contradicts. The new social pack is still landing (only 7 test stills exist) and the committed site QA captures are a release behind the live site. None of these are design-direction problems; they are a focused cleanup + a small reshoot before the sprint can be called complete.
 
@@ -194,3 +194,36 @@ Second pass after the cleanup sprint (app v0.16.1, commits `08b2ff0` → `83bd4e
 - Site evidence: `design/site-redesign/shots/final/report.json` generatedAt `2026-11-02T05:38:49Z`, desktop/tablet/mobile all `overflow:false / blanks:0 / small:0`; refreshed `mobile-390-viewport.png` shows v0.16.1 · 2.3 MB.
 - App fixes: `git show 08b2ff0` (`BoardInputs.kt`, `BoardScaleSliderTest.kt`, `RoomScreen.kt` navigationBarsPadding, `SettingsScreen.kt`); CHANGELOG `[0.16.1]`.
 - Social: `design/social/matchday/out/` (reels/carousel/story/feed/QA/contact sheet/`COPY-STATUS.txt`), reviewed contact sheet + cover, carousel 04-hunt and 05-end, feed result, reel30 frame.
+
+---
+
+# Social pack verification addendum — 2026-11-02 (task-63)
+
+Final, social-only verification after the R1/R2 fixes (commit `05c08ff`, "final composition and evidence cleanup") and the APK-size fix. Same read-only method; no code/assets touched.
+
+## Verdict: **WHOLE SPRINT: MEETS THE BAR**
+
+- **R1 (carousel end-card collision) — FIXED.** `design/social/matchday/out/manhunt_matchday_carousel-5-end.png` (1080×1350, SHA-256 `ca4648c4…2c244391`): lockup, CTA, URL, install metadata and "Play with people you trust." now have clean vertical separation — the MANHUNT wordmark is fully visible with the cyan "Install free for Android" button below it. No overlap, no clipping at 1080; composition still holds at contact-sheet scale.
+- **R2 (result feed duplication + bad crop) — FIXED.** `design/social/matchday/out/manhunt_matchday_feed-1x1-result.png` (1080×1080, SHA-256 `ef3b0a1b…16c3e9d9`): one clear result statement — "HUNTERS WIN." / "PREY REMAINING 0 / 2 · CAPTURED MATCH" — followed by a single clean full-time board window (FULL TIME · PREY 0/2 · 18:48 played · HUNTERS). The repeated "Hunters win." headline and the mid-radar crop are gone; no duplicate scoreboard.
+- **Full pack re-checked at 1080 and 390.** Updated contact sheet (`489e31c9…0401b539`) shows the corrected panels; 390 px phone proofs (`design/social/matchday/out/qa/phone-*.png`, all 390×693) are legible with no clipping: `phone-hunt` carries "HUNTING 41:12 · ZONE 240 M · PREY 2/2" plus "LATEST REPORTS · © OPENSTREETMAP CONTRIBUTORS" at thumbnail size; `phone-result` shows "HUNT OVER." + "FULL TIME · 18:48 PLAYED · PREY 0/2" with the captured board cleanly framed. Cover (1080×1920), carousel 04 (hunting, map + "ZONE 240 M · © OPENSTREETMAP CONTRIBUTORS") and story frames remain clean — no collision/duplication/crop issues found in the sampled set.
+- **All real captures.** All 7 screen assets under `design/social/matchday/assets/screens/` hash-match the current `docs/screenshots/premium/` frames: `s03-home`, `s05-lobby-host`, `s07-hunt`, `s08-hunt-claim`, `s11-chat`, `s12-result-hunters`, `s13-result-prey` — 7/7 exact SHA-256 matches (no mockups/composites); contact sheet provenance line states "ALL FRAMES FROM DOCS/SCREENSHOTS/PREMIUM (COMMIT E25310E6) · OSM ATTRIBUTION ON MAP FRAMES · COPY PROVISIONAL".
+- **Wording/OSM/claims.** HUNTING appears on the hunt frames/carousel 04; CAPTURED MATCH appears on the result feed; OSM attribution present on every map frame sampled (1080 and 390). No fake claims: no player counts, ratings or store references; honest "Free APK · not on Play Store" + "Play with people you trust."
+- **Copy status still provisional — as intended.** `out/COPY-STATUS.txt`: "COPY STATUS: PROVISIONAL — OWNER APPROVAL PENDING … Do not publish until the owner approves." Publication remains gated on the owner, not on visual QA.
+- **APK-size nit closed.** `README.md:100` now reads "about **2.3 MB**", matching the live site's "2.3 MB" and actual APK 2,460,570 B (SHA-256 `0596bee7…b56e114de`, re-verified). Fix commit also committed the refreshed v0.16.1 site QA evidence and verification notes.
+
+**Residual nits (non-blocking, optional):** (a) the social pack's copied provenance file `design/social/matchday/assets/screens/MANIFEST.json` is the pre-cleanup snapshot (14 captured / 0 rejected, still lists the rejected `s01-auth.png`) while the current premium MANIFEST is 11 captured / 3 rejected — refresh it or trim it to the 7 used captures for exact provenance; (b) social cards say "ANDROID 8+" while README/site say "Android 8.0+" (equivalent meaning); (c) the 30s reel result scene frames the inner app capture so its radar band is cropped at the window edge — intentional window framing, acceptable.
+
+## Final surface scores (task-63)
+
+| Surface | Final | Note |
+|---|---|---|
+| Premium app captures | **4/5** | 11 clean frames, honest manifest, hashes verify; residual 3G/clock/spec deviations noted for a future re-capture, not publish-blocking. |
+| Live game site | **5/5** | v0.16.1, accurate copy, current evidence, verified APK SHA/headers. |
+| GitHub README / repo | **4/5** | Canonical facts fixed, synced, assets resolve, release v0.16.1; default OG card + size now aligned. |
+| Brand assets | **4/5** | MATCHDAY v2 hero/band/tags clean; legacy v1 assets still mixed in `docs/brand/README.md`. |
+| Social MATCHDAY pack | **5/5** | Landed, fixed, on-brand, real captures, OSM credit, HUNTING/CAPTURED MATCH, copy provisional as disclosed. |
+| Spec vs captures | **3/5** | Rejections honest; residual 3G/clock/S12-scope deviations persist in unchanged frames (future pass). |
+| Cross-surface coherence | **5/5** | 41:12 / VMJYBU / 2.3 MB / visibility copy agree across app, site, GitHub, brand and social. |
+| Honesty & trust | **5/5** | Rejected frames documented, S13 corrected, visibility copy accurate, APK SHA verified, social copy marked provisional. |
+
+**Whole-sprint verdict: MEETS THE BAR.** The MATCHDAY redesign is premium and coherent on every reviewed surface; the only remaining items are optional provenance/copy polish and the owner's social-copy approval before the reel and carousel are published. Evidence for this addendum: fixed files `manhunt_matchday_carousel-5-end.png` (`ca4648c4…`), `manhunt_matchday_feed-1x1-result.png` (`ef3b0a1b…`), `manhunt_matchday_contact-sheet.png` (`489e31c9…`), 390×693 `out/qa/phone-*.png`, `assets/screens/*` SHA-256 equality (7/7), `README.md:100`, live site `http://74.208.99.178/`, `/app.apk` (2,460,570 B, `0596bee7…b56e114de`).

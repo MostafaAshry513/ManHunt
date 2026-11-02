@@ -1,7 +1,7 @@
 {
     "title":  "ManHunt premium screenshots",
     "shotlist":  "design/redesign/screenshot-shotlist.md",
-    "generatedAt":  "2026-11-02T05:02:39Z",
+    "generatedAt":  "2026-11-02T05:38:21Z",
     "source":  "Real Android emulator capture of the ManHunt debug build (no mockups, no compositing)",
     "workflow":  {
                      "name":  "premium-screenshots.yml",
@@ -46,7 +46,7 @@
                                      "team":  "hunters"
                                  }
                              ],
-                 "state":  "Lobby (all ready) -\u003e live hunt 41:12 remaining/18:48 played (fresh + stale reports, trail, 240 m zone) -\u003e claim -\u003e Hunters win (0/2) -\u003e rematch: honest Prey-win state (data-gap: survivor count unavailable)"
+                 "state":  "Lobby (all ready) -\u003e live hunt 41:12 remaining/18:48 played (fresh + stale reports, trail, 240 m zone) -\u003e claim -\u003e Hunters win (0/2) -\u003e rematch: Prey win at full time with both Prey alive (honest 2/2 score)"
              },
     "pending":  [
                     "s02-safety.png",
@@ -55,21 +55,30 @@
                     "s18-auth-loading.png",
                     "s19-auth-error.png"
                 ],
+    "rejected":  [
+                     {
+                         "file":  "s01-auth.png",
+                         "role":  "S01-auth",
+                         "scenario":  "Auth, dark, fields empty, keyboard closed, real server row",
+                         "reason":  "Dev/infrastructure server host visible in frame (manhunt.lvh.me) and wrong signal state; removed, not substituted."
+                     },
+                     {
+                         "file":  "s10-hunt-sheet.png",
+                         "role":  "S10-hunt-sheet",
+                         "scenario":  "Hunt sheet expanded: prey reports/ages, trails toggle, attribution visible",
+                         "reason":  "Expanded hunt sheet clipped at the frame bottom (roster/gesture bar cut); removed, not substituted."
+                     },
+                     {
+                         "file":  "s14-settings.png",
+                         "role":  "S14-settings",
+                         "scenario":  "Settings: appearance (dark, text size), language, manual page",
+                         "reason":  "Text-size slider renders broken (detached thumb/rail), contradicting the spec; removed, not substituted."
+                     }
+                 ],
     "dataGaps":  [
-                     "S13 survivor count unavailable (server resets eliminations at finish); captured as the honest Prey-win state."
+                     "S13 (Prey win): both Prey were alive at full time and the final score is 2/2 - that is the honest app state. The earlier \"one prey survived\" phrasing was wrong and has been removed."
                  ],
     "images":  [
-                   {
-                       "file":  "s01-auth.png",
-                       "role":  "S01-auth",
-                       "scenario":  "Auth, dark, fields empty, keyboard closed, real server row",
-                       "width":  1080,
-                       "height":  2400,
-                       "bytes":  143179,
-                       "sha256":  "abbb4ecf8c520d54b457d5d98292dd7623bd41b5e7760c1884025ff679cb2884",
-                       "required":  true,
-                       "status":  "captured"
-                   },
                    {
                        "file":  "s03-home.png",
                        "role":  "S03-home",
@@ -148,17 +157,6 @@
                        "status":  "captured"
                    },
                    {
-                       "file":  "s10-hunt-sheet.png",
-                       "role":  "S10-hunt-sheet",
-                       "scenario":  "Hunt sheet expanded: prey reports/ages, trails toggle, attribution visible",
-                       "width":  1080,
-                       "height":  2400,
-                       "bytes":  767432,
-                       "sha256":  "a40c02e54ab6117aa4f1be99f3aa480ed7a0aa66edf5e212769bb7cc16ab97f9",
-                       "required":  true,
-                       "status":  "captured"
-                   },
-                   {
                        "file":  "s11-chat.png",
                        "role":  "S11-chat",
                        "scenario":  "Field log chat: seeded hunt messages, phase separator, composer empty, keyboard closed",
@@ -183,22 +181,11 @@
                    {
                        "file":  "s13-result-prey.png",
                        "role":  "S13-result-prey",
-                       "scenario":  "Result: Prey win variant, one prey survived",
+                       "scenario":  "Result: Prey win, full time with both Prey alive - honest 2/2 score (no fabricated survivor count)",
                        "width":  1080,
                        "height":  2400,
                        "bytes":  128077,
                        "sha256":  "9b91e324d4f239fbdbc3588c46f5c6dd0cd6279dcd544d9e24525940cc67ee55",
-                       "required":  true,
-                       "status":  "captured"
-                   },
-                   {
-                       "file":  "s14-settings.png",
-                       "role":  "S14-settings",
-                       "scenario":  "Settings: appearance (dark, text size), language, manual page",
-                       "width":  1080,
-                       "height":  2400,
-                       "bytes":  72108,
-                       "sha256":  "384bb7e8a41535bfbf1b550084c953bb2420016f39776d1ff280dacd7ef93ff6",
                        "required":  true,
                        "status":  "captured"
                    },
@@ -355,7 +342,8 @@
                   "Hero shots for the site/GitHub page: s07-hunt.png (vertical) plus harvest/map-hero-16x9.png and harvest/map-hero-3x2.png ready-made site bands (cut from the captured full frame).",
                   "s07-hunt-alt.png is a raw alternate hero frame kept only in the workflow artifact, not in this folder.",
                   "Result timing: 41:12 is the remaining time at the S07 moment; the finished match ran 18:48 (never \"41:12 played\").",
-                  "S13 data-gap: survivor count unavailable - the server resets eliminations at match finish, so the app can only expose the honest Prey-win state.",
+                  "S13 (Prey win): both Prey were alive at full time; 2/2 is the honest final score. The earlier \"one prey survived\" phrasing was wrong and is removed.",
+                  "Frames rejected by visual review are listed under `rejected` with their defect and are absent from this folder - never substituted with old UI.",
                   "Pending shots are screens not captured/clean in the verified build run (listed above); they are omitted and recorded here, never substituted with old UI."
               ]
 }
