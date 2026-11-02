@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import android.Manifest
 import android.content.ClipData
@@ -217,6 +217,7 @@ data class FinishedMatchSnapshot(
     val winner: String?,
     val startedAt: Long,
     val endsAt: Long,
+    val endedAt: Long = 0,
     val preyAlive: Int,
     val preyTotal: Int,
     val zoneRadiusM: Double?,
@@ -274,6 +275,7 @@ class RoomViewModel(
             winner = match.winner,
             startedAt = match.startedAt,
             endsAt = match.endsAt,
+            endedAt = 0,
             preyAlive = match.preyAlive,
             preyTotal = match.preyTotal,
             zoneRadiusM = match.zone?.radiusM,
@@ -283,6 +285,22 @@ class RoomViewModel(
             capturedAt = System.currentTimeMillis(),
         )
         lastLiveState = null
+        // The room payload only has the planned `endsAt`; the real finish time lives in the
+        // match summary. Fetch it by id (still available after the finish reset) so ScorePage
+        // shows the true played duration (e.g. 18:48 rather than the planned ~59:59).
+        viewModelScope.launch {
+            val summary = runCatching { repo.matchSummary(match.id) }.getOrNull() ?: return@launch
+            val current = finishedSnapshot?.takeIf { it.matchId == match.id } ?: return@launch
+            finishedSnapshot = current.copy(
+                startedAt = if (summary.startedAt > 0) summary.startedAt else current.startedAt,
+                endsAt = if (summary.endsAt > 0) summary.endsAt else current.endsAt,
+                endedAt = summary.endedAt ?: 0,
+                winner = current.winner ?: summary.winner,
+                preyAlive = if (current.preyAlive > 0) current.preyAlive else summary.preyAlive,
+                preyTotal = if (current.preyTotal > 0) current.preyTotal else summary.preyTotal,
+                zoneRadiusM = current.zoneRadiusM ?: summary.zone?.radiusM,
+            )
+        }
     }
 
     fun clearFinishedSnapshot() {
@@ -1064,29 +1082,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
     val resultSnapshot = vm.finishedSnapshot
         ?: resultMatch?.let { finishedSnapshotFromResult(it, state?.members ?: emptyList()) }
-    if (resultSnapshot != null && seenActivePhase && shownResultFor != resultSnapshot.matchId) {
-        Dialog(
-            onDismissRequest = {
-                shownResultFor = resultSnapshot.matchId
-                vm.clearFinishedSnapshot()
-            },
-            properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
-        ) {
-            ScorePage(
-                snapshot = resultSnapshot,
-                onBackToLobby = {
-                    shownResultFor = resultSnapshot.matchId
-                    vm.clearFinishedSnapshot()
-                },
-                onViewHistory = {
-                    shownResultFor = resultSnapshot.matchId
-                    vm.clearFinishedSnapshot()
-                    vm.loadHistory()
-                    showHistory = true
-                },
-            )
-        }
-    }
 
     if (showSettings && state != null) {
         RoomSettingsHost(
@@ -1438,8 +1433,26 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
             }
         }
     }
+    // ScorePage is rendered in-composition (not a Dialog window) so it is guaranteed opaque
+    // and full-bleed: the old dialog window was not full-screen under edge-to-edge and the
+    // underlying RoomScreen HUD showed through under the bottom actions. AppRoot's
+    // safeDrawingPadding already keeps this overlay clear of the status/navigation bars.
+    if (resultSnapshot != null && seenActivePhase && shownResultFor != resultSnapshot.matchId) {
+        ScorePage(
+            snapshot = resultSnapshot,
+            onBackToLobby = {
+                shownResultFor = resultSnapshot.matchId
+                vm.clearFinishedSnapshot()
+            },
+            onViewHistory = {
+                shownResultFor = resultSnapshot.matchId
+                vm.clearFinishedSnapshot()
+                vm.loadHistory()
+                showHistory = true
+            },
+        )
+    }
 }
-
 @Composable
 private fun ChatTabContent(
     vm: RoomViewModel,

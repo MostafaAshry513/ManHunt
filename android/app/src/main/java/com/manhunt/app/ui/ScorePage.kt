@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -52,8 +55,9 @@ fun ScorePage(
     val cancelled = snapshot.cancelled
     val winnerIsHunters = snapshot.winner == Teams.HUNTERS
     val duration = snapshot.durationSeconds?.let(::formatScoreClock)
+    // Opaque, full-bleed result surface: nothing from the hunt screen can show through.
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
@@ -228,6 +232,7 @@ fun finishedSnapshotFromResult(match: MatchDto, members: List<MemberDto>): Finis
         winner = match.winner,
         startedAt = match.startedAt,
         endsAt = match.endsAt,
+        endedAt = 0,
         preyAlive = match.preyAlive,
         preyTotal = match.preyTotal,
         zoneRadiusM = match.zone?.radiusM,
