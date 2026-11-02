@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -6,36 +6,46 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.manhunt.app.data.MatchHistoryEntry
 import com.manhunt.app.data.Teams
 import com.manhunt.app.i18n.t
-import com.manhunt.app.ui.theme.ManHuntRadius
-import com.manhunt.app.ui.theme.ManHuntSpacing
+import com.manhunt.app.ui.theme.BoardSpace
+import com.manhunt.app.ui.theme.BoardTheme
+import com.manhunt.app.ui.theme.ManHuntType
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+/**
+ * Full-screen Hunt history (screens/08-result-and-history.md Â§3). Keeps the public
+ * `HistoryDialog(matches, loading, error, onDismiss)` contract so the caller does not change,
+ * but renders a rule-led page instead of the old AlertDialog: 72 dp hairline rows, mono
+ * time/duration, result word in the winner team colour, honest loading/empty/error states -
+ * a failed load never masquerades as "no hunts".
+ */
 @Composable
 fun HistoryDialog(
     matches: List<MatchHistoryEntry>,
@@ -44,117 +54,191 @@ fun HistoryDialog(
     error: String? = null,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Outlined.History,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.width(ManHuntSpacing.sm))
-                Text(t("Hunt history"))
-            }
-        },
-        text = {
-            Column(
-                modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm),
-            ) {
-                when {
-                    loading -> Row(verticalAlignment = Alignment.CenterVertically) {
-                        ManHuntLoader(size = 20.dp)
-                        Spacer(Modifier.width(ManHuntSpacing.sm))
-                        Text(t("Loading match history..."), style = MaterialTheme.typography.bodySmall)
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("history_dialog"),
+            color = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                BoardHeader(title = t("Hunt history"), onBack = onDismiss)
+                Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = BoardSpace.screen),
+                ) {
+                    when {
+                        loading -> {
+                            Spacer(Modifier.height(BoardSpace.s6))
+                            repeat(3) {
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(72.dp)
+                                        .padding(vertical = BoardSpace.s3),
+                                ) {
+                                    Box(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(10.dp)
+                                            .background(
+                                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.08f),
+                                                RoundedCornerShape(2.dp),
+                                            ),
+                                    )
+                                }
+                            }
+                        }
+                        error != null -> {
+                            Spacer(Modifier.height(BoardSpace.s6))
+                            ErrorStrip(message = error)
+                        }
+                        matches.isEmpty() -> {
+                            Spacer(Modifier.height(BoardSpace.s9))
+                            Text(
+                                t("No hunts in this room yet."),
+                                style = ManHuntType.title(),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.semantics { heading() },
+                            )
+                            Spacer(Modifier.height(BoardSpace.s3))
+                            Text(
+                                t("Hunts appear here once they finish."),
+                                style = ManHuntType.bodySmall(),
+                                color = BoardTheme.muted(),
+                            )
+                        }
+                        else -> {
+                            Spacer(Modifier.height(BoardSpace.s5))
+                            var lastDate: LocalDate? = null
+                            matches.forEach { match ->
+                                val date = localDate(match.startedAt)
+                                if (date != lastDate) {
+                                    lastDate = date
+                                    Spacer(Modifier.height(BoardSpace.s5))
+                                    Text(
+                                        formatDate(match.startedAt),
+                                        style = ManHuntType.data(),
+                                        color = BoardTheme.muted(),
+                                    )
+                                    Spacer(Modifier.height(BoardSpace.s2))
+                                    Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
+                                }
+                                HistoryRow(match)
+                            }
+                            Spacer(Modifier.height(BoardSpace.s10))
+                        }
                     }
-                    // A failed load must not masquerade as "No hunts in this room yet.".
-                    error != null -> ErrorBanner(error)
-                    matches.isEmpty() -> EmptyState(
-                        icon = Icons.Outlined.History,
-                        title = t("No hunts in this room yet."),
-                        message = t("Hunts appear here once they finish."),
-                    )
-                    else -> matches.forEach { match -> HistoryEntryCard(match) }
                 }
             }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(t("Close")) } },
-    )
+        }
+    }
 }
 
+/** One 72 dp history row: mono time/duration, result word in the winner colour, no chevron. */
 @Composable
-private fun HistoryEntryCard(match: MatchHistoryEntry) {
+private fun HistoryRow(match: MatchHistoryEntry) {
+    val accent = when {
+        match.cancelled -> BoardTheme.muted()
+        match.winner == Teams.HUNTERS -> teamColor(Teams.HUNTERS)
+        match.winner == Teams.PREY -> teamColor(Teams.PREY)
+        else -> MaterialTheme.colorScheme.primary
+    }
     val result = when {
         match.cancelled -> t("Hunt cancelled")
         match.winner == Teams.HUNTERS -> t("Hunters won")
         match.winner == Teams.PREY -> t("Prey won")
         else -> t("In progress")
     }
-    val accent = when {
-        match.cancelled -> MaterialTheme.colorScheme.onSurfaceVariant
-        match.winner == Teams.HUNTERS -> MaterialTheme.colorScheme.secondary
-        match.winner == Teams.PREY -> MaterialTheme.colorScheme.tertiary
-        else -> MaterialTheme.colorScheme.primary
-    }
-    Surface(
-        shape = RoundedCornerShape(ManHuntRadius.md),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-        modifier = Modifier.fillMaxWidth(),
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp)
+            .padding(vertical = BoardSpace.s4),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            Modifier.padding(ManHuntSpacing.md),
-            verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.xs),
-        ) {
+        Text(
+            formatTime(match.startedAt),
+            style = ManHuntType.data(),
+            color = BoardTheme.muted(),
+            maxLines = 1,
+            modifier = Modifier.width(64.dp),
+        )
+        Text(
+            match.durationSec?.let { formatDuration(it) } ?: "â€”",
+            style = ManHuntType.data(),
+            color = BoardTheme.muted(),
+            maxLines = 1,
+            modifier = Modifier.width(52.dp),
+        )
+        Spacer(Modifier.width(BoardSpace.s3))
+        Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier
-                        .background(accent, RoundedCornerShape(ManHuntRadius.pill))
-                        .padding(horizontal = ManHuntSpacing.sm, vertical = 2.dp),
-                ) {
-                    Text(
-                        result,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.surface,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
-            }
-            Text(
-                buildString {
-                    append(formatTime(match.startedAt))
-                    match.durationSec?.let {
-                        val mins = (it / 60).toInt()
-                        append("  -  $mins ${t("min")}")
-                    }
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            if (match.prey.isNotEmpty()) {
+                Box(Modifier.width(6.dp).height(6.dp).background(accent))
+                Spacer(Modifier.width(BoardSpace.s3))
                 Text(
-                    "${t("Prey:")} ${match.prey.joinToString(", ")}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    result,
+                    style = ManHuntType.label(),
+                    color = accent,
+                    maxLines = 1,
                 )
             }
-            if (match.hunters.isNotEmpty()) {
+            if (match.prey.isNotEmpty() || match.hunters.isNotEmpty()) {
+                Spacer(Modifier.height(BoardSpace.s2))
                 Text(
-                    "${t("Hunters:")} ${match.hunters.joinToString(", ")}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    buildString {
+                        if (match.prey.isNotEmpty()) {
+                            append("${t("Prey")}: ${match.prey.joinToString(", ")}")
+                        }
+                        if (match.prey.isNotEmpty() && match.hunters.isNotEmpty()) append("  Â·  ")
+                        if (match.hunters.isNotEmpty()) {
+                            append("${t("Hunters")}: ${match.hunters.joinToString(", ")}")
+                        }
+                    },
+                    style = ManHuntType.dataSmall(),
+                    color = BoardTheme.muted(),
+                    maxLines = 2,
                 )
             }
         }
     }
+    Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
 }
 
 private val HISTORY_TIME_FORMATTER =
-    DateTimeFormatter.ofPattern("d MMM, HH:mm", Locale.getDefault())
+    DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
+private val HISTORY_DATE_FORMATTER =
+    DateTimeFormatter.ofPattern("d MMM yyyy", Locale.getDefault())
 
 private fun formatTime(epochMs: Long): String {
-    if (epochMs <= 0) return "-"
+    if (epochMs <= 0) return "â€”"
     return Instant.ofEpochMilli(epochMs)
         .atZone(ZoneId.systemDefault())
         .format(HISTORY_TIME_FORMATTER)
+}
+
+private fun formatDate(epochMs: Long): String {
+    if (epochMs <= 0) return "â€”"
+    return Instant.ofEpochMilli(epochMs)
+        .atZone(ZoneId.systemDefault())
+        .format(HISTORY_DATE_FORMATTER)
+}
+
+private fun localDate(epochMs: Long): LocalDate? {
+    if (epochMs <= 0) return null
+    return Instant.ofEpochMilli(epochMs).atZone(ZoneId.systemDefault()).toLocalDate()
+}
+
+private fun formatDuration(durationSec: Double): String {
+    val total = durationSec.toLong().coerceAtLeast(0)
+    val minutes = total / 60
+    val seconds = total % 60
+    return "%d:%02d".format(minutes, seconds)
 }

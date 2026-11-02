@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +41,7 @@ import com.manhunt.app.ui.theme.ManHuntTheme
 import com.manhunt.app.ui.theme.Motion
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 
 sealed interface Route {
     data object Safety : Route
@@ -111,10 +113,15 @@ fun AppRoot() {
     // Invite link: once the player is past the welcome and signed in, join the room
     // automatically instead of making them retype the code.
     val pendingJoin by DeepLink.pendingCode.collectAsState()
-    LaunchedEffect(pendingJoin, session, safetyAccepted) {
+    LaunchedEffect(pendingJoin) {
         val code = pendingJoin ?: return@LaunchedEffect
-        if (!safetyAccepted || session == null) return@LaunchedEffect
-        DeepLink.consume()
+        // Wait for consent + a restored session WITHOUT keying this effect on them. The old
+        // key list included `session`/`safetyAccepted` and consumed the code before the join
+        // request, so the key change cancelled the in-flight coroutine mid-request: a warm
+        // `manhunt://join` intent (activity already foregrounded) joined server-side but never
+        // navigated, leaving the capture driver with no room GET. Consume only after the room
+        // is active.
+        snapshotFlow { safetyAccepted && session != null }.first { it }
         val joined = runCatching { repo.joinRoom(code) }.getOrNull()
         if (joined != null) {
             activeRoomId = joined.room.id
@@ -123,6 +130,7 @@ fun AppRoot() {
             routeKey = "home"
             Toast.makeText(context, joinFailedMessage, Toast.LENGTH_LONG).show()
         }
+        DeepLink.consume()
     }
 
     ManHuntTheme(darkTheme = dark, fontScale = textScale) {
