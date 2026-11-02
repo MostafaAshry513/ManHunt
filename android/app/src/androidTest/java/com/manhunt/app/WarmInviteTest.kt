@@ -1,4 +1,4 @@
-﻿package com.manhunt.app
+package com.manhunt.app
 
 import android.Manifest
 import android.content.Intent
@@ -87,22 +87,37 @@ class WarmInviteTest {
         val guestName = "warmguest$suffix"
         val password = "password123"
 
-        // 1) Cold start: accept the safety notice and register the signed-in player through
-        //    the real UI (the invite only auto-joins once there is a session).
+        // 1) Ensure a signed-in foreground app. Instrumentation tests share app data with
+        //    InGameSmokeTest, so the session/safety screen may already be in any state; handle
+        //    first-run, signed-out and already-in-a-room cases without assuming a cold Auth.
         compose.waitUntil(40_000) {
             compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty() ||
-                compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty()
+                compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("home_room_name").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()
         }
         if (compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty()) {
             compose.onNodeWithTag("safety_accept").performClick()
         }
-        waitForTag("auth_username")
-        compose.onNodeWithTag("auth_username").performTextInput(guestName)
-        compose.onNodeWithTag("auth_password").performTextInput(password)
-        waitForText("New here? Create an account")
-        compose.onAllNodesWithText("New here? Create an account")[0].performClick()
-        waitForText("I already have an account")
-        compose.onNodeWithTag("auth_submit").performClick()
+        compose.waitUntil(40_000) {
+            compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("home_room_name").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()
+        }
+        if (compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()) {
+            // A previous test left the app in a room; return to Home first.
+            compose.activityRule.scenario.onActivity { activity ->
+                activity.onBackPressedDispatcher.onBackPressed()
+            }
+        }
+        if (compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty()) {
+            compose.onNodeWithTag("auth_username").performTextInput(guestName)
+            compose.onNodeWithTag("auth_password").performTextInput(password)
+            waitForText("New here? Create an account")
+            compose.onAllNodesWithText("New here? Create an account")[0].performClick()
+            waitForText("I already have an account")
+            compose.onNodeWithTag("auth_submit").performClick()
+        }
         waitForTag("home_room_name")
 
         // 2) Someone else owns the room we are invited to.
