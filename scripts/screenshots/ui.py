@@ -249,7 +249,8 @@ def main():
             for node in root.iter("node"):
                 text = (node.get("text") or "").strip()
                 box = bounds_of(node)
-                if box and ("http://" in text or "https://" in text):
+                is_field = "EditText" in (node.get("class") or "")
+                if box and is_field and ("http://" in text or "https://" in text):
                     candidates.append((node, box))
             if candidates:
                 node, (x1, y1, x2, y2) = min(

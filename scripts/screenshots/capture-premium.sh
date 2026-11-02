@@ -104,6 +104,12 @@ dump_app_network() {
     | tail -n 400 > "$OUT/_debug/app-network.txt" 2>/dev/null || true
   "$ADB" shell ping -c 1 -W 3 tile.openstreetmap.org > "$OUT/_debug/ping-osm.txt" 2>&1 || true
   "$ADB" shell ping -c 1 -W 3 1.1.1.1 > "$OUT/_debug/ping-internet.txt" 2>&1 || true
+  # TCP egress probe (ICMP is not supported by QEMU user networking, so ping alone is not
+  # evidence either way; nc exit status proves whether HTTPS to the internet works).
+  "$ADB" shell "toybox nc -w 5 tile.openstreetmap.org 443 </dev/null; echo nc_exit=\$?" \
+    > "$OUT/_debug/nc-osm.txt" 2>&1 || true
+  "$ADB" shell "toybox nc -w 5 1.1.1.1 443 </dev/null; echo nc_exit=\$?" \
+    > "$OUT/_debug/nc-internet.txt" 2>&1 || true
 }
 
 fail() {
@@ -498,16 +504,41 @@ join_room_via_deep_link_diagnostic() {
 
 # Set the app server URL through the real Auth "Change server" editor (the stored value is
 # then guaranteed to be what the app shows and uses). Returns non-zero on any failure.
+# Store the friendly server URL in the debug build's SharedPreferences (no session), then
+# relaunch and accept only if the Auth footer actually renders the URL. This is the primary
+# path because the Auth "Change server" editor can sit below the keyboard fold.
+set_server_url_via_prefs() {
+  local url="$1"
+  log "setting the server URL via app preferences: $url"
+  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
+  APP_SERVER_URL="$url"
+  write_app_prefs "" "" "" "true" "en" "true" || return 1
+  launch_app
+  sleep 8
+  hide_ime
+  # Normalise scroll to the top so the footer row is on-screen for the check.
+  "$ADB" shell input swipe 540 900 540 1900 300 >/dev/null 2>&1 || true
+  sleep 1.5
+  ui wait "Sign in|Create your account|Welcome back" 25 >/dev/null 2>&1 || true
+  local dump
+  dump="$(python3 "$SCRIPTS/ui.py" dump 2>/dev/null || true)"
+  if printf '%s' "$dump" | grep -qF "$url"; then
+    note "Auth server row shows $url (prefs)"
+    return 0
+  fi
+  note "prefs URL not visible on Auth"
+  return 1
+}
+
+# Fallback: drive the real Auth "Change server" editor (field found by its URL content).
 apply_auth_server_url() {
   local url="$1"
-  log "setting the app server URL to $url through Auth"
+  log "setting the app server URL to $url through the Auth editor"
   if ! ui tap "text=Change server" 30 >/dev/null 2>&1; then
     note "Change server control not found"
     return 1
   fi
   ui wait "Server address|Test connection" 30 >/dev/null 2>&1 || true
-  # The server field is pre-filled with the current URL; matching its content is much more
-  # reliable than an index/label offset (which previously typed into the Username field).
   if ! ui tap-http 20 >/dev/null 2>&1; then
     note "URL field not found by content; falling back to the third text field"
     ui tap-edit 2 20 >/dev/null 2>&1 || true
@@ -516,45 +547,21 @@ apply_auth_server_url() {
   for _ in $(seq 1 80); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
   type_text "$url"
   hide_ime
-  sleep 0.5
-  # Verify the URL actually landed in the field before saving (never save a mangled value).
-  if ! python3 "$SCRIPTS/ui.py" dump 2>/dev/null | grep -qF "$url"; then
-    note "typed URL not visible in the editor; retrying once"
-    ui tap-http 10 >/dev/null 2>&1 || true
-    "$ADB" shell input keyevent KEYCODE_MOVE_END >/dev/null 2>&1 || true
-    for _ in $(seq 1 80); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
-    type_text "$url"
-    hide_ime
-    sleep 0.5
-  fi
-  if ! ui tap "text=Save server" 30 >/dev/null 2>&1; then
+  sleep 0.8
+  # The Save row can sit below the fold after the editor expands; scroll it into view.
+  "$ADB" shell input swipe 540 1800 540 1100 300 >/dev/null 2>&1 || true
+  sleep 1.0
+  if ! ui tap "text=Save server" 25 >/dev/null 2>&1; then
     note "Save server control not found"
     return 1
   fi
-  if ui wait "$url" 25 >/dev/null 2>&1; then
+  "$ADB" shell input swipe 540 800 540 1900 300 >/dev/null 2>&1 || true
+  sleep 1.0
+  if ui wait "$url" 20 >/dev/null 2>&1; then
     note "Auth server row shows $url"
     return 0
   fi
   note "Auth server row did not update to $url"
-  return 1
-}
-
-# Last-resort URL config: write the debug build's SharedPreferences directly (no session),
-# relaunch, and accept only if the Auth row actually shows the URL.
-set_server_url_via_prefs() {
-  local url="$1"
-  log "falling back to prefs injection for the server URL"
-  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
-  APP_SERVER_URL="$url"
-  write_app_prefs "" "" "" "true" "en" "true" || return 1
-  launch_app
-  ui_wait "Sign in|Create your account|Welcome back" 90 >/dev/null 2>&1 || return 1
-  sleep 1.0
-  if python3 "$SCRIPTS/ui.py" dump 2>/dev/null | grep -qF "$url"; then
-    note "Auth server row shows $url (prefs)"
-    return 0
-  fi
-  note "prefs URL not shown by the app"
   return 1
 }
 
@@ -589,11 +596,14 @@ verify_server_reachable() {
   fi
   note "server NOT reachable through $APP_SERVER_URL; reverting to the emulator host default"
   DEV_URL_FALLBACK=1
-  # The server editor is still open after the failed probe; close it before editing again.
-  ui_try_tap "text=Cancel"
-  sleep 0.5
-  apply_auth_server_url "http://10.0.2.2:8080" >/dev/null 2>&1 || true
+  # Reset the app to its compiled default without the Auth editor (which may be mid-edit).
   APP_SERVER_URL=""
+  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
+  write_app_prefs "" "" "" "true" "en" "true" >/dev/null 2>&1 || true
+  launch_app
+  ui wait "Sign in|Create your account|Welcome back" 30 >/dev/null 2>&1 || true
+  hide_ime
+  sleep 1.0
   return 1
 }
 
@@ -613,10 +623,8 @@ capture_first_run_and_auth() {
   hide_ime
   if [ -n "$APP_SERVER_URL" ]; then
     local desired_url="$APP_SERVER_URL"
-    if ! apply_auth_server_url "$desired_url"; then
-      if set_server_url_via_prefs "$desired_url"; then
-        note "server URL stored via prefs fallback"
-      else
+    if ! set_server_url_via_prefs "$desired_url"; then
+      if ! apply_auth_server_url "$desired_url"; then
         note "could not store the friendly server URL; the Auth shot may show the dev address"
         DEV_URL_IN_FRAME=1
         APP_SERVER_URL=""
@@ -746,13 +754,14 @@ capture_live_hunt() {
   # Real OSM tiles usually need more than a few seconds on the KVM emulator; poll screenshot
   # size (detail-rich tiles grow the PNG) and keep re-freezing the clock before the hero frame.
   local attempt=0 probe_bytes=0
-  while [ "$attempt" -lt 4 ]; do
+  while [ "$attempt" -lt 5 ]; do
     game sync-clock --remaining 2475 --trigger-user sara --trigger-body "Clock is running. Stay sharp." || true
     sleep 8
     "$ADB" exec-out screencap -p > "$RUNTIME/map-probe.png" 2>/dev/null || true
     probe_bytes=$(stat -c%s "$RUNTIME/map-probe.png" 2>/dev/null || echo 0)
+    cp "$RUNTIME/map-probe.png" "$OUT/_debug/map-probe-$((attempt + 1)).png" 2>/dev/null || true
     note "tile probe $((attempt + 1)): $probe_bytes bytes"
-    if [ "$probe_bytes" -gt 380000 ]; then
+    if [ "$probe_bytes" -gt 360000 ]; then
       break
     fi
     attempt=$((attempt + 1))
