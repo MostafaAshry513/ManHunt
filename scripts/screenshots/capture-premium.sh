@@ -43,6 +43,9 @@ ACTIVITY="$PACKAGE/.MainActivity"
 CLOCK="${CAPTURE_CLOCK:-2104}"
 SETTLE="${SHOT_SETTLE:-0.9}"
 EXTRAS="${CAPTURE_EXTRAS:-1}"
+# Landscape band is optional; rotation of the live-map screen ANRt on the KVM emulator, so it
+# is off by default and the site can crop the 16:9 harvest from the portrait frame instead.
+CAPTURE_LANDSCAPE="${CAPTURE_LANDSCAPE:-0}"
 # Optional shots the verified build does not have redesigned yet (comma-separated IDs,
 # e.g. "s02,s11,s14"). They are skipped - never substituted with old UI - and recorded as
 # pending in capture-meta.json / MANIFEST.json at fetch time.
@@ -90,6 +93,17 @@ debug_dump() {
   cp "$SERVER_LOG" "$OUT/_debug/server.log" 2>/dev/null || true
   cp "$PRESENCE_LOG" "$OUT/_debug/presence.log" 2>/dev/null || true
   "$ADB" shell wm size > "$OUT/_debug/wm-size.txt" 2>&1 || true
+  dump_app_network
+}
+
+# App-side network evidence for the map-tile quality gate (osmdroid fetches tiles itself).
+dump_app_network() {
+  mkdir -p "$OUT/_debug"
+  "$ADB" logcat -d 2>/dev/null \
+    | grep -iE 'osmdroid|openstreetmap|tile|ssl|unknownhost|network|http|connectexception' \
+    | tail -n 400 > "$OUT/_debug/app-network.txt" 2>/dev/null || true
+  "$ADB" shell ping -c 1 -W 3 tile.openstreetmap.org > "$OUT/_debug/ping-osm.txt" 2>&1 || true
+  "$ADB" shell ping -c 1 -W 3 1.1.1.1 > "$OUT/_debug/ping-internet.txt" 2>&1 || true
 }
 
 fail() {
@@ -234,7 +248,7 @@ setup_status_bar() {
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false >/dev/null 2>&1 || true
   # Wi-Fi in demo mode renders a "no internet" warning badge on this image; show a clean
   # full cellular signal instead (still a real, connected-looking status bar, no warning).
-  "$ADB" shell am broadcast -a com.android.systemui.demo -e command network -e wifi hide -e mobile show -e datatype none -e level 4 >/dev/null 2>&1 || true
+  "$ADB" shell am broadcast -a com.android.systemui.demo -e command network -e wifi hide -e mobile show -e datatype 5g -e level 4 >/dev/null 2>&1 || true
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false >/dev/null 2>&1 || true
 }
 
@@ -400,6 +414,17 @@ assert_home() {
 
 wait_home() { assert_home; }
 
+# OSM raster tiles are fetched by the app itself; if the device cannot resolve/reach the tile
+# host, the hero map will show only the app's grid background. Record that evidence early.
+check_internet() {
+  log "checking device internet access for OSM map tiles"
+  if "$ADB" shell "ping -c 1 -W 3 tile.openstreetmap.org" >/dev/null 2>&1; then
+    note "tile.openstreetmap.org resolves and answers from the device"
+  else
+    note "WARNING: device cannot reach tile.openstreetmap.org; map tiles may stay blank"
+  fi
+}
+
 switch_user() {
   local key="$1" dark="${2:-true}" language="${3:-en}"
   local token userId username
@@ -481,15 +506,27 @@ apply_auth_server_url() {
     return 1
   fi
   ui wait "Server address|Test connection" 30 >/dev/null 2>&1 || true
-  if ! tap_field "Server address" 2; then
-    note "server address field not found"
-    return 1
+  # The server field is pre-filled with the current URL; matching its content is much more
+  # reliable than an index/label offset (which previously typed into the Username field).
+  if ! ui tap-http 20 >/dev/null 2>&1; then
+    note "URL field not found by content; falling back to the third text field"
+    ui tap-edit 2 20 >/dev/null 2>&1 || true
   fi
   "$ADB" shell input keyevent KEYCODE_MOVE_END >/dev/null 2>&1 || true
-  for _ in $(seq 1 60); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
+  for _ in $(seq 1 80); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
   type_text "$url"
   hide_ime
-  sleep 0.4
+  sleep 0.5
+  # Verify the URL actually landed in the field before saving (never save a mangled value).
+  if ! python3 "$SCRIPTS/ui.py" dump 2>/dev/null | grep -qF "$url"; then
+    note "typed URL not visible in the editor; retrying once"
+    ui tap-http 10 >/dev/null 2>&1 || true
+    "$ADB" shell input keyevent KEYCODE_MOVE_END >/dev/null 2>&1 || true
+    for _ in $(seq 1 80); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
+    type_text "$url"
+    hide_ime
+    sleep 0.5
+  fi
   if ! ui tap "text=Save server" 30 >/dev/null 2>&1; then
     note "Save server control not found"
     return 1
@@ -499,6 +536,25 @@ apply_auth_server_url() {
     return 0
   fi
   note "Auth server row did not update to $url"
+  return 1
+}
+
+# Last-resort URL config: write the debug build's SharedPreferences directly (no session),
+# relaunch, and accept only if the Auth row actually shows the URL.
+set_server_url_via_prefs() {
+  local url="$1"
+  log "falling back to prefs injection for the server URL"
+  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
+  APP_SERVER_URL="$url"
+  write_app_prefs "" "" "" "true" "en" "true" || return 1
+  launch_app
+  ui_wait "Sign in|Create your account|Welcome back" 90 >/dev/null 2>&1 || return 1
+  sleep 1.0
+  if python3 "$SCRIPTS/ui.py" dump 2>/dev/null | grep -qF "$url"; then
+    note "Auth server row shows $url (prefs)"
+    return 0
+  fi
+  note "prefs URL not shown by the app"
   return 1
 }
 
@@ -556,10 +612,15 @@ capture_first_run_and_auth() {
   sleep 1.2
   hide_ime
   if [ -n "$APP_SERVER_URL" ]; then
-    if ! apply_auth_server_url "$APP_SERVER_URL"; then
-      note "could not store the friendly server URL; the Auth shot may show the dev address"
-      DEV_URL_IN_FRAME=1
-      APP_SERVER_URL=""
+    local desired_url="$APP_SERVER_URL"
+    if ! apply_auth_server_url "$desired_url"; then
+      if set_server_url_via_prefs "$desired_url"; then
+        note "server URL stored via prefs fallback"
+      else
+        note "could not store the friendly server URL; the Auth shot may show the dev address"
+        DEV_URL_IN_FRAME=1
+        APP_SERVER_URL=""
+      fi
     fi
   fi
   sleep 1.0
@@ -682,26 +743,41 @@ capture_live_hunt() {
       ui_try_tap "desc=Hide details|text=Hide details|text=Close|text=Close details"
     fi
   fi
-  sleep 14 # let the real OSM tiles download (cold emulator cache)
-  # Freeze the Board clock at 41:12 right before the hero frame; the peer chat line is a
-  # real broadcast that makes the app refetch room state (and it is timestamp-normalised
-  # with the rest of the chat before S11).
-  game sync-clock --trigger-user sara --trigger-body "Clock is running. Stay sharp." || fail "could not sync the Board clock"
-  sleep 1.5
+  # Real OSM tiles usually need more than a few seconds on the KVM emulator; poll screenshot
+  # size (detail-rich tiles grow the PNG) and keep re-freezing the clock before the hero frame.
+  local attempt=0 probe_bytes=0
+  while [ "$attempt" -lt 4 ]; do
+    game sync-clock --remaining 2475 --trigger-user sara --trigger-body "Clock is running. Stay sharp." || true
+    sleep 8
+    "$ADB" exec-out screencap -p > "$RUNTIME/map-probe.png" 2>/dev/null || true
+    probe_bytes=$(stat -c%s "$RUNTIME/map-probe.png" 2>/dev/null || echo 0)
+    note "tile probe $((attempt + 1)): $probe_bytes bytes"
+    if [ "$probe_bytes" -gt 380000 ]; then
+      break
+    fi
+    attempt=$((attempt + 1))
+  done
+  game sync-clock --remaining 2475 --trigger-user sara --trigger-body "Clock is running. Stay sharp." || fail "could not sync the Board clock"
+  sleep 1.2
   shot "s07-hunt"
   sleep 4
   shot "s07-hunt-alt"
+  dump_app_network
 
-  log "capture: S07 landscape map band (2400x1080)"
-  "$ADB" shell settings put system user_rotation 1 >/dev/null 2>&1 || true
-  sleep 4
-  ui_wait "Tag prey|Tag Prey|TAG PREY" 90 || true
-  ui_try_tap "text=Trails|text=Show trails|text=Trails on"
-  sleep 6
-  shot "s07-hunt-wide"
-  "$ADB" shell settings put system user_rotation 0 >/dev/null 2>&1 || true
-  sleep 4
-  ui_wait "Tag prey|Tag Prey|TAG PREY" 90 || true
+  if [ "$CAPTURE_LANDSCAPE" = "1" ]; then
+    log "capture: S07 landscape map band (2400x1080) - optional, may ANR on KVM"
+    if ! ( "$ADB" shell settings put system user_rotation 1
+           sleep 4
+           ui wait "Tag prey|Tag Prey|TAG PREY" 25
+           sleep 5
+           shot "s07-hunt-wide" ); then
+      note "landscape band skipped (rotation ANR/failure)"
+    fi
+    "$ADB" shell settings put system user_rotation 0 >/dev/null 2>&1 || true
+    sleep 3
+    ui_try_tap "text=Wait|text=Close app"
+    sleep 2
+  fi
 
   log "capture: S10 hunt sheet expanded"
   ui_tap "desc=Details|text=Details|text=DETAILS" 30
@@ -956,11 +1032,13 @@ main() {
   }
   wait_for_boot
   setup_display
+  check_internet
   install_app
   setup_hostname
   setup_timezone
   setup_device_clock
   setup_status_bar
+  "$ADB" logcat -c >/dev/null 2>&1 || true
 
   launch_app
   capture_first_run_and_auth

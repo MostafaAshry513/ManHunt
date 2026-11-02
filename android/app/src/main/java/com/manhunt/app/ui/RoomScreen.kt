@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import android.Manifest
 import android.content.ClipData
@@ -2081,7 +2081,7 @@ private fun PendingClaimBanner(
 private fun OsmAttribution(modifier: Modifier = Modifier) {
     val uriHandler = LocalUriHandler.current
     Text(
-        "Â© OpenStreetMap contributors",
+        "© OpenStreetMap contributors",
         modifier = modifier
             .testTag("hunt_attribution")
             .clickable { uriHandler.openUri(OSM_COPYRIGHT_URL) }

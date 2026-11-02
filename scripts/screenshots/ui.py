@@ -233,6 +233,37 @@ def main():
                 )
         return
 
+    if command == "tap-http":
+        # Tap the text field whose value is a URL (the Auth "Server address" editor is
+        # pre-filled with the current server URL; matching content avoids tapping the wrong
+        # field when several EditTexts are on screen).
+        timeout = float(sys.argv[2]) if len(sys.argv) > 2 else 30.0
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            try:
+                root = ET.fromstring(dump_xml())
+            except SystemExit:
+                time.sleep(0.6)
+                continue
+            candidates = []
+            for node in root.iter("node"):
+                text = (node.get("text") or "").strip()
+                box = bounds_of(node)
+                if box and ("http://" in text or "https://" in text):
+                    candidates.append((node, box))
+            if candidates:
+                node, (x1, y1, x2, y2) = min(
+                    candidates, key=lambda item: (item[1][2] - item[1][0]) * (item[1][3] - item[1][1])
+                )
+                center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2
+                tap = run(["shell", "input", "tap", str(center_x), str(center_y)])
+                if tap.returncode != 0:
+                    raise SystemExit("adb input tap failed for URL field")
+                print(f"tapped URL field at ({center_x},{center_y}) text={node.get('text')!r}")
+                return
+            time.sleep(0.6)
+        raise SystemExit(f"tap-http failed: no URL text field found in {timeout:.0f}s")
+
     if command == "text":
         try:
             root = ET.fromstring(dump_xml())
