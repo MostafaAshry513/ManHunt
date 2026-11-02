@@ -14,7 +14,8 @@
  * Run from the repo root:  node design/site-redesign/tools/build-page.mjs
  */
 import { readFile, writeFile, copyFile, mkdir } from 'node:fs/promises';
-import { resolve, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
+import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -265,9 +266,12 @@ if (startIdx < 0 || endIdx < 0 || endIdx < startIdx) {
 }
 const before = app.slice(0, startIdx);
 const after = app.slice(endIdx);
-await copyFile(APP, resolve(root, 'design/site-redesign/impl/app.ts.bak'));
+// The backup lives outside the working tree: it is a build safety net, not source, and it must never
+// carry stale page copy into the repo (an old claim survived in a tracked .bak once).
+const backup = join(tmpdir(), 'manhunt-render-install-page.ts.bak');
+await copyFile(APP, backup);
 await writeFile(APP, `${before}${fn}\n${after}`);
 
 console.log('generated renderer ->', OUT);
-console.log('spliced into server/src/app.ts (backup: design/site-redesign/impl/app.ts.bak)');
+console.log('spliced into server/src/app.ts (backup:', backup + ')');
 console.log(`renderer ${fn.split('\n').length} lines`);

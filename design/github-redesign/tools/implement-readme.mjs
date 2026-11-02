@@ -26,7 +26,7 @@ const REPO = path.resolve(KIT, '..', '..');
 const abs = (p) => path.join(REPO, p);
 const exists = async (p) => access(abs(p)).then(() => true).catch(() => false);
 
-// What the shipped README needs today.
+// What the shipped README needs today (clean premium frames only).
 const REQUIRED = [
   'docs/screenshots/premium/s03-home.png',
   'docs/screenshots/premium/s05-lobby-host.png',
@@ -34,10 +34,10 @@ const REQUIRED = [
   'docs/screenshots/premium/s12-result-hunters.png',
 ];
 const MORE_SCREENS = [
-  'docs/screenshots/premium/s01-auth.png',
+  'docs/screenshots/premium/s08-hunt-claim.png',
   'docs/screenshots/premium/s09-tag-target-sheet.png',
-  'docs/screenshots/premium/s10-hunt-sheet.png',
   'docs/screenshots/premium/s11-chat.png',
+  'docs/screenshots/premium/s15-home-light.png',
 ];
 // README map band = derived crop of the live-hunt capture (built by build-assets).
 const MAP_BAND = 'docs/brand/matchday-map-band-1080x540.png';

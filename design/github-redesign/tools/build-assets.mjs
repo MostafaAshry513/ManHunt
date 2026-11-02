@@ -34,7 +34,7 @@ const FALLBACK_MAP = 'server/public/site/map-hero.jpg';
 // scan of s07-hunt.png). The hero/social stages draw their report-ping motion
 // around this point when they use the real capture, and hide the illustrated
 // overlay art (the capture already contains the real zone ring, markers, trail).
-const PREY = { x: 552, y: 1483 };
+const PREY = { x: 552, y: 1482 };
 const HERO_MAP = { w: 556, h: 560, size: 1.25, posX: 0.30, posY: 0.66 };
 const SOCIAL_MAP = { w: 480, h: 640, size: 1.8, posX: 0.35, posY: 0.66 };
 

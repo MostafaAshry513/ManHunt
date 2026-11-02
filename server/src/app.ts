@@ -1240,7 +1240,7 @@ h2.section__title{
     border-top:1px solid rgba(230,237,247,.18);
   }
   .field-legend li{
-    display:grid;grid-template-columns:104px 1fr;gap:3px 10px;align-items:start;
+    display:grid;grid-template-columns:112px 1fr;gap:3px 10px;align-items:start;
     padding:12px 0 14px;border-bottom:1px solid rgba(230,237,247,.12);
     font-size:13px;line-height:1.5;color:var(--muted);
   }
@@ -1271,7 +1271,7 @@ h2.section__title{
   .section{padding-top:56px}
   h2.section__title{font-size:clamp(38px,11.5vw,58px)}
   .pitch h2{font-size:clamp(40px,12.6vw,64px)}
-  .field-band{aspect-ratio:4/3;margin-left:calc(var(--gut) * -1);margin-right:calc(var(--gut) * -1);border-radius:0;border-left:0;border-right:0}
+  .field-band{aspect-ratio:16/9;margin-left:calc(var(--gut) * -1);margin-right:calc(var(--gut) * -1);border-radius:0;border-left:0;border-right:0}
   .band__board{left:0;right:0;gap:8px;padding:8px 10px;flex-wrap:wrap;row-gap:3px}
   .band__clock{font-size:28px}
   .band__meta{order:3;width:100%;gap:0}
@@ -1389,7 +1389,7 @@ h2.section__title{
       <div class="section__body">
         <div class="section__head">
           <h2 class="section__title" id="field-title">The map is the field.</h2>
-          <p class="section__deck">Hunters see the <b>latest report</b>, not a perfect live feed. Prey never see the map. The zone and the trails are the host's call — the server keeps the clock.</p>
+          <p class="section__deck">Hunters see the <b>latest report</b>, not a perfect live feed. Prey see the field and their own position — never another player's. The zone and the trails are the host's call — the server keeps the clock.</p>
         </div>
 
         <figure class="field-figure" aria-labelledby="band-cap">
@@ -1554,7 +1554,7 @@ h2.section__title{
           </div>
           <div class="ledger__row">
             <dt>Map</dt>
-            <dd><h3>Latest report only.</h3><p>Hunters see the last report and optional trails — not a perfect live feed. Prey never see positions.</p></dd>
+            <dd><h3>Latest report only.</h3><p>Hunters see the last report and optional trails — not a perfect live feed. Prey see the field, the zone and their own position, never another player's.</p></dd>
           </div>
           <div class="ledger__row">
             <dt>Signal</dt>
@@ -1645,7 +1645,7 @@ h2.section__title{
           </details>
           <details>
             <summary>Who can see my location?</summary>
-            <p>Only the Hunters in your room, during the hunting phase, see your latest report. Prey never see locations, and admins get no extra location access. Location history is shown only when the host enables trails.</p>
+            <p>Only the Hunters in your room, during the hunting phase, see your latest report. Prey never see another player's position, and admins get no extra location access. Location history is shown only when the host enables trails.</p>
           </details>
           <details>
             <summary>Is the hosted server safe for a real game?</summary>

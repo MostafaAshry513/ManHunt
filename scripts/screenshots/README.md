@@ -24,26 +24,29 @@ win (both Prey tagged); Prey-win rematch.
 
 | File | Scene |
 | --- | --- |
-| `s01-auth.png` | Auth, dark, empty fields, no keyboard, real server row |
-| `s02-safety.png` | First-run safety / before you play |
+| `s01-auth.png` | ~~Auth, dark, empty fields~~ **REJECTED** (dev/infrastructure host + wrong signal) - removed, not substituted |
+| `s02-safety.png` | First-run safety / before you play *(pending)* |
 | `s03-home.png` | Home dark: masthead, permanent line, host block with "Riverside Run" typed, join block, playing as Omar |
 | `s04-home-rtl.png` | Home Arabic RTL, dark |
 | `s05-lobby-host.png` | Lobby host view: 5 players, 2 Prey / 3 Hunters, code plate, all ready |
 | `s06-lobby-player.png` | Lobby player view: Omar ready, Leila not ready, waiting status |
 | `s07-hunt.png` | **Hero:** live hunt map, real OSM tiles + attribution, 240 m zone ring, fresh + stale prey markers, trail, clock 41:12, Tag dock |
-| `s07-hunt-wide.png` | Landscape 2400x1080 live-hunt band (map hero for wide layouts) |
+| `s07-hunt-wide.png` | Landscape 2400x1080 live-hunt band *(optional, when the landscape capture is enabled)* |
 | `s08-hunt-claim.png` | Prey view: tag claim with review/confirm action |
 | `s09-tag-target-sheet.png` | Tag target sheet over the map |
-| `s10-hunt-sheet.png` | Hunt sheet expanded: prey reports/ages, trails toggle, attribution |
+| `s10-hunt-sheet.png` | ~~Hunt sheet expanded~~ **REJECTED** (clipped roster/gesture bar) - removed, not substituted |
 | `s11-chat.png` | Field log chat with phase separator, keyboard closed |
-| `s12-result-hunters.png` | Result: Hunters win, both prey tagged |
-| `s13-result-prey.png` | Result: Prey win variant |
-| `s14-settings.png` | Settings: appearance (dark, text size), language |
+| `s12-result-hunters.png` | Result: Hunters win, both prey tagged, 18:48 played, 0/2 remaining |
+| `s13-result-prey.png` | Result: Prey win at full time - both Prey alive, honest 2/2 score (no fabricated survivor count) |
+| `s14-settings.png` | ~~Settings~~ **REJECTED** (broken text-size slider) - removed, not substituted |
 | `s15-home-light.png` | Home light theme |
-| `s16-lobby-rtl.png` | Lobby Arabic RTL *(optional)* |
-| `s17-empty-chat.png` | Empty chat state *(optional)* |
-| `s18-auth-loading.png` | Auth submit loading state *(optional)* |
-| `s19-auth-error.png` | Auth server-error state *(optional)* |
+| `s16-lobby-rtl.png` | Lobby Arabic RTL *(optional/pending)* |
+| `s17-empty-chat.png` | Empty chat state *(optional/pending)* |
+| `s18-auth-loading.png` | Auth submit loading state *(optional/pending)* |
+| `s19-auth-error.png` | Auth server-error state *(optional/pending)* |
+
+Rejected frames are listed in `MANIFEST.json` under `rejected` with their concrete defect and
+are absent from `docs/screenshots/premium/`; nothing is substituted or re-rendered.
 
 Plus `harvest/` crops cut from the full frames (never re-rendered):
 `map-hero-16x9`, `map-hero-3x2`, `board-clock-4x5`, `code-plate-1x1`, `team-sheet-4x5`,

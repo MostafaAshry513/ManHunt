@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-02T05:05:14.306Z",
+  "generatedAt": "2026-11-02T05:40:02.720Z",
   "kit": "design/github-redesign",
   "runtime": "v24.22.1",
   "summary": {
     "mode": "final",
-    "total": 59,
-    "passed": 59,
+    "total": 65,
+    "passed": 65,
     "failed": 0,
     "pending": 0
   },
@@ -53,7 +53,7 @@
     {
       "name": "hero GIF: infinite loop, under 2 MB",
       "pass": true,
-      "detail": "loop=0, 795 KB"
+      "detail": "loop=0, 798 KB"
     },
     {
       "name": "docs/brand/readme-hero.gif intact",
@@ -96,6 +96,11 @@
       "detail": ""
     },
     {
+      "name": "hero board uses the canonical 41:12 / Prey 2/2 / Zone 240 m",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "name": "hero map plate carries OSM attribution",
       "pass": true,
       "detail": ""
@@ -113,7 +118,7 @@
     {
       "name": "README.md: file exists and is non-trivial",
       "pass": true,
-      "detail": "10.3 KB"
+      "detail": "10.4 KB"
     },
     {
       "name": "README.md: exactly one H1",
@@ -231,6 +236,31 @@
       "detail": ""
     },
     {
+      "name": "README.md: canonical clock 41:12",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: canonical lobby code VMJYBU",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: canonical APK size 2.4 MB",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: accurate Prey visibility claim",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: rejected premium frames not referenced",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "name": "README.md: uses only premium app captures (no old CI screenshot set)",
       "pass": true,
       "detail": ""
@@ -263,7 +293,7 @@
     {
       "name": "design/github-redesign/preview/mobile-390.png: 390px wide, full page",
       "pass": true,
-      "detail": "390×6606"
+      "detail": "390×6630"
     },
     {
       "name": "preview supports light mode render",

@@ -61,14 +61,15 @@ const PREMIUM = {
     'docs/screenshots/premium/s05-lobby-host.png',
     'docs/screenshots/premium/s07-hunt.png',
     'docs/screenshots/premium/s12-result-hunters.png',
-    'docs/screenshots/premium/s01-auth.png',
+    'docs/screenshots/premium/s08-hunt-claim.png',
     'docs/screenshots/premium/s09-tag-target-sheet.png',
-    'docs/screenshots/premium/s10-hunt-sheet.png',
     'docs/screenshots/premium/s11-chat.png',
+    'docs/screenshots/premium/s15-home-light.png',
   ],
+  // Rejected frames (s01-auth dev URL, s10-hunt-sheet clipped, s14-settings broken slider)
+  // are deliberately absent until screenshot-director replaces/removes them.
   optional: [
     'docs/screenshots/premium/s06-lobby-player.png',
-    'docs/screenshots/premium/s08-hunt-claim.png',
     'docs/screenshots/premium/harvest/map-hero-16x9.png',
     'docs/screenshots/premium/harvest/map-hero-3x2.png',
     'docs/screenshots/premium/harvest/board-clock-4x5.png',
@@ -76,11 +77,12 @@ const PREMIUM = {
     'docs/screenshots/premium/harvest/team-sheet-4x5.png',
     'docs/screenshots/premium/contact-sheet.png',
     'docs/screenshots/premium/s13-result-prey.png',
-    'docs/screenshots/premium/s14-settings.png',
-    'docs/screenshots/premium/s15-home-light.png',
     'docs/screenshots/premium/s02-safety.png',
     'docs/screenshots/premium/s04-home-rtl.png',
     'docs/screenshots/premium/s16-lobby-rtl.png',
+    'docs/screenshots/premium/s17-empty-chat.png',
+    'docs/screenshots/premium/s18-auth-loading.png',
+    'docs/screenshots/premium/s19-auth-error.png',
   ],
   manifest: 'docs/screenshots/premium/MANIFEST.json',
 };
@@ -163,6 +165,11 @@ async function readmeChecks(readmePath, { final, label }) {
   check(`${label}: trust line present`, md.includes('play with people you trust') || md.includes('Play with people you trust'));
   check(`${label}: provisional copy family used`, md.includes('Hide from your friends.') && /real-world hide-and-seek/i.test(md));
   check(`${label}: no placeholder strings`, !/TODO|Lorem ipsum|PREMIUM CAPTURE PENDING/.test(md));
+  check(`${label}: canonical clock 41:12`, md.includes('41:12') && !md.includes('41:14'));
+  check(`${label}: canonical lobby code VMJYBU`, md.includes('VMJYBU') && !md.includes('WNWHA3'));
+  check(`${label}: canonical APK size 2.4 MB`, md.includes('2.4 MB') && !/about 2\.2 MB/i.test(md));
+  check(`${label}: accurate Prey visibility claim`, !md.includes('Prey never see the map') && md.includes('never other players'));
+  check(`${label}: rejected premium frames not referenced`, !/s01-auth|s10-hunt-sheet|s14-settings/.test(md));
   if (final) {
     check(`${label}: uses only premium app captures (no old CI screenshot set)`, !/docs\/screenshots\/0[1-8]-/.test(md));
     check(`${label}: map section uses the real capture band`, md.includes('docs/brand/matchday-map-band-1080x540.png'));
@@ -229,6 +236,7 @@ async function main() {
     check('stage uses the brand OFL faces from the motion kit', base.includes('brand/motion-kit/assets/fonts/BigShoulders-Bold.ttf') && base.includes('InstrumentSans') && base.includes('RedHatMono'));
     check('hero uses the official lockup PNG', hero.includes('/docs/brand/lockup-light-on-dark.png'));
     check('hero carries the honest install micro-line', hero.includes('not on Play Store'));
+    check('hero board uses the canonical 41:12 / Prey 2/2 / Zone 240 m', hero.includes('41:12') && hero.includes('Prey 2 / 2') && hero.includes('Zone 240 m') && !hero.includes('41:14'));
     check('hero map plate carries OSM attribution', hero.includes('OpenStreetMap contributors'));
     check('hero stage has no external http assets', !/src="http|href="http|url\(http/i.test(hero));
     check('stage is render-only (not referenced by README)', true, 'assets are baked into PNG/GIF');

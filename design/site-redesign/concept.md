@@ -69,7 +69,7 @@ imagery and the conversion moment.
 │  [PREY] v [HUNTERS]                         ┌ real night map, bleeds →  │
 │  HIDE / FROM YOUR / FRIENDS.                │ zone ring · coral prey   │
 │  deck + [Download the APK] + film link      │ violet hunters · trail   │
-│  free · v0.15.1 · 2.1 MB · Android 8+       │ board HUD 42:17 · OSM    │
+│  free · version · size · Android 8+        │ board HUD 41:12 · OSM    │
 │  ── fixture strip: TONIGHT · One street. One clock. · real stats ───────┤
 ├ ② THE FIELD (§01) ───────────────────────────────────────────────────────┤
 │  rail   "The map is the field."  + deck (right)                          │

@@ -1,0 +1,13 @@
+LIVE SITE EVIDENCE - captured 2026-11-02T05:29Z
+GET / -> 200, Content-Type: text/html; charset=utf-8, Content-Length: 62533
+Security headers: CSP present=True ; X-Frame-Options=DENY ; Referrer-Policy=no-referrer
+GET /api/app/latest -> {
+    "versionCode":  43,
+    "versionName":  "0.16.0",
+    "url":  "/app.apk",
+    "sha256":  "df67563330ec4096aea16aa1894832df3555368c8ba87d2997806eb1c1744ea4",
+    "size":  2476954,
+    "publishedAt":  "2026-11-02T05:21:35.0000000+00:00",
+    "notes":  "Changed\n\n- MATCHDAY BOARD redesign: the app now reads as match equipment rather than a dashboard \n  scoreboard-style Boards, chalk rules, CodePlate, team sheets, FieldMarks and a full-screen\n  ScorePage replace the generic card kit, gradient hero and result dialog.\n- New bundled type system: Big Shoulders Display, Instrument Sans and Red Hat Mono (OFL), a\n  24-hour masthead clock, mirrored RTL back marks, two-line button labels and a 560 dp reading cap.\n- Lobby is a matchday team sheet with a pinned Ready/Begin dock; live hunt puts the clock, zone\n  and latest reports in one Board over the real OpenStreetMap field.\n- Chat is a field log with a plate composer; history is a full-screen ruled match report; tag,\n  claim, dispute, leave and end flows are MatchSheets.\n- Home uses the full-width Open Zone field plate and a CodePlate join block.\n- Warm invite links now navigate to the room when the app is already foregrounded.\n- Install page, README and screenshots were rebuilt from the same design language and real\n  emulator captures.\n\nFixed\n\n- Result screen now uses the authoritative finished match data (winner, final prey counts,\n  endedAt duration) instead of a stale live snapshot.\n- OSM attribution renders as  OpenStreetMap contributors.\n- Arabic chat input/placeholder follows RTL."
+}
+GET /app.apk -> 200, 2476954 bytes, sha256 df67563330ec4096aea16aa1894832df3555368c8ba87d2997806eb1c1744ea4 (matches site/API claim: True)

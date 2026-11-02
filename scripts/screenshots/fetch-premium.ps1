@@ -81,7 +81,7 @@ $expected = @(
     [pscustomobject]@{ File = 's12-result-hunters.png'; Role = 'S12-result-hunters'; Width = 1080; Height = 2400; MinBytes = 45000; Required = $true
         Scenario = 'Result: Hunters win, both prey tagged, full-time score' },
     [pscustomobject]@{ File = 's13-result-prey.png'; Role = 'S13-result-prey'; Width = 1080; Height = 2400; MinBytes = 45000; Required = $true
-        Scenario = 'Result: Prey win variant, one prey survived' },
+        Scenario = 'Result: Prey win, full time with both Prey alive - honest 2/2 score (no fabricated survivor count)' },
     [pscustomobject]@{ File = 's14-settings.png'; Role = 'S14-settings'; Width = 1080; Height = 2400; MinBytes = 40000; Required = $true
         Scenario = 'Settings: appearance (dark, text size), language, manual page' },
     [pscustomobject]@{ File = 's15-home-light.png'; Role = 'S15-home-light'; Width = 1080; Height = 2400; MinBytes = 45000; Required = $true
@@ -100,6 +100,14 @@ $expected = @(
 
 # Raw alternates are never installed into docs/screenshots/premium.
 $alternates = @('s07-hunt-alt.png')
+
+# Frames rejected by visual review after capture: never installed, never substituted. They are
+# recorded in MANIFEST.json under `rejected` with the concrete defect so no surface uses them.
+$rejectedShots = [ordered]@{
+    's01-auth.png'         = 'Dev/infrastructure server host visible in frame (manhunt.lvh.me) and wrong signal state; removed, not substituted.'
+    's10-hunt-sheet.png'   = 'Expanded hunt sheet clipped at the frame bottom (roster/gesture bar cut); removed, not substituted.'
+    's14-settings.png'     = 'Text-size slider renders broken (detached thumb/rail), contradicting the spec; removed, not substituted.'
+}
 
 # Installation order (fractional prefixes sort predictably on disk and in the contact sheet).
 $installOrder = @(
@@ -199,7 +207,7 @@ Write-Step 'Verifying captured full frames'
 $meta = $null
 $metaPath = Join-Path $sourceDir 'capture-meta.json'
 if (Test-Path $metaPath) {
-    try { $meta = Get-Content $metaPath -Raw | ConvertFrom-Json } catch { $meta = $null }
+    try { $meta = Get-Content $metaPath -Raw -Encoding UTF8 | ConvertFrom-Json } catch { $meta = $null }
 }
 $pending = @()
 if ($meta -and $meta.pending) {
@@ -219,9 +227,20 @@ function Test-IsPending([object]$spec) {
 
 $verified = New-Object System.Collections.Generic.List[object]
 $pendingRecords = New-Object System.Collections.Generic.List[object]
+$rejectedRecords = New-Object System.Collections.Generic.List[object]
 $failures = New-Object System.Collections.Generic.List[string]
 foreach ($spec in $expected) {
     $path = Join-Path $sourceDir $spec.File
+    if ($rejectedShots.Contains($spec.File)) {
+        $rejectedRecords.Add([pscustomobject]@{
+            File     = $spec.File
+            Role     = $spec.Role
+            Scenario = $spec.Scenario
+            Reason   = $rejectedShots[$spec.File]
+        })
+        Write-Host ("rej  {0}  ({1})" -f $spec.File, $rejectedShots[$spec.File]) -ForegroundColor DarkYellow
+        continue
+    }
     if (-not (Test-Path $path)) {
         if (Test-IsPending $spec) {
             # A pending shot (required or optional) is allowed to be absent: record it in the
@@ -270,6 +289,9 @@ foreach ($spec in $expected) {
 
 if ($pendingRecords.Count -gt 0) {
     Write-Host ("`npending shots recorded (not captured in this verified build): " + (($pendingRecords | ForEach-Object { $_.File }) -join ', ')) -ForegroundColor Yellow
+}
+if ($rejectedRecords.Count -gt 0) {
+    Write-Host ("`nrejected shots removed from the set (visual defects, not substituted): " + (($rejectedRecords | ForEach-Object { $_.File }) -join ', ')) -ForegroundColor DarkYellow
 }
 
 if ($failures.Count -gt 0) {
@@ -404,7 +426,7 @@ $gameInfo = [ordered]@{
         [ordered]@{ username = 'Tariq'; team = 'hunters'; role = 'Hunter' },
         [ordered]@{ username = 'Sara'; team = 'hunters'; role = 'Hunter' }
     )
-    state = 'Lobby (all ready) -> live hunt 41:12 remaining/18:48 played (fresh + stale reports, trail, 240 m zone) -> claim -> Hunters win (0/2) -> rematch: honest Prey-win state (data-gap: survivor count unavailable)'
+    state = 'Lobby (all ready) -> live hunt 41:12 remaining/18:48 played (fresh + stale reports, trail, 240 m zone) -> claim -> Hunters win (0/2) -> rematch: Prey win at full time with both Prey alive (honest 2/2 score)'
 }
 if ($meta -and $meta.players) {
     $gameInfo.players = @($meta.players | ForEach-Object { [ordered]@{ username = $_.username; team = $_.team } })
@@ -435,6 +457,14 @@ $manifest = [ordered]@{
     mapTiles    = 'Live OpenStreetMap raster tiles (copyright OpenStreetMap contributors), Riverside Park, Manhattan; zone centre 40.7995, -73.9735, radius 240 m'
     game        = $gameInfo
     pending     = @($pendingRecords | ForEach-Object { $_.File })
+    rejected    = @($rejectedRecords | ForEach-Object {
+        [ordered]@{
+            file     = $_.File
+            role     = $_.Role
+            scenario = $_.Scenario
+            reason   = $_.Reason
+        }
+    })
     dataGaps    = @($dataGaps)
     images      = @()
     crops       = @()
@@ -445,7 +475,8 @@ $manifest = [ordered]@{
         'Hero shots for the site/GitHub page: s07-hunt.png (vertical) plus harvest/map-hero-16x9.png and harvest/map-hero-3x2.png ready-made site bands (cut from the captured full frame).',
         's07-hunt-alt.png is a raw alternate hero frame kept only in the workflow artifact, not in this folder.',
         'Result timing: 41:12 is the remaining time at the S07 moment; the finished match ran 18:48 (never "41:12 played").',
-        'S13 data-gap: survivor count unavailable - the server resets eliminations at match finish, so the app can only expose the honest Prey-win state.',
+        'S13 (Prey win): both Prey were alive at full time; 2/2 is the honest final score. The earlier "one prey survived" phrasing was wrong and is removed.',
+        'Frames rejected by visual review are listed under `rejected` with their defect and are absent from this folder - never substituted with old UI.',
         'Pending shots are screens not captured/clean in the verified build run (listed above); they are omitted and recorded here, never substituted with old UI.'
     )
 }
@@ -591,13 +622,16 @@ if ($crops.Count -gt 0) {
     $crops | Select-Object File, Width, Height, SourceShot | Format-Table -AutoSize
 }
 Write-Host 'Site/GitHub-ready shots:' -ForegroundColor Green
-Write-Host '  Map hero:          s07-hunt.png (1080x2400) + s07-hunt-wide.png (2400x1080) + harvest/map-hero-16x9.png'
+Write-Host '  Map hero:          s07-hunt.png (1080x2400) + harvest/map-hero-16x9.png / map-hero-3x2.png'
 Write-Host '  README set:        s03-home, s05-lobby-host, s07-hunt, s12-result-hunters (+ harvest/home-line-16x9, harvest/result-score-4x5)'
-Write-Host '  Extras:            s01-auth, s02-safety, s04-home-rtl, s06-lobby-player, s08-hunt-claim, s09-tag-target-sheet,'
-Write-Host '                     s10-hunt-sheet, s11-chat, s13-result-prey, s14-settings, s15-home-light, s16-lobby-rtl, s17-s19 states'
-Write-Host 'MANIFEST.json records scenario, dimensions, SHA-256, crop provenance, pending shots and data gaps.'
+Write-Host '  Extras:            s04-home-rtl, s06-lobby-player, s08-hunt-claim, s09-tag-target-sheet,'
+Write-Host '                     s11-chat, s13-result-prey, s15-home-light, s16-lobby-rtl, s17-s19 states'
+Write-Host 'MANIFEST.json records scenario, dimensions, SHA-256, crop provenance, pending shots, rejected frames and data gaps.'
 if ($pendingRecords.Count -gt 0) {
-    Write-Host ("PENDING shots (not redesigned in the verified build; recorded, not substituted): " + (($pendingRecords | ForEach-Object { $_.File }) -join ', ')) -ForegroundColor Yellow
+    Write-Host ("PENDING shots (not captured/clean in the verified build; recorded, not substituted): " + (($pendingRecords | ForEach-Object { $_.File }) -join ', ')) -ForegroundColor Yellow
+}
+if ($rejectedRecords.Count -gt 0) {
+    Write-Host ("REJECTED frames (removed for visual defects; nothing substituted): " + (($rejectedRecords | ForEach-Object { $_.File }) -join ', ')) -ForegroundColor DarkYellow
 }
 if ($dataGaps.Count -gt 0) {
     Write-Host 'DATA GAPS recorded in MANIFEST:'

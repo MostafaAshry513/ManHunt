@@ -72,6 +72,16 @@ test('install page renders version, size, checksum and server from the update ma
   assert.match(res.body, /Install in four steps/);
   assert.match(res.body, /Privacy <span>and safety<\/span>/);
 
+  // Field visibility must be stated accurately: everyone sees the field, the zone and their own
+  // position; only Hunters receive the Prey's latest reports. The old false claim ("Prey never
+  // see the map") must not come back.
+  assert.match(res.body, /Prey see the field and their own position/);
+  assert.match(res.body, /Prey see the field, the zone and their own position, never another player's/);
+  assert.match(res.body, /Prey never see another player's position/);
+  assert.doesNotMatch(res.body, /Prey never see the map/);
+  assert.doesNotMatch(res.body, /Prey never see positions/);
+  assert.doesNotMatch(res.body, /Prey never see locations/);
+
   // The design system: self-hosted OFL faces, real map plate, drawn wordmark, team roles.
   assert.match(res.body, /@font-face/);
   assert.match(res.body, /\/media\/big-shoulders-700\.woff2/);

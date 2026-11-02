@@ -1,6 +1,6 @@
 # GitHub landing page v2 — verification (final)
 
-Generated 2026-11-02T05:05:14.306Z · Node v24.22.1 · 59/59 checks pass, 0 fail, 0 pending.
+Generated 2026-11-02T05:40:02.720Z · Node v24.22.1 · 65/65 checks pass, 0 fail, 0 pending.
 
 **Result: all implemented checks pass**
 
@@ -14,7 +14,7 @@ Generated 2026-11-02T05:05:14.306Z · Node v24.22.1 · 59/59 checks pass, 0 fail
 | PASS | design/github-redesign/assets/concept-map-band-2400x936.png | 2400×936, 632 KB |
 | PASS | hero GIF: 1280×560 | 1280×560 |
 | PASS | hero GIF: 100 frames @ 20 fps, 5.00 s loop | 100 frames / 20 fps / 5s |
-| PASS | hero GIF: infinite loop, under 2 MB | loop=0, 795 KB |
+| PASS | hero GIF: infinite loop, under 2 MB | loop=0, 798 KB |
 | PASS | docs/brand/readme-hero.gif intact | 1280×480 |
 | PASS | docs/brand/github-social-1280x640.png intact | 1280×640 |
 | PASS | docs/brand/avatar-1024.png intact | 1024×1024 |
@@ -23,10 +23,11 @@ Generated 2026-11-02T05:05:14.306Z · Node v24.22.1 · 59/59 checks pass, 0 fail
 | PASS | stage uses the brand OFL faces from the motion kit |  |
 | PASS | hero uses the official lockup PNG |  |
 | PASS | hero carries the honest install micro-line |  |
+| PASS | hero board uses the canonical 41:12 / Prey 2/2 / Zone 240 m |  |
 | PASS | hero map plate carries OSM attribution |  |
 | PASS | hero stage has no external http assets |  |
 | PASS | stage is render-only (not referenced by README) | assets are baked into PNG/GIF |
-| PASS | README.md: file exists and is non-trivial | 10.3 KB |
+| PASS | README.md: file exists and is non-trivial | 10.4 KB |
 | PASS | README.md: exactly one H1 | 1 H1 |
 | PASS | README.md: H1 is "ManHunt" |  |
 | PASS | README.md: no draft note in final | checked |
@@ -50,13 +51,18 @@ Generated 2026-11-02T05:05:14.306Z · Node v24.22.1 · 59/59 checks pass, 0 fail
 | PASS | README.md: trust line present |  |
 | PASS | README.md: provisional copy family used |  |
 | PASS | README.md: no placeholder strings |  |
+| PASS | README.md: canonical clock 41:12 |  |
+| PASS | README.md: canonical lobby code VMJYBU |  |
+| PASS | README.md: canonical APK size 2.4 MB |  |
+| PASS | README.md: accurate Prey visibility claim |  |
+| PASS | README.md: rejected premium frames not referenced |  |
 | PASS | README.md: uses only premium app captures (no old CI screenshot set) |  |
 | PASS | README.md: map section uses the real capture band |  |
 | PASS | README.md: includes the real result capture |  |
 | PASS | README.md: no pending/draft language |  |
 | PASS | design/github-redesign/preview/desktop-1012.png: 1200px wide, full page | 1200×4858 |
 | PASS | design/github-redesign/preview/desktop-1012-light.png: 1200px wide, full page | 1200×4858 |
-| PASS | design/github-redesign/preview/mobile-390.png: 390px wide, full page | 390×6606 |
+| PASS | design/github-redesign/preview/mobile-390.png: 390px wide, full page | 390×6630 |
 | PASS | preview supports light mode render |  |
 | PASS | footer wordmark switches with prefers-color-scheme |  |
 | PASS | concept documents the capture update procedure |  |

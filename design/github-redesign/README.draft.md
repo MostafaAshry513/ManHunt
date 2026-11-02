@@ -9,13 +9,13 @@
 -->
 
 > **Draft note — remove before publishing.** This is the GitHub landing page v2 concept, not the live
-> README. The premium capture set is in `docs/screenshots/premium/` (home, lobby, live hunt, result, chat,
-> auth, tag claim, hunt sheet, settings); this draft is assembled from that set. Safety and RTL captures
-> are still queued and are omitted until then.
+> README. The clean premium capture subset is in `docs/screenshots/premium/` (home, lobby, live hunt,
+> result, tag claim, target sheet, chat, light home); the rejected auth/settings/hunt-sheet frames are not
+> used. Safety and RTL captures are still queued and are omitted until then.
 
 # ManHunt
 
-<img src="docs/brand/matchday-hero-1280x560.gif" width="100%" alt="ManHunt — HIDE FROM YOUR FRIENDS. A real night street map from the app with a cyan hunt zone, a coral prey marker and a stale white one, a dashed coral trail, and a board reading HUNTING, 41:14, Prey 2/2, Zone 240 m. Coral report pings travel across the map plate.">
+<img src="docs/brand/matchday-hero-1280x560.gif" width="100%" alt="ManHunt — HIDE FROM YOUR FRIENDS. A real night street map from the app with a cyan hunt zone, a coral prey marker and a stale white one, a dashed coral trail, and a board reading HUNTING, 41:12, Prey 2/2, Zone 240 m. Coral report pings travel across the map plate.">
 
 **Hide from your friends.** Real-world hide-and-seek, played on your street. Two teams, one street, one
 clock the players can’t bend. Prey hide; Hunters track the latest reports on a live map and tag them in
@@ -33,8 +33,9 @@ person.
 
 <sub>Live hunt in the app, “Riverside Run” · real OpenStreetMap tiles · Map data © OpenStreetMap contributors</sub>
 
-Hunters see the **latest report** from each phone, not a perfect live feed. Prey never see the map. The
-zone and the trails are the host’s call; the server keeps the clock.
+Hunters see the **latest report** from each phone, not a perfect live feed. Prey see the field, the zone
+and their own position — never other players’ positions. The zone and the trails are the host’s call; the
+server keeps the clock.
 
 - **Zone** — the area the host sets for the round.
 - **Latest report** — where a phone last checked in, not where it is now.
@@ -69,7 +70,7 @@ same room, one honest run from the host plate to the final score.
 
 | | | | |
 |---|---|---|---|
-| <a href="docs/screenshots/premium/s03-home.png"><img src="docs/screenshots/premium/s03-home.png" width="230" alt="Home: the MANHUNT masthead, the permanent line, host a hunt and join a hunt"></a> | <a href="docs/screenshots/premium/s05-lobby-host.png"><img src="docs/screenshots/premium/s05-lobby-host.png" width="230" alt="Lobby: real invite code WNWHA3, two Prey and three Hunters, everyone ready"></a> | <a href="docs/screenshots/premium/s07-hunt.png"><img src="docs/screenshots/premium/s07-hunt.png" width="230" alt="Live hunt: real map tiles, the 240 m zone ring, fresh and stale prey markers, a coral trail, the clock at 41:14 and the Tag prey dock"></a> | <a href="docs/screenshots/premium/s12-result-hunters.png"><img src="docs/screenshots/premium/s12-result-hunters.png" width="230" alt="Result screen: full time at 18:48 played, PREY 0/2, Hunters win, with back-to-lobby and view-hunt-history actions"></a> |
+| <a href="docs/screenshots/premium/s03-home.png"><img src="docs/screenshots/premium/s03-home.png" width="230" alt="Home: the MANHUNT masthead, the permanent line, host a hunt and join a hunt"></a> | <a href="docs/screenshots/premium/s05-lobby-host.png"><img src="docs/screenshots/premium/s05-lobby-host.png" width="230" alt="Lobby: real invite code VMJYBU, two Prey and three Hunters, everyone ready"></a> | <a href="docs/screenshots/premium/s07-hunt.png"><img src="docs/screenshots/premium/s07-hunt.png" width="230" alt="Live hunt: real map tiles, the 240 m zone ring, fresh and stale prey markers, a coral trail, the clock at 41:12 and the Tag prey dock"></a> | <a href="docs/screenshots/premium/s12-result-hunters.png"><img src="docs/screenshots/premium/s12-result-hunters.png" width="230" alt="Result screen: full time at 18:48 played, PREY 0/2, Hunters win, with back-to-lobby and view-hunt-history actions"></a> |
 | <sub>Home — host or join</sub> | <sub>Lobby — code, teams, ready</sub> | <sub>Live hunt — reports, trails, zone</sub> | <sub>Result — Hunters win, full time</sub> |
 
 <details>
@@ -77,8 +78,8 @@ same room, one honest run from the host plate to the final score.
 
 | | | | |
 |---|---|---|---|
-| <a href="docs/screenshots/premium/s01-auth.png"><img src="docs/screenshots/premium/s01-auth.png" width="230" alt="Sign in: local account, no email required"></a> | <a href="docs/screenshots/premium/s09-tag-target-sheet.png"><img src="docs/screenshots/premium/s09-tag-target-sheet.png" width="230" alt="Tag target sheet: who did you tag? confirm or cancel"></a> | <a href="docs/screenshots/premium/s10-hunt-sheet.png"><img src="docs/screenshots/premium/s10-hunt-sheet.png" width="230" alt="Hunt sheet: prey positions are the latest reports, with hunt history"></a> | <a href="docs/screenshots/premium/s11-chat.png"><img src="docs/screenshots/premium/s11-chat.png" width="230" alt="Room chat during the hunt, with team-tagged messages"></a> |
-| <sub>Sign in — local account, no email</sub> | <sub>Tag claim — confirm in person</sub> | <sub>Hunt sheet — the reports</sub> | <sub>Chat — the room log</sub> |
+| <a href="docs/screenshots/premium/s08-hunt-claim.png"><img src="docs/screenshots/premium/s08-hunt-claim.png" width="230" alt="Prey view tag claim: a Hunter says they physically touched you — confirm or dispute"></a> | <a href="docs/screenshots/premium/s09-tag-target-sheet.png"><img src="docs/screenshots/premium/s09-tag-target-sheet.png" width="230" alt="Tag target sheet: who did you tag? the eligible Prey list over the map"></a> | <a href="docs/screenshots/premium/s11-chat.png"><img src="docs/screenshots/premium/s11-chat.png" width="230" alt="Room chat during the hunt: seeded field log with match events"></a> | <a href="docs/screenshots/premium/s15-home-light.png"><img src="docs/screenshots/premium/s15-home-light.png" width="230" alt="Home in light theme: ink masthead, chalk plates and the permanent line"></a> |
+| <sub>Tag claim — confirm in person</sub> | <sub>Who did you tag? — pick the target</sub> | <sub>Chat — the room log</sub> | <sub>Light theme — same board</sub> |
 
 </details>
 
@@ -111,7 +112,7 @@ an argument about the clock or a tag has an answer.</sub>
 
 ## Get on the field
 
-> **Free, signed APK. No account email. Not on Google Play.** Android 8.0+ · about 2.2 MB · the current
+> **Free, signed APK. No account email. Not on Google Play.** Android 8.0+ · about 2.4 MB · the current
 > version, size and SHA-256 are always on the install page.
 
 **[Download the free APK](http://74.208.99.178/)**

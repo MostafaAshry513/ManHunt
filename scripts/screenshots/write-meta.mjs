@@ -34,9 +34,12 @@ const pending = arg('pending', '')
   .filter(Boolean);
 const dataGaps = [];
 if (pending.includes('s13')) {
-  dataGaps.push('S13 pending: survivor count unavailable (the server resets eliminations at match finish).');
+  dataGaps.push('S13 pending: the finish state was not captured in this build (no fabricated survivor count).');
 } else {
-  dataGaps.push('S13 survivor count unavailable (server resets eliminations at finish); captured as the honest Prey-win state.');
+  dataGaps.push(
+    'S13 (Prey win): both Prey were alive at full time and the final score is 2/2 - that is the honest app state. ' +
+      'The earlier "one prey survived" phrasing was wrong and has been removed.',
+  );
 }
 
 const state = JSON.parse(readFileSync(statePath, 'utf8'));

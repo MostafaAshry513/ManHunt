@@ -1,10 +1,12 @@
 # ManHunt GitHub landing page v2 — MATCHDAY BOARD
 
-**Status:** **delivered — the new root `README.md` is implemented** from the premium capture set
-(home, lobby, live hunt, chat, result, auth, tag claim, hunt sheet) and the hero/social assets are rebuilt
-from the real `s07-hunt.png` map area. The result capture `s12-result-hunters.png` (full time 18:48, PREY
-0/2) now closes the in-app grid; the safety and RTL captures are still queued and are simply not shown yet.
-The copy deck, image manifest and verification are final.
+**Status:** **delivered — the new root `README.md` is implemented** from the **clean premium subset** (home,
+lobby, live hunt, result, tag claim, target sheet, chat, light home) and the hero/social assets are rebuilt
+from the real `s07-hunt.png` map area with the canonical board **41:12 / Prey 2/2 / Zone 240 m**. Factual
+cleanup after the final matchday audit is in: canonical facts (41:12, lobby code VMJYBU, APK 2.4 MB), the
+accurate Prey-visibility claim, and no references to the rejected frames (`s01-auth`, `s10-hunt-sheet`,
+`s14-settings`). Rejected frames are replaced/removed by screenshot-director; safety/RTL captures remain
+queued and are simply not shown. The copy deck, image manifest and verification are final.
 **Author:** brand-animator (independent motion/banner designer), 2026-11-02.
 **Inputs read:** `design/redesign/direction.md`, `design/redesign/tokens.md`,
 `design/site-redesign/concept.md` + its `shots/ref2/` desktop reference, the current `README.md`,
@@ -138,20 +140,19 @@ and the images.
 
 | Image | Path | Size | Status |
 |---|---|---|---|
-| README hero (animated) | `docs/brand/matchday-hero-1280x560.gif` | 1280×560 · 100 frames · 20 fps · 5 s loop · 0.8 MB | **built** — map plate is the real `s07-hunt.png` map area; coral report pings + live-dot pulse |
+| README hero (animated) | `docs/brand/matchday-hero-1280x560.gif` | 1280×560 · 100 frames · 20 fps · 5 s loop · 0.8 MB | **built** — map plate is the real `s07-hunt.png` map area; board reads **41:12 / Prey 2/2 / Zone 240 m**; coral report pings + live-dot pulse |
 | README hero (static) | `docs/brand/matchday-hero-1280x560.png` | 1280×560 · 0.3 MB | **built** — social/OG still and fallback |
-| GitHub social preview card | `docs/brand/github-social-matchday-1280x640.png` | 1280×640 | **built** — upload as the repo Social preview |
+| GitHub social preview card | `docs/brand/github-social-matchday-1280x640.png` | 1280×640 | **built** — upload as the repo Social preview; same canonical board |
 | Prey kit tag | `docs/brand/tag-prey-400x120.png` | 400×120 | **built** |
 | Hunters kit tag | `docs/brand/tag-hunters-400x120.png` | 400×120 | **built** |
 | **Map band (README field section)** | `docs/brand/matchday-map-band-1080x540.png` | 1080×540 | **built** — derived crop of `s07-hunt.png` (zone ring + fresh/stale markers + trail); harvested by `build-assets.mjs`. The supplied `harvest/map-hero-16x9.png` is tiles-only, so it is not used. |
 | Home capture | `docs/screenshots/premium/s03-home.png` | 1080×2400 | **captured — in the README** |
-| Lobby capture | `docs/screenshots/premium/s05-lobby-host.png` | 1080×2400 | **captured — in the README** |
-| Live-hunt capture | `docs/screenshots/premium/s07-hunt.png` | 1080×2400 | **captured — in the README; also the hero/map-band source** |
+| Lobby capture | `docs/screenshots/premium/s05-lobby-host.png` | 1080×2400 | **captured — in the README** (code **VMJYBU**) |
+| Live-hunt capture | `docs/screenshots/premium/s07-hunt.png` | 1080×2400 | **captured — in the README** (clock **41:12**); also the hero/map-band source |
 | Result capture | `docs/screenshots/premium/s12-result-hunters.png` | 1080×2400 | **captured — in the README** (full time 18:48, PREY 0/2, “Hunters win.”) |
-| Chat capture | `docs/screenshots/premium/s11-chat.png` | 1080×2400 | **captured — in the README** |
-| More screens | `s01-auth`, `s09-tag-target-sheet`, `s10-hunt-sheet` | 1080×2400 | **captured — in the README** |
-| Settings + light + prey-win variant | `s14-settings`, `s15-home-light`, `s13-result-prey` | 1080×2400 | **captured** — not needed by the README (available for social/site) |
-| Other optionals | `s02-safety`, `s04-home-rtl`, `s06-lobby-player`, `s08-hunt-claim`, `s16-lobby-rtl`, `s17-empty-chat`, `s18-auth-loading`, `s19-auth-error`, `harvest/` crops, `MANIFEST.json`, `contact-sheet.png` | 1080×2400 / 1080×608 / 1080×1350 | captured / **s02 + s16–s19 still pending** — not used by the README |
+| More screens (clean) | `s08-hunt-claim`, `s09-tag-target-sheet`, `s11-chat`, `s15-home-light` | 1080×2400 | **captured — in the README** |
+| Rejected frames | `s01-auth` (dev URL), `s10-hunt-sheet` (clipped sheet), `s14-settings` (broken slider) | 1080×2400 | **rejected by audit B1–B3 — not referenced**; screenshot-director replaces/removes them |
+| Other optionals | `s02-safety`, `s04-home-rtl`, `s06-lobby-player`, `s13-result-prey`, `s16-lobby-rtl`, `s17-empty-chat`, `s18-auth-loading`, `s19-auth-error`, `harvest/` crops, `MANIFEST.json`, `contact-sheet.png` | 1080×2400 / 1080×608 / 1080×1350 | captured / **s02 + s16–s19 still pending** — not used by the README |
 | Film cover | `docs/brand/explainer-cover.png` | 1080×1920 (displayed 180) | existing, reused |
 | Footer lockup | `docs/brand/lockup-light-on-dark.png` | 1200×328 (displayed 18 high) | existing official lockup |
 
@@ -220,7 +221,7 @@ links, CHANGELOG, CONTRIBUTING, LICENSE, OpenStreetMap attribution, the honest �
 
 ## 10 · Verification
 
-**Final result: 59/59 checks pass, 0 fail, 0 pending (`node tools/verify.mjs --final`).**
+**Final result: 65/65 checks pass, 0 fail, 0 pending (`node tools/verify.mjs --final`).**
 
 Thumbnail test: the hero and social card were downscaled to 320 px wide and still read — the poster line,
 the map plate with the zone/markers, and the board chip are all legible at feed size.
@@ -229,9 +230,13 @@ the map plate with the zone/markers, and the board chip are all legible at feed 
 
 - asset dimensions + GIF metadata (1280×560, 100 frames, 20 fps, 5 s, infinite loop, < 2 MB),
 - hero assets were rebuilt from the brand system (official lockup path, OFL fonts, no external asset URLs),
+- the hero board carries the canonical **41:12 / Prey 2/2 / Zone 240 m**,
 - every image referenced by final `README.md` resolves (draft mode reports premium refs as pending),
 - the final README uses only premium app captures — no old CI screenshot set, no placeholders,
 - the map section uses the real-capture band (`docs/brand/matchday-map-band-1080x540.png`),
+- canonical facts are consistent: clock **41:12** (no 41:14), lobby code **VMJYBU** (no WNWHA3),
+  APK **2.4 MB** (no 2.2 MB), and the accurate Prey-visibility claim (no “Prey never see the map”),
+- the rejected frames (`s01-auth`, `s10-hunt-sheet`, `s14-settings`) are not referenced,
 - every local link target resolves, and heading anchors exist,
 - no old slogan, no mojibake, no draft/pending language in the final README,
 - Markdown structure: one H1, the eight required sections, alt text on every image,
@@ -239,17 +244,24 @@ the map plate with the zone/markers, and the board chip are all legible at feed 
 
 ## 11 · Open constraints / notes for the Lead
 
-1. **README implemented; new captures are additive.** The full in-app loop is shown, including the result
+1. **Canonical facts (post-audit B4/B5).** The page now uses one value per fact: clock **41:12**, lobby
+   code **VMJYBU**, APK **about 2.4 MB**, and the accurate product claim (Hunters see the latest reports;
+   Prey see the field, the zone and their own position — never other players’ positions). The hero and
+   social card carry the same 41:12 board as the live-hunt capture.
+2. **README implemented; new captures are additive.** The full in-app loop is shown, including the result
    capture. Safety/RTL/auth-state captures are still queued; re-run `implement-readme.mjs` after adding
    them to the draft (§7). No page change is needed to ship without them.
-2. **Commit dependency.** The implemented README references the premium captures and the new
+3. **Rejected frames are intentionally unreferenced.** `s01-auth` (dev server URL), `s10-hunt-sheet`
+   (clipped sheet) and `s14-settings` (broken slider) must be replaced/removed by screenshot-director;
+   the README does not depend on them.
+4. **Commit dependency.** The implemented README references the premium captures and the new
    `docs/brand/` assets; those files must be committed by the Lead for GitHub to render the page (this
    workstream does not commit).
-3. **Map band is a derived crop.** `docs/brand/matchday-map-band-1080x540.png` is a crop of
+5. **Map band is a derived crop.** `docs/brand/matchday-map-band-1080x540.png` is a crop of
    `s07-hunt.png` (real capture, zone ring + fresh/stale markers + trail). The hero plate is likewise the
    real capture's map area. Both are documented derived assets in `docs/brand/`.
-4. **Copy is provisional.** The page uses “Hide from your friends.” and the app copy family; owner
+6. **Copy is provisional.** The page uses “Hide from your friends.” and the app copy family; owner
    approval is pending. The page contains no other marketing claims.
-5. **Static numbers.** README says “about 2.2 MB / Android 8.0+”; the install page remains authoritative
+7. **Static numbers.** README says “about 2.4 MB / Android 8.0+”; the install page remains authoritative
    for the current version, size and SHA-256 (README links to it rather than hard-coding a version).
-6. **No commits/posts** — files are staged for the Lead.
+8. **No commits/posts** — files are staged for the Lead.

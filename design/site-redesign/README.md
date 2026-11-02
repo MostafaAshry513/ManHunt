@@ -5,12 +5,14 @@ field-sport/street editorial page. Direction: **NIGHT FIXTURE**, the matchday pr
 borrowed field; sibling of the approved app direction **MATCHDAY BOARD**.
 
 **Status:** implemented in `server/src/app.ts`; typecheck + full server test suite green; verified in
-real headless Chrome at 1440/820/390. **Final accepted premium set integrated:** the screens section
-shows five real captures — `s07-hunt` (live map), `s03-home`, `s05-lobby-host`, `s11-chat`,
-`s12-result-hunters` (full-time result) — and the hero + field-band map plates are built from the
-premium OSM harvest. **No placeholders remain on the page.** `s13-result-prey`, `s14-settings` and
-`s15-home-light` are available clean but deliberately unused (the five-screen rail is the showcase;
-say the word to swap one in). No commits, no deploys (Lead owns integration).
+real headless Chrome at 1440/820/390 against the current **v0.16.0** manifest. **Final accepted
+premium set integrated:** the screens section shows five real captures — `s07-hunt` (live map),
+`s03-home`, `s05-lobby-host`, `s11-chat`, `s12-result-hunters` (full-time result) — and the hero +
+field-band map plates are built from the premium OSM harvest. **No placeholders remain on the page.**
+`s13-result-prey`, `s14-settings` and `s15-home-light` are available clean but deliberately unused
+(the five-screen rail is the showcase; say the word to swap one in). **Accuracy audit fixed:** the
+field section no longer claims "Prey never see the map"; the real visibility model is stated (see
+§Accuracy & QA refresh). No commits, no deploys (Lead owns integration).
 
 ---
 
@@ -23,9 +25,9 @@ say the word to swap one in). No commits, no deploys (Lead owns integration).
 | [`direction-options.md`](direction-options.md) | The idea-refine decision record: alternatives considered, stress test, assumptions, MVP scope, not-doing. |
 | [`audit.md`](audit.md) | Diagnosis of the page being replaced (with the before captures). |
 | [`refs/site-ref.html`](refs/site-ref.html) | **The design source of truth.** Standalone HTML/CSS of the whole page with relative asset paths. Edit design here, then regenerate the renderer. |
-| [`refs/rendered/`](refs/rendered/) | Rendered evidence: direction board, desktop/tablet/mobile page renders. |
+| [`refs/rendered/`](refs/rendered/) | Rendered evidence: direction board, desktop/tablet/mobile page renders, and [`qa-report.md`](refs/rendered/qa-report.md) — the committed QA summary for the v0.16.0 capture (results, accuracy checks, provenance). |
 | [`board.html`](board.html) | The direction plate (rendered → `refs/rendered/direction-board.png`). |
-| [`shots/`](shots/) | Capture runs: `before/` (old page), `final/` (implemented page, last run), `reduced/` (prefers-reduced-motion), `xs/` (320 px robustness), `board/` (direction plate render). |
+| [`shots/`](shots/) | Gitignored capture runs: `before/` (old page), `final/` (v0.16.0 page, last run), `reduced/` (prefers-reduced-motion), `xs/` (320 px robustness), `board/` (direction plate render). Full PNGs + `report.json` live here; the tracked summary is `refs/rendered/qa-report.md`. |
 
 ---
 
@@ -49,8 +51,9 @@ node src/server.ts
 node ..\design\site-redesign\tools\capture.mjs --url http://127.0.0.1:8095/ --out ..\design\site-redesign\shots\final
 ```
 
-`build-page.mjs` replaces the `/` renderer only (between stable markers, keeping a backup at
-`impl/app.ts.bak`), rewrites the reference's asset paths to `/media/*`, and swaps the dynamic values
+`build-page.mjs` replaces the `/` renderer only (between stable markers; the pre-splice backup is
+written outside the working tree to the OS temp dir, so a stale page copy can never be committed),
+rewrites the reference's asset paths to `/media/*`, and swaps the dynamic values
 (version, size, published, SHA-256, download href, server, aggregate stats, no-manifest note) for
 template interpolations. The **screens grid is data-driven**: `SCREENS` in the generated renderer is
 the single list of premium captures, and the rail class follows its length. If the reference ever
@@ -131,18 +134,51 @@ The current run is clean at all three viewports: `horizontalOverflow: false`, `b
 
 ---
 
-## Evidence summary (last verified run: `shots/final/`)
+## Accuracy & QA refresh (task-57, audit B5 + B7)
+
+**B5 — false field-visibility claim.** The page said "Prey never see the map", which contradicts the
+app: every player gets the live field map with the zone and their own position; only Hunters receive
+the Prey's latest reports/trails (`RoomScreen.kt` fetches `latestLocations` only for
+`team == HUNTERS`; the map is rendered for every role with `ownLocation`, the zone and `showPrey`
+false for Prey). Exact copy diff in `refs/site-ref.html` → regenerated `server/src/app.ts`:
+
+| Where | Before | After |
+|---|---|---|
+| Field section deck | "Hunters see the **latest report**, not a perfect live feed. **Prey never see the map.** The zone and the trails are the host's call — the server keeps the clock." | "Hunters see the **latest report**, not a perfect live feed. **Prey see the field and their own position — never another player's.** The zone and the trails are the host's call — the server keeps the clock." |
+| Rules ledger, "Map / Latest report only." | "Hunters see the last report and optional trails — not a perfect live feed. **Prey never see positions.**" | "Hunters see the last report and optional trails — not a perfect live feed. **Prey see the field, the zone and their own position, never another player's.**" |
+| FAQ, "Who can see my location?" | "Only the Hunters in your room, during the hunting phase, see your latest report. **Prey never see locations**, and admins get no extra location access. Location history is shown only when the host enables trails." | "Only the Hunters in your room, during the hunting phase, see your latest report. **Prey never see another player's position**, and admins get no extra location access. Location history is shown only when the host enables trails." |
+
+Regression guards were added to `server/test/install-page.test.ts`: the accurate lines must be
+present and `Prey never see the map` / `Prey never see positions` / `Prey never see locations` must
+not come back.
+
+**B7 — mobile QA findings.** (1) the "LATEST REPORT" legend label overflowed its 104 px column
+(`scroll 107 > client 104`, flagged on tablet + mobile) — the legend label column is now **112 px**;
+(2) the field-band decorative SVG circles were geometrically off-canvas on the 4:3 mobile band (the
+`preserveAspectRatio="slice"` crop pushed them ~31 px past the viewport) — the mobile band is now
+**16:9** full-bleed, keeping every decorative ring/marker inside the frame. The refreshed
+`report.json` is clean at all three viewports: `overflowElements: []`, `overflowTextEls: []`.
+
+**Evidence (v0.16.0):** `design/site-redesign/shots/final/` (viewport + full-page + per-section PNGs
+and `report.json`, captured against the v0.16.0 manifest: version 0.16.0, 2.4 MB, 2026-11-02), plus
+`shots/reduced/`, `shots/xs/`, `shots/board/`; page renders mirrored in `refs/rendered/`.
+
+---
+
+## Evidence summary (last verified run: `shots/final/`, against **v0.16.0**)
 
 | Check | Result |
 |---|---|
 | `npx tsc --noEmit` (server) | clean |
-| `npm test` (server) | **73/73 pass** — install-page suite rewritten for the new IA + guards: no scripts, no remote assets, media/font allowlist, manifest values, no-manifest fallback, zero-account state, CSP `font-src 'self'` |
-| 1440 desktop | `horizontalOverflow: false`, `blankImages: []`, `consoleErrors: []`, `failedRequests: []` |
-| 820 tablet | same |
-| 390 mobile (real Chrome device emulation: Android UA + touch + DPR 2) | same |
+| `npm test` (server) | **73/73 pass** — install-page suite covers the new IA, accurate field-visibility copy (with regression guards against the old "Prey never see the map" claim), no scripts, no remote assets, media/font allowlist, manifest values, no-manifest fallback, zero-account state, CSP `font-src 'self'` |
+| Live page content | dynamic manifest values rendered: **v0.16.0**, **2.4 MB**, published **2026-11-02**, SHA-256 `df6756…4ea4`, server line from the request host |
+| 1440 desktop | `horizontalOverflow: false`, `overflowElements: []`, `overflowTextEls: []`, `blankImages: []`, `consoleErrors: []`, `failedRequests: []` |
+| 820 tablet | same (the former "Latest report" label overflow is fixed by the 112 px legend label column) |
+| 390 mobile (real Chrome device emulation: Android UA + touch + DPR 2) | same (the former off-canvas band circles are fixed by the 16:9 full-bleed band crop) |
 | 320 × 700 extra-small | no horizontal overflow (layout reflows; used as a robustness check, not a required viewport) |
 | `prefers-reduced-motion: reduce` | hero map + slogan render as a complete static poster; no animation runs |
-| Page payload | **62.5 KB HTML** (all CSS inline), 51 KB fonts, **396 KB total** of referenced WebP images + fonts (hero map 55 KB, band 24 KB, five captures 265 KB, film cover 38 KB). No JS. |
+| Copy accuracy (audit B5) | field deck, rules ledger and FAQ now state the real visibility model: everyone sees the field/zone/own position; only Hunters receive the Prey's latest reports and trails; no one sees another player's position |
+| Page payload | **62.7 KB HTML** (all CSS inline), 51 KB fonts, **396 KB total** of referenced WebP images + fonts (hero map 55 KB, band 24 KB, five captures 265 KB, film cover 38 KB). No JS. |
 | Screens | five real premium captures — `s07-hunt` (first, key showcase), `s03-home`, `s05-lobby-host`, `s11-chat`, `s12-result-hunters` (full-time, 18:48, "Hunters win.", prey 0/2) — in a staggered 5-up rail (`screens--5`), real 1080×2400 frames, clean status bar, seeded players (Yasmin/Leila/Omar/Tariq/Sara), room `VMJYBU`, live clock 41:12. **No placeholder remains**; the Prey-win result, settings and light-theme captures are available but unused (swap via the `SCREENS` list). |
 
 ### Changing the capture set (one data edit)

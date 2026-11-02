@@ -1,638 +1,4 @@
-import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
-import cors from '@fastify/cors';
-import websocket from '@fastify/websocket';
-import { z } from 'zod';
-import type { DatabaseSync } from 'node:sqlite';
-import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
-import { get } from './db.ts';
-import { ApiError, badRequest, unauthorized } from './errors.ts';
-import { createSession, loginUser, registerUser, revokeSession, userForToken, validateCredentials, type User } from './auth.ts';
-import { Hub } from './realtime.ts';
-import type { RoomService } from './rooms.ts';
-
-export type AppDeps = {
-  db: DatabaseSync;
-  hub: Hub;
-  rooms: RoomService;
-  clock?: () => number;
-  sessionDays?: number;
-  logger?: boolean;
-  /** Override for the published update manifest (tests use a temporary file). */
-  manifestPath?: string;
-};
-
-type Authed = FastifyRequest & { auth: User };
-
-type LatestManifest = {
-  versionCode?: number;
-  versionName?: string;
-  url?: string;
-  sha256?: string;
-  size?: number;
-  publishedAt?: string;
-  notes?: string;
-};
-
-const registerBody = z.object({ username: z.string(), password: z.string() });
-const roomBody = z.object({ name: z.string() });
-const joinBody = z.object({ code: z.string() });
-const teamBody = z.object({ team: z.enum(['prey', 'hunters']) });
-const readyBody = z.object({ ready: z.boolean() });
-const tagBody = z.object({ preyId: z.string().min(1) });
-const resolveBody = z.object({ decision: z.enum(['confirmed', 'rejected']) });
-const messageBody = z.object({ body: z.string() });
-// Pagination query for GET /api/rooms/:id/messages. Both params are optional, so a
-// request without a query string keeps the pre-pagination "newest 50" response.
-const messagesQuery = z.object({
-  limit: z.coerce.number().int().min(1).optional(),
-  before: z.coerce.number().int().min(1).optional(),
-});
-const locationBody = z.object({
-  lat: z.number(),
-  lng: z.number(),
-  accuracy: z.number().optional(),
-  recordedAt: z.number().optional(),
-});
-
-function parse<T>(schema: z.ZodType<T>, body: unknown): T {
-  const result = schema.safeParse(body);
-  if (!result.success) {
-    throw badRequest(result.error.issues.map((i) => `${i.path.join('.') || 'body'}: ${i.message}`).join('; '), 'invalid_body');
-  }
-  return result.data;
-}
-
-class RateLimiter {
-  private hits = new Map<string, { count: number; reset: number }>();
-  private readonly clock: () => number;
-
-  constructor(clock: () => number) {
-    this.clock = clock;
-  }
-
-  check(key: string, limit: number, windowMs: number): void {
-    const now = this.clock();
-    const entry = this.hits.get(key);
-    if (!entry || entry.reset <= now) {
-      this.hits.set(key, { count: 1, reset: now + windowMs });
-      return;
-    }
-    entry.count += 1;
-    if (entry.count > limit) {
-      throw new ApiError(429, 'rate_limited', 'Too many requests, slow down');
-    }
-  }
-}
-
-export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
-  const clock = deps.clock ?? (() => Date.now());
-  const sessionDays = deps.sessionDays ?? 30;
-  const limiter = new RateLimiter(clock);
-  const manifestPath = deps.manifestPath ?? resolve(process.cwd(), 'data', 'app-latest.json');
-
-  const app = Fastify({
-    logger: deps.logger === false ? false : { level: process.env.LOG_LEVEL ?? 'info' },
-    bodyLimit: 256 * 1024,
-    trustProxy: false,
-  });
-
-  await app.register(cors, { origin: true });
-  await app.register(websocket, { options: { maxPayload: 64 * 1024 } });
-
-  const authenticate = async (req: FastifyRequest & { auth?: User }): Promise<void> => {
-    const header = req.headers.authorization;
-    const token = header?.startsWith('Bearer ') ? header.slice(7) : undefined;
-    const user = userForToken(deps.db, token, clock());
-    if (!user) throw unauthorized();
-    req.auth = user;
-  };
-
-  app.setErrorHandler((err, req, reply: FastifyReply) => {
-    if (err instanceof ApiError) {
-      return reply.status(err.status).send({ error: { code: err.code, message: err.message } });
-    }
-    if ((err as { statusCode?: number }).statusCode === 413) {
-      return reply.status(413).send({ error: { code: 'payload_too_large', message: 'Request body too large' } });
-    }
-    const status = (err as { statusCode?: number }).statusCode;
-    if (typeof status === 'number' && status >= 400 && status < 500) {
-      return reply.status(status).send({
-        error: { code: (err as { code?: string }).code ?? 'bad_request', message: (err as Error).message },
-      });
-    }
-    req.log.error(err);
-    if (process.env.NODE_ENV === 'test') console.error('[server error]', err);
-    return reply.status(500).send({ error: { code: 'internal', message: 'Internal server error' } });
-  });
-
-  app.get('/health', async () => {
-    deps.db.prepare('SELECT 1').get();
-    return { ok: true, now: clock(), service: 'manhunt', version: '0.9.0' };
-  });
-
-  // Update channel: written by scripts/ci/pull-latest-apk.ps1 after a CI build.
-  app.get('/api/app/latest', async (_req, reply) => {
-    const manifest = await readManifestText(manifestPath);
-    if (manifest === null) {
-      return reply.code(404).send({
-        error: { code: 'no_update_channel', message: 'No update manifest has been published yet' },
-      });
-    }
-    return reply.type('application/json').send(manifest);
-  });
-
-  // Install page + APK download for testers. Version, size and checksum are read from the
-  // published update manifest on every request, so the page cannot show stale metadata.
-  const apkPath = process.env.APK_PATH ?? resolve(
-    process.cwd(), '..', 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk',
-  );
-
-  app.get('/favicon.png', async (_req, reply) => {
-    try {
-      const bytes = await readFile(resolve(process.cwd(), 'public', 'favicon.png'));
-      return reply.type('image/png').header('cache-control', 'public, max-age=86400').send(bytes);
-    } catch {
-      return reply.code(404).send();
-    }
-  });
-
-  app.get('/og-image.png', async (_req, reply) => {
-    try {
-      const bytes = await readFile(resolve(process.cwd(), 'public', 'og-image.png'));
-      return reply.type('image/png').header('cache-control', 'public, max-age=86400').send(bytes);
-    } catch {
-      return reply.code(404).send();
-    }
-  });
-
-  // Small, fixed set of landing-page images and self-hosted OFL fonts. Allowlisted so the public
-  // route can never read arbitrary files from the server. Everything is same-origin: the page has
-  // no remote assets and no third-party requests.
-  const siteMedia: Record<string, string> = {
-    'auth.png': 'image/png',
-    'home.png': 'image/png',
-    'lobby.png': 'image/png',
-    'roles.png': 'image/png',
-    'chat.png': 'image/png',
-    'settings.png': 'image/png',
-    'result.png': 'image/png',
-    'explainer-cover.png': 'image/png',
-    'explainer-cover.webp': 'image/webp',
-    'explainer-cover.jpg': 'image/jpeg',
-    // Web-optimised premium phone captures (page-size WebP + JPEG fallback).
-    'shot-home.webp': 'image/webp',
-    'shot-home.jpg': 'image/jpeg',
-    'shot-lobby.webp': 'image/webp',
-    'shot-lobby.jpg': 'image/jpeg',
-    'shot-hunt.webp': 'image/webp',
-    'shot-hunt.jpg': 'image/jpeg',
-    'shot-extra.webp': 'image/webp',
-    'shot-extra.jpg': 'image/jpeg',
-    'shot-result.webp': 'image/webp',
-    'shot-result.jpg': 'image/jpeg',
-    'map-hero.webp': 'image/webp',
-    'map-hero.jpg': 'image/jpeg',
-    'map-band.webp': 'image/webp',
-    'map-band.jpg': 'image/jpeg',
-    'big-shoulders-700.woff2': 'font/woff2',
-    'instrument-sans-400.woff2': 'font/woff2',
-    'instrument-sans-700.woff2': 'font/woff2',
-    'red-hat-mono-400.woff2': 'font/woff2',
-  };
-  app.get<{ Params: { file: string } }>('/media/:file', async (req, reply) => {
-    const type = siteMedia[req.params.file];
-    if (!type) return reply.code(404).send();
-    try {
-      const bytes = await readFile(resolve(process.cwd(), 'public', 'site', req.params.file));
-      return reply
-        .type(type)
-        .header('cache-control', 'public, max-age=86400')
-        .header('x-content-type-options', 'nosniff')
-        .send(bytes);
-    } catch {
-      return reply.code(404).send();
-    }
-  });
-
-  app.get('/', async (req, reply) => {
-    const raw = await readManifestText(manifestPath);
-    const manifest = raw === null ? null : parseManifest(raw);
-    // Aggregate community stats only: never expose account details on a public page.
-    const totalAccounts = get<{ n: number }>(deps.db, 'SELECT COUNT(*) AS n FROM users')?.n ?? 0;
-    const weekAgo = clock() - 7 * 24 * 60 * 60 * 1000;
-    const newAccounts = get<{ n: number }>(
-      deps.db,
-      'SELECT COUNT(*) AS n FROM users WHERE created_at >= ?',
-      weekAgo,
-    )?.n ?? 0;
-    return reply
-      .type('text/html; charset=utf-8')
-      .header('cache-control', 'no-store')
-      // Static pages only: no scripts, no framing, no referrer leakage.
-      .header('x-content-type-options', 'nosniff')
-      .header('x-frame-options', 'DENY')
-      .header('referrer-policy', 'no-referrer')
-      .header('content-security-policy', "default-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
-      .send(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }));
-  });
-
-  app.get('/join', async (req, reply) => {
-    const raw = (req.query as { code?: unknown } | undefined)?.code;
-    const code = typeof raw === 'string'
-      ? raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12)
-      : '';
-    return reply
-      .type('text/html; charset=utf-8')
-      .header('cache-control', 'no-store')
-      .header('x-content-type-options', 'nosniff')
-      .header('x-frame-options', 'DENY')
-      .header('referrer-policy', 'no-referrer')
-      .header('content-security-policy', "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
-      .send(renderJoinPage(code, publicBaseUrl(req)));
-  });
-
-  app.get('/app.apk', async (_req, reply) => {
-    try {
-      const data = await readFile(apkPath);
-      return reply
-        .type('application/vnd.android.package-archive')
-        .header('content-disposition', 'attachment; filename="manhunt.apk"')
-        .header('content-length', String(data.length))
-        .send(data);
-    } catch {
-      return reply.code(404).send({ error: { code: 'apk_missing', message: 'APK has not been built yet' } });
-    }
-  });
-
-  // ------------------------------------------------------------ auth
-
-  app.post('/api/auth/register', async (req) => {
-    limiter.check(`register:${req.ip}`, 10, 60_000);
-    const body = parse(registerBody, req.body);
-    const { username, password } = validateCredentials(body.username, body.password);
-    const user = registerUser(deps.db, username, password, clock());
-    const token = createSession(deps.db, user.id, clock(), sessionDays);
-    return { token, user };
-  });
-
-  app.post('/api/auth/login', async (req) => {
-    limiter.check(`login:${req.ip}`, 10, 60_000);
-    const body = parse(registerBody, req.body);
-    const user = loginUser(deps.db, String(body.username), String(body.password));
-    const token = createSession(deps.db, user.id, clock(), sessionDays);
-    return { token, user };
-  });
-
-  app.post('/api/auth/logout', { preHandler: authenticate }, async (req) => {
-    const header = req.headers.authorization;
-    if (header?.startsWith('Bearer ')) revokeSession(deps.db, header.slice(7));
-    return { ok: true };
-  });
-
-  app.get('/api/me', { preHandler: authenticate }, async (req) => {
-    return { user: (req as Authed).auth };
-  });
-
-  // ------------------------------------------------------------ rooms
-
-  app.post('/api/rooms', { preHandler: authenticate }, async (req) => {
-    const { auth } = req as Authed;
-    const body = parse(roomBody, req.body);
-    return deps.rooms.createRoom(auth.id, body.name);
-  });
-
-  app.post('/api/rooms/join', { preHandler: authenticate }, async (req) => {
-    const { auth } = req as Authed;
-    limiter.check(`join:${auth.id}`, 20, 60_000);
-    const body = parse(joinBody, req.body);
-    return deps.rooms.joinByCode(auth.id, body.code);
-  });
-
-  app.get<{ Params: { id: string } }>('/api/rooms/:id', { preHandler: authenticate }, async (req) => {
-    const { auth } = req as Authed;
-    if (!isMember(deps.db, req.params.id, auth.id)) throw unauthorized('Not a member of this room');
-    return deps.rooms.state(req.params.id);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/leave', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.leave((req as Authed).auth.id, req.params.id);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/team', { preHandler: authenticate }, async (req) => {
-    const body = parse(teamBody, req.body);
-    return deps.rooms.setTeam((req as Authed).auth.id, req.params.id, body.team);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/ready', { preHandler: authenticate }, async (req) => {
-    const body = parse(readyBody, req.body);
-    return deps.rooms.setReady((req as Authed).auth.id, req.params.id, body.ready);
-  });
-
-  app.patch<{ Params: { id: string } }>('/api/rooms/:id/settings', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.updateSettings((req as Authed).auth.id, req.params.id, (req.body ?? {}) as Record<string, unknown>);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/start', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.startMatch((req as Authed).auth.id, req.params.id);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/end', { preHandler: authenticate }, async (req) => {
-    const body = (req.body ?? {}) as { cancelled?: boolean };
-    return deps.rooms.endMatch((req as Authed).auth.id, req.params.id, !!body.cancelled);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/pause', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.pauseMatch((req as Authed).auth.id, req.params.id);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/resume', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.resumeMatch((req as Authed).auth.id, req.params.id);
-  });
-
-  app.get<{ Params: { id: string } }>('/api/rooms/:id/history', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.matchHistory((req as Authed).auth.id, req.params.id);
-  });
-
-  app.get<{ Params: { id: string } }>('/api/rooms/:id/messages', { preHandler: authenticate }, async (req) => {
-    const { auth } = req as Authed;
-    // Backwards compatible: no query -> newest 50, exactly as before pagination existed.
-    const query = parse(messagesQuery, req.query ?? {});
-    return deps.rooms.messages(auth.id, req.params.id, query.limit, query.before);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/messages', { preHandler: authenticate }, async (req) => {
-    const { auth } = req as Authed;
-    limiter.check(`chat:${auth.id}`, 10, 10_000);
-    const body = parse(messageBody, req.body);
-    return deps.rooms.postMessage(auth.id, req.params.id, body.body);
-  });
-
-  // ------------------------------------------------------------ tags
-
-  app.post<{ Params: { id: string } }>('/api/rooms/:id/tags', { preHandler: authenticate }, async (req) => {
-    const { auth } = req as Authed;
-    limiter.check(`tag:${auth.id}`, 10, 60_000);
-    const body = parse(tagBody, req.body);
-    return deps.rooms.requestTag(auth.id, req.params.id, body.preyId);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/tags/:id/confirm', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.confirmTag((req as Authed).auth.id, req.params.id);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/tags/:id/dispute', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.disputeTag((req as Authed).auth.id, req.params.id);
-  });
-
-  app.post<{ Params: { id: string } }>('/api/tags/:id/resolve', { preHandler: authenticate }, async (req) => {
-    const body = parse(resolveBody, req.body);
-    return deps.rooms.resolveTag((req as Authed).auth.id, req.params.id, body.decision);
-  });
-
-  // ------------------------------------------------------------ matches
-
-  app.get<{ Params: { id: string } }>('/api/matches/:id', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.matchSummary((req as Authed).auth.id, req.params.id);
-  });
-
-  // ------------------------------------------------------------ locations
-
-  app.post<{ Params: { id: string } }>('/api/matches/:id/location', { preHandler: authenticate }, async (req) => {
-    const { auth } = req as Authed;
-    limiter.check(`location:${auth.id}`, 20, 60_000);
-    const body = parse(locationBody, req.body);
-    return deps.rooms.reportLocation(auth.id, req.params.id, body);
-  });
-
-  app.get<{ Params: { id: string } }>('/api/matches/:id/locations', { preHandler: authenticate }, async (req) => {
-    return deps.rooms.latestLocations((req as Authed).auth.id, req.params.id);
-  });
-
-  app.get<{ Params: { id: string; userId: string } }>(
-    '/api/matches/:id/locations/:userId',
-    { preHandler: authenticate },
-    async (req) => deps.rooms.locationHistory((req as Authed).auth.id, req.params.id, req.params.userId),
-  );
-
-  // ------------------------------------------------------------ realtime
-
-  // The session token travels in the query string (common for WS upgrades), so
-  // suppress request logging on this route to keep it out of the logs.
-  app.get('/ws', { websocket: true, logLevel: 'warn' }, (socket, req) => {
-    const url = new URL(req.url, 'http://localhost');
-    const user = userForToken(deps.db, url.searchParams.get('token') ?? undefined, clock());
-    if (!user) {
-      socket.close(4401, 'unauthorized');
-      return;
-    }
-
-    const client = deps.hub.add(socket, user.id);
-    deps.hub.send(client, { type: 'hello', data: { userId: user.id, username: user.username, now: clock() } });
-
-    socket.on('message', (raw: unknown) => {
-      let msg: { type?: string; roomId?: string };
-      try {
-        const parsed: unknown = JSON.parse(String(raw));
-        // "null", "42", "[]" are valid JSON but not protocol messages. Dereferencing
-        // them used to throw inside the socket handler and could take the process down.
-        if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return;
-        msg = parsed as { type?: string; roomId?: string };
-      } catch {
-        return;
-      }
-      try {
-        if (msg.type === 'ping') {
-          deps.hub.send(client, { type: 'pong', data: { now: clock() } });
-          return;
-        }
-        if (msg.type === 'subscribe' && typeof msg.roomId === 'string') {
-          if (!isMember(deps.db, msg.roomId, user.id)) {
-            deps.hub.send(client, { type: 'error', data: { code: 'forbidden', message: 'Not a room member' } });
-            return;
-          }
-          deps.hub.subscribe(client, msg.roomId);
-          deps.hub.send(client, { type: 'room', data: deps.rooms.state(msg.roomId) });
-          deps.rooms.broadcastRoom(msg.roomId);
-        }
-      } catch {
-        // One bad frame must never crash the whole server; answer and keep the socket.
-        deps.hub.send(client, {
-          type: 'error',
-          data: { code: 'bad_message', message: 'Could not process that message' },
-        });
-      }
-    });
-
-    socket.on('close', () => {
-      if (client.roomId) deps.hub.remove(client), deps.rooms.broadcastRoom(client.roomId!);
-      else deps.hub.remove(client);
-    });
-  });
-
-  return app;
-}
-
-function isMember(db: DatabaseSync, roomId: string, userId: string): boolean {
-  return !!get(db, 'SELECT 1 FROM room_members WHERE room_id = ? AND user_id = ?', roomId, userId);
-}
-
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (c) => (
-    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c
-  ));
-}
-
-/** Read the published update manifest, stripping the BOM Windows PowerShell may add. */
-async function readManifestText(path: string): Promise<string | null> {
-  try {
-    return (await readFile(path, 'utf8')).replace(/^\uFEFF/, '');
-  } catch {
-    return null;
-  }
-}
-
-function parseManifest(raw: string): LatestManifest | null {
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    return parsed !== null && typeof parsed === 'object' ? (parsed as LatestManifest) : null;
-  } catch {
-    return null;
-  }
-}
-
-/** Public base URL for the install page, from PUBLIC_URL or the request's Host header. */
-function publicBaseUrl(req: FastifyRequest): string {
-  const configured = (process.env.PUBLIC_URL ?? '').trim();
-  if (configured) return configured.replace(/\/+$/, '');
-  const host = req.headers.host;
-  if (!host) return '';
-  return `${req.protocol === 'https' ? 'https' : 'http'}://${host}`;
-}
-
-function formatBytes(bytes: number | undefined): string {
-  if (typeof bytes !== 'number' || !Number.isFinite(bytes) || bytes <= 0) return '';
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatDate(iso: string | undefined): string {
-  if (typeof iso !== 'string') return '';
-  const parsed = Date.parse(iso);
-  return Number.isFinite(parsed) ? new Date(parsed).toISOString().slice(0, 10) : '';
-}
-
-/**
- * The install page: a match-poster landing page for the free sideloaded APK.
- * Metadata (version, size, checksum, download) is read from the update manifest on every request;
- * everything else is static, dependency-free markup so the page works on any phone. No JavaScript.
- * Design source: design/site-redesign/ (concept.md, tokens.md, refs/site-ref.html) - regenerate this
- * function with design/site-redesign/tools/build-page.mjs rather than hand-editing the markup.
- */
-function renderInstallPage(
-  manifest: LatestManifest | null,
-  serverUrl: string,
-  stats: { totalAccounts: number; newAccounts: number },
-): string {
-  const version = typeof manifest?.versionName === 'string' ? manifest.versionName.trim() : '';
-  const size = formatBytes(manifest?.size);
-  const sha = typeof manifest?.sha256 === 'string' ? manifest.sha256.trim() : '';
-  const published = formatDate(manifest?.publishedAt);
-  const manifestUrl = typeof manifest?.url === 'string' ? manifest.url.trim() : '';
-  const downloadHref = /^\/[\w./-]+$/.test(manifestUrl) ? manifestUrl : '/app.apk';
-  const downloadLabel = `Download the APK${version ? ` \u00b7 v${escapeHtml(version)}` : ''}`;
-  const metaVersion = version ? `v${escapeHtml(version)}` : '\u2014';
-  const metaSize = size ? escapeHtml(size) : '\u2014';
-  const metaPublished = published ? escapeHtml(published) : '\u2014';
-  const heroMeta = [
-    '<span>Free APK</span>',
-    version ? `<span>v${escapeHtml(version)}</span>` : '',
-    size ? `<span>${escapeHtml(size)}</span>` : '',
-    '<span>Android 8.0+</span>',
-    '<span>Not on Play Store</span>',
-  ].filter(Boolean).join('');
-
-  const hashBlock = sha
-    ? `<dl class="pass__hash"><dt>SHA-256</dt><code>${escapeHtml(sha)}</code></dl>`
-    : '<p class="pass__hint">No checksum has been published for this build.</p>';
-
-  const serverBlock = serverUrl
-    ? `<p class="pass__server"><span class="state"><b></b>This server</span><code>${escapeHtml(serverUrl)}</code></p>
-          <p class="pass__hint">The build offered here is already pointed at this server. Self-hosting? Set your own address on the app's sign-in screen after installing.</p>`
-    : '<p class="pass__hint">Set the server address on the app\'s sign-in screen after installing.</p>';
-
-  const releaseNote = manifest === null
-    ? '<p class="pass__fallback">Release details are not published on this server yet \u2014 the download below is the latest available build.</p>'
-    : '';
-
-  const zeroAccountStat = '<div class="fixture__stat"><b>0</b><span class="data-sm">ads, ever</span></div>';
-  const statsBlock = stats.totalAccounts > 0
-    ? `<div class="fixture__stats">
-        <div class="fixture__stat"><b>${stats.totalAccounts}</b><span class="data-sm">accounts started</span></div>
-        <div class="fixture__stat"><b class="plus">+${stats.newAccounts}</b><span class="data-sm">new this week</span></div>
-        ${zeroAccountStat}
-      </div>`
-    : `<div class="fixture__stats">
-        <div class="fixture__stat"><b>MIT</b><span class="data-sm">licensed source</span></div>
-        ${zeroAccountStat}
-      </div>`;
-
-  // Real premium captures (design/redesign/screenshot-shotlist.md, captured from the running app).
-  // Order = visual order; the hunt screen leads because it is the product's signature surface.
-  // PENDING: the result captures (s12/s13) are blocked by an app snapshot bug and must not be shown;
-  // add { img: 'result', label: 'Result', caption: 'Who won, and why', ... } here when
-  // docs/screenshots/premium/s12-result-hunters.png exists and tools/optimize-assets.ps1 has
-  // generated shot-result.webp/.jpg (plus the two allowlist lines in server/src/app.ts).
-  const SCREENS = [
-    {
-      img: 'hunt',
-      label: 'Hunt',
-      caption: 'The live map — zone, reports, trail',
-      w: 900, h: 2000,
-      alt: 'Live hunt screen: real OpenStreetMap tiles with the 240 metre zone, a fresh and a stale prey report, a coral trail and the server clock at 41:12.',
-    },
-    {
-      img: 'home',
-      label: 'Home',
-      caption: 'Host or join in two taps',
-      w: 900, h: 2000,
-      alt: 'Home screen: the Open Zone brand hero with the host-a-hunt and join-a-hunt actions.',
-    },
-    {
-      img: 'lobby',
-      label: 'Lobby',
-      caption: 'Pick a side, ready up',
-      w: 900, h: 2000,
-      alt: 'Lobby screen: Riverside Run with five players split into Prey and Hunters, all ready.',
-    },
-    {
-      img: 'extra',
-      label: 'Chat',
-      caption: 'The room, in one place',
-      w: 900, h: 2000,
-      alt: 'Room chat during a live Riverside Run hunt: player messages, match updates and the compose field.',
-    },
-    {
-      img: 'result',
-      label: 'Result',
-      caption: 'Full time — who won',
-      w: 900, h: 2000,
-      alt: 'Full-screen hunt result: FULL TIME after 18:48 played, prey 0 of 2 remaining, “Hunters win.”',
-    },
-  ];
-  const screensBlock = SCREENS.map((shot) =>
-    '<figure class="screen">' +
-    '<span class="screen__frame"><picture><source srcset="/media/shot-' + shot.img + '.webp" type="image/webp">' +
-    '<img src="/media/shot-' + shot.img + '.jpg" decoding="async" alt="' + shot.alt +
-    '" width="' + shot.w + '" height="' + shot.h + '"></picture></span>' +
-    '<figcaption><b>' + shot.label + '</b><span>' + shot.caption + '</span></figcaption>' +
-    '</figure>',
-  ).join('\n            ');
-  const screensClass = 'screens--' + SCREENS.length;
-
-  // og:image must be absolute for social scrapers.
-  const ogImageUrl = `${(serverUrl || '').replace(/\/$/, '')}/og-image.png`;
-
-  return `<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -644,13 +10,13 @@ function renderInstallPage(
 <link rel="preload" href="/media/map-hero.webp" as="image" type="image/webp">
 <meta name="description" content="Real-world GPS hide-and-seek for Android. Two teams, one street, one clock the players cannot bend. Free APK, Android 8.0+, not on Play Store.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ManHunt \u2014 hide from your friends.">
+<meta property="og:title" content="ManHunt — hide from your friends.">
 <meta property="og:description" content="Real-world hide-and-seek for Android. Prey hide, Hunters track on a live map and tag in person. Free APK.">
-<meta property="og:image" content="${escapeHtml(ogImageUrl)}">
+<meta property="og:image" content="http://74.208.99.178/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<title>ManHunt \u2014 hide from your friends</title>
+<title>ManHunt — hide from your friends</title>
 <style>
 /* ==========================================================================
    ManHunt site — design reference. Same system as the approved app redesign
@@ -1221,7 +587,7 @@ h2.section__title{
   .round__beat:nth-child(2){border-right:0}
   .round__beat:nth-child(1),.round__beat:nth-child(2){border-bottom:1px solid rgba(230,237,247,.14)}
   .note{grid-column:span 6}
-  .screens{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .screens{grid-template-columns:repeat(3,minmax(0,1fr))}
   .screens__rail > .screen:nth-child(2){margin-top:40px}
   .screens__rail > .screen:nth-child(3){margin-top:0}
   .screens__rail > .screen:nth-child(4){margin-top:40px}
@@ -1353,7 +719,7 @@ h2.section__title{
         <a class="link" href="#film">Watch the 60-second film</a>
       </div>
       <div class="hero__honest data-sm">
-        ${heroMeta}
+        <span>Free APK</span><span>v0.16.0</span><span>2.4 MB</span><span>Android 8.0+</span><span>Not on Play Store</span>
       </div>
     </div>
 
@@ -1379,7 +745,11 @@ h2.section__title{
     <div class="fixture__in">
       <span class="state"><b></b>Tonight</span>
       <span class="fixture__line">One street. <em>One clock.</em></span>
-      ${statsBlock}    </div>
+      <div class="fixture__stats">
+        <div class="fixture__stat"><b>9</b><span class="data-sm">accounts started</span></div>
+        <div class="fixture__stat"><b class="plus">+9</b><span class="data-sm">new this week</span></div>
+        <div class="fixture__stat"><b>0</b><span class="data-sm">ads, ever</span></div>
+      </div>    </div>
   </div>
 
   <!-- ② THE FIELD ============================================================= -->
@@ -1511,9 +881,13 @@ h2.section__title{
           <h2 class="section__title" id="screens-title">Built for the street, not a menu.</h2>
           <p class="section__deck">Dark by default. English and Arabic with full RTL. 48 dp targets and a map that reads at arm's length, in the dark.</p>
         </div>
-        <div class="screens ${screensClass}">
+        <div class="screens screens--5">
           <div class="screens__rail">
-            ${screensBlock}
+            <figure class="screen"><span class="screen__frame"><picture><source srcset="/media/shot-hunt.webp" type="image/webp"><img src="/media/shot-hunt.jpg" decoding="async" alt="Live hunt screen: real OpenStreetMap tiles with the 240 metre zone, a fresh and a stale prey report, a coral trail and the server clock at 41:12." width="900" height="2000"></picture></span><figcaption><b>Hunt</b><span>The live map — zone, reports, trail</span></figcaption></figure>
+            <figure class="screen"><span class="screen__frame"><picture><source srcset="/media/shot-home.webp" type="image/webp"><img src="/media/shot-home.jpg" decoding="async" alt="Home screen: the Open Zone brand hero with the host-a-hunt and join-a-hunt actions." width="900" height="2000"></picture></span><figcaption><b>Home</b><span>Host or join in two taps</span></figcaption></figure>
+            <figure class="screen"><span class="screen__frame"><picture><source srcset="/media/shot-lobby.webp" type="image/webp"><img src="/media/shot-lobby.jpg" decoding="async" alt="Lobby screen: Riverside Run with five players split into Prey and Hunters, all ready." width="900" height="2000"></picture></span><figcaption><b>Lobby</b><span>Pick a side, ready up</span></figcaption></figure>
+            <figure class="screen"><span class="screen__frame"><picture><source srcset="/media/shot-extra.webp" type="image/webp"><img src="/media/shot-extra.jpg" decoding="async" alt="Room chat during a live Riverside Run hunt: player messages, match updates and the compose field." width="900" height="2000"></picture></span><figcaption><b>Chat</b><span>The room, in one place</span></figcaption></figure>
+            <figure class="screen"><span class="screen__frame"><picture><source srcset="/media/shot-result.webp" type="image/webp"><img src="/media/shot-result.jpg" decoding="async" alt="Full-screen hunt result: FULL TIME after 18:48 played, prey 0 of 2 remaining, “Hunters win.”" width="900" height="2000"></picture></span><figcaption><b>Result</b><span>Full time — who won</span></figcaption></figure>
           </div>
           <aside class="screen__aside">
             <h3>Everything the round needs.</h3>
@@ -1595,17 +969,18 @@ h2.section__title{
         <p class="running"><b>05</b><span>The pass</span></p>
         <h2 id="download-title">Get on<br>the field.</h2>
         <dl class="pass__meta">
-          <div><dt>Version</dt><dd>${metaVersion}</dd></div>
-          <div><dt>Size</dt><dd>${metaSize}</dd></div>
-          <div><dt>Published</dt><dd>${metaPublished}</dd></div>
+          <div><dt>Version</dt><dd>v0.16.0</dd></div>
+          <div><dt>Size</dt><dd>2.4 MB</dd></div>
+          <div><dt>Published</dt><dd>2026-11-02</dd></div>
           <div><dt>Android</dt><dd>8.0+</dd></div>
         </dl>
         <div class="pass__dl">
-          <a class="btn btn--primary" href="${escapeHtml(downloadHref)}">${downloadLabel}</a>
-          ${hashBlock}
-          ${serverBlock}
+          <a class="btn btn--primary" href="/app.apk">Download the APK · v0.16.0</a>
+          <dl class="pass__hash"><dt>SHA-256</dt><code>df67563330ec4096aea16aa1894832df3555368c8ba87d2997806eb1c1744ea4</code></dl>
+          <p class="pass__server"><span class="state"><b></b>This server</span><code>http://74.208.99.178</code></p>
+          <p class="pass__hint">The build offered here is already pointed at this server. Self-hosting? Set your own address on the app's sign-in screen after installing.</p>
           <p class="pass__warn"><b>Android will warn you about sideloaded apps.</b> That warning is expected — the release is signed and built by the project. Install only if you trust this project.</p>
-          ${releaseNote}
+          
         </div>
       </div>
       <div class="pass__steps">
@@ -1702,49 +1077,4 @@ h2.section__title{
   </div>
 </footer>
 </body>
-</html>`;
-}
-
-/** Landing page for a shared invite link: /join?code=ABC123. */
-function renderJoinPage(code: string, serverUrl: string): string {
-  const safeCode = escapeHtml(code || '—');
-  const hash = code ? `code=${encodeURIComponent(code)}` : 'code=';
-  const intent = `intent://join?${hash}#Intent;scheme=manhunt;package=com.manhunt.app;S.browser_fallback_url=${encodeURIComponent(
-    `${serverUrl}/app.apk`,
-  )};end`;
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Join a ManHunt room</title>
-<style>
-  :root{color-scheme:dark}
-  *{box-sizing:border-box}
-  body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0b1220;color:#e6edf7}
-  main{max-width:560px;margin:0 auto;padding:40px 22px 64px}
-  .badge{display:inline-block;font-weight:700;letter-spacing:.12em;font-size:12px;color:#22d3ee;border:1px solid rgba(34,211,238,.45);border-radius:999px;padding:4px 10px}
-  h1{font-size:34px;line-height:1.15;margin:16px 0 8px}
-  p{color:#9fb0c9}
-  .code{margin:26px 0;padding:18px;border:1px solid rgba(34,211,238,.35);background:rgba(34,211,238,.08);border-radius:16px;text-align:center}
-  .code b{display:block;font-size:34px;letter-spacing:.28em;color:#67e8f9;margin-top:6px}
-  a.button{display:block;text-align:center;text-decoration:none;font-weight:700;color:#04121a;background:#22d3ee;border-radius:14px;padding:15px 20px;margin:14px 0}
-  a.ghost{display:block;text-align:center;text-decoration:none;font-weight:600;color:#67e8f9;border:1px solid rgba(34,211,238,.4);border-radius:14px;padding:13px 20px;margin:10px 0}
-  .fine{font-size:12px;color:#7f90a8;margin-top:26px;text-align:center}
-</style>
-</head>
-<body>
-<main>
-  <span class="badge">MANHUNT</span>
-  <h1>You're invited to a hunt</h1>
-  <p>Open the app to join the room automatically, or install ManHunt first and enter the code.</p>
-  <div class="code">Room code<b>${safeCode}</b></div>
-  <a class="button" href="${escapeHtml(intent)}">Open ManHunt</a>
-  <a class="ghost" href="/app.apk">Download ManHunt APK</a>
-  <a class="ghost" href="https://github.com/MostafaAshry513/ManHunt">GitHub / source</a>
-  <p class="fine">Or open ManHunt and join with the code above. The game server is ${escapeHtml(serverUrl)}.</p>
-</main>
-</body>
-</html>`;
-}
-
+</html>
