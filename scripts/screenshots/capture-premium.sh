@@ -472,17 +472,17 @@ prime_first_run_prefs() {
 launch_app() { "$ADB" shell am start -W -n "$ACTIVITY" >/dev/null 2>&1 || fail "could not launch the app"; }
 
 # Home is only accepted when a Home-only marker is on screen AND no Auth marker is present.
-# (Earlier the Auth hero heading "Hide from your friends." made a failed login look like Home,
-# which produced a non-Home S03 capture.)
+# Includes the Arabic labels used by the RTL captures (S04/S16) so language switching cannot
+# false-negative into a failed run.
 assert_home() {
-  ui_wait "Host a hunt|Create hunt|Join hunt|Playing as" 120
+  ui_wait "Host a hunt|Create hunt|Join hunt|Playing as|استضف مطاردة|انضم إلى مطاردة|أنشئ مطاردة|انضم إلى المطاردة" 120
   local dump="$RUNTIME/home-assert.txt"
   python3 "$SCRIPTS/ui.py" dump >"$dump" 2>&1 || true
   if grep -qE 'Create your account|Welcome back|New here\?' "$dump"; then
     debug_dump
     fail "Home assertion failed: Auth screen markers present after sign-in"
   fi
-  if ! grep -qE 'Host a hunt|Playing as' "$dump"; then
+  if ! grep -qE 'Host a hunt|Playing as|استضف مطاردة|انضم إلى مطاردة|أنشئ مطاردة|انضم إلى المطاردة' "$dump"; then
     debug_dump
     fail "Home assertion failed: no Home content in the UI tree"
   fi
@@ -1075,6 +1075,9 @@ capture_state_extras() {
   fi
 
   log "capture: S18/S19 Auth loading + server error (best effort)"
+  # The RTL captures leave the app in Arabic; switch back to the English Home so the sign-out
+  # and Auth-state selectors below are stable.
+  switch_user omar "true" "en"
   ui_tap "text=Sign out|desc=Sign out|home_signout" 30
   ui_wait "Sign in|Welcome back|Create your account" 60
   tap_field "Username" 0 || return 1
