@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ManHunt — GitHub landing page v2 · concept preview (MATCHDAY BOARD)</title>
+<style>
+  /* GitHub README simulation for design review only. Not shipped. */
+  :root {
+    --bg: #0d1117; --fg: #e6edf3; --muted: #8b949e; --line: #30363d; --link: #58a6ff;
+    --field: #0B1220; --chalk: #E6EDF7; --cyan: #22D3EE; --coral: #FF7A59; --violet: #A79BFF;
+  }
+  * { box-sizing: border-box; }
+  html { overflow-x: hidden; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg); overflow-x: hidden;
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1012px; margin: 0 auto; padding: 32px 24px 64px; }
+  h1, h2, h3 { margin: 0; font-weight: 600; }
+  h1 { font-size: 2em; line-height: 1.25; padding-bottom: .3em; border-bottom: 1px solid var(--line); margin-bottom: .5em; }
+  h2 { font-size: 1.5em; line-height: 1.25; padding-bottom: .3em; border-bottom: 1px solid var(--line); margin: 1.6em 0 .6em; }
+  h3 { font-size: 1.1em; margin: 1.2em 0 .4em; }
+  p { margin: 0 0 1em; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin: 0 0 1em; padding-left: 1.6em; }
+  li { margin: .25em 0; }
+  code { font: 12.5px/1.4 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; background: rgba(110,118,129,.2); padding: .15em .35em; border-radius: 3px; }
+  pre { background: #161b22; border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; overflow: auto; margin: 0 0 1em; }
+  pre code { background: none; padding: 0; font-size: 12.5px; line-height: 1.45; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 1.6em 0; }
+  sub { font-size: 12px; color: var(--muted); }
+  .hero { width: 100%; display: block; margin: 0 0 18px; border-radius: 2px; }
+  .deck { font-size: 1.08em; }
+  .cta-row { display: flex; gap: 18px; flex-wrap: wrap; align-items: baseline; margin: 0 0 10px; font-weight: 600; }
+  .micro { color: var(--muted); font-size: 13px; margin: 0 0 1.2em; }
+  .media { display: block; width: 100%; margin: 4px 0 8px; border-radius: 2px; }
+  .caption { display: block; margin: 0 0 1.2em; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 1.2em; }
+  th, td { border: 1px solid var(--line); padding: 10px 12px; vertical-align: top; text-align: left; }
+  th { background: #161b22; font-weight: 600; }
+  .sides td { width: 50%; }
+  .tag { display: block; width: 200px; height: auto; margin: 0 0 10px; }
+  .beats td { width: 25%; }
+  .beats .n { display: block; font: 600 11px/1 ui-monospace, monospace; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+  .beats b { display: block; margin-bottom: 4px; }
+  .screens { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0 0 8px; }
+  .screens .shot { margin: 0; min-width: 0; }
+  .screens img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 2px; background: var(--field); }
+  .screens figcaption { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .pending {
+    display: flex; flex-direction: column; justify-content: center; gap: 6px;
+    aspect-ratio: 9 / 20; border: 1px dashed #4a5568; border-radius: 4px; background: #0B1220;
+    padding: 14px; color: var(--muted); font: 600 11px/1.5 ui-monospace, monospace; letter-spacing: .08em;
+  }
+  .pending b { color: var(--cyan); font-size: 11px; letter-spacing: .12em; }
+  .pending span { color: #6e7681; letter-spacing: 0; font-weight: 400; }
+  .film { width: 100%; border-collapse: collapse; }
+  .film td { border: 0; padding: 0; }
+  .film .cover { width: 180px; padding-right: 22px; }
+  .film .cover img { width: 180px; display: block; border: 1px solid var(--line); border-radius: 2px; }
+  .pass { border: 1px solid var(--line); border-radius: 2px; padding: 22px 24px; margin: 0 0 1.2em; background: #0B1220; }
+  .pass .big { font-size: 1.35em; font-weight: 700; margin: 0 0 6px; }
+  .pass .data { font: 12.5px/1.5 ui-monospace, monospace; letter-spacing: .04em; color: var(--muted); margin: 0 0 14px; }
+  .ledger td:first-child { width: 22%; white-space: nowrap; font-weight: 600; }
+  details { border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; margin: 0 0 1.2em; background: #161b22; }
+  summary { cursor: pointer; font-weight: 600; }
+  .footer { border-top: 1px solid var(--line); margin-top: 2em; padding-top: 14px; color: var(--muted); font-size: 12.5px; }
+  .footer img { height: 16px; vertical-align: -3px; margin-right: 8px; opacity: .9; }
+  .review-note { border: 1px solid #9e6a03; background: rgba(187,128,9,.12); border-radius: 6px; padding: 12px 16px; margin: 0 0 22px; font-size: 13.5px; color: #e3b341; }
+  /* light-mode review (?theme=light): simulates GitHub light README */
+  html.light { --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --line: #d1d9e0; --link: #0969da; }
+  html.light .review-note { color: #9a6700; border-color: #d4a72c; background: #fff8c5; }
+  html.light th { background: #f6f8fa; }
+  html.light pre, html.light details { background: #f6f8fa; }
+  html.light .pending { background: #f6f8fa; border-color: #d1d9e0; }
+  html.light .pending b { color: #0969da; }
+  html.light .pass { background: #fff; }
+  @media (max-width: 720px) {
+    .page { padding: 20px 16px 48px; }
+    .screens { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .film, .film tbody, .film tr, .film td { display: block; width: 100%; }
+    .film .cover { width: 120px; padding: 0 0 12px; }
+    .film .cover img { width: 120px; }
+    .tag { width: 160px; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+    .ledger { display: block; max-width: 100%; overflow-x: auto; }
+    .sides, .sides tbody, .sides tr, .sides td,
+    .beats, .beats tbody, .beats tr, .beats td { display: block; width: auto; }
+    .sides td, .beats td { border-top: 0; padding: 8px 0 14px; }
+    .sides tr, .beats tr { border-top: 1px solid var(--line); }
+    .sides tr:first-child, .beats tr:first-child { border-top: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="review-note"><b>Concept preview, mirroring the implemented README.</b> This page simulates how the
+  MATCHDAY BOARD landing page renders in GitHub's Markdown column. The premium capture set is in place
+  (home, lobby, live hunt, result, chat, auth, tag claim, hunt sheet); safety and RTL captures are still queued.</div>
+
+  <h1>ManHunt</h1>
+
+  <img class="hero" src="/docs/brand/matchday-hero-1280x560.gif"
+    alt="ManHunt — HIDE FROM YOUR FRIENDS. A night street map with a cyan hunt zone, a coral prey dot and violet hunter dots; a board reads HUNTING, 42:17, Prey 1/2, Zone 240 m.">
+
+  <p class="deck"><strong>Hide from your friends.</strong> Real-world hide-and-seek, played on your street.
+  Two teams, one street, one clock the players can’t bend. Prey hide; Hunters track the latest reports on a
+  live map and tag them in person.</p>
+
+  <p class="cta-row">
+    <a href="http://74.208.99.178/">Install the free APK</a>
+    <a href="#watch-the-film">Watch the 60-second film</a>
+    <a href="https://github.com/MostafaAshry513/ManHunt/releases/latest">Latest release</a>
+  </p>
+  <p class="micro">Free APK · Android 8.0+ · not on Play Store · <a href="#status-and-limits">status and limits</a></p>
+
+  <h2 id="the-map-is-the-field">The map is the field</h2>
+  <img class="media" src="/docs/brand/matchday-map-band-1080x540.png"
+    alt="Live hunt map from the app: real OpenStreetMap night tiles with the cyan 240 m zone ring, a fresh coral prey marker, a stale white marker beside it, and a dashed coral trail.">
+  <span class="caption"><sub>Live hunt in the app, “Riverside Run” · real OpenStreetMap tiles · Map data © OpenStreetMap contributors</sub></span>
+
+  <p>Hunters see the <strong>latest report</strong> from each phone, not a perfect live feed. Prey never see the map.
+  The zone and the trails are the host’s call; the server keeps the clock.</p>
+  <ul>
+    <li><strong>Zone</strong> — the area the host sets for the round.</li>
+    <li><strong>Latest report</strong> — where a phone last checked in, not where it is now.</li>
+    <li><strong>Trail</strong> — movement history, off unless the host turns it on.</li>
+    <li><strong>The clock</strong> — server-timed; it pauses for everyone or for nobody.</li>
+  </ul>
+
+  <h2 id="two-sides">Two sides</h2>
+  <table class="sides"><tr>
+    <td>
+      <img class="tag" src="/docs/brand/tag-prey-400x120.png" alt="Prey kit tag">
+      <p><strong>Hide. Stay free.</strong> Your phone reports your position to the Hunters at the room’s interval.
+      Stay out until the clock stops — if one Prey is still free, Prey win.</p>
+    </td>
+    <td>
+      <img class="tag" src="/docs/brand/tag-hunters-400x120.png" alt="Hunters kit tag">
+      <p><strong>Track. Tag.</strong> Follow the latest reports and trails. Find a Prey in the real world and tag
+      them in person — they confirm or dispute, and the server decides what counts.</p>
+    </td>
+  </tr></table>
+
+  <h2 id="four-beats">Four beats, one organiser</h2>
+  <table class="beats"><tr>
+    <td><span class="n">01 · Room</span><b>The host creates the hunt</b> and shares a six-character code with the group.</td>
+    <td><span class="n">02 · Sides</span><b>Everyone picks a side</b> Prey or Hunters, then readies up in the same room.</td>
+    <td><span class="n">03 · Hunt</span><b>The server runs the rules</b> clock, zone, trails and report interval — then the hunt starts.</td>
+    <td><span class="n">04 · Result</span><b>Full time</b> Prey win if anyone is still out; otherwise Hunters win. Rematch from the same room.</td>
+  </tr></table>
+
+  <h2 id="in-the-app">In the app</h2>
+  <p>Real captures from the app, from a seeded “Riverside Run” game on a test server. Same phone, same room, one
+  honest run from the host plate to the final score.</p>
+  <div class="screens">
+    <figure class="shot"><a href="/docs/screenshots/premium/s03-home.png"><img src="/docs/screenshots/premium/s03-home.png" alt="Home: the MANHUNT masthead, the permanent line, host a hunt and join a hunt"></a><figcaption>Home — host or join</figcaption></figure>
+    <figure class="shot"><a href="/docs/screenshots/premium/s05-lobby-host.png"><img src="/docs/screenshots/premium/s05-lobby-host.png" alt="Lobby: real invite code WNWHA3, two Prey and three Hunters, everyone ready"></a><figcaption>Lobby — code, teams, ready</figcaption></figure>
+    <figure class="shot"><a href="/docs/screenshots/premium/s07-hunt.png"><img src="/docs/screenshots/premium/s07-hunt.png" alt="Live hunt: real map tiles, the 240 m zone ring, fresh and stale prey markers, a coral trail, the clock at 41:14 and the Tag prey dock"></a><figcaption>Live hunt — reports, trails, zone</figcaption></figure>
+    <figure class="shot"><a href="/docs/screenshots/premium/s12-result-hunters.png"><img src="/docs/screenshots/premium/s12-result-hunters.png" alt="Result screen: full time at 18:48 played, PREY 0/2, Hunters win, with back-to-lobby and view-hunt-history actions"></a><figcaption>Result — Hunters win, full time</figcaption></figure>
+  </div>
+  <p class="caption"><sub>Real captures from the app, seeded “Riverside Run” game on a test server.</sub></p>
+  <details>
+    <summary>More screens</summary>
+    <div class="screens" style="grid-template-columns: repeat(4, minmax(0, 1fr))">
+      <figure class="shot"><a href="/docs/screenshots/premium/s01-auth.png"><img src="/docs/screenshots/premium/s01-auth.png" alt="Sign in: local account, no email required"></a><figcaption>Sign in — local account, no email</figcaption></figure>
+      <figure class="shot"><a href="/docs/screenshots/premium/s09-tag-target-sheet.png"><img src="/docs/screenshots/premium/s09-tag-target-sheet.png" alt="Tag target sheet: who did you tag? confirm or cancel"></a><figcaption>Tag claim — confirm in person</figcaption></figure>
+      <figure class="shot"><a href="/docs/screenshots/premium/s10-hunt-sheet.png"><img src="/docs/screenshots/premium/s10-hunt-sheet.png" alt="Hunt sheet: prey positions are the latest reports, with hunt history"></a><figcaption>Hunt sheet — the reports</figcaption></figure>
+      <figure class="shot"><a href="/docs/screenshots/premium/s11-chat.png"><img src="/docs/screenshots/premium/s11-chat.png" alt="Room chat during the hunt, with team-tagged messages"></a><figcaption>Chat — the room log</figcaption></figure>
+    </div>
+  </details>
+
+  <h2 id="watch-the-film">Watch the film</h2>
+  <table class="film"><tr>
+    <td class="cover"><a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4"><img src="/docs/brand/explainer-cover.png" alt="ManHunt 60-second explainer cover"></a></td>
+    <td>
+      <p><strong>One minute, the whole loop.</strong> The hook, the two sides, how phones report position, how
+      Hunters track reports, how tagging works, and the server clock. Fully animated — no real people or
+      stock footage.</p>
+      <p><a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4">60-second explainer</a>
+      · <a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_30s_1080x1920.mp4">30-second cut</a>
+      · <a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_15s_1080x1920.mp4">15-second hook</a>
+      · <a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_teaser_720x1280.gif">six-second GIF</a></p>
+    </td>
+  </tr></table>
+
+  <h2 id="the-rules-the-server-keeps">The rules the server keeps</h2>
+  <table class="ledger">
+    <tr><td>The clock</td><td>Server-timed start, head start, pause/resume and full time. A pause shifts the clock for everyone, so nobody loses time.</td></tr>
+    <tr><td>The sides</td><td>Prey and Hunters are set per room. Prey positions are visible only to the Hunters in that room, only during the hunt.</td></tr>
+    <tr><td>Tags</td><td>A tag claim is stored, then confirmed or disputed by the Prey. A Huntmaster resolves disputes; duplicate claims cannot double-apply.</td></tr>
+    <tr><td>The zone</td><td>Open play or a circular zone with a step-down shrink and a countdown. Boundaries are informational — the app does not stop you crossing them.</td></tr>
+    <tr><td>Reconnects</td><td>A dropped phone can rejoin. Room state lives on the server, not on the phone, so losing signal does not bend the rules.</td></tr>
+    <tr><td>The map</td><td>Real OpenStreetMap tiles. Prey positions are the latest reports, not a perfect live feed. Trails are the host’s call.</td></tr>
+  </table>
+  <p><sub>Why this exists: in most real-world games the rules are social. Here they are kept by the server, so an
+  argument about the clock or a tag has an answer.</sub></p>
+
+  <h2 id="get-on-the-field">Get on the field</h2>
+  <div class="pass">
+    <p class="big">Free, signed APK. No account email. Not on Google Play.</p>
+    <p class="data">Android 8.0+ · about 2.2 MB · latest version, size and SHA-256 on the install page</p>
+    <p><strong><a href="http://74.208.99.178/">Download the free APK</a></strong></p>
+    <ol>
+      <li><strong>Download the APK</strong> on the Android phone you will play on.</li>
+      <li><strong>Allow installs from this source</strong> when Android asks. If it does not ask: Settings → Apps → Special app access → Install unknown apps.</li>
+      <li><strong>Open ManHunt and create a local account</strong> — no email required. Host a hunt or join one with a code.</li>
+    </ol>
+    <p class="micro">Play Protect may warn about a sideloaded app. That is normal; install anyway only if you trust this repository. In-app updates verify the SHA-256 before installing.</p>
+  </div>
+
+  <h2 id="status-and-limits">Status and limits</h2>
+  <p>ManHunt is an active hobby project, not a polished consumer product. Honest list:</p>
+  <ol>
+    <li><strong>The hosted deployment is plain HTTP</strong> at a bare IP — session tokens and GPS data are not encrypted in transit. Use test data only, or self-host behind HTTPS.</li>
+    <li><strong>The hosted server is a test server.</strong> One VM, SQLite, no availability guarantee; data may be wiped. No email is collected, so there is no password recovery.</li>
+    <li><strong>Play with people you trust.</strong> GPS is shared with the Hunters in your room during a match. ManHunt is a game, not a safety or tracking service.</li>
+    <li><strong>Zones are informational.</strong> Players can physically leave the zone; the shrink countdown is not enforced server-side.</li>
+    <li><strong>Verified in CI on an Android emulator</strong>, not re-verified on physical phones. Real GPS battery behaviour depends on the device.</li>
+    <li><strong>Not on Google Play.</strong> Sideloading means “unknown sources”, possible Play Protect warnings, and no store-managed updates.</li>
+  </ol>
+  <p><a href="docs/SECURITY.md">Security</a> · <a href="docs/ARCHITECTURE.md">Architecture</a> ·
+  <a href="docs/DEPLOYMENT.md">Deployment</a> · <a href="docs/RUNBOOK.md">Runbook</a> ·
+  <a href="docs/README.md">all documentation</a></p>
+
+  <details>
+    <summary>Build it, or host it yourself</summary>
+    <p>The backend is one Node.js process with the built-in SQLite driver — no database server, no Docker, no
+    external services. A small game can run on one machine.</p>
+    <pre><code>git clone https://github.com/MostafaAshry513/ManHunt.git
+cd ManHunt/server
+npm ci
+npm start          # http://127.0.0.1:8080</code></pre>
+    <p>To let phones on your network connect, bind all interfaces: <code>HOST=0.0.0.0 npm start</code>. Then set
+    the server address on the app’s sign-in screen. Changing the server signs you out.</p>
+    <p>Quality gates run in CI on every push: server typecheck and <code>node --test</code>, a live HTTP/WebSocket
+    smoke test, a scripted match simulation, the Android debug/release builds, JVM tests, lint and an in-app test
+    on a real Android emulator.</p>
+    <p><a href="docs/TESTING.md">Testing</a> · <a href="docs/API.md">API reference</a> ·
+    <a href="docs/DECISIONS.md">Decisions</a> · <a href="CONTRIBUTING.md">Contributing</a> ·
+    <a href="CHANGELOG.md">Changelog</a></p>
+  </details>
+
+  <div class="footer">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="/docs/brand/lockup-light-on-dark.png">
+      <img id="footerMark" src="/docs/brand/lockup-light-on-dark.png" alt="ManHunt">
+    </picture>
+    <p><sub>MIT licensed · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL) ·
+    free sideloaded APK, not on Google Play · ManHunt is a game, not a safety service.</sub></p>
+  </div>
+</div>
+<script>
+  (function () {
+    const light = new URLSearchParams(location.search).get('theme') === 'light';
+    if (light) {
+      document.documentElement.classList.add('light');
+      const mark = document.getElementById('footerMark');
+      if (mark) mark.src = '/docs/brand/lockup-dark-on-light.png';
+      document.querySelectorAll('source[media]').forEach((s) => s.remove());
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ManHunt — site redesign direction plate</title>
+<style>
+@font-face{font-family:"Big Shoulders Display";src:url("../../server/public/site/big-shoulders-700.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Instrument Sans";src:url("../../server/public/site/instrument-sans-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Instrument Sans";src:url("../../server/public/site/instrument-sans-700.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Red Hat Mono";src:url("../../server/public/site/red-hat-mono-400.woff2") format("woff2");font-weight:400;font-display:swap}
+:root{
+  --field:#0B1220;--plate:#131C2E;--raised:#1D2840;--chalk:#E6EDF7;--muted:#A7B6CC;--dim:#7C8DA8;
+  --hairline:#2A3550;--hairline-strong:#5E7198;--cyan:#22D3EE;--on-cyan:#04222B;--coral:#FF7A59;--violet:#A79BFF;
+  --display:"Big Shoulders Display","Bahnschrift SemiCondensed","Arial Narrow",sans-serif;
+  --sans:"Instrument Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"Red Hat Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--field);color:var(--chalk);font:400 15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.page{width:1600px;margin:0 auto;padding:52px 56px 40px}
+::selection{background:var(--cyan);color:var(--on-cyan)}
+h1,h2,h3,p,ul,figure{margin:0}
+ul{padding:0;list-style:none}
+.plate-head{display:flex;justify-content:space-between;align-items:flex-start;gap:40px;border-bottom:1px solid var(--hairline);padding-bottom:18px}
+.plate-head p{font:400 11px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.plate-head .right{text-align:right}
+.plate-head b{color:var(--muted);font-weight:400}
+.badge{display:inline-block;margin-top:6px;border:1px solid var(--hairline-strong);border-radius:2px;padding:5px 9px;font:400 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--chalk)}
+
+.hero-row{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:end;padding:34px 0 30px;border-bottom:1px solid var(--hairline)}
+h1.title{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:132px;line-height:.84;letter-spacing:.002em;margin-left:-4px}
+h1.title span{display:block;color:var(--muted)}
+.lede{max-width:52ch;color:var(--muted);font-size:16.5px;line-height:1.6;padding-bottom:8px}
+.lede b{color:var(--chalk);font-weight:400}
+.rule-line{height:1px;background:var(--hairline)}
+.kicker{font:400 11px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+
+.section{padding:34px 0;border-bottom:1px solid var(--hairline)}
+.section-grid{display:grid;grid-template-columns:210px minmax(0,1fr);gap:36px}
+.section h2{font-family:var(--display);font-weight:700;font-size:40px;line-height:.96;letter-spacing:-.004em}
+.section h2 span{display:block;color:var(--dim);font-size:13px;letter-spacing:.1em;font-family:var(--mono);font-weight:400;text-transform:uppercase;margin-bottom:10px}
+.section p.body{color:var(--muted);max-width:86ch;font-size:14.5px}
+
+/* 01 hero evidence */
+.hero-shot{border:1px solid var(--hairline-strong);border-radius:2px;overflow:hidden;display:block}
+.hero-shot img{display:block;width:100%;height:auto}
+.caption-row{display:flex;justify-content:space-between;gap:16px;padding-top:10px;font:400 10.5px/1.5 var(--mono);letter-spacing:.05em;color:var(--dim)}
+.caption-row b{color:var(--muted);font-weight:400}
+
+/* 02 type */
+.specimen{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.spec{border-top:1px solid var(--hairline);padding-top:12px}
+.spec .label{display:flex;justify-content:space-between;font:400 10px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.spec .big{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:58px;line-height:.84}
+.spec .clock{font-family:var(--display);font-weight:700;font-size:84px;line-height:.8;font-variant-numeric:tabular-nums}
+.spec .bodycopy{font-size:15px;line-height:1.55;color:var(--muted);max-width:34ch}
+.spec .datacopy{font:400 12px/1.7 var(--mono);letter-spacing:.04em;color:var(--muted)}
+.spec .datacopy b{color:var(--chalk);font-weight:400}
+.spec .meta{margin-top:10px;font:400 10.5px/1.5 var(--mono);letter-spacing:.05em;color:var(--dim)}
+
+/* 03 palette */
+.swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
+.swatch{border:1px solid var(--hairline);border-radius:2px;overflow:hidden}
+.swatch .chip{height:74px}
+.swatch .txt{padding:8px 9px;font:400 10px/1.5 var(--mono);letter-spacing:.04em;color:var(--dim)}
+.swatch .txt b{display:block;color:var(--chalk);font-weight:400;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+.palette-rules{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:24px}
+.palette-rules p{font-size:12.5px;line-height:1.55;color:var(--muted);border-top:1px solid var(--hairline);padding-top:10px}
+.palette-rules b{color:var(--chalk);font-weight:400}
+
+/* 04 rhythm */
+.rhythm{display:grid;grid-template-columns:1.35fr 1fr;gap:46px;align-items:start}
+.moments{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.moment{border:1px solid var(--hairline);border-radius:2px;padding:10px;min-height:128px;display:flex;flex-direction:column;justify-content:space-between;background:var(--plate)}
+.moment.solid{background:transparent;border-color:var(--hairline-strong)}
+.moment .n{font:400 10px/1 var(--mono);letter-spacing:.1em;color:var(--cyan)}
+.moment h3{font-family:var(--display);font-weight:700;font-size:22px;line-height:.95;text-transform:uppercase;margin-top:26px}
+.moment p{font-size:10.5px;line-height:1.45;color:var(--dim)}
+.wire{display:grid;gap:6px}
+.wire .row{border:1px solid var(--hairline);border-radius:2px;padding:7px 10px;display:flex;justify-content:space-between;gap:10px;font:400 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--dim)}
+.wire .row b{color:var(--chalk);font-weight:400;text-transform:uppercase;letter-spacing:.1em}
+.wire .row.h1{border-color:var(--hairline-strong);background:var(--plate);padding:16px 10px}
+.wire .row.h1 b{font-family:var(--display);font-size:22px;letter-spacing:0;line-height:.9}
+.wire .row.map{background:rgba(34,211,238,.05);border-color:rgba(34,211,238,.3)}
+.wire .row.map b{color:var(--cyan)}
+
+/* 05 components */
+.comp-row{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;align-items:start}
+.comp{border-top:1px solid var(--hairline);padding-top:14px}
+.comp .label{font:400 10px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.comp-row + .comp-row{margin-top:26px}
+.team{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 10px 0 9px;border:1px solid currentColor;border-radius:2px;background:rgba(255,255,255,.04);font:700 13px/1 var(--sans)}
+.team svg{width:16px;height:16px}
+.team--prey{color:var(--coral);background:rgba(255,122,89,.12)}
+.team--hunters{color:var(--violet);background:rgba(167,155,255,.12)}
+.state{display:inline-flex;align-items:center;gap:8px;font:400 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}
+.state b{width:6px;height:6px;background:var(--cyan);border-radius:50%}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 22px;border-radius:2px;border:1px solid transparent;font:700 14px/1 var(--sans);text-decoration:none;background:var(--cyan);color:var(--on-cyan)}
+.btn.outline{background:transparent;border-color:var(--hairline-strong);color:var(--chalk)}
+.board-mini{background:var(--plate);border-top:1px solid rgba(230,237,247,.2);border-bottom:1px solid rgba(230,237,247,.2);padding:10px 14px;display:flex;align-items:center;gap:24px}
+.board-mini .t{font-family:var(--display);font-weight:700;font-size:40px;line-height:.85;font-variant-numeric:tabular-nums}
+.ledger-mini{display:grid;grid-template-columns:64px 1fr;gap:10px 14px;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);padding:12px 0;font-size:12px;color:var(--muted)}
+.ledger-mini dt{font:400 10px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan)}
+.ledger-mini dd{margin:0}
+.ledger-mini b{display:block;color:var(--chalk);font:700 13px/1.4 var(--sans);margin-bottom:2px}
+.meta-mini{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--hairline);width:100%}
+.meta-mini div{padding:8px 8px 10px 0;border-right:1px solid var(--hairline)}
+.meta-mini dt{font:400 9px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.meta-mini dd{margin:2px 0 0;font-family:var(--display);font-weight:700;font-size:22px;line-height:1}
+.quote-mini{font-family:var(--display);font-weight:700;font-size:34px;line-height:.9}
+.quote-mini span{display:block;color:var(--muted)}
+
+/* 06 removed */
+.removed{display:grid;grid-template-columns:1fr 1fr;gap:10px 40px}
+.removed li{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--hairline);font-size:13px;color:var(--muted)}
+.removed li::before{content:"×";font-family:var(--mono);color:var(--coral);font-size:12px;line-height:1.7;flex:none}
+
+/* 07 evidence */
+.evidence{display:grid;grid-template-columns:1.6fr 1fr .8fr;gap:18px;align-items:start}
+.ev{border:1px solid var(--hairline-strong);border-radius:2px;overflow:hidden;background:var(--plate)}
+.ev img{display:block;width:100%;height:470px;object-fit:cover;object-position:top}
+.ev-cap{display:flex;justify-content:space-between;padding:8px 10px;border-top:1px solid var(--hairline);font:400 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--dim)}
+.ev-cap b{color:var(--chalk);font-weight:400}
+.foot{display:flex;justify-content:space-between;gap:30px;padding-top:20px;font:400 10px/1.7 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.foot b{color:var(--muted);font-weight:400}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="plate-head">
+    <p>ManHunt · site redesign · direction plate · 2026-11-02<br>
+      <b>Task 50 · owner brief: "the game site is not good enough — real redesign, premium game site"</b></p>
+    <div class="right">
+      <p>Status</p>
+      <b>Direction chosen — NIGHT FIXTURE<br>sibling of the approved app direction MATCHDAY BOARD</b>
+      <span class="badge">Design refs — not app code</span>
+    </div>
+  </header>
+
+  <div class="hero-row">
+    <div>
+      <p class="kicker">01 · the one idea</p>
+      <h1 class="title">Night<span>fixture.</span></h1>
+    </div>
+    <p class="lede">The site is the <b>matchday programme for a borrowed field</b>: a poster for tonight's
+      game, and the printed sheet that explains the sport. A borrowed pitch needs no stadium — it needs
+      a fixture, a field map, two sides, a clock and a set of rules. So the page is laid out like that:
+      one huge slogan over <b>real ground</b>, a programme rail down the margin, an annotated field plate,
+      a rules ledger and a field pass. The brand is the structure, not the wallpaper. It is built from
+      the same props as the app redesign: the board, the kit tags, the chalk rules, the Open Zone.</p>
+  </div>
+
+  <!-- 01 -->
+  <section class="section">
+    <div class="section-grid">
+      <h2><span>01 · the gesture</span>A poster over real ground.</h2>
+      <div>
+        <figure>
+          <span class="hero-shot"><img src="shots/final/desktop-1440-viewport.png" alt="Rendered hero: giant condensed slogan on the left, real OpenStreetMap night map with the Open Zone ring, prey and hunter dots bleeding off the right edge" width="1440" height="900"></span>
+          <div class="caption-row"><span><b>Rendered reference</b> · 1440 × 900 viewport · real headless Chrome</span><span>design/site-redesign/refs/site-ref.html</span></div>
+        </figure>
+        <div class="comp-row" style="margin-top:26px">
+          <div class="comp"><div class="label">The type is the poster</div><p class="bodycopy">Slogan at <b>140 px</b> condensed grotesque, three lines, no accent word. It is the biggest object in the first viewport — larger than the logo, the nav and the CTA.</p></div>
+          <div class="comp"><div class="label">The field is real</div><p class="bodycopy">OpenStreetMap tiles, filtered through the app's exact Deep Teal matrix. Zone ring, coral Prey, violet Hunters, a chalk trail, a server clock. It bleeds off the frame — the field is bigger than the screen.</p></div>
+          <div class="comp"><div class="label">One loud thing</div><p class="bodycopy">Everything else is hairlines, space and measured type. No gradients, no shadows, no glass, no neon HUD. The boldness budget is spent once.</p></div>
+          <div class="comp"><div class="label">The conversion is honest</div><p class="bodycopy">Free APK · version · size · Android 8+ · not on Play Store, directly under the primary action. One cyan fill per viewport.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="section">
+    <div class="section-grid">
+      <h2><span>02 · type</span>Three faces, one voice.</h2>
+      <div>
+        <div class="specimen">
+          <div class="spec">
+            <div class="label"><span>Display</span><span>Big Shoulders 700</span></div>
+            <div class="big">Hide from<br>your friends.</div>
+            <p class="meta">poster scale · line-height .85 · tracking .002em · uppercase only here</p>
+          </div>
+          <div class="spec">
+            <div class="label"><span>Board clock</span><span>Big Shoulders 700 · tabular</span></div>
+            <div class="clock">41:12</div>
+            <p class="meta">the game's loudest object · tabular numerals so digits never dance</p>
+          </div>
+          <div class="spec">
+            <div class="label"><span>Body · data</span><span>Instrument Sans / Red Hat Mono</span></div>
+            <div class="bodycopy">Prey hide. Phones report. Hunters read the latest report and close in.</div>
+            <p class="datacopy">SHA-256 <b>3a615051f8fd…27b</b><br>v0.15.1 · 2.1 MB · Android 8.0+</p>
+            <p class="meta">plain grotesque for reading · mono only for machine data</p>
+          </div>
+        </div>
+        <div class="palette-rules" style="margin-top:26px">
+          <p><b>Self-hosted, same origin.</b> The same three OFL faces as the app redesign, subset to 51 KB of woff2. No Google Fonts, no CDN, no runtime font request.</p>
+          <p><b>No eyebrow labels.</b> The only section marker is the programme rail: <b>01 / THE FIELD</b> in the margin, never a tracked-out label above the heading.</p>
+          <p><b>One display moment per block.</b> Section titles are the second-largest type on the page; the slogan outranks everything.</p>
+          <p><b>No "✱ accent word" moves.</b> Whole lines are the treatment: the muted second line of the quote, the giant team words, the tabular clock.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="section">
+    <div class="section-grid">
+      <h2><span>03 · colour</span>Assigned, not decorated.</h2>
+      <div>
+        <div class="swatches">
+          <div class="swatch"><div class="chip" style="background:#0B1220"></div><div class="txt"><b>Field</b>#0B1220<br>the ground</div></div>
+          <div class="swatch"><div class="chip" style="background:#131C2E"></div><div class="txt"><b>Plate</b>#131C2E<br>raised</div></div>
+          <div class="swatch"><div class="chip" style="background:#E6EDF7"></div><div class="txt"><b>Chalk</b>#E6EDF7<br>type, rules</div></div>
+          <div class="swatch"><div class="chip" style="background:#A7B6CC"></div><div class="txt"><b>Muted</b>#A7B6CC<br>secondary</div></div>
+          <div class="swatch"><div class="chip" style="background:#22D3EE"></div><div class="txt"><b>Cyan</b>#22D3EE<br>field · referee</div></div>
+          <div class="swatch"><div class="chip" style="background:#FF7A59"></div><div class="txt"><b>Coral</b>#FF7A59<br>Prey only</div></div>
+          <div class="swatch"><div class="chip" style="background:#A79BFF"></div><div class="txt"><b>Violet</b>#A79BFF<br>Hunters only</div></div>
+          <div class="swatch"><div class="chip" style="background:#2A3550"></div><div class="txt"><b>Hairline</b>#2A3550<br>structure</div></div>
+        </div>
+        <div class="palette-rules">
+          <p><b>Cyan is never a team and coral/violet are never the field.</b> The one rule that keeps a location game legible.</p>
+          <p><b>One hot cyan surface per viewport:</b> the hero CTA, later the pass CTA. Nav buttons are outlines for this reason.</p>
+          <p><b>Team colour is never the only cue.</b> Every Prey/Hunters mark pairs colour with a glyph and a name.</p>
+          <p><b>Flat fills only.</b> Depth comes from overlap, hairlines and plate tone steps — zero box-shadows.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="section">
+    <div class="section-grid">
+      <h2><span>04 · rhythm</span>Seven moments, no card stack.</h2>
+      <div class="rhythm">
+        <div>
+          <div class="moments">
+            <div class="moment solid"><span class="n">①</span><div><h3>Poster</h3><p>Slogan + real map. The whole product in one viewport.</p></div></div>
+            <div class="moment"><span class="n">②</span><div><h3>Field</h3><p>An annotated real-map plate: zone, latest report, trail, clock.</p></div></div>
+            <div class="moment"><span class="n">③</span><div><h3>Round</h3><p>Four beats on a ruled strip — a true sequence, no cards.</p></div></div>
+            <div class="moment"><span class="n">④</span><div><h3>Screens</h3><p>Real captures, staggered like prints on a contact sheet.</p></div></div>
+            <div class="moment"><span class="n">⑤</span><div><h3>Rules</h3><p>A ledger: clock, teams, tags, map, hosting. Plus privacy.</p></div></div>
+            <div class="moment"><span class="n">⑥</span><div><h3>Pass</h3><p>The download as one deliberate plate: metadata, hash, server, install.</p></div></div>
+            <div class="moment"><span class="n">⑦</span><div><h3>Answers</h3><p>Ruled Q&amp;A, native details, honest small print.</p></div></div>
+            <div class="moment" style="border-style:dashed"><span class="n">+</span><div><h3>Footer</h3><p>Lockup, links, MIT + OSM attribution, "not a safety service".</p></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="wire">
+            <div class="row h1"><b>HIDE FROM YOUR FRIENDS.</b><span>real map →</span></div>
+            <div class="row"><span>fixture strip</span><b>one street · one clock · stats</b></div>
+            <div class="row map"><span>the field</span><b>annotated real map</b></div>
+            <div class="row"><span>the round</span><b>01 room · 02 sides · 03 hunt · 04 result</b></div>
+            <div class="row"><span>the screens</span><b>home · lobby · hunt · result</b></div>
+            <div class="row"><span>the rules</span><b>pitch quote + ledger + privacy</b></div>
+            <div class="row"><span>the pass</span><b>version · size · sha · server · install</b></div>
+            <div class="row"><span>the questions</span><b>six honest answers</b></div>
+            <div class="row"><span>footer</span><b>MIT · OSM · not on Play Store</b></div>
+          </div>
+          <p class="meta" style="font:400 10.5px/1.6 var(--mono);letter-spacing:.05em;color:var(--dim);margin-top:14px">Section rail runs down the margin: 01 / THE FIELD … 07 / THE QUESTIONS. Two full-bleed moments (poster, field band) break the reading column; everything else is measured to the same optical margin.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="section">
+    <div class="section-grid">
+      <h2><span>05 · parts</span>Built from match equipment.</h2>
+      <div>
+        <div class="comp-row">
+          <div class="comp"><div class="label">Team tags · glyph + name + colour</div>
+            <span class="team team--prey"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.6" fill="currentColor"/><path d="M14.2 8A6.2 6.2 0 1 1 9.7 1.9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Prey</span>
+            <span class="team team--hunters" style="margin-left:8px"><svg viewBox="0 0 16 16"><path d="M2 3.2 7 8l-5 4.8M8 3.2 13 8l-5 4.8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Hunters</span>
+          </div>
+          <div class="comp"><div class="label">Buttons · radius 2, 56 px primary</div>
+            <a class="btn" href="#">Download the APK</a>
+            <a class="btn outline" href="#" style="margin-left:8px">Watch the film</a>
+          </div>
+          <div class="comp"><div class="label">State · machine words only</div>
+            <span class="state"><b></b>Hunting</span>
+            <span class="state" style="display:flex;margin-top:12px;color:var(--muted)"><b style="background:var(--muted)"></b>Tonight</span>
+          </div>
+          <div class="comp"><div class="label">Pitch quote · display.xl</div>
+            <div class="quote-mini">The pitch is borrowed.<span>The rules are not.</span></div>
+          </div>
+        </div>
+        <div class="comp-row">
+          <div class="comp"><div class="label">The board (hero HUD + field band)</div>
+            <div class="board-mini"><span class="state"><b></b>Hunting</span><span class="t">42:17</span>
+              <span style="font:400 11px/1.6 var(--mono);letter-spacing:.04em;color:var(--muted)">Prey 1 / 2<br>Zone 240 m</span></div>
+          </div>
+          <div class="comp"><div class="label">Rules ledger row</div>
+            <dl class="ledger-mini"><dt>Clock</dt><dd><b>The clock is server-owned.</b>Timers, phases and pause/resume are decided server-side.</dd></dl>
+          </div>
+          <div class="comp"><div class="label">Pass metadata</div>
+            <dl class="meta-mini"><div><dt>Version</dt><dd>v0.15.1</dd></div><div><dt>Size</dt><dd>2.1 MB</dd></div><div><dt>Published</dt><dd>2026-11-01</dd></div><div><dt>Android</dt><dd>8.0+</dd></div></dl>
+          </div>
+          <div class="comp"><div class="label">Picture + caption (real captures)</div>
+            <div style="border:1px solid var(--hairline-strong);border-radius:2px;overflow:hidden">
+              <img src="shots/final/desktop-1440-section-screens.png" alt="" style="width:100%;height:120px;object-fit:cover;object-position:top">
+              <div class="caption-row" style="padding:8px 9px"><b>Home</b><span>Host or join in two taps</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="section">
+    <div class="section-grid">
+      <h2><span>06 · removed</span>What the page no longer does.</h2>
+      <ul class="removed">
+        <li>Seven stacked card sections with 14–22 px radii and soft shadows</li>
+        <li>Eleven tracked-out all-caps mono eyebrow labels above headings</li>
+        <li>Placeholder screenshots with test-room names shown as evidence</li>
+        <li>The hero radar illustration standing in for a real map</li>
+        <li>Install, privacy and download split across three identical cards</li>
+        <li>The 60 s film buried in a split card with a raw GitHub MP4 link</li>
+        <li>Aggregate stats as two empty zero-cards right after the hero</li>
+        <li>System font at body scale as the only typographic voice</li>
+        <li>Gradient card fills and a looping radar unrelated to the page</li>
+        <li>Micro-motion on every hover; no orchestrated page-load moment</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="section" style="border-bottom:0">
+    <div class="section-grid">
+      <h2><span>07 · evidence</span>Rendered, not imagined.</h2>
+      <div>
+        <div class="evidence">
+          <figure class="ev"><img src="shots/final/desktop-1440-full-half.png" alt="Full desktop page overview"><div class="ev-cap"><b>Desktop</b><span>1440 · full page · DPR 1</span></div></figure>
+          <figure class="ev"><img src="shots/final/tablet-820-full-half.png" alt="Full tablet page overview"><div class="ev-cap"><b>Tablet</b><span>820 · full page</span></div></figure>
+          <figure class="ev"><img src="shots/final/mobile-390-viewport.png" alt="Mobile hero in true 390 px emulation"><div class="ev-cap"><b>Mobile</b><span>390 · Chrome device emulation</span></div></figure>
+        </div>
+        <div class="caption-row" style="padding-top:14px">
+          <span><b>Evidence</b> · real headless Chrome, no mockups · zero horizontal overflow · zero blank images · zero console/network errors</span>
+          <span>design/site-redesign/shots/</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span><b>ManHunt — night fixture</b> · direction plate rendered from the real page markup</span>
+    <span>Flat fills · hairlines · radius 2 · one cyan surface · no scripts · same-origin assets · OSM attribution</span>
+  </footer>
+</div>
+</body>
+</html>

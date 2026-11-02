@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ManHunt - Result concept</title><link rel="stylesheet" href="app.css">
+<style>.result-map { height: 150px; } .result-wrap { gap: 10px; }</style></head>
+<body>
+<div class="phone">
+  <div id="sb"></div>
+
+  <div class="board" style="border-top:0">
+    <div class="board-top">
+      <div>
+        <div class="stateword">FULL TIME</div>
+        <div class="board-name" style="font-size:15px;color:var(--muted);font-weight:400">Riverside Run</div>
+      </div>
+      <div class="board-right">
+        <div class="board-meta">PREY <b>0 / 2</b></div>
+        <div class="board-meta">WINNER <b style="color:var(--violet)">HUNTERS</b></div>
+      </div>
+    </div>
+    <div class="board-vals"><div class="clock clock-s">18:48</div><div class="board-meta" style="margin-left:auto">FINAL</div></div>
+  </div>
+
+  <div class="result-wrap">
+    <div>
+      <div class="display winner">Hunters win.</div>
+      <p class="body-s" style="margin-top:6px">Both prey were tagged.</p>
+    </div>
+    <div class="scoreline">
+      <span class="big">2 / 2</span>
+      <span class="data">TAGGED &middot; 18:48 PLAYED &middot; ZONE 240 M AT THE END</span>
+    </div>
+    <div id="rmap"></div>
+
+    <div class="sheets" style="margin-top:2px">
+      <section class="sheet prey">
+        <div class="sheet-h"><span id="rp"></span><span class="name">Prey</span><span class="count">0</span></div>
+        <div class="player" style="height:44px"><span class="avatar">Y</span><div><div class="pname">Yasmin</div><div class="pstat">TAGGED</div></div></div>
+        <div class="player" style="height:44px;border-bottom:0"><span class="avatar">L</span><div><div class="pname">Leila</div><div class="pstat">TAGGED</div></div></div>
+      </section>
+      <section class="sheet hunters">
+        <div class="sheet-h"><span id="rh"></span><span class="name">Hunters</span><span class="count">3</span></div>
+        <div class="player" style="height:44px"><span class="avatar">O</span><div><div class="pname">Omar</div><div class="pstat">IN PLAY</div></div><span class="end" id="c1"></span></div>
+        <div class="player" style="height:44px"><span class="avatar">T</span><div><div class="pname">Tariq</div><div class="pstat">IN PLAY</div></div><span class="end" id="c2"></span></div>
+        <div class="player" style="height:44px;border-bottom:0"><span class="avatar">S</span><div><div class="pname">Sara</div><div class="pstat">IN PLAY</div></div><span class="end" id="c3"></span></div>
+      </section>
+    </div>
+
+    <div class="rule"></div>
+    <div class="row between">
+      <span class="data">HUNT HISTORY</span>
+      <span class="inline-action" style="font-size:12px">View</span>
+    </div>
+  </div>
+
+  <div class="result-dock">
+    <button class="btn">Back to the lobby</button>
+    <button class="btn secondary">View hunt history</button>
+  </div>
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('rmap').innerHTML = tinyMap();
+  document.getElementById('rp').innerHTML = ico('prey');
+  document.getElementById('rh').innerHTML = ico('hunters');
+  document.getElementById('c1').innerHTML = ico('check');
+  document.getElementById('c2').innerHTML = ico('check');
+  document.getElementById('c3').innerHTML = ico('check');
+  document.getElementById('nav').innerHTML = navBar();
+</script>
+</body>
+</html>

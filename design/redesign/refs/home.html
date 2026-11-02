@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ManHunt - Home concept</title><link rel="stylesheet" href="app.css"></head>
+<body>
+<div class="phone">
+  <div id="sb"></div>
+  <header class="masthead">
+    <span id="mark"></span><span id="wm"></span>
+    <div class="right"><span class="local-time">21:04</span><span class="icon-btn" id="settings"></span></div>
+  </header>
+  <div class="hero-plate" id="hero"></div>
+  <div class="screen scrollable" style="padding-top:0; gap:0; overflow:hidden;">
+    <h1 class="home-line">Hide from<br>your friends.</h1>
+    <p class="home-desc">Real-world GPS hide-and-seek.</p>
+
+    <div class="host-block">
+      <div class="title">Host a hunt</div>
+      <div class="field"><label>Hunt name</label><div class="input">Riverside Run</div></div>
+      <p class="hint">Name it, or leave it as ManHunt.</p>
+      <button class="btn">Create the hunt</button>
+    </div>
+
+    <div class="rule" style="margin-top:18px"></div>
+
+    <div class="host-block" style="margin-top:14px">
+      <div class="title">Join a hunt</div>
+      <div class="code">
+        <span class="cell empty">-</span><span class="cell empty">-</span><span class="cell empty">-</span>
+        <span class="cell empty">-</span><span class="cell empty">-</span><span class="cell empty">-</span>
+        <span class="paste">PASTE</span>
+      </div>
+      <p class="hint">Ask the host for the six-character code.</p>
+      <button class="btn secondary">Join hunt</button>
+    </div>
+
+    <div class="rule" style="margin-top:18px"></div>
+    <div class="home-footer">
+      <span class="inline-action">How it works <span id="arrow"></span></span>
+      <span class="inline-action muted">Sign out</span>
+    </div>
+    <div class="row between" style="margin-top:10px">
+      <span class="body-s">Playing as Yasmin</span>
+      <span class="home-version">v0.15.1 &middot; free APK &middot; Android 8+</span>
+    </div>
+    <div style="height:22px"></div>
+  </div>
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('mark').innerHTML = mark(22);
+  document.getElementById('wm').innerHTML = wordmark(22);
+  document.getElementById('settings').innerHTML = ico('settings');
+  document.getElementById('hero').innerHTML = fieldPlate();
+  document.getElementById('nav').innerHTML = navBar();
+  document.getElementById('arrow').innerHTML = ico('chevron').replace('class="ico"', 'class="ico" style="width:14px;height:14px;transform:rotate(-90deg)"');
+</script>
+</body>
+</html>

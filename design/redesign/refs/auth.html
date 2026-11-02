@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ManHunt — Auth concept</title><link rel="stylesheet" href="app.css"></head>
+<body>
+<div class="phone">
+  <div id="sb"></div>
+  <div class="auth-plate" id="hero"></div>
+  <div class="screen scrollable" style="padding-top:0; gap:0; overflow:hidden;">
+    <h1 class="auth-line">Hide from<br>your friends.</h1>
+    <p class="home-desc">Real-world GPS hide-and-seek. Free for Android 8+.</p>
+
+    <div class="form-stack" style="margin-top:24px">
+      <div class="field"><label>Player name</label><div class="input"><span class="placeholder">Yasmin</span></div></div>
+      <div class="field"><label>Password</label><div class="input"><span class="placeholder">••••••••</span><span style="margin-left:auto" id="eye"></span></div></div>
+      <button class="btn" style="margin-top:6px">Sign in</button>
+      <div class="inline-action mt-2">New here? Create an account.</div>
+    </div>
+
+    <div class="rule mt-20"></div>
+    <div class="auth-foot">
+      <span class="addr">Game server · 74.208.99.178 (test)</span>
+      <span class="change">Change</span>
+    </div>
+    <div class="row between mt-4">
+      <span class="auth-version">v0.15.1 · free APK · Android 8+</span>
+      <span class="auth-version">hosted test server</span>
+    </div>
+  </div>
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('hero').innerHTML = fieldPlate(411, 208);
+  document.getElementById('eye').innerHTML = ico('eye').replace('class="ico"', 'class="ico" style="width:20px;height:20px;color:var(--muted)"');
+  document.getElementById('nav').innerHTML = navBar();
+</script>
+</body>
+</html>

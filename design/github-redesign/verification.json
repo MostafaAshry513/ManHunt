@@ -1,0 +1,309 @@
+{
+  "generatedAt": "2026-11-02T05:05:14.306Z",
+  "kit": "design/github-redesign",
+  "runtime": "v24.22.1",
+  "summary": {
+    "mode": "final",
+    "total": 59,
+    "passed": 59,
+    "failed": 0,
+    "pending": 0
+  },
+  "checks": [
+    {
+      "name": "docs/brand/matchday-hero-1280x560.png",
+      "pass": true,
+      "detail": "1280×560, 294 KB"
+    },
+    {
+      "name": "docs/brand/github-social-matchday-1280x640.png",
+      "pass": true,
+      "detail": "1280×640, 254 KB"
+    },
+    {
+      "name": "docs/brand/tag-prey-400x120.png",
+      "pass": true,
+      "detail": "400×120, 3 KB"
+    },
+    {
+      "name": "docs/brand/tag-hunters-400x120.png",
+      "pass": true,
+      "detail": "400×120, 4 KB"
+    },
+    {
+      "name": "docs/brand/matchday-map-band-1080x540.png",
+      "pass": true,
+      "detail": "1080×540, 481 KB"
+    },
+    {
+      "name": "design/github-redesign/assets/concept-map-band-2400x936.png",
+      "pass": true,
+      "detail": "2400×936, 632 KB"
+    },
+    {
+      "name": "hero GIF: 1280×560",
+      "pass": true,
+      "detail": "1280×560"
+    },
+    {
+      "name": "hero GIF: 100 frames @ 20 fps, 5.00 s loop",
+      "pass": true,
+      "detail": "100 frames / 20 fps / 5s"
+    },
+    {
+      "name": "hero GIF: infinite loop, under 2 MB",
+      "pass": true,
+      "detail": "loop=0, 795 KB"
+    },
+    {
+      "name": "docs/brand/readme-hero.gif intact",
+      "pass": true,
+      "detail": "1280×480"
+    },
+    {
+      "name": "docs/brand/github-social-1280x640.png intact",
+      "pass": true,
+      "detail": "1280×640"
+    },
+    {
+      "name": "docs/brand/avatar-1024.png intact",
+      "pass": true,
+      "detail": "1024×1024"
+    },
+    {
+      "name": "docs/brand/lockup-light-on-dark.png intact",
+      "pass": true,
+      "detail": "1200×328"
+    },
+    {
+      "name": "docs/brand/lockup-dark-on-light.png intact",
+      "pass": true,
+      "detail": "1200×328"
+    },
+    {
+      "name": "stage uses the brand OFL faces from the motion kit",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "hero uses the official lockup PNG",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "hero carries the honest install micro-line",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "hero map plate carries OSM attribution",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "hero stage has no external http assets",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "stage is render-only (not referenced by README)",
+      "pass": true,
+      "detail": "assets are baked into PNG/GIF"
+    },
+    {
+      "name": "README.md: file exists and is non-trivial",
+      "pass": true,
+      "detail": "10.3 KB"
+    },
+    {
+      "name": "README.md: exactly one H1",
+      "pass": true,
+      "detail": "1 H1"
+    },
+    {
+      "name": "README.md: H1 is \"ManHunt\"",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: no draft note in final",
+      "pass": true,
+      "detail": "checked"
+    },
+    {
+      "name": "README.md: section “The map is the field”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: section “Two sides”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: section “Four beats, one organiser”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: section “In the app”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: section “Watch the film”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: section “The rules the server keeps”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: section “Get on the field”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: section “Status and limits”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: every <img> has alt text",
+      "pass": true,
+      "detail": "14 images"
+    },
+    {
+      "name": "README.md: non-premium image files exist",
+      "pass": true,
+      "detail": "6 local images"
+    },
+    {
+      "name": "README.md: all image files exist",
+      "pass": true,
+      "detail": "14 images resolve"
+    },
+    {
+      "name": "README.md: local link targets exist",
+      "pass": true,
+      "detail": "10 links resolve"
+    },
+    {
+      "name": "README.md: in-page anchors match headings",
+      "pass": true,
+      "detail": "2 anchors"
+    },
+    {
+      "name": "README.md: no mojibake",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: no old slogan",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: honest install line present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: honest status present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: trust line present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: provisional copy family used",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: no placeholder strings",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: uses only premium app captures (no old CI screenshot set)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: map section uses the real capture band",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: includes the real result capture",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "README.md: no pending/draft language",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "design/github-redesign/preview/desktop-1012.png: 1200px wide, full page",
+      "pass": true,
+      "detail": "1200×4858"
+    },
+    {
+      "name": "design/github-redesign/preview/desktop-1012-light.png: 1200px wide, full page",
+      "pass": true,
+      "detail": "1200×4858"
+    },
+    {
+      "name": "design/github-redesign/preview/mobile-390.png: 390px wide, full page",
+      "pass": true,
+      "detail": "390×6606"
+    },
+    {
+      "name": "preview supports light mode render",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "footer wordmark switches with prefers-color-scheme",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "concept documents the capture update procedure",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "concept documents what is removed from the old README",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "concept documents GitHub surface constraints",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "final: all required premium captures present",
+      "pass": true,
+      "detail": "all present"
+    },
+    {
+      "name": "final: premium manifest present",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "final: root README implemented, draft remains as record",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

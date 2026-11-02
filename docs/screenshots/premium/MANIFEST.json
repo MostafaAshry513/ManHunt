@@ -1,0 +1,361 @@
+{
+    "title":  "ManHunt premium screenshots",
+    "shotlist":  "design/redesign/screenshot-shotlist.md",
+    "generatedAt":  "2026-11-02T05:02:39Z",
+    "source":  "Real Android emulator capture of the ManHunt debug build (no mockups, no compositing)",
+    "workflow":  {
+                     "name":  "premium-screenshots.yml",
+                     "runId":  null,
+                     "runUrl":  null,
+                     "commit":  "e25310e6ced1aa11a481c8cf8a19d3641d5ec43a",
+                     "repo":  "MostafaAshry513/ManHunt"
+                 },
+    "device":  "Android emulator, Pixel 6 profile (1080x2400 @ 420 dpi), Android 16 / API 36",
+    "theme":  "Dark (Deep Teal night palette) except s15-home-light.png (light) and the RTL set",
+    "language":  "English; s04-home-rtl.png and s16-lobby-rtl.png are Arabic RTL",
+    "statusBar":  "SystemUI demo mode: clock 21:04, battery 100% unplugged, clean cellular signal (no Wi-Fi warning badge), notifications hidden",
+    "timings":  {
+                    "huntingStarted":  "20:45:12",
+                    "remainingAtCapture":  "41:12",
+                    "finalPlayedDuration":  "18:48",
+                    "chatWindow":  "20:46-20:52"
+                },
+    "mapTiles":  "Live OpenStreetMap raster tiles (copyright OpenStreetMap contributors), Riverside Park, Manhattan; zone centre 40.7995, -73.9735, radius 240 m",
+    "game":  {
+                 "name":  "Riverside Run",
+                 "roomCode":  "VMJYBU",
+                 "players":  [
+                                 {
+                                     "username":  "Yasmin",
+                                     "team":  "prey"
+                                 },
+                                 {
+                                     "username":  "Leila",
+                                     "team":  "prey"
+                                 },
+                                 {
+                                     "username":  "Omar",
+                                     "team":  "hunters"
+                                 },
+                                 {
+                                     "username":  "Tariq",
+                                     "team":  "hunters"
+                                 },
+                                 {
+                                     "username":  "Sara",
+                                     "team":  "hunters"
+                                 }
+                             ],
+                 "state":  "Lobby (all ready) -\u003e live hunt 41:12 remaining/18:48 played (fresh + stale reports, trail, 240 m zone) -\u003e claim -\u003e Hunters win (0/2) -\u003e rematch: honest Prey-win state (data-gap: survivor count unavailable)"
+             },
+    "pending":  [
+                    "s02-safety.png",
+                    "s16-lobby-rtl.png",
+                    "s17-empty-chat.png",
+                    "s18-auth-loading.png",
+                    "s19-auth-error.png"
+                ],
+    "dataGaps":  [
+                     "S13 survivor count unavailable (server resets eliminations at finish); captured as the honest Prey-win state."
+                 ],
+    "images":  [
+                   {
+                       "file":  "s01-auth.png",
+                       "role":  "S01-auth",
+                       "scenario":  "Auth, dark, fields empty, keyboard closed, real server row",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  143179,
+                       "sha256":  "abbb4ecf8c520d54b457d5d98292dd7623bd41b5e7760c1884025ff679cb2884",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s03-home.png",
+                       "role":  "S03-home",
+                       "scenario":  "Home dark: masthead, permanent line, host block with Riverside Run typed, join block, playing as Omar",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  108676,
+                       "sha256":  "0632f0f819849ba6546afd547d6e20b62bfc1cd24b74058bd33e4265cb79dbe0",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s04-home-rtl.png",
+                       "role":  "S04-home-rtl",
+                       "scenario":  "Home Arabic RTL, dark",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  123772,
+                       "sha256":  "22a9b3c11a16120c86fcdf73fd3adf00c66028300387efef79d5939ba768aa20",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s05-lobby-host.png",
+                       "role":  "S05-lobby",
+                       "scenario":  "Lobby host view: Riverside Run, 5 players (2 Prey / 3 Hunters), all ready, real code",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  118187,
+                       "sha256":  "be09cb45cabd54887aeaaf447a13c539f9c6ae4ae8fda6dc7af24c2e2fd50bea",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s06-lobby-player.png",
+                       "role":  "S06-lobby-player",
+                       "scenario":  "Lobby player view: Omar ready, Leila not ready, waiting status",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  127017,
+                       "sha256":  "94dc772c72c31fbe8d30393573f16a44db8a505854af88a8a23154b8ff91ded0",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s07-hunt.png",
+                       "role":  "S07-hunt-hero",
+                       "scenario":  "Live hunt hero: real OSM tiles, 240 m zone ring, fresh + stale prey markers, trail, clock 41:12, Tag dock",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  1190130,
+                       "sha256":  "b12e276f18ee7f934dae67cffcfbfeedc0b3435a4d6915fe0bc1d03d7d6ce1c9",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s08-hunt-claim.png",
+                       "role":  "S08-hunt-claim",
+                       "scenario":  "Prey view: tag claim from Tariq with review/confirm action",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  704084,
+                       "sha256":  "99e9f96779a760fa895e964477afb1a0fda4b97f6da4cd9d78a2a059a65ea91f",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s09-tag-target-sheet.png",
+                       "role":  "S09-tag-target",
+                       "scenario":  "Tag target sheet over the map, eligible prey list",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  670064,
+                       "sha256":  "b3c7fbd50e1f6e38673bce5688d445c206225fee47d801739e28f62dae7cd198",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s10-hunt-sheet.png",
+                       "role":  "S10-hunt-sheet",
+                       "scenario":  "Hunt sheet expanded: prey reports/ages, trails toggle, attribution visible",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  767432,
+                       "sha256":  "a40c02e54ab6117aa4f1be99f3aa480ed7a0aa66edf5e212769bb7cc16ab97f9",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s11-chat.png",
+                       "role":  "S11-chat",
+                       "scenario":  "Field log chat: seeded hunt messages, phase separator, composer empty, keyboard closed",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  174508,
+                       "sha256":  "54e6e8cdc9361077d16f208a67102f8a681d016459e3a759479d3810cfbf1c7b",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s12-result-hunters.png",
+                       "role":  "S12-result-hunters",
+                       "scenario":  "Result: Hunters win, both prey tagged, full-time score",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  132855,
+                       "sha256":  "89c32d57c28ecf7103d728e6052ba59520f26727fb1ba3da6cfd69037e405f73",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s13-result-prey.png",
+                       "role":  "S13-result-prey",
+                       "scenario":  "Result: Prey win variant, one prey survived",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  128077,
+                       "sha256":  "9b91e324d4f239fbdbc3588c46f5c6dd0cd6279dcd544d9e24525940cc67ee55",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s14-settings.png",
+                       "role":  "S14-settings",
+                       "scenario":  "Settings: appearance (dark, text size), language, manual page",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  72108,
+                       "sha256":  "384bb7e8a41535bfbf1b550084c953bb2420016f39776d1ff280dacd7ef93ff6",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s15-home-light.png",
+                       "role":  "S15-home-light",
+                       "scenario":  "Home light theme",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  93145,
+                       "sha256":  "599556ccdf2b6633d05cf49f5f20d8083777c84765e32c4efaab966a345288e6",
+                       "required":  true,
+                       "status":  "captured"
+                   },
+                   {
+                       "file":  "s02-safety.png",
+                       "role":  "S02-safety",
+                       "scenario":  "First-run safety / before you play",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  null,
+                       "sha256":  null,
+                       "required":  false,
+                       "status":  "pending"
+                   },
+                   {
+                       "file":  "s16-lobby-rtl.png",
+                       "role":  "S16-lobby-rtl",
+                       "scenario":  "Lobby Arabic RTL",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  null,
+                       "sha256":  null,
+                       "required":  false,
+                       "status":  "pending"
+                   },
+                   {
+                       "file":  "s17-empty-chat.png",
+                       "role":  "S17-empty-chat",
+                       "scenario":  "Empty chat state (\"No messages yet\")",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  null,
+                       "sha256":  null,
+                       "required":  false,
+                       "status":  "pending"
+                   },
+                   {
+                       "file":  "s18-auth-loading.png",
+                       "role":  "S18-auth-loading",
+                       "scenario":  "Auth submit loading state",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  null,
+                       "sha256":  null,
+                       "required":  false,
+                       "status":  "pending"
+                   },
+                   {
+                       "file":  "s19-auth-error.png",
+                       "role":  "S19-auth-error",
+                       "scenario":  "Auth server-error state",
+                       "width":  1080,
+                       "height":  2400,
+                       "bytes":  null,
+                       "sha256":  null,
+                       "required":  false,
+                       "status":  "pending"
+                   }
+               ],
+    "crops":  [
+                  {
+                      "file":  "harvest/map-hero-16x9.png",
+                      "name":  "map-hero-16x9",
+                      "source":  "s07-hunt.png",
+                      "aspect":  "16:9",
+                      "width":  1080,
+                      "height":  608,
+                      "bytes":  435884,
+                      "sha256":  "542f7a35aa402a874ead131533d20c635bea6171eee2fdc01d15e5d8ccc6371c",
+                      "description":  "Live map band: zone ring, fresh + stale prey markers, trail (site hero, shotlist S07)"
+                  },
+                  {
+                      "file":  "harvest/map-hero-3x2.png",
+                      "name":  "map-hero-3x2",
+                      "source":  "s07-hunt.png",
+                      "aspect":  "3:2",
+                      "width":  1080,
+                      "height":  720,
+                      "bytes":  527332,
+                      "sha256":  "2fa3a10e638aeb80455d51d19238ca3713ebb95a66fabcd1c475eebe883c6e8f",
+                      "description":  "3:2 landscape map band alternative for site-redesigner"
+                  },
+                  {
+                      "file":  "harvest/board-clock-4x5.png",
+                      "name":  "board-clock-4x5",
+                      "source":  "s07-hunt.png",
+                      "aspect":  "4:5",
+                      "width":  1080,
+                      "height":  1350,
+                      "bytes":  863186,
+                      "sha256":  "3ae8eaf7a2bc652793ee9625ee381685e55d8cf8921757e751ffb33bd0f3f523",
+                      "description":  "Board clock 41:12 + LIVE tag + map top - signature social crop (shotlist S07)"
+                  },
+                  {
+                      "file":  "harvest/code-plate-1x1.png",
+                      "name":  "code-plate-1x1",
+                      "source":  "s05-lobby-host.png",
+                      "aspect":  "1:1",
+                      "width":  1080,
+                      "height":  1080,
+                      "bytes":  76213,
+                      "sha256":  "b0b9b637d270ff19e1cab5a2861eb78a206eff5561b90ee864001e117de30a5c",
+                      "description":  "Room title + real invite code plate + readiness (social crop, shotlist S05)"
+                  },
+                  {
+                      "file":  "harvest/team-sheet-4x5.png",
+                      "name":  "team-sheet-4x5",
+                      "source":  "s05-lobby-host.png",
+                      "aspect":  "4:5",
+                      "width":  1080,
+                      "height":  1350,
+                      "bytes":  62258,
+                      "sha256":  "10bc3760891978da271c26d83564d45a416b1634c9cad986f81552506a999aaa",
+                      "description":  "Prey/Hunters team sheets + readiness checks (social crop, shotlist S05)"
+                  },
+                  {
+                      "file":  "harvest/result-score-4x5.png",
+                      "name":  "result-score-4x5",
+                      "source":  "s12-result-hunters.png",
+                      "aspect":  "4:5",
+                      "width":  1080,
+                      "height":  1350,
+                      "bytes":  104755,
+                      "sha256":  "1d06ef4bf829bc7c823a04a24b13b0fe76a659a869fb13138e8b562088ac712b",
+                      "description":  "FULL TIME board + \u0027Hunters win.\u0027 word + 0/2 prey remaining (shotlist S12)"
+                  },
+                  {
+                      "file":  "harvest/home-line-16x9.png",
+                      "name":  "home-line-16x9",
+                      "source":  "s03-home.png",
+                      "aspect":  "16:9",
+                      "width":  1080,
+                      "height":  608,
+                      "bytes":  51036,
+                      "sha256":  "de96c4fd7dcb6ce0c8e1a5f6ab51a1da7d44bfa74f1304cfbe3e6f956ba1dc68",
+                      "description":  "Masthead + Open Zone plate + permanent line - site band (shotlist S03)"
+                  }
+              ],
+    "notes":  [
+                  "Full frames are 1080x2400 portrait PNGs (s07-hunt-wide.png, when the optional landscape capture is enabled, is 2400x1080).",
+                  "Harvest crops are cut from the captured full frames only (no stretching, no re-render); each crop records its source shot.",
+                  "The old CI/Robolectric captures in docs/screenshots/*.png are untouched for comparison.",
+                  "Hero shots for the site/GitHub page: s07-hunt.png (vertical) plus harvest/map-hero-16x9.png and harvest/map-hero-3x2.png ready-made site bands (cut from the captured full frame).",
+                  "s07-hunt-alt.png is a raw alternate hero frame kept only in the workflow artifact, not in this folder.",
+                  "Result timing: 41:12 is the remaining time at the S07 moment; the finished match ran 18:48 (never \"41:12 played\").",
+                  "S13 data-gap: survivor count unavailable - the server resets eliminations at match finish, so the app can only expose the honest Prey-win state.",
+                  "Pending shots are screens not captured/clean in the verified build run (listed above); they are omitted and recorded here, never substituted with old UI."
+              ]
+}

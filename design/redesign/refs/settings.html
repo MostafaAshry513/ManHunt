@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ManHunt — Settings concept</title><link rel="stylesheet" href="app.css"></head>
+<body>
+<div class="phone">
+  <div id="sb"></div>
+  <header class="screen-head">
+    <span class="hicon" id="back"></span>
+    <span class="t">Settings</span>
+    <span class="end"><span class="data" style="font-size:10px">v0.15.1</span></span>
+  </header>
+
+  <div class="screen" style="gap:18px;overflow:hidden">
+    <div class="sect">
+      <div class="sect-h">Appearance</div>
+      <div class="rule" style="margin-bottom:2px"></div>
+      <div class="srow"><span class="lbl">Theme</span><div class="seg" style="width:196px;margin-left:auto"><div class="on">Dark</div><div>Light</div></div></div>
+      <div class="srow" style="border-bottom:0;padding-bottom:0"><span class="lbl">Text size</span><span class="val">1.0×</span></div>
+      <div class="slider"><div class="tick"></div><div class="track"></div><div class="tick"></div><div class="track"></div><div class="thumb"></div><div class="track"></div><div class="tick"></div></div>
+      <div class="preview-plate">
+        <div class="caption" style="color:var(--cyan)">The hunt starts in</div>
+        <div style="display:flex;align-items:baseline;gap:10px"><span class="display" style="font-size:34px">04:12</span><span class="body-s">The trail is live. Two prey still out.</span></div>
+      </div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-h">Language</div>
+      <div class="rule" style="margin-bottom:2px"></div>
+      <div class="srow" style="border-bottom:0"><span class="lbl">Language</span><div class="seg" style="width:196px;margin-left:auto"><div class="on">English</div><div style="font-family:var(--ar)">العربية</div></div></div>
+      <p class="caption">Language applies immediately and mirrors the layout.</p>
+    </div>
+
+    <div class="sect">
+      <div class="sect-h">Permissions</div>
+      <div class="rule" style="margin-bottom:2px"></div>
+      <div class="srow"><span class="lbl">Location</span><span class="val" style="color:var(--chalk)">GRANTED</span><span class="act" style="margin-left:12px">Open</span></div>
+      <div class="srow"><span class="lbl">Notifications</span><span class="val">NOT GRANTED</span><span class="act" style="margin-left:12px">Allow</span></div>
+    </div>
+
+    <div class="sect">
+      <div class="sect-h">Updates</div>
+      <div class="rule" style="margin-bottom:2px"></div>
+      <div class="srow"><span class="lbl">ManHunt v0.15.1</span><span class="val">ANDROID 8+</span></div>
+      <div class="row between"><span class="body-s">You're up to date.</span><span class="inline-action" style="font-size:12px">Check again</span></div>
+    </div>
+  </div>
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('back').innerHTML = ico('back');
+  document.getElementById('nav').innerHTML = navBar();
+</script>
+</body>
+</html>

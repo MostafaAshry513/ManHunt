@@ -1,0 +1,187 @@
+/* ============================================================================
+   ManHunt GitHub landing page — MATCHDAY BOARD asset system
+   Same design system as the approved app redesign (design/redesign/tokens.md)
+   and the site reference (design/site-redesign/): Big Shoulders Display 700 /
+   Instrument Sans / Red Hat Mono (OFL, from the brand motion kit), flat fills,
+   hairlines, no gradients, ink #0B1220 field, cyan = referee, coral = Prey,
+   violet = Hunters. Render-only: these stages become the PNG/GIF assets used by
+   README.md; no runtime dependency on this folder.
+   ============================================================================ */
+@font-face {
+  font-family: 'BS';
+  src: url('../../brand/motion-kit/assets/fonts/BigShoulders-Bold.ttf') format('truetype');
+  font-weight: 700; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: 'IS';
+  src: url('../../brand/motion-kit/assets/fonts/InstrumentSans-Regular.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: 'IS';
+  src: url('../../brand/motion-kit/assets/fonts/InstrumentSans-Bold.ttf') format('truetype');
+  font-weight: 700; font-style: normal; font-display: block;
+}
+@font-face {
+  font-family: 'RM';
+  src: url('../../brand/motion-kit/assets/fonts/RedHatMono-Regular.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: block;
+}
+
+:root {
+  --field: #0B1220;
+  --plate: #131C2E;
+  --chalk: #E6EDF7;
+  --muted: #A7B6CC;
+  --dim: #7C8DA8;
+  --line: #2A3550;
+  --line-strong: #5E7198;
+  --cyan: #22D3EE;
+  --on-cyan: #04222B;
+  --coral: #FF7A59;
+  --violet: #A79BFF;
+  --display: 'BS', 'Bahnschrift SemiCondensed', 'Arial Narrow', sans-serif;
+  --sans: 'IS', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'RM', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; overflow: hidden; background: var(--field); }
+body { font-family: var(--sans); color: var(--chalk); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+
+.poster-type {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 0.84;
+  letter-spacing: 0.004em;
+  color: var(--chalk);
+  white-space: nowrap;
+}
+.poster-type span { display: block; }
+
+.deck { margin: 0; color: var(--muted); font-size: 18px; line-height: 1.35; letter-spacing: -0.004em; }
+.micro {
+  margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: 0.045em;
+  color: var(--dim); white-space: nowrap;
+}
+.lockup { display: block; }
+.lockup img { display: block; width: 100%; height: auto; }
+
+.map-panel {
+  position: absolute; overflow: hidden; background: var(--field);
+  border-left: 1px solid rgba(230, 237, 247, 0.16);
+}
+.map-img {
+  position: absolute; inset: 0;
+  background-image: var(--map-src, url('/server/public/site/map-hero.jpg'));
+  background-size: var(--map-size, cover);
+  background-repeat: no-repeat;
+  background-position: var(--map-pos, center 42%);
+  filter: saturate(0.92);
+}
+.veil { position: absolute; inset: 0; background: rgba(11, 18, 32, 0.34); }
+.marks { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.credit {
+  position: absolute; right: 12px; bottom: 10px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.03em; color: var(--muted);
+  background: rgba(11, 18, 32, 0.82); padding: 3px 7px; border-radius: 2px;
+}
+
+.board {
+  position: absolute; left: 20px; top: 18px;
+  background: rgba(11, 18, 32, 0.94);
+  border: 1px solid rgba(230, 237, 247, 0.16);
+  border-radius: 2px;
+  padding: 12px 16px 13px;
+  display: flex; align-items: center; gap: 22px;
+}
+.board-state {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.10em;
+  text-transform: uppercase; color: var(--cyan);
+}
+.board-state .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); }
+.board-clock {
+  font-family: var(--display); font-weight: 700; font-size: 46px; line-height: 0.9;
+  letter-spacing: -0.01em; color: var(--chalk); font-variant-numeric: tabular-nums;
+}
+.board-data {
+  display: flex; flex-direction: column; gap: 5px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; color: var(--muted);
+  padding-left: 18px; border-left: 1px solid rgba(230, 237, 247, 0.16);
+}
+
+/* motion (5 s loop; every period divides 5 s so the GIF/loop closes) */
+@keyframes mh-zone-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.966); } }
+@keyframes mh-trail-march { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -14; } }
+@keyframes mh-ping {
+  0% { transform: scale(0.55); opacity: 0.5; }
+  70% { opacity: 0.12; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+@keyframes mh-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.zone-breathe {
+  transform-box: view-box; transform-origin: var(--zone-origin, 300px 292px);
+  animation: mh-zone-breathe 5s ease-in-out infinite;
+}
+.trail-anim { animation: mh-trail-march 1s linear infinite; }
+.ping { transform-box: fill-box; transform-origin: center; animation: mh-ping 1.6667s cubic-bezier(0.2, 0.6, 0.4, 1) infinite both; }
+.ping--1 { animation-delay: 0.5556s; }
+.ping--2 { animation-delay: 1.1111s; }
+.live-dot { animation: mh-live 2.5s linear infinite; }
+
+/* ---------------------------------------------------------------- tags ---- */
+.tag-stage { width: 400px; height: 120px; background: transparent; }
+.tag {
+  width: 400px; height: 120px; background: var(--field);
+  border: 2px solid currentColor; border-radius: 2px;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  display: flex; align-items: center; gap: 20px; padding: 0 28px;
+  font-family: var(--sans); font-weight: 700; font-size: 34px; letter-spacing: -0.01em;
+}
+.tag svg { width: 46px; height: 46px; flex: none; }
+.tag.prey { color: var(--coral); }
+.tag.hunters { color: var(--violet); }
+.tag .name { color: var(--chalk); }
+
+/* ------------------------------------------------------- map band stage --- */
+.band { position: relative; width: 2400px; height: 936px; background: var(--field); overflow: hidden; }
+.band-map { position: absolute; inset: 0; background: url('/server/public/site/map-band.jpg') center 46% / cover; }
+.band-veil { position: absolute; inset: 0; background: rgba(11, 18, 32, 0.22); }
+.band-board {
+  position: absolute; left: 0; right: 0; top: 0; height: 132px;
+  background: rgba(11, 18, 32, 0.96); border-bottom: 1px solid rgba(230, 237, 247, 0.2);
+  display: flex; align-items: center; gap: 34px; padding: 0 56px;
+}
+.band-board .board-state { font-size: 15px; }
+.band-board .band-clock {
+  font-family: var(--display); font-weight: 700; font-size: 66px; line-height: 0.9;
+  letter-spacing: -0.01em; font-variant-numeric: tabular-nums;
+}
+.band-board .band-data {
+  display: flex; gap: 34px; margin-left: auto;
+  font-family: var(--mono); font-size: 16px; letter-spacing: 0.04em; color: var(--muted);
+}
+.note {
+  position: absolute; width: 360px; background: rgba(11, 18, 32, 0.94);
+  border: 1px solid rgba(230, 237, 247, 0.16); border-radius: 2px; padding: 16px 18px 18px;
+}
+.note .k {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.10em; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 7px;
+}
+.note .v { font-family: var(--sans); font-size: 17px; line-height: 1.4; color: var(--chalk); }
+.note.coral .k { color: var(--coral); }
+.leader { position: absolute; background: rgba(230, 237, 247, 0.32); }
+.band-credit {
+  position: absolute; right: 56px; bottom: 26px;
+  font-family: var(--mono); font-size: 14px; letter-spacing: 0.03em; color: var(--muted);
+  background: rgba(11, 18, 32, 0.82); padding: 4px 10px; border-radius: 2px;
+}
+.band-caption {
+  position: absolute; left: 56px; bottom: 30px;
+  font-family: var(--mono); font-size: 14px; letter-spacing: 0.03em; color: var(--muted);
+}

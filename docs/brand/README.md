@@ -12,6 +12,10 @@ under [`design/`](../../design/README.md).
 | Horizontal lockup (light on dark) | [lockup-light-on-dark.png](../brand/lockup-light-on-dark.png) |
 | Horizontal lockup (dark on light) | [lockup-dark-on-light.png](../brand/lockup-dark-on-light.png) |
 | Animated README hero | [readme-hero.gif](../brand/readme-hero.gif) |
+| README hero — MATCHDAY BOARD v2 (poster/scoreboard) | [matchday-hero-1280x560.gif](../brand/matchday-hero-1280x560.gif) · [static PNG](../brand/matchday-hero-1280x560.png) |
+| README map band — derived crop of the real live-hunt capture | [matchday-map-band-1080x540.png](../brand/matchday-map-band-1080x540.png) |
+| GitHub social preview — MATCHDAY BOARD v2 | [github-social-matchday-1280x640.png](../brand/github-social-matchday-1280x640.png) |
+| Kit tags (Prey · Hunters) | [tag-prey-400x120.png](../brand/tag-prey-400x120.png) · [tag-hunters-400x120.png](../brand/tag-hunters-400x120.png) |
 | GitHub social preview (1280×640) | [github-social-1280x640.png](../brand/github-social-1280x640.png) |
 | Social avatar (1024) | [avatar-1024.png](../brand/avatar-1024.png) |
 | Social identity contact sheet | [social-identity-contact-sheet.png](../brand/social-identity-contact-sheet.png) |
@@ -23,6 +27,8 @@ under [`design/`](../../design/README.md).
   banners, app hero spec: `design/brand/motion-kit/`
 - **Social identity kit** — avatars (static + animated), platform headers/covers, editable
   feed/story/carousel templates, upload rules: `design/brand/social-identity/`
+- **GitHub landing page v2 (MATCHDAY BOARD)** — page concept, draft README, poster/social assets and
+  design previews: `design/github-redesign/`
 - **Social short + 60s explainer** — `design/social/motion/` (owner-approval-pending copy)
 - **Campaign** — `design/social/campaign/`
 

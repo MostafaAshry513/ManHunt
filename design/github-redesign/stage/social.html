@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ManHunt — MATCHDAY social preview 1280×640</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  .social { position: relative; width: 1280px; height: 640px; background: var(--field); overflow: hidden; }
+  .poster { position: absolute; left: 0; top: 0; width: 800px; height: 640px; }
+  .lockup { position: absolute; left: 56px; top: 48px; width: 260px; }
+  .poster-type { position: absolute; left: 52px; top: 152px; font-size: 116px; }
+  .deck { position: absolute; left: 56px; top: 500px; width: 700px; font-size: 21px; }
+  .micro { position: absolute; left: 56px; top: 590px; font-size: 13px; }
+  .map-panel { left: 800px; top: 0; width: 480px; height: 640px; }
+  .board { left: 18px; top: 20px; width: 300px; padding: 11px 14px 12px; gap: 16px; }
+  .board .board-clock { font-size: 42px; }
+  .board .board-data { font-size: 10px; padding-left: 14px; }
+  .hairline { position: absolute; left: 800px; top: 0; width: 1px; height: 640px; background: rgba(230, 237, 247, 0.16); }
+</style>
+</head>
+<body>
+<div class="social" id="social">
+  <div class="poster">
+    <div class="lockup"><img src="/docs/brand/lockup-light-on-dark.png" alt="ManHunt"></div>
+    <h1 class="poster-type"><span>Hide</span><span>from your</span><span>friends.</span></h1>
+    <p class="deck">Real-world hide-and-seek for Android. Two teams,<br>one street, one clock the players can’t bend.</p>
+    <p class="micro">Free APK · Android 8.0+ · not on Play Store</p>
+  </div>
+  <div class="hairline"></div>
+  <div class="map-panel">
+    <div class="map-img"></div>
+    <div class="veil"></div>
+    <div class="board">
+      <div class="board-state"><i class="dot live-dot"></i>Hunting</div>
+      <div class="board-clock">41:14</div>
+      <div class="board-data"><span>Prey 2 / 2</span><span>Zone 240 m</span></div>
+    </div>
+    <svg class="marks" viewBox="0 0 480 640" fill="none" aria-hidden="true">
+      <g class="ov">
+        <g class="zone-breathe" style="--zone-origin: 268px 400px">
+          <circle cx="268" cy="400" r="196" stroke="#22D3EE" stroke-opacity="0.22" stroke-width="1.4" stroke-dasharray="2 10"/>
+          <path d="M390.3,273.4A176,176 0 1 1 328.2,234.6" stroke="#22D3EE" stroke-opacity="0.9" stroke-width="3.4"/>
+        </g>
+        <path class="trail-anim" d="M104,540 L170,492 L222,456 L286,410" stroke="#FF7A59" stroke-opacity="0.8" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="6 8"/>
+        <circle class="ping" cx="290" cy="408" r="24" stroke="#FF7A59" stroke-width="2"/>
+        <circle class="ping ping--1" cx="290" cy="408" r="24" stroke="#FF7A59" stroke-width="2"/>
+        <circle class="ping ping--2" cx="290" cy="408" r="24" stroke="#FF7A59" stroke-width="2"/>
+        <circle cx="290" cy="408" r="21" stroke="#FF7A59" stroke-opacity="0.55" stroke-width="1.8"/>
+        <circle cx="290" cy="408" r="12" fill="#FF7A59"/>
+        <g>
+          <circle cx="150" cy="330" r="15" stroke="#A79BFF" stroke-opacity="0.42" stroke-width="1.6"/>
+          <circle cx="150" cy="330" r="8.5" fill="#A79BFF"/>
+          <circle cx="392" cy="470" r="15" stroke="#A79BFF" stroke-opacity="0.42" stroke-width="1.6"/>
+          <circle cx="392" cy="470" r="8.5" fill="#A79BFF"/>
+        </g>
+      </g>
+      <g id="live-ping" style="display:none">
+        <circle class="ping" cx="0" cy="0" r="26" stroke="#FF7A59" stroke-width="2.2"/>
+        <circle class="ping ping--1" cx="0" cy="0" r="26" stroke="#FF7A59" stroke-width="2.2"/>
+        <circle class="ping ping--2" cx="0" cy="0" r="26" stroke="#FF7A59" stroke-width="2.2"/>
+        <circle cx="0" cy="0" r="34" stroke="#FF7A59" stroke-opacity="0.28" stroke-width="1.4"/>
+      </g>
+    </svg>
+    <div class="credit">© OpenStreetMap contributors</div>
+  </div>
+</div>
+<script>
+  (function () {
+    const p = new URLSearchParams(location.search);
+    const map = p.get('map') || '/server/public/site/map-hero.jpg';
+    const pos = p.get('mapPos') || 'center 42%';
+    const size = p.get('mapSize') || 'cover';
+    const useMarks = p.get('marks') !== '0';
+    document.documentElement.style.setProperty('--map-src', "url('" + map + "')");
+    document.documentElement.style.setProperty('--map-pos', pos);
+    document.documentElement.style.setProperty('--map-size', size);
+    const ov = document.querySelector('.ov');
+    const livePing = document.getElementById('live-ping');
+    if (!useMarks) {
+      if (ov) ov.style.display = 'none';
+      if (livePing) livePing.style.display = 'inline';
+      const ping = (p.get('pings') || '0,0').split(',').map(Number);
+      if (livePing) livePing.setAttribute('transform', 'translate(' + ping[0] + ' ' + ping[1] + ')');
+    }
+    window.renderAt = (t) => { for (const a of document.getAnimations()) { try { a.pause(); a.currentTime = t * 1000; } catch (e) { /* noop */ } } return t; };
+    requestAnimationFrame(() => { window.renderAt(0); window.MH_READY = true; });
+  })();
+</script>
+</body>
+</html>

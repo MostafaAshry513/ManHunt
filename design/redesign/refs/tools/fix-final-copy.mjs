@@ -1,0 +1,10 @@
+import { readFile, writeFile } from 'node:fs/promises';
+const root = 'C:/dev/ManHunt/design/redesign/';
+let s = await readFile(root + 'screenshot-shotlist.md', 'utf8');
+s = s.replace('never "{duration} played"', 'never **41:12** as "played"');
+await writeFile(root + 'screenshot-shotlist.md', s, 'utf8');
+let r = await readFile(root + 'screens/08-result-and-history.md', 'utf8');
+r = r.replace('Prey caught {n} / {total} · 41:12 played', 'Prey caught {n} / {total} · {duration} played');
+r = r.replace('HUNTERS WIN   2 / 2 tagged', 'Hunters win.  2 / 2 tagged');
+await writeFile(root + 'screens/08-result-and-history.md', r, 'utf8');
+console.log('fixed');

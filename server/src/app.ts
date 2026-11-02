@@ -166,8 +166,9 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     }
   });
 
-  // Small, fixed set of landing-page screenshots/cover art. Allowlisted so the public route
-  // can never read arbitrary files from the server.
+  // Small, fixed set of landing-page images and self-hosted OFL fonts. Allowlisted so the public
+  // route can never read arbitrary files from the server. Everything is same-origin: the page has
+  // no remote assets and no third-party requests.
   const siteMedia: Record<string, string> = {
     'auth.png': 'image/png',
     'home.png': 'image/png',
@@ -177,6 +178,27 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     'settings.png': 'image/png',
     'result.png': 'image/png',
     'explainer-cover.png': 'image/png',
+    'explainer-cover.webp': 'image/webp',
+    'explainer-cover.jpg': 'image/jpeg',
+    // Web-optimised premium phone captures (page-size WebP + JPEG fallback).
+    'shot-home.webp': 'image/webp',
+    'shot-home.jpg': 'image/jpeg',
+    'shot-lobby.webp': 'image/webp',
+    'shot-lobby.jpg': 'image/jpeg',
+    'shot-hunt.webp': 'image/webp',
+    'shot-hunt.jpg': 'image/jpeg',
+    'shot-extra.webp': 'image/webp',
+    'shot-extra.jpg': 'image/jpeg',
+    'shot-result.webp': 'image/webp',
+    'shot-result.jpg': 'image/jpeg',
+    'map-hero.webp': 'image/webp',
+    'map-hero.jpg': 'image/jpeg',
+    'map-band.webp': 'image/webp',
+    'map-band.jpg': 'image/jpeg',
+    'big-shoulders-700.woff2': 'font/woff2',
+    'instrument-sans-400.woff2': 'font/woff2',
+    'instrument-sans-700.woff2': 'font/woff2',
+    'red-hat-mono-400.woff2': 'font/woff2',
   };
   app.get<{ Params: { file: string } }>('/media/:file', async (req, reply) => {
     const type = siteMedia[req.params.file];
@@ -211,7 +233,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .header('x-content-type-options', 'nosniff')
       .header('x-frame-options', 'DENY')
       .header('referrer-policy', 'no-referrer')
-      .header('content-security-policy', "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+      .header('content-security-policy', "default-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
       .send(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }));
   });
 
@@ -500,8 +522,11 @@ function formatDate(iso: string | undefined): string {
 }
 
 /**
- * The install page. Metadata (version, size, checksum) comes from the update manifest on
- * every request; everything else is static and dependency-free so the page works on any phone.
+ * The install page: a match-poster landing page for the free sideloaded APK.
+ * Metadata (version, size, checksum, download) is read from the update manifest on every request;
+ * everything else is static, dependency-free markup so the page works on any phone. No JavaScript.
+ * Design source: design/site-redesign/ (concept.md, tokens.md, refs/site-ref.html) - regenerate this
+ * function with design/site-redesign/tools/build-page.mjs rather than hand-editing the markup.
  */
 function renderInstallPage(
   manifest: LatestManifest | null,
@@ -514,34 +539,97 @@ function renderInstallPage(
   const published = formatDate(manifest?.publishedAt);
   const manifestUrl = typeof manifest?.url === 'string' ? manifest.url.trim() : '';
   const downloadHref = /^\/[\w./-]+$/.test(manifestUrl) ? manifestUrl : '/app.apk';
+  const downloadLabel = `Download the APK${version ? ` \u00b7 v${escapeHtml(version)}` : ''}`;
+  const metaVersion = version ? `v${escapeHtml(version)}` : '\u2014';
+  const metaSize = size ? escapeHtml(size) : '\u2014';
+  const metaPublished = published ? escapeHtml(published) : '\u2014';
+  const heroMeta = [
+    '<span>Free APK</span>',
+    version ? `<span>v${escapeHtml(version)}</span>` : '',
+    size ? `<span>${escapeHtml(size)}</span>` : '',
+    '<span>Android 8.0+</span>',
+    '<span>Not on Play Store</span>',
+  ].filter(Boolean).join('');
 
-  const statsBlock = `<section class="stats" aria-label="Community growth">
-    <div class="stat"><b>${stats.totalAccounts}</b><span>accounts created</span></div>
-    <div class="stat"><b>+${stats.newAccounts}</b><span>new this week</span></div>
-  </section>`;
-
-  const chips = [
-    version ? `<span class="chip chip-version">v${escapeHtml(version)}</span>` : '',
-    size ? `<span class="chip">${escapeHtml(size)}</span>` : '',
-    '<span class="chip">Android 8.0+</span>',
-  ].filter(Boolean).join('\n        ');
-
-  const details = manifest === null
-    ? '<p class="meta">Release details are not published on this server yet — the download below is the latest available build.</p>'
-    : [
-      published ? `<p class="meta">Published ${escapeHtml(published)}</p>` : '',
-      sha
-        ? `<p class="hash">SHA-256<code>${escapeHtml(sha)}</code></p>`
-        : '<p class="meta">No checksum has been published for this build.</p>',
-    ].filter(Boolean).join('\n      ');
+  const hashBlock = sha
+    ? `<dl class="pass__hash"><dt>SHA-256</dt><code>${escapeHtml(sha)}</code></dl>`
+    : '<p class="pass__hint">No checksum has been published for this build.</p>';
 
   const serverBlock = serverUrl
-    ? `<p class="server"><span class="dot" aria-hidden="true"></span><span>Server <code>${escapeHtml(serverUrl)}</code></span></p>
-      <p class="hint">This page is served by that server, and the build offered here is already pointed at it. Self-hosting? Set your own address on the app's sign-in screen after installing.</p>`
-    : '<p class="hint">Set the server address on the app\'s sign-in screen after installing.</p>';
+    ? `<p class="pass__server"><span class="state"><b></b>This server</span><code>${escapeHtml(serverUrl)}</code></p>
+          <p class="pass__hint">The build offered here is already pointed at this server. Self-hosting? Set your own address on the app's sign-in screen after installing.</p>`
+    : '<p class="pass__hint">Set the server address on the app\'s sign-in screen after installing.</p>';
 
-  // og:image must be absolute for social scrapers. The page is served from the same
-  // public server in production; for a self-hosted deployment this resolves correctly too.
+  const releaseNote = manifest === null
+    ? '<p class="pass__fallback">Release details are not published on this server yet \u2014 the download below is the latest available build.</p>'
+    : '';
+
+  const zeroAccountStat = '<div class="fixture__stat"><b>0</b><span class="data-sm">ads, ever</span></div>';
+  const statsBlock = stats.totalAccounts > 0
+    ? `<div class="fixture__stats">
+        <div class="fixture__stat"><b>${stats.totalAccounts}</b><span class="data-sm">accounts started</span></div>
+        <div class="fixture__stat"><b class="plus">+${stats.newAccounts}</b><span class="data-sm">new this week</span></div>
+        ${zeroAccountStat}
+      </div>`
+    : `<div class="fixture__stats">
+        <div class="fixture__stat"><b>MIT</b><span class="data-sm">licensed source</span></div>
+        ${zeroAccountStat}
+      </div>`;
+
+  // Real premium captures (design/redesign/screenshot-shotlist.md, captured from the running app).
+  // Order = visual order; the hunt screen leads because it is the product's signature surface.
+  // PENDING: the result captures (s12/s13) are blocked by an app snapshot bug and must not be shown;
+  // add { img: 'result', label: 'Result', caption: 'Who won, and why', ... } here when
+  // docs/screenshots/premium/s12-result-hunters.png exists and tools/optimize-assets.ps1 has
+  // generated shot-result.webp/.jpg (plus the two allowlist lines in server/src/app.ts).
+  const SCREENS = [
+    {
+      img: 'hunt',
+      label: 'Hunt',
+      caption: 'The live map — zone, reports, trail',
+      w: 900, h: 2000,
+      alt: 'Live hunt screen: real OpenStreetMap tiles with the 240 metre zone, a fresh and a stale prey report, a coral trail and the server clock at 41:12.',
+    },
+    {
+      img: 'home',
+      label: 'Home',
+      caption: 'Host or join in two taps',
+      w: 900, h: 2000,
+      alt: 'Home screen: the Open Zone brand hero with the host-a-hunt and join-a-hunt actions.',
+    },
+    {
+      img: 'lobby',
+      label: 'Lobby',
+      caption: 'Pick a side, ready up',
+      w: 900, h: 2000,
+      alt: 'Lobby screen: Riverside Run with five players split into Prey and Hunters, all ready.',
+    },
+    {
+      img: 'extra',
+      label: 'Chat',
+      caption: 'The room, in one place',
+      w: 900, h: 2000,
+      alt: 'Room chat during a live Riverside Run hunt: player messages, match updates and the compose field.',
+    },
+    {
+      img: 'result',
+      label: 'Result',
+      caption: 'Full time — who won',
+      w: 900, h: 2000,
+      alt: 'Full-screen hunt result: FULL TIME after 18:48 played, prey 0 of 2 remaining, “Hunters win.”',
+    },
+  ];
+  const screensBlock = SCREENS.map((shot) =>
+    '<figure class="screen">' +
+    '<span class="screen__frame"><picture><source srcset="/media/shot-' + shot.img + '.webp" type="image/webp">' +
+    '<img src="/media/shot-' + shot.img + '.jpg" decoding="async" alt="' + shot.alt +
+    '" width="' + shot.w + '" height="' + shot.h + '"></picture></span>' +
+    '<figcaption><b>' + shot.label + '</b><span>' + shot.caption + '</span></figcaption>' +
+    '</figure>',
+  ).join('\n            ');
+  const screensClass = 'screens--' + SCREENS.length;
+
+  // og:image must be absolute for social scrapers.
   const ogImageUrl = `${(serverUrl || '').replace(/\/$/, '')}/og-image.png`;
 
   return `<!doctype html>
@@ -552,678 +640,1067 @@ function renderInstallPage(
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0B1220">
 <link rel="icon" type="image/png" href="/favicon.png">
-<meta name="description" content="ManHunt - real-world GPS hide-and-seek for Android. Hide from your friends. Download the free signed APK.">
+<link rel="preload" href="/media/big-shoulders-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/media/map-hero.webp" as="image" type="image/webp">
+<meta name="description" content="Real-world GPS hide-and-seek for Android. Two teams, one street, one clock the players cannot bend. Free APK, Android 8.0+, not on Play Store.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ManHunt - Hide from your friends.">
+<meta property="og:title" content="ManHunt \u2014 hide from your friends.">
 <meta property="og:description" content="Real-world hide-and-seek for Android. Prey hide, Hunters track on a live map and tag in person. Free APK.">
 <meta property="og:image" content="${escapeHtml(ogImageUrl)}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<title>ManHunt - Hide from your friends.</title>
+<title>ManHunt \u2014 hide from your friends</title>
 <style>
-  :root{color-scheme:dark;--bg:#0B1220;--card:#111B2E;--line:#1E2B44;--text:#E6EDF7;--muted:#93A4BF;--cyan:#22D3EE}
-  *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:radial-gradient(120% 60% at 50% 0%,#122039 0%,var(--bg) 60%) fixed;color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
-  .wrap{max-width:640px;margin:0 auto;padding:28px 18px calc(28px + env(safe-area-inset-bottom))}
-  .hero{display:flex;align-items:center;gap:14px}
-  .icon{flex:none;border-radius:22%}
-  .eyebrow{margin:0 0 2px;font-size:12px;letter-spacing:.22em;color:var(--cyan);font-weight:700}
-  h1{margin:0;font-size:clamp(24px,6vw,32px);letter-spacing:-.01em}
-  h2{margin:0 0 12px;font-size:18px}
-  .pitch{color:var(--muted);margin:16px 0 22px}
-  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-  .stat b{display:block;font-size:24px;line-height:1.1;color:var(--text)}
-  .stat span{display:block;margin-top:4px;font-size:12.5px;color:var(--muted)}
-  .card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0)) var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-  .chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;color:var(--muted)}
-  .chip-version{color:var(--cyan);border-color:rgba(34,211,238,.45)}
-  .button{display:block;text-align:center;background:var(--cyan);color:#06121F;text-decoration:none;font-weight:700;padding:14px 18px;border-radius:12px;font-size:17px}
-  .button:hover,.button:focus-visible{filter:brightness(1.06)}
-  .button:focus-visible{outline:2px solid #E6EDF7;outline-offset:3px}
-  .meta{color:var(--muted);font-size:13px;margin:12px 0 0}
-  .hash{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
-  .hash code{display:block;margin-top:4px;padding:8px 10px;background:#0A1424;border:1px solid var(--line);border-radius:8px;font-size:11.5px;word-break:break-all;color:#B9C8DE}
-  .server{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:14px;flex-wrap:wrap}
-  .server code{font-size:13px;background:#0A1424;border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--cyan)}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px rgba(34,211,238,.16);flex:none}
-  .hint{color:var(--muted);font-size:13px;margin:8px 0 0}
-  .steps{margin:0;padding-left:22px}
-  .steps li{margin:0 0 10px;padding-left:4px}
-  .notes{margin:0;padding-left:20px;color:#C7D3E5;font-size:14.5px}
-  .notes li{margin:0 0 9px}
-  .notes b{color:var(--text)}
-  .footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
-  .footer a{color:var(--cyan)}
-  .fine{font-size:12px;opacity:.8}
-  @media (min-width:520px){.button{display:inline-block;min-width:280px}}
-
-/* ============================================================================
-   ManHunt — install-page hero (self-contained: no JS, no external assets)
-   Generated by tools/build-site-hero.mjs from src/motion-core.js.
-   Scoped under .mh-hero; safe to paste into server/src/app.ts.
-   Brand: Open Zone radar + drawn MANHUNT wordmark. Cyan = field/referee,
-   coral = Prey, violet = Hunters. Flat fills only, no gradients or glow.
-   ============================================================================ */
-.mh-hero {
-  --mh-field: #0B1220;
-  --mh-chalk: #E6EDF7;
-  --mh-muted: #A7B6CC;
-  --mh-dim: #7C8DA8;
-  container-type: inline-size;
-  display: block;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  color: var(--mh-chalk);
+/* ==========================================================================
+   ManHunt site — design reference. Same system as the approved app redesign
+   (design/redesign/tokens.md): Big Shoulders / Instrument Sans / Red Hat Mono,
+   flat fills, hairlines, radius 2, zero elevation, one cyan surface per view.
+   ========================================================================== */
+@font-face{
+  font-family:"Big Shoulders Display";
+  src:url("/media/big-shoulders-700.woff2") format("woff2");
+  font-weight:700;font-style:normal;font-display:swap;
 }
-.mh-hero__frame { position: relative; overflow: hidden; background: var(--mh-field); }
-.mh-hero__art { display: block; width: 100%; height: auto; }
-.mh-hero__wordmark { position: absolute; left: 5.33%; top: 12%; width: 26.7%; }
-.mh-hero__wordmark svg { display: block; width: 100%; height: auto; }
-.mh-hero__rule { position: absolute; left: 5.33%; top: 24.6%; width: 10.00%; height: 0.83%; background: var(--mh-chalk); opacity: 0.92; }
-.mh-hero__rule::after { content: ""; position: absolute; left: calc(100% + 8px); top: 0; width: 38%; height: 100%; background: #22D3EE; }
-.mh-hero__hook {
-  position: absolute; left: 5.33%; top: 28.6%; margin: 0; padding: 0;
-  font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-weight: 700; font-size: 38px; letter-spacing: -0.022em; line-height: 0.99;
-  color: var(--mh-chalk); max-width: 50.00%;
+@font-face{
+  font-family:"Instrument Sans";
+  src:url("/media/instrument-sans-400.woff2") format("woff2");
+  font-weight:400;font-style:normal;font-display:swap;
 }
-.mh-hero__desc {
-  position: absolute; left: 5.33%; top: 56.5%; margin: 0;
-  font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 13px; line-height: 1.4; letter-spacing: -0.004em; color: var(--mh-muted);
+@font-face{
+  font-family:"Instrument Sans";
+  src:url("/media/instrument-sans-700.woff2") format("woff2");
+  font-weight:700;font-style:normal;font-display:swap;
 }
-.mh-hero__legend {
-  position: absolute; left: 5.33%; top: 66.5%; margin: 0; display: flex; align-items: center; gap: 18px;
-  font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
-  font-size: 10px; letter-spacing: 0.16em; color: var(--mh-muted);
-}
-.mh-hero__legend span { display: inline-flex; align-items: center; gap: 7px; }
-.mh-hero__legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
-.mh-hero__micro {
-  position: absolute; left: 5.33%; top: 79%; margin: 0;
-  font-family: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
-  font-size: 10.5px; letter-spacing: 0.055em; color: var(--mh-dim);
-}
-@supports (font-size: 1cqw) {
-  .mh-hero__hook { font-size: 6.33cqw; }
-  .mh-hero__desc { font-size: 2.17cqw; }
-  .mh-hero__legend { font-size: 1.75cqw; }
-  .mh-hero__micro { font-size: 1.8cqw; }
-}
-@container (max-width: 560px) {
-  .mh-hero__wordmark { width: 45%; top: 9%; }
-  .mh-hero__rule { top: 23.5%; width: 18%; }
-  .mh-hero__hook { font-size: 26px; font-size: 7.6cqw; top: 26.5%; max-width: 72%; }
-  .mh-hero__desc, .mh-hero__legend, .mh-hero__micro { display: none; }
+@font-face{
+  font-family:"Red Hat Mono";
+  src:url("/media/red-hat-mono-400.woff2") format("woff2");
+  font-weight:400;font-style:normal;font-display:swap;
 }
 
-/* ── motion (all CSS; disabled entirely under reduced motion) ────────────── */
-.mh-hero__sweep {
-  transform-box: view-box; transform-origin: 900px 310px;
-  animation: mh-hero-spin 8s linear infinite;
+:root{
+  color-scheme:dark;
+  --field:#0B1220;
+  --plate:#131C2E;
+  --raised:#1D2840;
+  --chalk:#E6EDF7;
+  --muted:#A7B6CC;
+  --dim:#7C8DA8;
+  --hairline:#2A3550;
+  --hairline-strong:#5E7198;
+  --cyan:#22D3EE;
+  --on-cyan:#04222B;
+  --coral:#FF7A59;
+  --violet:#A79BFF;
+
+  --display:"Big Shoulders Display","Bahnschrift SemiCondensed","Roboto Condensed","Arial Narrow",sans-serif;
+  --sans:"Instrument Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --mono:"Red Hat Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+
+  --gut:clamp(20px,4.4vw,64px);
+  --rail:96px;
+  --max:1360px;
+  --gap:clamp(16px,2.4vw,32px);
 }
-.mh-hero__outer { animation: mh-hero-march-ring 6s linear infinite; }
-.mh-hero__trail { animation: mh-hero-march-trail 0.9s linear infinite; }
-.mh-hero__dot--prey { transform: translate(900px, 219.4px); animation: mh-hero-prey 8s linear infinite; }
-.mh-hero__dot--h1 { transform: translate(868.2px, 248.1px); animation: mh-hero-h1 8s linear infinite; }
-.mh-hero__dot--h2 { transform: translate(868.6px, 244.3px); animation: mh-hero-h2 8s linear infinite; }
-.mh-hero__dot--h3 { transform: translate(834.5px, 267.5px); animation: mh-hero-h3 8s linear infinite; }
-.mh-hero__dot--h4 { transform: translate(842.5px, 256px); animation: mh-hero-h4 8s linear infinite; }
-.mh-hero__dot--h5 { transform: translate(810px, 302.6px); animation: mh-hero-h5 8s linear infinite; }
-.mh-hero__ping { transform-box: fill-box; transform-origin: center; animation: mh-hero-ping 2.6667s cubic-bezier(0.2, 0.6, 0.4, 1) infinite both; }
-.mh-hero__ping--1 { animation-delay: 0.889s; }
-.mh-hero__ping--2 { animation-delay: 1.778s; }
-@keyframes mh-hero-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes mh-hero-march-trail { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -14; } }
-@keyframes mh-hero-march-ring { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -12; } }
-@keyframes mh-hero-ping {
-  0% { transform: scale(0.5); opacity: 0; }
-  12% { opacity: 0.42; }
-  65% { opacity: 0.1; }
-  100% { transform: scale(3.6); opacity: 0; }
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--field);color:var(--chalk);
+  font:400 17px/1.55 var(--sans);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
 }
-@keyframes mh-hero-prey {
-  0.00% { transform: translate(900px, 219.4px); }
-  4.00% { transform: translate(926.5px, 213px); }
-  8.00% { transform: translate(958.7px, 209.6px); }
-  12.00% { transform: translate(987.8px, 222.2px); }
-  16.00% { transform: translate(999.7px, 250.5px); }
-  20.00% { transform: translate(995.8px, 280.7px); }
-  24.00% { transform: translate(991.5px, 304.6px); }
-  28.00% { transform: translate(994.2px, 326.9px); }
-  32.00% { transform: translate(995.1px, 352.1px); }
-  36.00% { transform: translate(985.1px, 376.2px); }
-  40.00% { transform: translate(966.3px, 395.7px); }
-  44.00% { transform: translate(943px, 412px); }
-  48.00% { transform: translate(915.1px, 422.3px); }
-  52.00% { transform: translate(885.5px, 418.1px); }
-  56.00% { transform: translate(862.6px, 398.8px); }
-  60.00% { transform: translate(847.7px, 377.7px); }
-  64.00% { transform: translate(829.9px, 364.5px); }
-  68.00% { transform: translate(803.5px, 352.7px); }
-  72.00% { transform: translate(780.6px, 331.4px); }
-  76.00% { transform: translate(776.6px, 302.7px); }
-  80.00% { transform: translate(790.2px, 276.5px); }
-  84.00% { transform: translate(809.2px, 255.8px); }
-  88.00% { transform: translate(828.6px, 238.5px); }
-  92.00% { transform: translate(851px, 226.3px); }
-  96.00% { transform: translate(875.9px, 221.8px); }
-  100% { transform: translate(900px, 219.4px); }
+::selection{background:var(--cyan);color:var(--on-cyan)}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3,h4,p,figure,ul,ol,dl,dd{margin:0}
+ul,ol{padding:0}
+svg{display:block}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:100;background:var(--cyan);color:var(--on-cyan);
+  font:700 14px/1 var(--sans);padding:14px 18px;text-decoration:none;
 }
-@keyframes mh-hero-h1 {
-  0.00% { transform: translate(868.2px, 248.1px); }
-  4.00% { transform: translate(886.2px, 245.6px); }
-  8.00% { transform: translate(903.7px, 243.2px); }
-  12.00% { transform: translate(924.1px, 237.8px); }
-  16.00% { transform: translate(948.5px, 236.5px); }
-  20.00% { transform: translate(968.5px, 248.2px); }
-  24.00% { transform: translate(975.1px, 270.2px); }
-  28.00% { transform: translate(971.7px, 291.9px); }
-  32.00% { transform: translate(970.1px, 309.3px); }
-  36.00% { transform: translate(973.3px, 326.9px); }
-  40.00% { transform: translate(973px, 346.8px); }
-  44.00% { transform: translate(963.7px, 365.1px); }
-  48.00% { transform: translate(948.2px, 379.8px); }
-  52.00% { transform: translate(929.3px, 392px); }
-  56.00% { transform: translate(906.9px, 398px); }
-  60.00% { transform: translate(884.4px, 391.5px); }
-  64.00% { transform: translate(868.4px, 374.8px); }
-  68.00% { transform: translate(857.6px, 359.2px); }
-  72.00% { transform: translate(843.1px, 349.7px); }
-  76.00% { transform: translate(823.2px, 339.5px); }
-  80.00% { transform: translate(809.1px, 321.7px); }
-  84.00% { transform: translate(810.2px, 300.2px); }
-  88.00% { transform: translate(822.4px, 282px); }
-  92.00% { transform: translate(836.7px, 267.7px); }
-  96.00% { transform: translate(851.3px, 255.8px); }
-  100% { transform: translate(868.2px, 248.1px); }
+.skip:focus{left:12px;top:12px}
+
+/* asphalt grain — the only texture, 2.4% over the field, never over text */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.024;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-@keyframes mh-hero-h2 {
-  0.00% { transform: translate(868.6px, 244.3px); }
-  4.00% { transform: translate(887.4px, 241.5px); }
-  8.00% { transform: translate(906.1px, 238.3px); }
-  12.00% { transform: translate(928.4px, 232.4px); }
-  16.00% { transform: translate(954.4px, 232.5px); }
-  20.00% { transform: translate(974px, 246.9px); }
-  24.00% { transform: translate(978.6px, 271.1px); }
-  28.00% { transform: translate(973.8px, 293.5px); }
-  32.00% { transform: translate(971.9px, 311.2px); }
-  36.00% { transform: translate(974.3px, 329.2px); }
-  40.00% { transform: translate(972.2px, 348.8px); }
-  44.00% { transform: translate(961.2px, 366px); }
-  48.00% { transform: translate(945px, 379.4px); }
-  52.00% { transform: translate(926.1px, 390.1px); }
-  56.00% { transform: translate(904.1px, 394.3px); }
-  60.00% { transform: translate(883px, 386.4px); }
-  64.00% { transform: translate(868.6px, 370.1px); }
-  68.00% { transform: translate(858.1px, 356px); }
-  72.00% { transform: translate(842.9px, 347.6px); }
-  76.00% { transform: translate(822.9px, 337.3px); }
-  80.00% { transform: translate(809.4px, 319.2px); }
-  84.00% { transform: translate(811px, 297.9px); }
-  88.00% { transform: translate(822.7px, 279.7px); }
-  92.00% { transform: translate(836.4px, 264.9px); }
-  96.00% { transform: translate(851px, 252.2px); }
-  100% { transform: translate(868.6px, 244.3px); }
+.masthead,.hero,.band,.section,.pass,.footer{position:relative;z-index:1}
+
+/* ------------------------------------------------------------------ primitives */
+.rule{height:1px;background:rgba(230,237,247,.18);border:0}
+.team{
+  display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 10px 0 9px;
+  border:1px solid currentColor;border-radius:2px;
+  background:rgba(255,255,255,.04);
+  font:700 13px/1 var(--sans);letter-spacing:.01em;
 }
-@keyframes mh-hero-h3 {
-  0.00% { transform: translate(834.5px, 267.5px); }
-  4.00% { transform: translate(849.3px, 255.2px); }
-  8.00% { transform: translate(866.6px, 247.3px); }
-  12.00% { transform: translate(885.1px, 245.1px); }
-  16.00% { transform: translate(902.7px, 243.7px); }
-  20.00% { transform: translate(922.4px, 239.5px); }
-  24.00% { transform: translate(945.4px, 238.9px); }
-  28.00% { transform: translate(964.2px, 250.5px); }
-  32.00% { transform: translate(969.9px, 271.8px); }
-  36.00% { transform: translate(965.9px, 292.5px); }
-  40.00% { transform: translate(963.3px, 308.5px); }
-  44.00% { transform: translate(965.4px, 324.2px); }
-  48.00% { transform: translate(965.2px, 341.8px); }
-  52.00% { transform: translate(957.3px, 358.1px); }
-  56.00% { transform: translate(943.8px, 371.5px); }
-  60.00% { transform: translate(927.4px, 383px); }
-  64.00% { transform: translate(907.4px, 389.8px); }
-  68.00% { transform: translate(886.7px, 385.6px); }
-  72.00% { transform: translate(871.1px, 371.5px); }
-  76.00% { transform: translate(860.3px, 357.4px); }
-  80.00% { transform: translate(845.9px, 348.9px); }
-  84.00% { transform: translate(825.5px, 339.7px); }
-  88.00% { transform: translate(809.7px, 322.8px); }
-  92.00% { transform: translate(808.9px, 301.3px); }
-  96.00% { transform: translate(820.2px, 282.4px); }
-  100% { transform: translate(834.5px, 267.5px); }
+.team svg{width:16px;height:16px;flex:none}
+.team--prey{color:var(--coral);background:rgba(255,122,89,.12)}
+.team--hunters{color:var(--violet);background:rgba(167,155,255,.12)}
+.state{
+  display:inline-flex;align-items:center;gap:8px;
+  font:400 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
 }
-@keyframes mh-hero-h4 {
-  0.00% { transform: translate(842.5px, 256px); }
-  4.00% { transform: translate(859.9px, 246.3px); }
-  8.00% { transform: translate(879.2px, 242.6px); }
-  12.00% { transform: translate(897.7px, 241.3px); }
-  16.00% { transform: translate(917.4px, 237px); }
-  20.00% { transform: translate(941.5px, 233.5px); }
-  24.00% { transform: translate(964.6px, 241.1px); }
-  28.00% { transform: translate(975.9px, 261.5px); }
-  32.00% { transform: translate(974.4px, 284.8px); }
-  36.00% { transform: translate(971px, 303.7px); }
-  40.00% { transform: translate(973.2px, 320.9px); }
-  44.00% { transform: translate(975.3px, 340.6px); }
-  48.00% { transform: translate(969.2px, 360.5px); }
-  52.00% { transform: translate(955.2px, 377px); }
-  56.00% { transform: translate(937.2px, 390.9px); }
-  60.00% { transform: translate(915.3px, 400.7px); }
-  64.00% { transform: translate(891px, 399.3px); }
-  68.00% { transform: translate(871.4px, 384.8px); }
-  72.00% { transform: translate(858.8px, 367px); }
-  76.00% { transform: translate(845.2px, 355.4px); }
-  80.00% { transform: translate(824.7px, 346px); }
-  84.00% { transform: translate(805.7px, 329.8px); }
-  88.00% { transform: translate(801.1px, 307.1px); }
-  92.00% { transform: translate(811.5px, 285.8px); }
-  96.00% { transform: translate(827px, 269.4px); }
-  100% { transform: translate(842.5px, 256px); }
+.state b{width:6px;height:6px;background:var(--cyan);border-radius:50%;display:inline-block}
+.state--live{color:var(--cyan)}
+.data{font:400 12px/1.5 var(--mono);letter-spacing:.04em;color:var(--muted);font-variant-numeric:tabular-nums}
+.data-sm{font:400 11px/1.5 var(--mono);letter-spacing:.04em;color:var(--dim)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  height:56px;padding:0 26px;border-radius:2px;border:1px solid transparent;
+  font:700 15px/1 var(--sans);text-decoration:none;letter-spacing:.01em;
+  transition:background-color .12s linear,color .12s linear,border-color .12s linear;
 }
-@keyframes mh-hero-h5 {
-  0.00% { transform: translate(810px, 302.6px); }
-  4.00% { transform: translate(820.3px, 283.6px); }
-  8.00% { transform: translate(833.9px, 268.4px); }
-  12.00% { transform: translate(847.9px, 255.2px); }
-  16.00% { transform: translate(864.7px, 246.1px); }
-  20.00% { transform: translate(883.4px, 242.5px); }
-  24.00% { transform: translate(901.8px, 239.8px); }
-  28.00% { transform: translate(922.8px, 234.2px); }
-  32.00% { transform: translate(948.4px, 231.9px); }
-  36.00% { transform: translate(970.4px, 242.9px); }
-  40.00% { transform: translate(978.5px, 265.7px); }
-  44.00% { transform: translate(974.7px, 289.1px); }
-  48.00% { transform: translate(971.7px, 307.4px); }
-  52.00% { transform: translate(973.8px, 325px); }
-  56.00% { transform: translate(973.4px, 344.5px); }
-  60.00% { transform: translate(964.3px, 362.5px); }
-  64.00% { transform: translate(948.9px, 376.6px); }
-  68.00% { transform: translate(930.6px, 388.1px); }
-  72.00% { transform: translate(909.1px, 394.3px); }
-  76.00% { transform: translate(887.3px, 389.2px); }
-  80.00% { transform: translate(871.2px, 373.8px); }
-  84.00% { transform: translate(860.6px, 358.4px); }
-  88.00% { transform: translate(847.1px, 349.1px); }
-  92.00% { transform: translate(827.6px, 340px); }
-  96.00% { transform: translate(811.7px, 323.7px); }
-  100% { transform: translate(810px, 302.6px); }
+.btn--primary{background:var(--cyan);color:var(--on-cyan)}
+.btn--primary:hover{background:var(--chalk);color:var(--field)}
+.btn--primary:focus-visible{outline-color:var(--chalk)}
+.btn--outline{background:transparent;border-color:var(--hairline-strong);color:var(--chalk)}
+.btn--outline:hover{border-color:var(--chalk)}
+.link{
+  display:inline-block;color:var(--chalk);text-decoration:none;
+  border-bottom:1px solid var(--hairline-strong);padding-bottom:2px;
+  font:700 14px/1.3 var(--sans);
 }
-@media (prefers-reduced-motion: reduce) {
-  .mh-hero *, .mh-hero *::before, .mh-hero *::after { animation: none !important; transition: none !important; }
-  .mh-hero__ping { display: none; }
+.link:hover{border-bottom-color:var(--chalk)}
+.link:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.running{
+  display:flex;flex-direction:column;
+  font:400 10.5px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
+}
+.running b{color:var(--muted);font-weight:400;margin-bottom:1px}
+.running span{display:block;border-top:1px solid var(--hairline-strong);padding-top:7px;white-space:nowrap}
+
+/* ------------------------------------------------------------------ masthead */
+.masthead{
+  position:sticky;top:0;z-index:40;
+  background:var(--field);border-bottom:1px solid rgba(230,237,247,.16);
+}
+.masthead__in{
+  max-width:var(--max);margin:0 auto;padding:0 var(--gut);
+  height:62px;display:flex;align-items:center;gap:clamp(16px,3vw,40px);
+}
+.brand{display:flex;align-items:center;text-decoration:none;color:var(--chalk)}
+.brand svg{height:32px;width:auto}
+.nav{margin-left:auto;display:flex;align-items:center;gap:clamp(14px,2vw,28px)}
+.nav a{
+  font:700 14px/1 var(--sans);text-decoration:none;color:var(--chalk);
+  padding:10px 0;position:relative;white-space:nowrap;
+}
+.nav a:not(.nav__cta)::after{
+  content:"";position:absolute;left:0;right:0;bottom:4px;height:1px;background:var(--chalk);
+  transform:scaleX(0);transform-origin:left;transition:transform .16s linear;
+}
+.nav a:not(.nav__cta):hover::after,.nav a:not(.nav__cta):focus-visible::after{transform:scaleX(1)}
+.nav__cta{
+  display:inline-flex;align-items:center;height:44px;padding:0 18px;
+  border:1px solid var(--hairline-strong);border-radius:2px;
+  font:700 13px/1 var(--sans);
+}
+.nav__cta:hover{border-color:var(--chalk)}
+
+/* ------------------------------------------------------------------ hero */
+.hero{
+  max-width:var(--max);margin:0 auto;padding:0 var(--gut);
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:var(--gap);align-items:stretch;
+  min-height:clamp(620px,84vh,820px);
+  border-bottom:1px solid rgba(230,237,247,.16);
+}
+.hero__copy{
+  grid-column:1/7;display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(30px,4.2vw,60px) 0 clamp(24px,3vw,42px);
+  position:relative;z-index:2;
+}
+.hero__kicker{
+  display:flex;align-items:center;gap:14px;margin-bottom:clamp(16px,2.2vw,26px);
+}
+.hero__vs{font:400 11px/1 var(--mono);letter-spacing:.08em;color:var(--dim)}
+h1.hero__title{
+  font-family:var(--display);font-weight:700;text-transform:uppercase;
+  font-size:clamp(58px,9.4vw,140px);line-height:.85;letter-spacing:.002em;
+  margin:0 0 clamp(18px,2.6vw,30px);
+}
+.hero__title span{display:block;overflow:hidden}
+.hero__title i{display:block;font-style:normal;transform:translateY(105%);white-space:nowrap;line-height:.85}
+.hero__deck{
+  max-width:34ch;color:var(--muted);font-size:clamp(17px,1.5vw,20px);line-height:1.55;
+  margin-bottom:clamp(22px,2.8vw,34px);
+}
+.hero__deck b{color:var(--chalk);font-weight:400}
+.hero__actions{display:flex;flex-wrap:wrap;align-items:center;gap:20px 26px}
+.hero__honest{
+  display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:clamp(20px,2.6vw,30px);
+  padding-top:14px;border-top:1px solid rgba(230,237,247,.14);
+}
+.hero__honest span{display:inline-flex;align-items:center;gap:14px}
+.hero__honest span+span::before{content:"";width:1px;height:11px;background:var(--hairline)}
+
+.hero__plate{
+  grid-column:7/13;position:relative;align-self:stretch;min-height:100%;
+  margin-right:calc(var(--gut) * -1);
+  border-left:1px solid rgba(230,237,247,.16);
+  overflow:hidden;
+}
+.hero__plate img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;
+  opacity:0;animation:veil-in .6s linear .05s forwards;
+}
+.hero__plate::after{
+  content:"";position:absolute;inset:0;background:rgba(11,18,32,.2);pointer-events:none;
+}
+.hero__hud{
+  position:absolute;left:clamp(14px,1.8vw,24px);top:clamp(14px,1.8vw,22px);z-index:3;
+  display:flex;align-items:flex-start;gap:clamp(16px,2.2vw,30px);
+  padding:10px 14px 12px;background:rgba(11,18,32,.86);
+  border:1px solid rgba(230,237,247,.2);border-radius:2px;
+}
+.hero__hud-clock{
+  font-family:var(--display);font-weight:700;font-size:clamp(34px,3.2vw,50px);line-height:.88;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+}
+.hero__hud-meta{display:grid;gap:3px;margin-top:2px}
+.hero__cap{
+  position:absolute;left:clamp(14px,1.8vw,24px);right:clamp(14px,1.8vw,24px);bottom:clamp(12px,1.6vw,20px);z-index:3;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
+  padding:8px 10px;background:rgba(11,18,32,.84);
+  border:1px solid rgba(230,237,247,.16);border-radius:2px;
+}
+.hero__cap p{max-width:34ch;color:var(--muted)}
+.hero__cap span{flex:none;color:var(--muted);opacity:.8}
+
+@keyframes veil-in{to{opacity:1}}
+@keyframes line-rise{to{transform:translateY(0)}}
+.hero__title i{animation:line-rise .52s cubic-bezier(.16,1,.3,1) both}
+.hero__title span:nth-child(1) i{animation-delay:.08s}
+.hero__title span:nth-child(2) i{animation-delay:.16s}
+.hero__title span:nth-child(3) i{animation-delay:.24s}
+
+/* ------------------------------------------------------------------ fixture strip */
+.fixture{max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.fixture__in{
+  display:flex;align-items:center;flex-wrap:wrap;gap:18px clamp(20px,3vw,40px);
+  padding:clamp(16px,2vw,22px) 0;
+}
+.fixture__in .state b{background:var(--muted)}
+.fixture__line{
+  font-family:var(--display);font-weight:700;text-transform:uppercase;
+  font-size:clamp(21px,2.2vw,30px);line-height:1;letter-spacing:.01em;color:var(--chalk);
+}
+.fixture__line em{font-style:normal;color:var(--muted)}
+.fixture__stats{margin-left:auto;display:flex;align-items:flex-end;gap:clamp(18px,2.6vw,36px)}
+.fixture__stat{display:grid;gap:4px}
+.fixture__stat b{
+  font-family:var(--display);font-weight:700;font-size:clamp(26px,2.4vw,34px);line-height:.9;
+  font-variant-numeric:tabular-nums;
+}
+.fixture__stat b.plus{color:var(--cyan)}
+
+/* ------------------------------------------------------------------ section frame */
+.section{
+  max-width:var(--max);margin:0 auto;padding:clamp(64px,8vw,116px) var(--gut) 0;
+}
+.section__grid{display:grid;grid-template-columns:var(--rail) minmax(0,1fr)}
+.section__body{min-width:0}
+.section__head{
+  display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:var(--gap);
+  align-items:end;margin-bottom:clamp(28px,3.4vw,48px);
+}
+h2.section__title{
+  font-family:var(--display);font-weight:700;font-size:clamp(42px,6vw,92px);
+  line-height:.92;letter-spacing:-.004em;max-width:15ch;text-wrap:balance;
+}
+.section__deck{max-width:40ch;color:var(--muted);font-size:clamp(16px,1.35vw,18px);padding-bottom:6px;text-wrap:pretty}
+.section__deck b{color:var(--chalk);font-weight:400}
+
+/* ------------------------------------------------------------------ the field */
+.field-figure{display:grid;gap:10px;margin-bottom:clamp(28px,3.6vw,54px)}
+.field-band{
+  position:relative;overflow:hidden;border-radius:2px;
+  border:1px solid rgba(42,53,80,.9);
+  aspect-ratio:1520/690;
+  background:var(--plate);
+}
+.field-band img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.band__svg{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.field-band::after{content:"";position:absolute;inset:0;background:rgba(11,18,32,.24)}
+.band__board{
+  position:absolute;left:0;right:0;top:0;z-index:3;
+  display:flex;align-items:center;gap:clamp(16px,2.6vw,36px);
+  padding:10px clamp(14px,1.8vw,24px);
+  background:rgba(11,18,32,.9);
+  border-bottom:1px solid rgba(230,237,247,.2);
+}
+.band__clock{
+  font-family:var(--display);font-weight:700;font-size:clamp(28px,3vw,48px);line-height:.88;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+}
+.band__meta{display:flex;align-items:center;gap:clamp(12px,2vw,26px)}
+.band__meta span+span{padding-left:clamp(12px,2vw,26px);border-left:1px solid rgba(230,237,247,.16)}
+.band__demo{margin-left:auto;color:var(--muted);opacity:.8}
+.band__note{
+  position:absolute;z-index:3;display:block;width:clamp(150px,15vw,222px);
+  background:rgba(11,18,32,.9);border:1px solid rgba(230,237,247,.22);border-radius:2px;
+  padding:10px 12px;
+}
+.band__note b{
+  display:flex;align-items:center;gap:7px;font:400 10.5px/1.3 var(--mono);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--cyan);margin-bottom:5px;
+}
+.band__note b svg{width:14px;height:14px;flex:none}
+.band__note span{display:block;font-size:12.5px;line-height:1.45;color:var(--chalk);opacity:.92}
+.band__note::after{
+  content:"";position:absolute;left:22px;top:100%;width:1px;height:22px;
+  background:rgba(230,237,247,.45);
+}
+.band__note::before{
+  content:"";position:absolute;left:18px;top:calc(100% + 22px);width:8px;height:8px;
+  border:1px solid rgba(230,237,247,.6);border-radius:50%;background:rgba(11,18,32,.9);
+}
+.band__note--zone{left:5%;top:22%}
+.band__note--report{left:31%;top:50%}
+.band__note--trail{left:8%;top:68%}
+.band__note--clock{right:4%;top:20%}
+.band__cap{
+  display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  font:400 10.5px/1.5 var(--mono);letter-spacing:.04em;color:var(--dim);
+}
+.field-legend{display:none}
+
+.notes{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}
+.note{grid-column:span 4;padding-top:18px;border-top:1px solid rgba(230,237,247,.18)}
+.note h3{
+  display:flex;align-items:center;gap:10px;margin:14px 0 10px;
+  font-family:var(--display);font-weight:700;font-size:clamp(26px,2.4vw,36px);line-height:1;
+}
+.note h3 svg{width:22px;height:22px;flex:none}
+.note p{color:var(--muted);font-size:15.5px;line-height:1.55;max-width:42ch}
+.note p b{color:var(--chalk);font-weight:400}
+.film{display:grid;grid-template-columns:1fr;gap:14px}
+.film__thumb{
+  position:relative;display:block;border:1px solid var(--hairline-strong);border-radius:2px;overflow:hidden;
+  aspect-ratio:16/9;background:var(--plate);
+}
+.film__thumb img{width:100%;height:100%;object-fit:cover;object-position:50% 8%}
+.film__play{
+  position:absolute;left:12px;bottom:12px;display:inline-flex;align-items:center;gap:8px;
+  background:rgba(11,18,32,.88);border:1px solid rgba(230,237,247,.3);border-radius:2px;
+  padding:7px 10px;font:400 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--chalk);
+}
+.film__play svg{width:12px;height:12px}
+.film figcaption{display:grid;gap:8px}
+.film figcaption p{color:var(--muted);font-size:14px;line-height:1.5;max-width:34ch}
+
+/* ------------------------------------------------------------------ round strip */
+.round{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid rgba(230,237,247,.18)}
+.round__beat{padding:22px clamp(14px,2vw,26px) 26px 0;border-right:1px solid rgba(230,237,247,.14)}
+.round__beat:last-child{border-right:0;padding-right:0}
+.round__num{
+  display:flex;align-items:center;gap:10px;
+  font:400 11px/1 var(--mono);letter-spacing:.1em;color:var(--cyan);
+}
+.round__num::after{content:"";height:1px;flex:1;background:var(--hairline)}
+.round__beat h3{
+  font-family:var(--display);font-weight:700;text-transform:uppercase;
+  font-size:clamp(26px,2.6vw,38px);line-height:1;margin:14px 0 10px;
+}
+.round__beat p{color:var(--muted);font-size:15px;line-height:1.55;max-width:32ch}
+.round__beat p b{color:var(--chalk);font-weight:400}
+
+/* ------------------------------------------------------------------ screens */
+.screens{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--gap);align-items:start;
+}
+.screens__rail{display:contents}
+.screens--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.screens--4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.screens--5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.screen{margin:0}
+.screens__rail > .screen:nth-child(2){margin-top:clamp(32px,5vw,72px)}
+.screens__rail > .screen:nth-child(3){margin-top:clamp(10px,1.6vw,22px)}
+.screens__rail > .screen:nth-child(4){margin-top:clamp(48px,7.4vw,108px)}
+.screens__rail > .screen:nth-child(5){margin-top:clamp(20px,3vw,48px)}
+.screen__frame{
+  position:relative;display:block;border:1px solid var(--hairline-strong);border-radius:2px;
+  overflow:hidden;background:var(--plate);
+}
+.screen__frame img{width:100%;height:auto;display:block}
+.screen figcaption{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  margin-top:10px;padding-top:10px;border-top:1px solid rgba(230,237,247,.14);
+}
+.screen figcaption b{font:400 10.5px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--chalk);flex:none}
+.screen figcaption span{font-size:12.5px;color:var(--muted);text-align:right}
+.screen__aside{
+  grid-column:1/-1;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:var(--gap);align-items:start;
+  margin-top:clamp(40px,5vw,64px);padding-top:clamp(22px,2.6vw,32px);
+  border-top:1px solid rgba(230,237,247,.18);
+}
+.screen__aside h3{
+  grid-column:1/5;font-family:var(--display);font-weight:700;
+  font-size:clamp(28px,3vw,44px);line-height:.98;text-wrap:balance;
+}
+.screen__aside p{grid-column:5/9;color:var(--muted);font-size:14.5px;line-height:1.55;max-width:36ch}
+.screen__aside ul{grid-column:9/13;list-style:none;display:grid;gap:0}
+.screen__aside li{
+  display:flex;align-items:baseline;gap:12px;padding:9px 0;border-top:1px solid rgba(230,237,247,.14);
+  font-size:13px;color:var(--muted);
+}
+.screen__aside li:first-child{border-top:0;padding-top:0}
+.screen__aside li b{font:400 10.5px/1.4 var(--mono);letter-spacing:.06em;color:var(--cyan);flex:none}
+
+/* ------------------------------------------------------------------ rules */
+.pitch{
+  display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:var(--gap);
+  align-items:end;margin-bottom:clamp(30px,3.6vw,50px);
+}
+.pitch h2{
+  font-family:var(--display);font-weight:700;
+  font-size:clamp(44px,7vw,110px);line-height:.86;letter-spacing:-.006em;
+}
+.pitch h2 span{display:block;color:var(--muted)}
+.pitch .section__deck{padding-bottom:6px}
+.ledger{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(28px,4vw,64px);border-top:1px solid rgba(230,237,247,.18)}
+.ledger__row{
+  display:grid;grid-template-columns:clamp(62px,6.4vw,88px) minmax(0,1fr);
+  gap:10px 18px;padding:20px 0 22px;border-bottom:1px solid rgba(230,237,247,.14);
+}
+.ledger__row dt{font:400 10.5px/1.5 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);padding-top:3px}
+.ledger__row dd{margin:0}
+.ledger__row h3{font:700 17px/1.3 var(--sans);margin-bottom:6px}
+.ledger__row p{color:var(--muted);font-size:14.5px;line-height:1.55;max-width:44ch}
+.ledger__row a{color:var(--chalk);text-decoration:underline;text-decoration-color:var(--hairline-strong);text-underline-offset:3px}
+.ledger__row a:hover{text-decoration-color:var(--chalk)}
+.privacy{
+  margin-top:clamp(44px,5.4vw,76px);
+  display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:var(--gap);
+  padding-top:clamp(26px,3vw,40px);border-top:1px solid rgba(230,237,247,.18);
+}
+.privacy h3{
+  font-family:var(--display);font-weight:700;font-size:clamp(28px,3vw,42px);line-height:.98;max-width:12ch;
+}
+.privacy h3 span{display:block;color:var(--muted)}
+.privacy ul{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(24px,3vw,48px)}
+.privacy li{
+  position:relative;padding:14px 0 16px 22px;border-top:1px solid rgba(230,237,247,.12);
+  font-size:13.5px;line-height:1.55;color:var(--muted);
+}
+.privacy li::before{
+  content:"";position:absolute;left:2px;top:20px;width:6px;height:6px;background:var(--cyan);border-radius:50%;
+}
+.privacy li b{color:var(--chalk);font-weight:400}
+
+/* ------------------------------------------------------------------ pass */
+.pass{max-width:var(--max);margin:0 auto;padding:clamp(64px,8vw,116px) var(--gut) 0}
+.pass__plate{
+  border:1px solid var(--hairline-strong);border-radius:2px;background:var(--plate);
+  padding:clamp(22px,3.4vw,52px);
+  display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+  gap:clamp(28px,4vw,64px);position:relative;
+}
+.pass__plate::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:rgba(230,237,247,.22)}
+.pass__plate::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(230,237,247,.22)}
+.pass__head .running{margin-bottom:20px}
+.pass h2{
+  font-family:var(--display);font-weight:700;font-size:clamp(46px,6.4vw,100px);
+  line-height:.86;letter-spacing:-.004em;margin-bottom:clamp(20px,2.4vw,32px);
+}
+.pass__meta{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  margin-bottom:clamp(22px,2.6vw,32px);border-top:1px solid rgba(230,237,247,.16);
+}
+.pass__meta div{padding:12px 12px 13px 0;border-right:1px solid rgba(230,237,247,.12)}
+.pass__meta div:last-child{border-right:0}
+.pass__meta dt{font:400 10px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.pass__meta dd{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.2vw,30px);line-height:1;font-variant-numeric:tabular-nums}
+.pass .btn--primary{width:100%;height:60px;font-size:16px}
+.pass__dl{display:grid;gap:14px}
+.pass__hash dt{font:400 10px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+.pass__hash code{
+  display:block;padding:10px 12px;background:var(--field);border:1px solid var(--hairline);border-radius:2px;
+  font:400 11.5px/1.5 var(--mono);letter-spacing:.02em;color:var(--muted);word-break:break-all;
+}
+.pass__server{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:13px;color:var(--muted)}
+.pass__server code{
+  font:400 12px/1.5 var(--mono);letter-spacing:.02em;color:var(--chalk);
+  background:var(--field);border:1px solid var(--hairline);border-radius:2px;padding:3px 8px;
+}
+.pass__hint{font-size:12.5px;line-height:1.55;color:var(--dim);max-width:52ch;margin-top:8px}
+.pass__warn{
+  margin-top:4px;padding:2px 0 2px 14px;border-left:2px solid var(--cyan);
+  font-size:12.5px;line-height:1.6;color:var(--muted);max-width:54ch;
+}
+.pass__warn b{color:var(--chalk);font-weight:400}
+.pass__steps{border-top:1px solid rgba(230,237,247,.18)}
+.pass__steps .running{margin-top:20px}
+.pass__steps h3{font-family:var(--display);font-weight:700;font-size:clamp(26px,2.8vw,38px);line-height:1;margin:16px 0 18px}
+.pass__steps ol{list-style:none;display:grid}
+.pass__steps li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;padding:14px 0 16px;border-top:1px solid rgba(230,237,247,.12)}
+.pass__steps li:first-child{border-top:0;padding-top:0}
+.pass__steps .n{font:400 11px/1.5 var(--mono);letter-spacing:.08em;color:var(--cyan);padding-top:2px}
+.pass__steps b{display:block;font:700 15px/1.35 var(--sans);margin-bottom:4px}
+.pass__steps p{font-size:13.5px;line-height:1.55;color:var(--muted)}
+.pass__fallback{
+  grid-column:1/-1;margin-top:18px;padding-top:16px;border-top:1px solid rgba(230,237,247,.16);
+  font-size:13px;line-height:1.55;color:var(--muted);
 }
 
+/* ------------------------------------------------------------------ questions */
+.questions{border-top:1px solid rgba(230,237,247,.18)}
+.questions details{border-bottom:1px solid rgba(230,237,247,.14)}
+.questions summary{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:20px 2px;cursor:pointer;list-style:none;
+  font:700 clamp(16px,1.6vw,19px)/1.4 var(--sans);color:var(--chalk);
+}
+.questions summary::-webkit-details-marker{display:none}
+.questions summary::after{
+  content:"";flex:none;width:12px;height:12px;
+  background:
+    linear-gradient(var(--muted),var(--muted)) center/12px 1.5px no-repeat,
+    linear-gradient(var(--muted),var(--muted)) center/1.5px 12px no-repeat;
+  transition:transform .16s linear;
+}
+.questions details[open] summary::after{transform:rotate(45deg)}
+.questions summary:hover{color:var(--cyan)}
+.questions details p{max-width:72ch;padding:0 2px 22px;color:var(--muted);font-size:14.5px;line-height:1.6}
+.questions details p a{color:var(--chalk);text-decoration-color:var(--hairline-strong);text-underline-offset:3px}
 
-/* ============================================================================
-   Game-site layer over the install page. Same Open Zone system, wider canvas.
-   CSS only: no scripts, no remote assets. Images are served from /media/*.
-   ============================================================================ */
-:root{--surface:#101A2C;--surface-2:#0C1524;--coral:#FF7A59;--violet:#A79BFF;--line-strong:#2B3B57}
-.wrap{max-width:1120px;margin:0 auto;padding:0 20px calc(48px + env(safe-area-inset-bottom))}
-.site-nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:24px;max-width:1120px;margin:0 auto;padding:14px 20px;background:rgba(11,18,32,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(30,43,68,.8)}
-.site-brand{display:flex;align-items:center;gap:9px;color:var(--text);text-decoration:none;font-weight:800;letter-spacing:-.02em;font-size:18px}
-.site-brand img{width:28px;height:28px;border-radius:8px;display:block}
-.site-links{display:flex;align-items:center;gap:22px;margin-left:auto}
-.site-links a{color:var(--muted);text-decoration:none;font-size:14px}
-.site-links a:hover,.site-links a:focus-visible{color:var(--text)}
-.nav-cta{border:1px solid rgba(34,211,238,.5);border-radius:999px;padding:9px 14px;background:var(--cyan);color:#06121F;text-decoration:none;font-size:13px;font-weight:800;white-space:nowrap}
-.nav-cta:hover,.nav-cta:focus-visible{filter:brightness(1.06)}
-.mh-hero{margin-top:18px;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.3)}
-.lead{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start;margin:30px 0 18px}
-.lead-title{margin:6px 0 14px;font-size:clamp(28px,4.2vw,46px);line-height:1.02;letter-spacing:-.035em}
-.lead .pitch{font-size:16px;line-height:1.6;margin:0 0 8px;max-width:620px}
-.lead-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 10px}
-.lead .button{display:inline-block;width:auto;min-width:0;padding:13px 20px}
-.button-ghost{background:transparent;color:var(--text);border:1px solid var(--line-strong);text-decoration:none;font-weight:700}
-.button-ghost:hover,.button-ghost:focus-visible{border-color:var(--cyan);color:var(--cyan)}
-.lead-panel{background:linear-gradient(180deg,rgba(34,211,238,.07),rgba(255,255,255,.015)) var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px}
-.panel-kicker{display:block;font-family:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;font-size:10.5px;letter-spacing:.16em;color:var(--cyan)}
-.field-notes{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:12px}
-.field-notes li{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:baseline;border-top:1px solid rgba(30,43,68,.8);padding-top:10px}
-.field-notes li:first-child{border-top:0;padding-top:0}
-.field-notes b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
-.field-notes span{font-size:13.5px;color:var(--muted)}
-.section{margin:64px 0;scroll-margin-top:82px}
-.section-head{max-width:660px;margin:0 0 22px}
-.section h2{margin:4px 0 10px;font-size:clamp(24px,3.4vw,38px);line-height:1.08;letter-spacing:-.03em}
-.section-head p,.section-copy p{margin:0;color:var(--muted);font-size:15px}
-.eyebrow{display:block;margin:0;font-family:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;font-size:10.5px;letter-spacing:.16em;color:var(--cyan)}
-.split{display:grid;grid-template-columns:.9fr 1.1fr;gap:36px;align-items:center}
-.media-cover{display:block;border-radius:20px;overflow:hidden;border:1px solid var(--line-strong);background:var(--surface);box-shadow:0 18px 50px rgba(0,0,0,.3)}
-.media-cover img{display:block;width:100%;height:auto;max-height:520px;object-fit:cover;object-position:top center}
-.section-copy h2{font-size:clamp(24px,3.4vw,38px)}
-.section-copy p{margin:0 0 10px;line-height:1.6}
-.inline-links{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;margin-top:16px}
-.inline-links a{color:var(--cyan);font-weight:700;text-decoration:none;font-size:14px}
-.inline-links a:hover,.inline-links a:focus-visible{text-decoration:underline}
-.screen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.screen-grid figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.screen-grid img{display:block;width:100%;height:auto;max-height:420px;object-fit:cover;object-position:top center}
-.screen-grid figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:12px 14px}
-.screen-grid b{font-size:14px}
-.screen-grid span{color:var(--muted);font-size:12px}
-.side-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 24px}
-.side-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px}
-.side-card.prey{border-color:rgba(255,122,89,.42)}
-.side-card.hunters{border-color:rgba(167,155,255,.42)}
-.side-tag{display:inline-block;border-radius:999px;padding:4px 9px;font:700 11px/1.4 ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;letter-spacing:.12em;margin-bottom:10px}
-.side-card.prey .side-tag{color:var(--coral);border:1px solid rgba(255,122,89,.45);background:rgba(255,122,89,.08)}
-.side-card.hunters .side-tag{color:var(--violet);border:1px solid rgba(167,155,255,.45);background:rgba(167,155,255,.08)}
-.side-card h3{margin:0 0 8px;font-size:20px}
-.side-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
-.flow{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.flow li{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px}
-.flow b{display:block;color:var(--cyan);font:700 11px/1.4 ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;letter-spacing:.12em;margin-bottom:8px}
-.flow span{display:block;color:var(--text);font-size:13.5px;line-height:1.45}
-.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.feature{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
-.feature h3{margin:0 0 6px;font-size:15px}
-.feature p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
-.card{scroll-margin-top:82px}
-#download,#install,#privacy,#faq{scroll-margin-top:82px}
-.faq{display:grid;gap:10px}
-.faq details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-.faq summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--text)}
-.faq summary::marker{color:var(--cyan)}
-.faq details p{margin:10px 0 0;color:var(--muted);font-size:13.5px;line-height:1.6}
-.footer{border-top:1px solid var(--line);margin-top:54px;padding-top:22px}
-.footer a{color:var(--cyan)}
-@media (max-width:820px){
-  .site-links{display:none}
-  .lead,.split{grid-template-columns:1fr;gap:20px}
-  .screen-grid,.feature-grid{grid-template-columns:repeat(2,1fr)}
-  .flow{grid-template-columns:repeat(2,1fr)}
-  .media-cover img{max-height:420px}
+/* ------------------------------------------------------------------ footer */
+.footer{max-width:var(--max);margin:clamp(64px,8vw,110px) auto 0;padding:0 var(--gut)}
+.footer__in{
+  border-top:1px solid rgba(230,237,247,.18);
+  padding:clamp(28px,3.4vw,44px) 0 calc(40px + env(safe-area-inset-bottom));
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,4vw,64px);
 }
-@media (max-width:560px){
-  .wrap{padding-left:14px;padding-right:14px}
-  .site-nav{padding-left:14px;padding-right:14px}
-  .lead-title{font-size:30px}
-  .screen-grid,.feature-grid,.side-grid,.flow{grid-template-columns:1fr}
-  .screen-grid img{max-height:260px;object-fit:cover;object-position:top center}
-  .media-cover img{max-height:360px}
-  .field-notes li{grid-template-columns:68px 1fr}
-  .card{padding:16px}
-  .footer{text-align:left}
+.footer__brand{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.footer__brand svg{height:26px;width:auto}
+.footer__brand p{color:var(--dim);font-size:12.5px;line-height:1.6;max-width:36ch}
+.footer__cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,40px);align-content:start}
+.footer__cols h4{font:400 10.5px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+.footer__cols ul{list-style:none;display:grid;gap:9px}
+.footer__cols a{color:var(--muted);text-decoration:none;font-size:13.5px}
+.footer__cols a:hover{color:var(--chalk);text-decoration:underline;text-underline-offset:3px}
+.footer__fine{
+  grid-column:1/-1;margin-top:clamp(20px,2.6vw,34px);padding-top:18px;
+  border-top:1px solid rgba(230,237,247,.12);
+  display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--dim);font-size:11.5px;line-height:1.6;
 }
+
+/* ------------------------------------------------------------------ responsive */
+@media (max-width:1180px){
+  :root{--rail:0px}
+  .section__grid{grid-template-columns:1fr;gap:16px}
+  .running{flex-direction:row;align-items:center;gap:12px}
+  .running span{border-top:0;padding-top:0}
+  .running b{margin:0}
+  .screen__aside h3{grid-column:1/6}
+  .screen__aside p{grid-column:6/13}
+  .screen__aside ul{grid-column:1/13;grid-template-columns:1fr 1fr;gap:0 32px;margin-top:14px}
+  .screen__aside li:nth-child(2){border-top:0;padding-top:0}
+}
+@media (max-width:1020px){
+  .nav a:not(.nav__cta){display:none}
+  .hero{grid-template-columns:1fr;min-height:0;gap:0}
+  .hero__copy{grid-column:1/-1;padding:clamp(30px,5vw,54px) 0 clamp(24px,4vw,40px)}
+  .hero__plate{grid-column:1/-1;margin-right:calc(var(--gut) * -1);margin-left:calc(var(--gut) * -1);border-left:0;border-top:1px solid rgba(230,237,247,.16);min-height:clamp(380px,54vh,540px)}
+  .hero__hud{top:14px}
+  .hero__cap{padding:0}
+  h1.hero__title{font-size:clamp(58px,12vw,116px)}
+  .section__head,.pitch{grid-template-columns:1fr;gap:18px}
+  .ledger{grid-template-columns:1fr}
+  .privacy{grid-template-columns:1fr}
+  .privacy ul{grid-template-columns:1fr}
+  .pass__plate{grid-template-columns:1fr}
+  .round{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .round__beat:nth-child(2){border-right:0}
+  .round__beat:nth-child(1),.round__beat:nth-child(2){border-bottom:1px solid rgba(230,237,247,.14)}
+  .note{grid-column:span 6}
+  .screens{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .screens__rail > .screen:nth-child(2){margin-top:40px}
+  .screens__rail > .screen:nth-child(3){margin-top:0}
+  .screens__rail > .screen:nth-child(4){margin-top:40px}
+  .screens__rail > .screen:nth-child(5){margin-top:0}
+  .footer__in{grid-template-columns:1fr;gap:32px}
+  .pass__meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pass__meta div:nth-child(2){border-right:0}
+  .pass__meta div:nth-child(1),.pass__meta div:nth-child(2){border-bottom:1px solid rgba(230,237,247,.12)}
+  .fixture__stats{margin-left:0;width:100%;justify-content:flex-start}
+  .screen__aside h3{grid-column:1/-1}
+  .screen__aside p{grid-column:1/8}
+  .screen__aside ul{grid-column:8/13;margin-top:0}
+  .band__note{display:none}
+  .field-legend{
+    display:grid;grid-template-columns:1fr 1fr;gap:0 24px;
+    border-top:1px solid rgba(230,237,247,.18);
+  }
+  .field-legend li{
+    display:grid;grid-template-columns:104px 1fr;gap:3px 10px;align-items:start;
+    padding:12px 0 14px;border-bottom:1px solid rgba(230,237,247,.12);
+    font-size:13px;line-height:1.5;color:var(--muted);
+  }
+  .field-legend b{display:flex;align-items:center;gap:6px;font:400 10px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);white-space:nowrap}
+  .field-legend b svg{width:13px;height:13px;flex:none}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .masthead__in{height:56px}
+  .brand svg{height:27px}
+  .nav__cta{height:38px;padding:0 11px;font-size:11.5px;letter-spacing:0}
+  .hero__copy{padding-top:26px}
+  h1.hero__title{font-size:clamp(48px,15vw,82px);line-height:.85}
+  .hero__deck{font-size:16.5px}
+  .hero__actions{gap:14px 18px}
+  .hero__actions .btn{width:100%}
+  .hero__honest{font-size:11px;gap:7px 10px}
+  .hero__honest span{gap:10px}
+  .hero__plate{min-height:clamp(330px,48vh,410px)}
+  .hero__plate img{object-position:50% 62%}
+  .hero__hud{left:12px;right:12px;top:12px;gap:16px;padding:9px 11px}
+  .hero__hud-clock{font-size:32px}
+  .hero__cap{left:10px;right:10px;bottom:8px;flex-direction:column;align-items:flex-start;gap:2px;padding:6px 8px}
+  .hero__cap p{display:block;font-size:9.5px;line-height:1.4;max-width:34ch}
+  .hero__cap span{font-size:9.5px}
+  .fixture__line{font-size:19px}
+  .fixture__stat b{font-size:25px}
+  .section{padding-top:56px}
+  h2.section__title{font-size:clamp(38px,11.5vw,58px)}
+  .pitch h2{font-size:clamp(40px,12.6vw,64px)}
+  .field-band{aspect-ratio:4/3;margin-left:calc(var(--gut) * -1);margin-right:calc(var(--gut) * -1);border-radius:0;border-left:0;border-right:0}
+  .band__board{left:0;right:0;gap:8px;padding:8px 10px;flex-wrap:wrap;row-gap:3px}
+  .band__clock{font-size:28px}
+  .band__meta{order:3;width:100%;gap:0}
+  .band__meta span{white-space:nowrap}
+  .band__meta span+span{padding-left:12px;margin-left:12px;border-left:1px solid rgba(230,237,247,.16)}
+  .band__demo{order:2;margin-left:auto;display:block;font-size:9px;letter-spacing:0;opacity:.75}
+  .band__cap{flex-direction:column;gap:3px;padding:0 2px}
+  .field-legend{grid-template-columns:1fr}
+  .notes{gap:26px}
+  .note,.note--film{grid-column:1/-1}
+  .note h3{font-size:28px}
+  .round{grid-template-columns:1fr}
+  .round__beat{border-right:0;border-bottom:1px solid rgba(230,237,247,.14);padding-right:0}
+  .round__beat:last-child{border-bottom:0}
+  .screens{display:block}
+  .screens__rail{
+    display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;margin-right:calc(var(--gut) * -1);
+    padding-right:var(--gut);padding-bottom:8px;-webkit-overflow-scrolling:touch;
+  }
+  .screens__rail > .screen{flex:0 0 78vw;scroll-snap-align:start;margin-top:0 !important}
+  .screen figcaption{flex-direction:column;gap:3px;align-items:flex-start}
+  .screen figcaption span{text-align:left}
+  .screen__aside{display:block;margin-top:30px}
+  .screen__aside h3{margin-bottom:12px}
+  .screen__aside p{margin-bottom:16px}
+  .screen__aside ul{display:grid;grid-template-columns:1fr;gap:0}
+  .ledger__row{grid-template-columns:1fr;gap:6px}
+  .privacy h3{font-size:31px}
+  .pass{padding-top:56px}
+  .pass__plate{padding:18px}
+  .pass h2{font-size:clamp(42px,12.6vw,62px)}
+  .pass__meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pass .btn--primary{height:56px;font-size:14.5px}
+  .footer__cols{grid-template-columns:1fr 1fr}
+  .footer__fine{flex-direction:column;gap:6px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+  .hero__title i{transform:none}
+  .hero__plate img{opacity:1}
+}
+
 </style>
 </head>
 <body>
-<header class="site-nav">
-  <a class="site-brand" href="/"><img src="/favicon.png" alt="" width="28" height="28">ManHunt</a>
-  <nav class="site-links" aria-label="Primary">
-    <a href="#watch">Watch</a>
-    <a href="#screens">Screens</a>
-    <a href="#how">How it works</a>
-    <a href="#download">Download</a>
-  </nav>
-  <a class="nav-cta" href="#download">Get the APK</a>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="masthead__in">
+    <a class="brand" href="/" aria-label="ManHunt home">
+      <svg viewBox="0 0 806 220" role="img" aria-label="ManHunt"><title>ManHunt</title><g transform="translate(9.69 9.69) scale(1.86)"><g transform="rotate(0 54 54)"><path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4" stroke-linecap="butt"/><circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/></g></g><g transform="translate(226 60)"><path d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/><path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/><path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/><path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/><path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/><path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/><path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/></g></svg>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#field">The field</a>
+      <a href="#round">How it runs</a>
+      <a href="#screens">In the app</a>
+      <a href="#rules">Rules</a>
+      <a class="nav__cta" href="#download">Download the APK</a>
+    </nav>
+  </div>
 </header>
-<main class="wrap">
-  <section class="mh-hero" aria-labelledby="mh-hero-title">
-  <div class="mh-hero__frame">
-    <svg class="mh-hero__art" viewBox="0 0 1200 600" role="img" aria-label="An Open Zone radar: the coral Prey dot runs as violet Hunter dots close in.">
-  <rect width="1200" height="600" fill="#0B1220"/>
-  <g class="mh-hero__blocks"><rect x="-60.3" y="-61.4" width="150.3" height="94.8" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="-56.6" y="59.5" width="138.6" height="115" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="-55.2" y="197" width="129.2" height="113.4" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="-53.8" y="335.6" width="146.4" height="70" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="-61.1" y="428.9" width="149.5" height="91.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="113.8" y="-64.8" width="152.9" height="102.6" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="113" y="56.4" width="140.9" height="119.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="116.4" y="192.2" width="139.2" height="117" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="113.3" y="331.6" width="132.5" height="73.8" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="113.3" y="428.5" width="137.9" height="82.1" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="116.4" y="548" width="133.1" height="83.4" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="279.1" y="-59.5" width="132.6" height="83.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="279.2" y="53.8" width="149.2" height="117.7" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="275.6" y="331.5" width="141.2" height="79.4" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="284.4" y="435.8" width="136.6" height="85" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="285.2" y="548.6" width="136" height="78" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="447.9" y="-60" width="90.8" height="95.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="439.7" y="57.4" width="104.9" height="112.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="439.2" y="188.4" width="103.6" height="122.2" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="446.5" y="335.9" width="98.9" height="70.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="444.6" y="435.9" width="82.5" height="80.8" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="444.8" y="545.3" width="103.8" height="85" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="566.5" y="-64.7" width="86.9" height="95.1" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="565.5" y="57.3" width="91.9" height="110.8" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="565.1" y="199.7" width="91.1" height="106.5" rx="7" fill="#0C2026" fill-opacity="0.9" stroke="#22D3EE" stroke-opacity="0.15" stroke-width="1.5"/><rect x="570.8" y="335.6" width="88.9" height="64.9" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="564" y="545.7" width="97.6" height="94.1" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="689.6" y="61.4" width="103.7" height="108.1" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="687.6" y="334" width="115.7" height="70.3" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="692.6" y="439.4" width="105.3" height="80.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="689.4" y="543.7" width="99.9" height="82.1" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="827" y="-61.6" width="101" height="90.2" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="823.7" y="55.3" width="114.7" height="120.1" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="826.2" y="192.7" width="102.6" height="124.2" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="828.4" y="335.9" width="101.4" height="67.3" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="825.1" y="428.3" width="114.1" height="90.9" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="955.2" y="-64.8" width="129.2" height="84.2" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="954.4" y="50.8" width="134" height="121.4" rx="7" fill="#0C2026" fill-opacity="0.9" stroke="#22D3EE" stroke-opacity="0.15" stroke-width="1.5"/><rect x="955.5" y="196.5" width="134.8" height="112.4" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="958.2" y="335.2" width="130.5" height="68.8" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="949.4" y="545.8" width="124.5" height="93.3" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="1114.5" y="-58.8" width="110.3" height="86.8" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="1110.4" y="52.5" width="122.5" height="121" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="1107.4" y="192.1" width="110.8" height="108.2" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="1107.7" y="328.7" width="128.6" height="78.5" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/><rect x="1112.5" y="437.6" width="109" height="82.3" rx="7" fill="#0E1727" fill-opacity="0.7" stroke="#E6EDF7" stroke-opacity="0.065" stroke-width="1.5"/></g>
-  <defs>
-    <pattern id="mhHeroDots" width="50" height="50" patternUnits="userSpaceOnUse">
-      <circle cx="25" cy="25" r="1.4" fill="#22D3EE" fill-opacity="0.1"/>
-    </pattern>
-    <pattern id="mhHeroDotsMajor" width="250" height="250" patternUnits="userSpaceOnUse">
-      <circle cx="125" cy="125" r="2.4" fill="#22D3EE" fill-opacity="0.17"/>
-    </pattern>
-  </defs>
-  <rect width="1200" height="600" fill="url(#mhHeroDots)"/>
-  <rect width="1200" height="600" fill="url(#mhHeroDotsMajor)"/>
-  <g><circle cx="24.6" cy="402.8" r="1.1" fill="#E6EDF7" fill-opacity="0.073"/><circle cx="578.4" cy="461.9" r="1.4" fill="#E6EDF7" fill-opacity="0.078"/><circle cx="40.6" cy="176.7" r="1.1" fill="#E6EDF7" fill-opacity="0.072"/><circle cx="1131.2" cy="89.2" r="0.6" fill="#E6EDF7" fill-opacity="0.082"/><circle cx="120.1" cy="581.2" r="0.8" fill="#E6EDF7" fill-opacity="0.052"/><circle cx="472.8" cy="82.2" r="0.5" fill="#E6EDF7" fill-opacity="0.037"/><circle cx="164.5" cy="222.3" r="1.4" fill="#E6EDF7" fill-opacity="0.052"/><circle cx="363.2" cy="266.6" r="1.9" fill="#E6EDF7" fill-opacity="0.037"/><circle cx="895.6" cy="24.3" r="1.6" fill="#E6EDF7" fill-opacity="0.059"/><circle cx="658.9" cy="538.9" r="1.1" fill="#E6EDF7" fill-opacity="0.064"/><circle cx="1100.3" cy="268.8" r="1.5" fill="#E6EDF7" fill-opacity="0.080"/><circle cx="126.3" cy="464.9" r="0.6" fill="#E6EDF7" fill-opacity="0.067"/><circle cx="155.9" cy="411.9" r="1.9" fill="#E6EDF7" fill-opacity="0.054"/><circle cx="572.5" cy="440.4" r="1.2" fill="#E6EDF7" fill-opacity="0.051"/><circle cx="88.7" cy="450.2" r="1.5" fill="#E6EDF7" fill-opacity="0.051"/><circle cx="109.9" cy="5.4" r="1.5" fill="#E6EDF7" fill-opacity="0.032"/><circle cx="938.8" cy="364" r="1.8" fill="#E6EDF7" fill-opacity="0.061"/><circle cx="46.1" cy="1.9" r="0.8" fill="#E6EDF7" fill-opacity="0.041"/><circle cx="312.5" cy="502.3" r="0.5" fill="#E6EDF7" fill-opacity="0.070"/><circle cx="873.6" cy="531.1" r="1.8" fill="#E6EDF7" fill-opacity="0.067"/><circle cx="829" cy="310.6" r="1.7" fill="#E6EDF7" fill-opacity="0.050"/><circle cx="1034.6" cy="281.2" r="1.9" fill="#E6EDF7" fill-opacity="0.042"/><circle cx="182.3" cy="191.9" r="1.9" fill="#E6EDF7" fill-opacity="0.060"/><circle cx="712.5" cy="286.8" r="0.9" fill="#E6EDF7" fill-opacity="0.075"/><circle cx="818.8" cy="490.2" r="0.8" fill="#E6EDF7" fill-opacity="0.034"/><circle cx="954.5" cy="434.2" r="1" fill="#E6EDF7" fill-opacity="0.041"/><circle cx="97.6" cy="508.3" r="1.7" fill="#E6EDF7" fill-opacity="0.062"/><circle cx="519.8" cy="7.6" r="0.9" fill="#E6EDF7" fill-opacity="0.042"/><circle cx="581.3" cy="200" r="1.5" fill="#E6EDF7" fill-opacity="0.036"/><circle cx="612.3" cy="580.3" r="1.2" fill="#E6EDF7" fill-opacity="0.074"/><circle cx="302.1" cy="139.6" r="1.6" fill="#E6EDF7" fill-opacity="0.060"/><circle cx="1115.6" cy="334.1" r="1.7" fill="#E6EDF7" fill-opacity="0.075"/><circle cx="786.4" cy="365.6" r="0.7" fill="#E6EDF7" fill-opacity="0.061"/><circle cx="562.1" cy="66.7" r="1.1" fill="#E6EDF7" fill-opacity="0.046"/><circle cx="813.2" cy="472.2" r="0.6" fill="#E6EDF7" fill-opacity="0.068"/><circle cx="267" cy="68.3" r="0.5" fill="#E6EDF7" fill-opacity="0.040"/><circle cx="637.5" cy="125.1" r="0.5" fill="#E6EDF7" fill-opacity="0.079"/><circle cx="1106.6" cy="388.3" r="1.2" fill="#E6EDF7" fill-opacity="0.042"/><circle cx="421.1" cy="325.1" r="1.3" fill="#E6EDF7" fill-opacity="0.037"/><circle cx="1142.9" cy="409.5" r="1.1" fill="#E6EDF7" fill-opacity="0.064"/><circle cx="600.1" cy="190" r="1.1" fill="#E6EDF7" fill-opacity="0.046"/><circle cx="28.4" cy="154.2" r="0.7" fill="#E6EDF7" fill-opacity="0.076"/><circle cx="635.1" cy="235.5" r="0.8" fill="#E6EDF7" fill-opacity="0.065"/><circle cx="744.4" cy="465.8" r="1.5" fill="#E6EDF7" fill-opacity="0.063"/><circle cx="1077.4" cy="417.8" r="1.6" fill="#E6EDF7" fill-opacity="0.063"/><circle cx="1078.8" cy="444" r="0.8" fill="#E6EDF7" fill-opacity="0.079"/><circle cx="1104.9" cy="142.6" r="1.7" fill="#E6EDF7" fill-opacity="0.059"/><circle cx="106.6" cy="132.2" r="1.9" fill="#E6EDF7" fill-opacity="0.075"/><circle cx="982.3" cy="406.7" r="1.3" fill="#E6EDF7" fill-opacity="0.037"/><circle cx="985.9" cy="28.4" r="1.1" fill="#E6EDF7" fill-opacity="0.067"/><circle cx="819.2" cy="496.3" r="1" fill="#E6EDF7" fill-opacity="0.055"/><circle cx="758" cy="482.8" r="1.9" fill="#E6EDF7" fill-opacity="0.057"/><circle cx="631.5" cy="260.4" r="0.7" fill="#E6EDF7" fill-opacity="0.047"/><circle cx="84.3" cy="58.3" r="1.5" fill="#E6EDF7" fill-opacity="0.079"/><circle cx="1195.4" cy="425.8" r="1.5" fill="#E6EDF7" fill-opacity="0.069"/><circle cx="671" cy="111.2" r="0.7" fill="#E6EDF7" fill-opacity="0.069"/><circle cx="778.9" cy="330.2" r="1.3" fill="#E6EDF7" fill-opacity="0.062"/><circle cx="1181" cy="275.4" r="1.7" fill="#E6EDF7" fill-opacity="0.040"/><circle cx="331.9" cy="575.3" r="1.1" fill="#E6EDF7" fill-opacity="0.076"/><circle cx="940.9" cy="392.7" r="1" fill="#E6EDF7" fill-opacity="0.080"/><circle cx="434.7" cy="558.2" r="1.8" fill="#E6EDF7" fill-opacity="0.039"/><circle cx="286" cy="127.3" r="1.3" fill="#E6EDF7" fill-opacity="0.073"/><circle cx="757.3" cy="540.7" r="1" fill="#E6EDF7" fill-opacity="0.060"/><circle cx="271.1" cy="364.2" r="0.6" fill="#E6EDF7" fill-opacity="0.069"/><circle cx="861.5" cy="230.3" r="1.3" fill="#E6EDF7" fill-opacity="0.071"/><circle cx="992.4" cy="200.3" r="0.9" fill="#E6EDF7" fill-opacity="0.072"/><circle cx="1158.9" cy="290.7" r="1.3" fill="#E6EDF7" fill-opacity="0.059"/><circle cx="90.6" cy="414.4" r="0.5" fill="#E6EDF7" fill-opacity="0.044"/><circle cx="439" cy="165.1" r="1" fill="#E6EDF7" fill-opacity="0.068"/><circle cx="1110.9" cy="580.6" r="1.1" fill="#E6EDF7" fill-opacity="0.066"/><circle cx="712.6" cy="44.7" r="1.1" fill="#E6EDF7" fill-opacity="0.053"/><circle cx="915" cy="423.6" r="1.6" fill="#E6EDF7" fill-opacity="0.075"/><circle cx="521.9" cy="512.6" r="0.9" fill="#E6EDF7" fill-opacity="0.051"/><circle cx="995.1" cy="8.5" r="1.7" fill="#E6EDF7" fill-opacity="0.076"/><circle cx="457.6" cy="267.2" r="0.8" fill="#E6EDF7" fill-opacity="0.054"/><circle cx="288.9" cy="557.9" r="1.2" fill="#E6EDF7" fill-opacity="0.071"/><circle cx="1151.1" cy="181.1" r="1" fill="#E6EDF7" fill-opacity="0.065"/><circle cx="137.6" cy="57.2" r="1.9" fill="#E6EDF7" fill-opacity="0.068"/><circle cx="180.6" cy="425.8" r="1.3" fill="#E6EDF7" fill-opacity="0.066"/><circle cx="506.1" cy="546.7" r="0.6" fill="#E6EDF7" fill-opacity="0.053"/></g>
-  <g fill="none" stroke="#E6EDF7" stroke-linecap="round">
-    <rect x="22" y="22" width="1156" height="556" stroke-opacity="0.3" stroke-width="2.5"/>
-    <g stroke-opacity="0.22" stroke-width="2.5"><path d="M24,68 A46,46 0 0 1 68,24"/><path d="M1176,68 A46,46 0 0 0 1132,24"/><path d="M24,532 A46,46 0 0 0 68,576"/><path d="M1176,532 A46,46 0 0 1 1132,576"/></g>
-    <g stroke-opacity="0.26" stroke-width="2">
-      <path d="M8,24 L8,8 L24,8"/><path d="M1176,8 L1192,8 L1192,24"/>
-      <path d="M8,576 L8,592 L24,592"/><path d="M1176,592 L1192,592 L1192,576"/>
-    </g>
-  </g>
-  <g class="mh-hero__radar">
-    <circle cx="900" cy="310" r="210.6" fill="#07101C" fill-opacity="0.62"/>
-    <g stroke="#22D3EE" stroke-opacity="0.09" stroke-width="1">
-      <line x1="689.4" y1="310" x2="1110.6" y2="310"/>
-      <line x1="900" y1="99.4" x2="900" y2="520.6"/>
-    </g>
-    <g stroke="#22D3EE" stroke-opacity="0.26" stroke-width="1.4"><line x1="1098.9" y1="310" x2="1107.9" y2="310"/><line x1="1095.9" y1="344.5" x2="1100.3" y2="345.3"/><line x1="1086.9" y1="378" x2="1091.1" y2="379.6"/><line x1="1072.3" y1="409.5" x2="1076.1" y2="411.7"/><line x1="1052.4" y1="437.9" x2="1055.8" y2="440.7"/><line x1="1027.9" y1="462.4" x2="1030.7" y2="465.8"/><line x1="999.5" y1="482.3" x2="1001.7" y2="486.1"/><line x1="968" y1="496.9" x2="969.6" y2="501.1"/><line x1="934.5" y1="505.9" x2="935.3" y2="510.3"/><line x1="900" y1="508.9" x2="900" y2="517.9"/><line x1="865.5" y1="505.9" x2="864.7" y2="510.3"/><line x1="832" y1="496.9" x2="830.4" y2="501.1"/><line x1="800.6" y1="482.3" x2="798.3" y2="486.1"/><line x1="772.1" y1="462.4" x2="769.3" y2="465.8"/><line x1="747.6" y1="437.9" x2="744.2" y2="440.7"/><line x1="727.7" y1="409.5" x2="723.9" y2="411.7"/><line x1="713.1" y1="378" x2="708.9" y2="379.6"/><line x1="704.1" y1="344.5" x2="699.7" y2="345.3"/><line x1="701.1" y1="310" x2="692.1" y2="310"/><line x1="704.1" y1="275.5" x2="699.7" y2="274.7"/><line x1="713.1" y1="242" x2="708.9" y2="240.4"/><line x1="727.7" y1="210.5" x2="723.9" y2="208.3"/><line x1="747.6" y1="182.1" x2="744.2" y2="179.3"/><line x1="772.1" y1="157.6" x2="769.3" y2="154.2"/><line x1="800.6" y1="137.7" x2="798.3" y2="133.9"/><line x1="832" y1="123.1" x2="830.4" y2="118.9"/><line x1="865.5" y1="114.1" x2="864.7" y2="109.7"/><line x1="900" y1="111.1" x2="900" y2="102.1"/><line x1="934.5" y1="114.1" x2="935.3" y2="109.7"/><line x1="968" y1="123.1" x2="969.6" y2="118.9"/><line x1="999.5" y1="137.7" x2="1001.7" y2="133.9"/><line x1="1027.9" y1="157.6" x2="1030.7" y2="154.2"/><line x1="1052.4" y1="182.1" x2="1055.8" y2="179.3"/><line x1="1072.3" y1="210.5" x2="1076.1" y2="208.3"/><line x1="1086.9" y1="242" x2="1091.1" y2="240.4"/><line x1="1095.9" y1="275.5" x2="1100.3" y2="274.7"/></g>
-    <circle class="mh-hero__outer" cx="900" cy="310" r="200.7" fill="none" stroke="#22D3EE" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="2 10"/>
-    <circle cx="900" cy="310" r="122.4" fill="none" stroke="#22D3EE" stroke-opacity="0.1" stroke-width="1" stroke-dasharray="2 12"/>
-    <path d="M1080.3,310L1081.9,325.7L1080,341.3L1075,356.2L1070.4,371.1L1063.6,385.1L1054.5,397.9L1045.5,410.4L1036.9,423.2L1026.5,434.6L1014.7,444.6L1002.5,454.2L989.6,462.9L975.6,469.8L961.2,475.6L946.5,480.8L931,483.3L915.6,485.9L900,486.5L884.4,485.5L868.5,486.1L852.9,483.3L837.7,478.6L822.9,472.9L809.4,464.6L796.3,455.9L784.6,445.5L773.2,434.9L762.4,423.7L752.4,411.8L744,398.7L737.5,384.6L730.2,370.9L726.8,355.7L723.2,340.7L721.7,325.4L720.6,310L721.7,294.6L724.9,279.6L726.4,264.2L730.8,249.4L737.1,235.2L742.6,220.5L752.3,208.2L760.9,195.1L772.4,184.3L784.1,174L796.7,164.7L809.5,155.5L823.9,149.2L838,142.2L853,137.3L868.5,133.8L884.3,133.4L900,132.1L915.6,134.1L931.2,136L946,141L961.1,144.6L975.3,150.9L989.7,156.9L1003.2,164.8L1015.1,174.9L1026.9,185L1038,195.9L1047.9,208L1057.1,220.6L1064.3,234.5L1068.1,249.7L1072.8,264.4L1076.8,279.3L1081.3,294.4Z" fill="none" stroke="#E6EDF7" stroke-opacity="0.19" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M1025.04,180.52A180.00,180.00 0 1 1 961.56,140.86" fill="none" stroke="#22D3EE" stroke-width="4"/>
-    <g class="mh-hero__sweep">
-      <path d="M0,0L161,-78.5A179.1,179.1 0 0 1 161,78.5Z" fill="#22D3EE" fill-opacity="0.042"/>
-      <line x1="0" y1="0" x2="198" y2="0" stroke="#22D3EE" stroke-opacity="0.5" stroke-width="1.6"/>
-      <circle cx="198" cy="0" r="3" fill="#22D3EE" fill-opacity="0.9"/>
-    </g>
-    <path class="mh-hero__trail" d="M900,219.4L906.4,218.1L913.1,216.5L920.2,214.6L927.7,212.7L935.7,211L944.2,209.8L952.8,209.3L961.5,209.9L969.9,211.7L977.7,214.8L984.6,219.3L990.4,225.1L994.8,231.8L997.8,239.4L999.5,247.5L999.8,255.8L999.2,264L997.9,271.9L996.2,279.3L994.4,286.2L992.9,292.6L991.9,298.6L991.5,304.4L991.6,310L992.2,315.7L993.2,321.5L994.3,327.6L995.2,334L995.7,340.5L995.6,347.2L994.8,353.9L993.1,360.5L990.6,366.9L987.3,373L983.3,378.7L978.8,384L973.8,389.1L968.5,393.9L962.9,398.4L957,402.8L950.9,407.1L944.5,411.1L937.8,414.8L930.8,418L923.4,420.5L915.7,422.2L907.9,422.9L900,422.4L892.3,420.7L884.9,417.8L878,413.8L871.8,408.9L866.3,403.3L861.5,397.4L857.3,391.4L853.5,385.7L849.9,380.5L846.2,375.9L842.2,372L837.6,368.6L832.4,365.7L826.5,363L819.9,360.3L812.8,357.3L805.5,353.8L798.3,349.6L791.6,344.6L785.8,338.8L781.1,332.2L777.8,325.1L775.9,317.6L775.6,310L776.7,302.4L779.1,295L782.4,288L786.6,281.4L791.2,275.3L796.1,269.5L801.1,264.1L806.1,259L811,254.1L815.9,249.4L820.9,244.8L826,240.5L831.4,236.4L837,232.8L842.9,229.6L849,227L855.4,225L861.9,223.5L868.4,222.5L874.9,221.9L881.2,221.4L887.5,220.9L893.7,220.3L900,219.4Z" fill="none" stroke="#FF7A59" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.22" stroke-dasharray="3 11"/>
-    <g transform="translate(900 219.4)"><circle class="mh-hero__ping mh-hero__ping--0" cx="0" cy="0" r="14" fill="none" stroke="#FF7A59" stroke-opacity="0" stroke-width="2.6"/></g>
-    <g transform="translate(993.1 360.5)"><circle class="mh-hero__ping mh-hero__ping--1" cx="0" cy="0" r="14" fill="none" stroke="#FF7A59" stroke-opacity="0" stroke-width="2.6"/></g>
-    <g transform="translate(812.8 357.3)"><circle class="mh-hero__ping mh-hero__ping--2" cx="0" cy="0" r="14" fill="none" stroke="#FF7A59" stroke-opacity="0" stroke-width="2.6"/></g>
-    <g class="mh-hero__dot mh-hero__dot--hunter mh-hero__dot--h1" transform="translate(868.2 248.1)">
-      <circle r="13" fill="none" stroke="#A79BFF" stroke-opacity="0.4" stroke-width="1.6"/>
-      <circle r="7" fill="#A79BFF"/>
-    </g>
-    <g class="mh-hero__dot mh-hero__dot--hunter mh-hero__dot--h2" transform="translate(868.6 244.3)">
-      <circle r="13" fill="none" stroke="#A79BFF" stroke-opacity="0.4" stroke-width="1.6"/>
-      <circle r="7" fill="#A79BFF"/>
-    </g>
-    <g class="mh-hero__dot mh-hero__dot--hunter mh-hero__dot--h3" transform="translate(834.5 267.5)">
-      <circle r="13" fill="none" stroke="#A79BFF" stroke-opacity="0.4" stroke-width="1.6"/>
-      <circle r="7" fill="#A79BFF"/>
-    </g>
-    <g class="mh-hero__dot mh-hero__dot--hunter mh-hero__dot--h4" transform="translate(842.5 256)">
-      <circle r="13" fill="none" stroke="#A79BFF" stroke-opacity="0.4" stroke-width="1.6"/>
-      <circle r="7" fill="#A79BFF"/>
-    </g>
-    <g class="mh-hero__dot mh-hero__dot--hunter mh-hero__dot--h5" transform="translate(810 302.6)">
-      <circle r="13" fill="none" stroke="#A79BFF" stroke-opacity="0.4" stroke-width="1.6"/>
-      <circle r="7" fill="#A79BFF"/>
-    </g>
-    <g class="mh-hero__dot mh-hero__dot--prey" transform="translate(900 219.4)">
-      <circle r="17" fill="none" stroke="#FF7A59" stroke-opacity="0.5" stroke-width="2"/>
-      <circle r="9.5" fill="#FF7A59"/>
-    </g>
-  </g>
-</svg>
-    <span class="mh-hero__wordmark" role="img" aria-label="ManHunt">
-      <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 530 100"><title>MANHUNT</title><path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/><path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/><path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/><path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/><path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/><path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/><path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/></svg>
-    </span>
-    <span class="mh-hero__rule" aria-hidden="true"></span>
-    <h1 class="mh-hero__hook" id="mh-hero-title">Hide from <br>your friends.</h1>
-    <p class="mh-hero__desc">Real-world GPS hide-and-seek for Android.</p>
-    <p class="mh-hero__legend" aria-hidden="true"><span><i style="background:#FF7A59"></i>PREY</span><span><i style="background:#A79BFF"></i>HUNTERS</span></p>
-    <p class="mh-hero__micro">free APK · Android 8+ · not on Play Store</p>
-  </div>
-</section>
-
-<section class="lead" aria-labelledby="lead-title">
-  <div class="lead-copy">
-    <span class="eyebrow">REAL-WORLD HIDE-AND-SEEK</span>
-    <h2 class="lead-title" id="lead-title">Two sides.<br>One street.<br>No place to hide forever.</h2>
-    <p class="pitch">Prey hide while their phones report position. Hunters follow the latest reports
-    on a live map and tag them in person. One server keeps the clock, the teams and the tag rules
-    fair.</p>
-    <div class="lead-actions">
-      <a class="button" href="#download">Download free APK</a>
-      <a class="button button-ghost" href="#watch">Watch 60s</a>
+<main id="main">
+  <!-- ① THE POSTER ============================================================ -->
+  <section class="hero" aria-labelledby="hero-title" data-shot="hero">
+    <div class="hero__copy">
+      <div class="hero__kicker">
+        <span class="team team--prey"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.6" fill="currentColor"/><path d="M14.2 8A6.2 6.2 0 1 1 9.7 1.9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Prey</span>
+        <span class="hero__vs">v</span>
+        <span class="team team--hunters"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.2 7 8l-5 4.8M8 3.2 13 8l-5 4.8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Hunters</span>
+      </div>
+      <h1 class="hero__title" id="hero-title">
+        <span><i>Hide</i></span>
+        <span><i>from your</i></span>
+        <span><i>friends.</i></span>
+      </h1>
+      <p class="hero__deck">Real-world hide-and-seek for Android. <b>Two teams, one street,</b> one clock the players can't bend.</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#download">Download the APK</a>
+        <a class="link" href="#film">Watch the 60-second film</a>
+      </div>
+      <div class="hero__honest data-sm">
+        ${heroMeta}
+      </div>
     </div>
-    <p class="hint">ManHunt needs at least two Android phones in one place. Send this page to the
-    group chat, then pick sides.</p>
-  </div>
-  <aside class="lead-panel" aria-label="Field notes">
-    <span class="panel-kicker">OPEN ZONE / FIELD NOTES</span>
-    <ul class="field-notes">
-      <li><b>Prey</b><span>Hide in the real world and survive the clock.</span></li>
-      <li><b>Hunters</b><span>Read the latest reports, move, and tag in person.</span></li>
-      <li><b>Server</b><span>Owns timers, tag claims and who can see what.</span></li>
-    </ul>
-  </aside>
-</section>
 
-${statsBlock}
-
-<section class="section split" id="watch" aria-labelledby="watch-title">
-  <a class="media-cover" href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4" title="Watch the 60-second ManHunt explainer">
-    <img src="/media/explainer-cover.png" alt="ManHunt 60-second explainer cover — Hide from your friends" loading="lazy">
-  </a>
-  <div class="section-copy">
-    <span class="eyebrow">THE 60-SECOND VERSION</span>
-    <h2 id="watch-title">See the whole hunt.</h2>
-    <p>The hook, the two sides, how phones report position, how Hunters read the last report, how
-    tagging works, and the two-phone setup — explained in one minute.</p>
-    <div class="inline-links">
-      <a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4">Watch the 60s film ↗</a>
-      <a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_15s_1080x1920.mp4">15s hook</a>
-      <a href="https://github.com/MostafaAshry513/ManHunt">Source &amp; releases</a>
-    </div>
-    <p class="fine">Fully animated. Original geometry and score; no stock footage or real people.</p>
-  </div>
-</section>
-
-<section class="section" id="screens" aria-labelledby="screens-title">
-  <div class="section-head">
-    <span class="eyebrow">IN THE APP</span>
-    <h2 id="screens-title">Built for the street, not a menu.</h2>
-    <p>Dark by default, Arabic and English, 48dp targets and a moving map that reads like a field radar.</p>
-  </div>
-  <div class="screen-grid">
-    <figure><img src="/media/home.png" alt="Home: full-width Open Zone hero and host/join cards" loading="lazy"><figcaption><b>Home</b><span>Host or join</span></figcaption></figure>
-    <figure><img src="/media/lobby.png" alt="Lobby: choose Prey or Hunters and ready up" loading="lazy"><figcaption><b>Lobby</b><span>Pick a side</span></figcaption></figure>
-    <figure><img src="/media/roles.png" alt="Roles: how Prey and Hunters play" loading="lazy"><figcaption><b>Roles</b><span>Know the rules</span></figcaption></figure>
-    <figure><img src="/media/chat.png" alt="Room chat with match updates" loading="lazy"><figcaption><b>Chat</b><span>Stay in touch</span></figcaption></figure>
-    <figure><img src="/media/settings.png" alt="Settings: account, appearance, language, permissions and updates" loading="lazy"><figcaption><b>Settings</b><span>Your setup</span></figcaption></figure>
-    <figure><img src="/media/result.png" alt="Hunt result dialog" loading="lazy"><figcaption><b>Result</b><span>Who won</span></figcaption></figure>
-  </div>
-</section>
-
-<section class="section" id="how" aria-labelledby="how-title">
-  <div class="section-head">
-    <span class="eyebrow">HOW A HUNT RUNS</span>
-    <h2 id="how-title">Two sides. One clock.</h2>
-    <p>No gear, no fee, no referee required. The server handles the rules; the street handles the tension.</p>
-  </div>
-  <div class="side-grid">
-    <article class="side-card prey">
-      <span class="side-tag">PREY</span>
-      <h3>Hide. Survive.</h3>
-      <p>Your phone reports position to the Hunters at the interval the room set. Stay hidden until
-      the clock stops — if at least one Prey is still free, Prey win.</p>
-    </article>
-    <article class="side-card hunters">
-      <span class="side-tag">HUNTERS</span>
-      <h3>Track. Tag.</h3>
-      <p>Follow the latest reports and trails on the map. Find a Prey in the real world and tag
-      them in person; the Prey confirms or disputes. Tag every Prey to win.</p>
-    </article>
-  </div>
-  <ol class="flow">
-    <li><b>01 / ROOM</b><span>Host creates a room, or everyone joins with a 6-character code.</span></li>
-    <li><b>02 / SIDES</b><span>Pick Prey or Hunters. The host sets the clock, reports, trails and zone.</span></li>
-    <li><b>03 / HUNT</b><span>Prey hide. Hunters chase reports. The server keeps the clock honest.</span></li>
-    <li><b>04 / RESULT</b><span>All Prey tagged, or time runs out. History is kept; rematch when ready.</span></li>
-  </ol>
-</section>
-
-<section class="section" id="features" aria-labelledby="features-title">
-  <div class="section-head">
-    <span class="eyebrow">WHY IT WORKS</span>
-    <h2 id="features-title">Small rules. Real tension.</h2>
-  </div>
-  <div class="feature-grid">
-    <article class="feature"><h3>Server-authoritative</h3><p>Timers, phases, tag outcomes and victory are decided and stored on the server. The app sends intents, never the truth.</p></article>
-    <article class="feature"><h3>Latest-report map</h3><p>Hunters see the last report and optional trails, not a perfect live feed. Positions stay hidden from Prey.</p></article>
-    <article class="feature"><h3>Fair tag flow</h3><p>Hunter claims, Prey confirms or disputes, Huntmaster resolves. Duplicate claims cannot double-apply.</p></article>
-    <article class="feature"><h3>Built to recover</h3><p>Reconnects, restarts and flaky signal do not break the round. Pause/resume shifts the clock correctly.</p></article>
-    <article class="feature"><h3>Yours to host</h3><p>One Node process, one SQLite file, no Docker, no paid map or push service. Read the deployment guide and run it yourself.</p></article>
-    <article class="feature"><h3>Made for everyone</h3><p>English and Arabic with full RTL, dark-first UI, adjustable text size and 48dp controls.</p></article>
-  </div>
-</section>
-
-  <section class="card" id="download" aria-labelledby="download-heading">
-    <h2 id="download-heading">Download for Android</h2>
-    <div class="chips">
-        ${chips}
-    </div>
-    <a class="button" href="${escapeHtml(downloadHref)}">Download APK${version ? ` v${escapeHtml(version)}` : ''}</a>
-      ${details}
-    ${serverBlock}
+    <figure class="hero__plate">
+      <picture><source srcset="/media/map-hero.webp" type="image/webp"><img src="/media/map-hero.jpg" alt="The live hunt map from the app: real OpenStreetMap tiles over Riverside Park and the Hudson River, with the 240 metre zone, a fresh and a stale prey report and a coral trail." width="900" height="1054"></picture>
+      <div class="hero__hud" aria-hidden="true">
+        <div class="hero__hud-clock">41:12</div>
+        <div class="hero__hud-meta">
+          <span class="state state--live"><b></b>Live</span>
+          <span class="data">Prey 2 / 2</span>
+          <span class="data">Zone 240 m</span>
+        </div>
+      </div>
+      <figcaption class="hero__cap">
+        <p class="data-sm">Illustration — the live map. Latest reports, not the whole truth.</p>
+        <span class="data-sm">© OpenStreetMap contributors</span>
+      </figcaption>
+    </figure>
   </section>
 
-  <section class="card" id="install">
-    <h2>Install in four steps</h2>
-    <ol class="steps">
-      <li><b>Download</b> the APK on the Android phone you will play on.</li>
-      <li><b>Allow unknown sources</b> when Android asks. If it does not ask: Settings &rarr;
-        Apps &rarr; Special app access &rarr; Install unknown apps, then allow your browser.</li>
-      <li><b>Open the file and install.</b> Play Protect may warn about a sideloaded app — choose
-        &ldquo;Install anyway&rdquo; only if you trust this project.</li>
-      <li><b>Open ManHunt and sign in.</b> Create a local account (no email needed) and use the
-        server shown above.</li>
-    </ol>
+  <!-- fixture strip =========================================================== -->
+  <div class="fixture" data-shot="fixture">
+    <div class="fixture__in">
+      <span class="state"><b></b>Tonight</span>
+      <span class="fixture__line">One street. <em>One clock.</em></span>
+      ${statsBlock}    </div>
+  </div>
+
+  <!-- ② THE FIELD ============================================================= -->
+  <section class="section" id="field" aria-labelledby="field-title" data-shot="field">
+    <div class="section__grid">
+      <div class="section__rail"><p class="running"><b>01</b><span>The field</span></p></div>
+      <div class="section__body">
+        <div class="section__head">
+          <h2 class="section__title" id="field-title">The map is the field.</h2>
+          <p class="section__deck">Hunters see the <b>latest report</b>, not a perfect live feed. Prey never see the map. The zone and the trails are the host's call — the server keeps the clock.</p>
+        </div>
+
+        <figure class="field-figure" aria-labelledby="band-cap">
+          <div class="field-band">
+            <picture><source srcset="/media/map-band.webp" type="image/webp"><img src="/media/map-band.jpg" alt="Wide real in-app OpenStreetMap night map of Riverside Park and the Hudson River, filtered to the game's Deep Teal palette, with the cyan hunt zone and a coral prey trail." width="1520" height="690" decoding="async"></picture>
+            <svg class="band__svg" viewBox="0 0 1520 690" preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+              <circle cx="1010" cy="330" r="286" stroke="#22D3EE" stroke-opacity=".2" stroke-width="1.4" stroke-dasharray="2 14"/>
+              <circle cx="1010" cy="330" r="275" stroke="#22D3EE" stroke-opacity=".86" stroke-width="2.6"/>
+              <path d="M 960 640 L 1012 560 L 1066 486 L 1128 418 L 1188 348 L 1248 278" stroke="#FF7A59" stroke-opacity=".82" stroke-width="2.6" stroke-linecap="butt" stroke-dasharray="7 11"/>
+              <circle cx="985" cy="596" r="30" stroke="#22D3EE" stroke-opacity=".28" stroke-width="1.6"/>
+              <circle cx="985" cy="596" r="18" stroke="#22D3EE" stroke-opacity=".55" stroke-width="1.8"/>
+              <circle cx="1066" cy="486" r="21" stroke="#FF7A59" stroke-opacity=".55" stroke-width="1.8"/>
+              <circle cx="1066" cy="486" r="9.8" fill="#FF7A59"/>
+              <circle cx="1188" cy="348" r="15" stroke="#FF7A59" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="3 4"/>
+              <circle cx="1188" cy="348" r="7.6" fill="#FF7A59" fill-opacity=".42"/>
+            </svg>
+            <div class="band__board" aria-hidden="true">
+              <span class="state state--live"><b></b>Live</span>
+              <span class="band__clock">41:12</span>
+              <span class="band__meta"><span class="data">Prey 2 / 2</span><span class="data">Zone 240 m</span></span>
+              <span class="band__demo data-sm">Illustration</span>
+            </div>
+            <div class="band__note band__note--zone">
+              <b><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M14 8A6 6 0 1 1 9.2 2.1" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>Zone</b>
+              <span>The area the host sets for the round.</span>
+            </div>
+            <div class="band__note band__note--report">
+              <b><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M4.6 4.6a4.8 4.8 0 0 0 0 6.8M11.4 4.6a4.8 4.8 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Latest report</b>
+              <span>Where a phone last checked in. Not where it is now.</span>
+            </div>
+            <div class="band__note band__note--trail">
+              <b><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13.4 6.4 8.6 9 11.2 14 2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13.4" r="1.3" fill="currentColor"/></svg>Trail</b>
+              <span>Movement history. Off unless the host turns it on.</span>
+            </div>
+            <div class="band__note band__note--clock">
+              <b><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.6V8l2.2 1.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>The clock</b>
+              <span>Server-timed. Pauses for everyone or nobody.</span>
+            </div>
+          </div>
+          <figcaption class="band__cap">
+            <span id="band-cap">Illustration of the hunt screen — zone, latest report, trail and the server's clock.</span>
+            <span>© OpenStreetMap contributors</span>
+          </figcaption>
+          <ul class="field-legend">
+            <li><b><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M14 8A6 6 0 1 1 9.2 2.1" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>Zone</b><span>The area the host sets for the round.</span></li>
+            <li><b><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2" fill="currentColor"/><path d="M4.6 4.6a4.8 4.8 0 0 0 0 6.8M11.4 4.6a4.8 4.8 0 0 1 0 6.8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>Latest report</b><span>Where a phone last checked in. Not where it is now.</span></li>
+            <li><b><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 13.4 6.4 8.6 9 11.2 14 2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="2" cy="13.4" r="1.3" fill="currentColor"/></svg>Trail</b><span>Movement history. Off unless the host turns it on.</span></li>
+            <li><b><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 4.6V8l2.2 1.6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>The clock</b><span>Server-timed. Pauses for everyone or nobody.</span></li>
+          </ul>
+        </figure>
+
+        <div class="notes">
+          <article class="note">
+            <span class="team team--prey"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.6" fill="currentColor"/><path d="M14.2 8A6.2 6.2 0 1 1 9.7 1.9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Prey</span>
+            <h3>Hide. Stay free.</h3>
+            <p>Your phone reports your position to the Hunters at the room's interval. Stay free until the clock stops — if one Prey is still out, Prey win.</p>
+          </article>
+          <article class="note">
+            <span class="team team--hunters"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.2 7 8l-5 4.8M8 3.2 13 8l-5 4.8" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Hunters</span>
+            <h3>Track. Tag.</h3>
+            <p>Follow the latest reports and trails. Find a Prey and tag them in person — they confirm or dispute it, and the server decides what counts.</p>
+          </article>
+          <figure class="note film" id="film">
+            <a class="film__thumb" href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4" aria-label="Watch the 60-second ManHunt explainer film">
+              <picture><source srcset="/media/explainer-cover.webp" type="image/webp"><img src="/media/explainer-cover.jpg" decoding="async" alt="Cover of the 60-second ManHunt explainer film" width="720" height="1280"></picture>
+              <span class="film__play"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5 10 6l-7 4.5Z" fill="currentColor"/></svg>60 sec</span>
+            </a>
+            <figcaption>
+              <p>One minute: the hook, the two sides, how phones report, how tagging works.</p>
+              <a class="link" href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4">Watch the film</a>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section class="card" id="privacy">
-    <h2>Privacy &amp; safety</h2>
-    <ul class="notes">
-      <li>Your position is shown only to the <b>Hunters in your room</b> while a match is running.
-        Admins get no extra location access.</li>
-      <li>Location reports are sent by a foreground service with a visible notification. Movement
-        history is available to Hunters only when the host turns trails on.</li>
-      <li>There is no email address and <b>no password recovery</b> — keep your password safe.</li>
-      <li>This is a <b>test server on plain HTTP</b>: traffic is not encrypted. Do not use it for
-        real sensitive location data; self-host behind HTTPS for that.</li>
-      <li>ManHunt is a game, not a safety or tracking service. Play with people you trust.</li>
-    </ul>
+  <!-- ③ HOW A ROUND RUNS ====================================================== -->
+  <section class="section" id="round" aria-labelledby="round-title" data-shot="round">
+    <div class="section__grid">
+      <div class="section__rail"><p class="running"><b>02</b><span>The round</span></p></div>
+      <div class="section__body">
+        <div class="section__head">
+          <h2 class="section__title" id="round-title">Four beats. One organiser.</h2>
+          <p class="section__deck">No referee needed. The host starts it, <b>the server keeps it honest</b>, and the street handles the rest.</p>
+        </div>
+        <div class="round">
+          <article class="round__beat">
+            <span class="round__num">01</span>
+            <h3>Room</h3>
+            <p>One phone creates the hunt and shares a <b>6-character code</b> with the group.</p>
+          </article>
+          <article class="round__beat">
+            <span class="round__num">02</span>
+            <h3>Sides</h3>
+            <p>Everyone joins and picks <b>Prey or Hunters</b>. The host sets the clock, reports and zone.</p>
+          </article>
+          <article class="round__beat">
+            <span class="round__num">03</span>
+            <h3>Hunt</h3>
+            <p>Prey hide. Phones report. Hunters read the latest report and close in.</p>
+          </article>
+          <article class="round__beat">
+            <span class="round__num">04</span>
+            <h3>Result</h3>
+            <p>All Prey tagged, or the clock runs out. History is kept; rematch when you want.</p>
+          </article>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <section class="section" id="faq" aria-labelledby="faq-title">
-  <div class="section-head">
-    <span class="eyebrow">BEFORE YOU PLAY</span>
-    <h2 id="faq-title">The honest answers.</h2>
-  </div>
-  <div class="faq">
-    <details>
-      <summary>Is ManHunt free?</summary>
-      <p>Yes. The APK is free to download and the server is MIT-licensed. You can play on the hosted test server or run the backend yourself.</p>
-    </details>
-    <details>
-      <summary>Why is it not on Google Play?</summary>
-      <p>ManHunt is distributed as a signed, sideloaded APK. That means allowing installs from your browser and possibly seeing a Play Protect warning. The release and its SHA-256 are published on GitHub.</p>
-    </details>
-    <details>
-      <summary>How many phones do we need?</summary>
-      <p>At least two, and everyone should be in the same physical area. One device hosts the room and shares the 6-character code; the others join and pick a side.</p>
-    </details>
-    <details>
-      <summary>Who can see my location?</summary>
-      <p>Only the Hunters in your room, during the hunting phase, see your latest report. Prey never see locations, and admins get no extra location access. Location history is shown only when the host enables trails.</p>
-    </details>
-    <details>
-      <summary>Is the hosted server safe for real games?</summary>
-      <p>It is a plain-HTTP test server with no availability guarantee and no account recovery. Use it for test games; for anything sensitive, self-host behind HTTPS and play with people you trust.</p>
-    </details>
-  </div>
-</section>
-<footer class="footer">
-    <p><a href="https://github.com/MostafaAshry513/ManHunt/releases/latest">GitHub release</a> ·
-      <a href="https://github.com/MostafaAshry513/ManHunt">source code</a> ·
-      <a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/DEPLOYMENT.md">self-hosting guide</a> ·
-      <a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/brand/README.md">brand kit</a></p>
-    <p class="fine">MIT licensed · Map data &copy; OpenStreetMap contributors · free APK, not on Google Play</p>
-  </footer>
+  <!-- ④ IN THE APP ============================================================= -->
+  <section class="section" id="screens" aria-labelledby="screens-title" data-shot="screens">
+    <div class="section__grid">
+      <div class="section__rail"><p class="running"><b>03</b><span>The screens</span></p></div>
+      <div class="section__body">
+        <div class="section__head">
+          <h2 class="section__title" id="screens-title">Built for the street, not a menu.</h2>
+          <p class="section__deck">Dark by default. English and Arabic with full RTL. 48 dp targets and a map that reads at arm's length, in the dark.</p>
+        </div>
+        <div class="screens ${screensClass}">
+          <div class="screens__rail">
+            ${screensBlock}
+          </div>
+          <aside class="screen__aside">
+            <h3>Everything the round needs.</h3>
+            <p>The same map, clock and rules on every phone. No extra gear, no subscription, no sign-up email.</p>
+            <ul>
+              <li><b>01</b>Map with zone, trails and latest reports</li>
+              <li><b>02</b>Server-kept clock and tag confirmations</li>
+              <li><b>03</b>Room chat with match updates</li>
+              <li><b>04</b>Match history and rematches</li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑤ THE RULES ============================================================== -->
+  <section class="section" id="rules" aria-labelledby="rules-title" data-shot="rules">
+    <div class="section__grid">
+      <div class="section__rail"><p class="running"><b>04</b><span>The rules</span></p></div>
+      <div class="section__body">
+        <div class="pitch">
+          <h2 id="rules-title">The pitch is borrowed. <span>The rules are not.</span></h2>
+          <p class="section__deck">The chase is exciting. The rules are boring, on purpose. <b>The parts the server owns are not up for argument.</b></p>
+        </div>
+        <dl class="ledger">
+          <div class="ledger__row">
+            <dt>Clock</dt>
+            <dd><h3>The clock is server-owned.</h3><p>Timers, phases and pause/resume are decided server-side. No phone can run the clock ahead.</p></dd>
+          </div>
+          <div class="ledger__row">
+            <dt>Teams</dt>
+            <dd><h3>Two sides, counted.</h3><p>Prey and Hunters are assigned in the room and enforced by the server for the whole round.</p></dd>
+          </div>
+          <div class="ledger__row">
+            <dt>Tags</dt>
+            <dd><h3>A tag needs a witness.</h3><p>A Hunter claims a tag; the Prey confirms or disputes it. Duplicate claims cannot double-apply.</p></dd>
+          </div>
+          <div class="ledger__row">
+            <dt>Map</dt>
+            <dd><h3>Latest report only.</h3><p>Hunters see the last report and optional trails — not a perfect live feed. Prey never see positions.</p></dd>
+          </div>
+          <div class="ledger__row">
+            <dt>Signal</dt>
+            <dd><h3>Built to recover.</h3><p>Reconnects, restarts and flaky signal do not break the round. Pause and resume shift the clock correctly.</p></dd>
+          </div>
+          <div class="ledger__row">
+            <dt>Hosting</dt>
+            <dd><h3>Yours to host.</h3><p>One Node process, one SQLite file, no Docker, no paid map or push service. <a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/DEPLOYMENT.md">Read the deployment guide</a>.</p></dd>
+          </div>
+          <div class="ledger__row">
+            <dt>Language</dt>
+            <dd><h3>English and Arabic.</h3><p>Full RTL, dark-first UI, adjustable text size and 48 dp controls throughout the app.</p></dd>
+          </div>
+          <div class="ledger__row">
+            <dt>Cost</dt>
+            <dd><h3>Free, no ads.</h3><p>MIT-licensed source. No ads, no in-app purchases, no account email required.</p></dd>
+          </div>
+        </dl>
+
+        <div class="privacy" id="privacy">
+          <h3>Privacy <span>and safety</span></h3>
+          <ul>
+            <li>Your position is shown only to the <b>Hunters in your room</b> while a match is running. Admins get no extra location access.</li>
+            <li>Location reports are sent by a foreground service with a visible notification. History is shown to Hunters only when the host turns trails on.</li>
+            <li>There is no email address and <b>no password recovery</b> — keep your password safe.</li>
+            <li>The hosted server is a <b>test deployment on plain HTTP</b>. Don't use it for sensitive location data; self-host behind HTTPS for that.</li>
+            <li>ManHunt is a game, <b>not a safety service</b>. Play in places you're allowed to be, with people you trust.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑥ THE PASS =============================================================== -->
+  <section class="pass" id="download" aria-labelledby="download-title" data-shot="pass">
+    <div class="pass__plate">
+      <div class="pass__head">
+        <p class="running"><b>05</b><span>The pass</span></p>
+        <h2 id="download-title">Get on<br>the field.</h2>
+        <dl class="pass__meta">
+          <div><dt>Version</dt><dd>${metaVersion}</dd></div>
+          <div><dt>Size</dt><dd>${metaSize}</dd></div>
+          <div><dt>Published</dt><dd>${metaPublished}</dd></div>
+          <div><dt>Android</dt><dd>8.0+</dd></div>
+        </dl>
+        <div class="pass__dl">
+          <a class="btn btn--primary" href="${escapeHtml(downloadHref)}">${downloadLabel}</a>
+          ${hashBlock}
+          ${serverBlock}
+          <p class="pass__warn"><b>Android will warn you about sideloaded apps.</b> That warning is expected — the release is signed and built by the project. Install only if you trust this project.</p>
+          ${releaseNote}
+        </div>
+      </div>
+      <div class="pass__steps">
+        <p class="running"><b>06</b><span>Install</span></p>
+        <h3>Install in four steps.</h3>
+        <ol>
+          <li><span class="n">01</span><div><b>Download the APK</b><p>On the Android phone you'll play on.</p></div></li>
+          <li><span class="n">02</span><div><b>Allow installs from your browser</b><p>When Android asks. If it doesn't: Settings → Apps → Special app access → Install unknown apps.</p></div></li>
+          <li><span class="n">03</span><div><b>Open the file and install</b><p>Play Protect may warn about a sideloaded app — choose "Install anyway" only if you trust this project.</p></div></li>
+          <li><span class="n">04</span><div><b>Open ManHunt and sign in</b><p>Create a local account — no email needed — and use the server shown on this page.</p></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑦ QUESTIONS ============================================================== -->
+  <section class="section" id="questions" aria-labelledby="questions-title" data-shot="questions">
+    <div class="section__grid">
+      <div class="section__rail"><p class="running"><b>07</b><span>The questions</span></p></div>
+      <div class="section__body">
+        <div class="section__head">
+          <h2 class="section__title" id="questions-title">The honest answers.</h2>
+          <p class="section__deck">What the page can't show you: the small print, said plainly. Nothing here is a promise the project can't keep.</p>
+        </div>
+        <div class="questions">
+          <details>
+            <summary>Is ManHunt free?</summary>
+            <p>Yes. The APK is free to download and the server is MIT-licensed. You can play on the hosted test server or run the backend yourself. There are no ads and no in-app purchases.</p>
+          </details>
+          <details>
+            <summary>Why is it not on Google Play?</summary>
+            <p>ManHunt is distributed as a signed, sideloaded APK. That means allowing installs from your browser and possibly seeing a Play Protect warning. The release and its SHA-256 are published on GitHub — the same hash is printed on this page.</p>
+          </details>
+          <details>
+            <summary>How many phones do we need?</summary>
+            <p>At least two, and everyone should be in the same physical area. One phone hosts the room and shares the 6-character code; the others join and pick a side. Groups of four to ten are where the game works best.</p>
+          </details>
+          <details>
+            <summary>Who can see my location?</summary>
+            <p>Only the Hunters in your room, during the hunting phase, see your latest report. Prey never see locations, and admins get no extra location access. Location history is shown only when the host enables trails.</p>
+          </details>
+          <details>
+            <summary>Is the hosted server safe for a real game?</summary>
+            <p>It is a plain-HTTP test server with no availability guarantee and no account recovery. Use it for test games; for anything sensitive, self-host behind HTTPS and play with people you trust.</p>
+          </details>
+          <details>
+            <summary>What if a tag is disputed?</summary>
+            <p>The Hunter claims the tag, the Prey confirms or disputes it, and the Huntmaster resolves it. Duplicate claims cannot double-apply, so the result can't be argued into existence.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
+<footer class="footer" data-shot="footer">
+  <div class="footer__in">
+    <div class="footer__brand">
+      <svg viewBox="0 0 806 220" role="img" aria-label="ManHunt"><title>ManHunt</title><g transform="translate(9.69 9.69) scale(1.86)"><g transform="rotate(0 54 54)"><path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4" stroke-linecap="butt"/><circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/></g></g><g transform="translate(226 60)"><path d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/><path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/><path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/><path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/><path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/><path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/><path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/></g></svg>
+      <p>A free pickup sport for Android: two teams, real streets, and a clock nobody can argue with.</p>
+    </div>
+    <div class="footer__cols">
+      <div>
+        <h4>The game</h4>
+        <ul>
+          <li><a href="https://github.com/MostafaAshry513/ManHunt">Source code</a></li>
+          <li><a href="https://github.com/MostafaAshry513/ManHunt/releases/latest">Latest release</a></li>
+          <li><a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/DEPLOYMENT.md">Self-hosting guide</a></li>
+          <li><a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/brand/README.md">Brand kit</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>The film</h4>
+        <ul>
+          <li><a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4">60-second explainer</a></li>
+          <li><a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_15s_1080x1920.mp4">15-second hook</a></li>
+          <li><a href="https://github.com/MostafaAshry513/ManHunt/tree/master/design/social/campaign">Campaign notes</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Small print</h4>
+        <ul>
+          <li><a href="#privacy">Privacy &amp; safety</a></li>
+          <li><a href="#questions">Questions</a></li>
+          <li><a href="https://github.com/MostafaAshry513/ManHunt/blob/master/LICENSE">MIT licence</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer__fine">
+      <span>MIT licensed</span>
+      <span>Map data © OpenStreetMap contributors</span>
+      <span>Free APK · not on Google Play</span>
+      <span>ManHunt is a game, not a safety service.</span>
+    </p>
+  </div>
+</footer>
 </body>
 </html>`;
 }

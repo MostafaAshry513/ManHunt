@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ManHunt — Live hunt concept</title><link rel="stylesheet" href="app.css"></head>
+<body>
+<div class="phone">
+  <div id="sb"></div>
+
+  <div class="board" style="border-top:0">
+    <div class="board-top">
+      <div>
+        <div class="stateword live"><span class="dot-live"></span>LIVE</div>
+        <div class="board-name" style="font-size:15px;color:var(--muted);font-weight:400">Riverside Run</div>
+      </div>
+      <div class="board-right">
+        <div class="board-meta">ZONE <b>240 M</b></div>
+        <div class="board-meta">PREY <b>2 / 2</b></div>
+      </div>
+    </div>
+    <div class="board-vals">
+      <div class="clock">41:12</div>
+      <div class="board-meta" style="margin-left:auto;text-align:right">REPORT<br>EVERY 5 MIN</div>
+    </div>
+  </div>
+
+  <div style="position:relative;flex:1;overflow:hidden">
+    <div class="mapwrap" id="map"></div>
+    <div class="map-controls">
+      <div class="map-btn" id="zin"></div>
+      <div class="map-btn" id="zout"></div>
+      <div class="map-btn" id="loc"></div>
+    </div>
+
+    <div class="hunt-bottom">
+      <div class="peek">
+        <div class="lines">
+          <div class="l1">2 prey still out. Last report 12 s ago.</div>
+          <div class="l2">ZONE 240 M · SHRINKS IN 04:12</div>
+          <div class="osm">© OpenStreetMap contributors</div>
+        </div>
+        <span class="chev" id="chev"></span>
+      </div>
+      <div class="dock" style="position:static;padding-bottom:22px">
+        <div class="status"><span class="txt">Trails on. Hunters see the latest reports.</span><span class="reason">HUNTER</span></div>
+        <button class="btn">Tag prey</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('map').innerHTML = fieldMap();
+  document.getElementById('zin').textContent = '+';
+  document.getElementById('zout').textContent = '−';
+  document.getElementById('loc').innerHTML = ico('locate').replace('class="ico"', 'class="ico" style="width:20px;height:20px"');
+  document.getElementById('chev').innerHTML = ico('chevronUp');
+  document.getElementById('nav').innerHTML = navBar();
+</script>
+</body>
+</html>

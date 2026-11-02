@@ -38,28 +38,76 @@ test('install page renders version, size, checksum and server from the update ma
   const res = await app.inject({ method: 'GET', url: '/', headers: { host: 'example.test' } });
   assert.equal(res.statusCode, 200);
   assert.match(String(res.headers['content-type']), /text\/html/);
+
+  // The poster hero: one h1, the permanent line, the descriptor and the install honesty line.
   assert.match(res.body, /<title>ManHunt/);
-  assert.match(res.body, /Hide from your friends\./);
-  assert.match(res.body, /mh-hero/);
-  assert.match(res.body, /href="\/favicon\.png"/);
-  assert.match(res.body, /og-image\.png/);
+  assert.match(res.body, /class="hero__title"/);
+  assert.match(res.body, /<i>Hide<\/i>/);
+  assert.match(res.body, /<i>from your<\/i>/);
+  assert.match(res.body, /<i>friends\.<\/i>/);
+  assert.match(res.body, /Real-world hide-and-seek for Android/);
+  assert.match(res.body, /class="hero__honest/);
+  assert.match(res.body, /Not on Play Store/);
+  assert.match(res.body, /class="hero__plate"/);
+  assert.match(res.body, /\/media\/map-hero\.webp/);
+
+  // Manifest data appears in the hero and in the download pass.
   assert.match(res.body, /v0\.9\.0/);
   assert.match(res.body, /13\.2 MB/);
   assert.ok(res.body.includes(SHA), 'page shows the published SHA-256 checksum');
-  assert.match(res.body, /Published 2026-10-30/);
+  assert.match(res.body, /2026-10-30/);
   assert.match(res.body, /href="\/app\.apk"/);
   assert.match(res.body, /Android 8\.0\+/);
   assert.ok(res.body.includes('http://example.test'), 'server line is filled from the request host');
-  assert.doesNotMatch(res.body, /Server\s*<\/p>/, 'the old blank "Server:" line does not come back');
-  assert.match(res.body, /Install in four steps/);
-  assert.match(res.body, /Privacy &amp; safety/);
-  assert.match(res.body, /id="watch"/);
+
+  // The page's new information architecture: the field, the round, the screens, the rules, the pass
+  // and the honest answers.
+  assert.match(res.body, /id="field"/);
+  assert.match(res.body, /id="round"/);
   assert.match(res.body, /id="screens"/);
-  assert.match(res.body, /id="how"/);
-  assert.match(res.body, /id="features"/);
-  assert.match(res.body, /id="faq"/);
-  assert.match(res.body, /src="\/media\/home\.png"/);
+  assert.match(res.body, /id="rules"/);
+  assert.match(res.body, /id="privacy"/);
+  assert.match(res.body, /id="download"/);
+  assert.match(res.body, /id="questions"/);
+  assert.match(res.body, /Install in four steps/);
+  assert.match(res.body, /Privacy <span>and safety<\/span>/);
+
+  // The design system: self-hosted OFL faces, real map plate, drawn wordmark, team roles.
+  assert.match(res.body, /@font-face/);
+  assert.match(res.body, /\/media\/big-shoulders-700\.woff2/);
+  assert.match(res.body, /\/media\/instrument-sans-400\.woff2/);
+  assert.match(res.body, /\/media\/map-band\.webp/);
+  assert.match(res.body, /team--prey/);
+  assert.match(res.body, /team--hunters/);
+  assert.match(res.body, /OpenStreetMap contributors/);
+  assert.match(res.body, /href="\/favicon\.png"/);
+  assert.match(res.body, /og-image\.png/);
+  assert.match(res.body, /<picture>/);
+  // The screens grid is built from the accepted premium capture set: hunt (signature), home,
+  // lobby, chat and the full-time result.
+  assert.match(res.body, /class="screens screens--5"/);
+  assert.match(res.body, /\/media\/shot-hunt\.webp/);
+  assert.match(res.body, /\/media\/shot-home\.webp/);
+  assert.match(res.body, /\/media\/shot-lobby\.webp/);
+  assert.match(res.body, /\/media\/shot-extra\.webp/);
+  assert.match(res.body, /\/media\/shot-result\.webp/);
+  assert.equal((res.body.match(/class="screen"/g) ?? []).length, 5, 'five real captures in the rail');
   assert.match(res.body, /github\.com\/MostafaAshry513\/ManHunt/);
+});
+
+test('install page has no scripts and no remote assets (CSP-safe, self-contained)', async (t) => {
+  const app = await makeApp();
+  t.after(() => app.close());
+
+  const res = await app.inject({ method: 'GET', url: '/' });
+  assert.equal(res.statusCode, 200);
+  assert.doesNotMatch(res.body, /<script/i, 'no scripts on the page');
+  assert.doesNotMatch(res.body, /<link[^>]+href="https?:/i, 'no remote stylesheets/preloads');
+  assert.doesNotMatch(res.body, /<(?:img|source)[^>]+src="https?:/i, 'no remote images');
+  for (const match of res.body.matchAll(/url\(["']?(https?:[^"')]+)/gi)) {
+    assert.fail(`remote CSS asset: ${match[1]}`);
+  }
+  assert.doesNotMatch(res.body, /@import/i);
 });
 
 test('install page shows aggregate account count and weekly growth', async (t) => {
@@ -76,11 +124,11 @@ test('install page shows aggregate account count and weekly growth', async (t) =
   }
 
   const page = await app.inject({ method: 'GET', url: '/' });
-  assert.match(page.body, /<b>2<\/b><span>accounts created<\/span>/);
-  assert.match(page.body, /<b>\+2<\/b><span>new this week<\/span>/);
+  assert.match(page.body, /<b>2<\/b><span class="data-sm">accounts started<\/span>/);
+  assert.match(page.body, /<b class="plus">\+2<\/b><span class="data-sm">new this week<\/span>/);
 });
 
-test('install page favicon and social preview assets are served', async (t) => {
+test('install page media: favicon, social preview, real map plates and self-hosted fonts are served', async (t) => {
   const app = await makeApp();
   t.after(() => app.close());
 
@@ -99,11 +147,42 @@ test('install page favicon and social preview assets are served', async (t) => {
   assert.equal(home.headers['content-type'], 'image/png');
   assert.ok(home.rawPayload.length > 1000);
 
+  for (const [file, type] of [
+    ['shot-home.webp', 'image/webp'],
+    ['shot-home.jpg', 'image/jpeg'],
+    ['shot-lobby.webp', 'image/webp'],
+    ['shot-lobby.jpg', 'image/jpeg'],
+    ['shot-hunt.webp', 'image/webp'],
+    ['shot-hunt.jpg', 'image/jpeg'],
+    ['shot-extra.webp', 'image/webp'],
+    ['shot-result.webp', 'image/webp'],
+    ['shot-result.jpg', 'image/jpeg'],
+    ['explainer-cover.webp', 'image/webp'],
+    ['map-hero.webp', 'image/webp'],
+    ['map-hero.jpg', 'image/jpeg'],
+    ['map-band.webp', 'image/webp'],
+    ['map-band.jpg', 'image/jpeg'],
+    ['big-shoulders-700.woff2', 'font/woff2'],
+    ['instrument-sans-400.woff2', 'font/woff2'],
+    ['instrument-sans-700.woff2', 'font/woff2'],
+    ['red-hat-mono-400.woff2', 'font/woff2'],
+  ] as const) {
+    const res = await app.inject({ method: 'GET', url: `/media/${file}` });
+    assert.equal(res.statusCode, 200, file);
+    assert.equal(res.headers['content-type'], type, file);
+    assert.ok(res.rawPayload.length > 1000, file);
+  }
+
+  // A random file that is not on the allowlist must never be readable.
   const missing = await app.inject({ method: 'GET', url: '/media/not-on-the-list.png' });
   assert.equal(missing.statusCode, 404);
+
+  const fontNotListed = await app.inject({ method: 'GET', url: '/media/comic-sans.woff2' });
+  assert.equal(fontNotListed.statusCode, 404);
 });
 
-test('/api/app/latest serves the manifest JSON without a PowerShell BOM', async (t) => {  const dir = await mkdtemp(join(tmpdir(), 'manhunt-install-page-'));
+test('/api/app/latest serves the manifest JSON without a PowerShell BOM', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'manhunt-install-page-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const manifestPath = join(dir, 'app-latest.json');
   await writeFile(manifestPath, `\uFEFF${JSON.stringify({
@@ -132,8 +211,12 @@ test('install page still downloads without a published manifest and the update A
 
   const page = await app.inject({ method: 'GET', url: '/' });
   assert.equal(page.statusCode, 200);
-  assert.match(page.body, /Download APK/);
+  assert.match(page.body, /Download the APK/);
   assert.match(page.body, /not published on this server yet/);
+  assert.match(page.body, /No checksum has been published for this build/);
+  // A fresh deployment (no accounts yet) shows the licence fact rather than a wall of zeroes.
+  assert.match(page.body, /<b>MIT<\/b><span class="data-sm">licensed source<\/span>/);
+  assert.doesNotMatch(page.body, /accounts started/);
 
   const latest = await app.inject({ method: 'GET', url: '/api/app/latest' });
   assert.equal(latest.statusCode, 404);
@@ -152,6 +235,11 @@ test('html pages send hardening headers and the join page sanitizes the invite c
     assert.equal(res.headers['referrer-policy'], 'no-referrer', url);
     assert.match(String(res.headers['content-security-policy']), /default-src 'none'/, url);
   }
+
+  // The landing page self-hosts its fonts, so the policy allows same-origin font files only.
+  const home = await app.inject({ method: 'GET', url: '/' });
+  assert.match(String(home.headers['content-security-policy']), /font-src 'self'/);
+  assert.doesNotMatch(String(home.headers['content-security-policy']), /script-src/);
 
   const join = await app.inject({ method: 'GET', url: '/join?code=abc123' });
   assert.match(join.body, /ABC123/);

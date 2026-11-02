@@ -223,20 +223,19 @@ $failures = New-Object System.Collections.Generic.List[string]
 foreach ($spec in $expected) {
     $path = Join-Path $sourceDir $spec.File
     if (-not (Test-Path $path)) {
-        if ($spec.Required) {
-            if (Test-IsPending $spec) {
-                # A pending shot is allowed to be absent: record it in the manifest, never fake it.
-                $pendingRecords.Add([pscustomobject]@{
-                    File     = $spec.File
-                    Role     = $spec.Role
-                    Scenario = $spec.Scenario
-                    Width    = $spec.Width
-                    Height   = $spec.Height
-                })
-                Write-Host ("pend {0}  (not in this verified build; recorded in MANIFEST)" -f $spec.File)
-            } else {
-                $failures.Add("$($spec.File): missing")
-            }
+        if (Test-IsPending $spec) {
+            # A pending shot (required or optional) is allowed to be absent: record it in the
+            # manifest, never fake it.
+            $pendingRecords.Add([pscustomobject]@{
+                File     = $spec.File
+                Role     = $spec.Role
+                Scenario = $spec.Scenario
+                Width    = $spec.Width
+                Height   = $spec.Height
+            })
+            Write-Host ("pend {0}  (not in this verified build; recorded in MANIFEST)" -f $spec.File)
+        } elseif ($spec.Required) {
+            $failures.Add("$($spec.File): missing")
         }
         continue
     }

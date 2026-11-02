@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ManHunt — Home concept (light)</title><link rel="stylesheet" href="app.css">
+<style>
+  .phone.light .sb svg { filter: invert(0.86); }
+  .phone.light .sb { color: #0f172a; }
+</style></head>
+<body>
+<div class="phone light">
+  <div id="sb"></div>
+  <header class="masthead">
+    <span id="mark"></span><span id="wm"></span>
+    <div class="right"><span class="local-time">21:04</span><span class="icon-btn" id="settings"></span></div>
+  </header>
+  <div class="hero-plate" id="hero"></div>
+  <div class="screen scrollable" style="padding-top:0; gap:0; overflow:hidden;">
+    <h1 class="home-line">Hide from<br>your friends.</h1>
+    <p class="home-desc">Real-world GPS hide-and-seek.</p>
+
+    <div class="host-block">
+      <div class="title">Host a hunt</div>
+      <div class="field"><label>Hunt name</label><div class="input">Riverside Run</div></div>
+      <p class="hint">Name it, or leave it as ManHunt.</p>
+      <button class="btn">Create the hunt</button>
+    </div>
+
+    <div class="rule mt-20"></div>
+
+    <div class="host-block" style="margin-top:14px">
+      <div class="title">Join a hunt</div>
+      <div class="code">
+        <span class="cell empty">–</span><span class="cell empty">–</span><span class="cell empty">–</span>
+        <span class="cell empty">–</span><span class="cell empty">–</span><span class="cell empty">–</span>
+        <span class="paste">PASTE</span>
+      </div>
+      <p class="hint">Ask the host for the six-character code.</p>
+      <button class="btn secondary">Join hunt</button>
+    </div>
+
+    <div class="rule" style="margin-top:18px"></div>
+    <div class="home-footer">
+      <span class="inline-action">How it works <span id="arrow"></span></span>
+      <span class="inline-action muted">Sign out</span>
+    </div>
+    <div class="row between" style="margin-top:10px">
+      <span class="body-s">Playing as Yasmin</span>
+      <span class="home-version">v0.15.1 · free APK · Android 8+</span>
+    </div>
+    <div style="height:22px"></div>
+  </div>
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('mark').innerHTML = `<svg class="mark" viewBox="0 0 108 108" width="22" height="22" aria-label="ManHunt mark"><path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#0C6B84" stroke-width="10.4" stroke-linecap="butt"/><circle cx="66.72" cy="33.65" r="8.6" fill="#B33A0F"/></svg>`;
+  document.getElementById('wm').innerHTML = wordmark(22);
+  document.getElementById('settings').innerHTML = ico('settings');
+  document.getElementById('hero').innerHTML = fieldPlateLight();
+  document.getElementById('nav').innerHTML = navBar();
+  document.getElementById('arrow').innerHTML = ico('chevron').replace('class="ico"', 'class="ico" style="width:14px;height:14px;transform:rotate(-90deg)"');
+</script>
+</body>
+</html>

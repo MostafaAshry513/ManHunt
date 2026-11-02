@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>ManHunt — Chat concept</title><link rel="stylesheet" href="app.css"></head>
+<body>
+<div class="phone">
+  <div id="sb"></div>
+  <header class="screen-head">
+    <span class="hicon" id="back"></span>
+    <span class="end" style="margin-left:auto"><span class="hicon" id="share"></span><span class="hicon" id="history"></span></span>
+  </header>
+  <div class="chat-room-strip">
+    <span class="stateword live"><span class="dot-live"></span>LIVE</span>
+    <span class="title" style="font-size:15px">Riverside Run</span>
+    <span class="data" style="margin-left:auto">4 IN ROOM</span>
+  </div>
+  <div class="tabrule"><div>Hunt</div><div class="on">Chat</div></div>
+
+  <div class="chat-log">
+    <div class="sysline"><span class="ln"></span><span class="lbl">HUNTING BEGAN</span><span class="ln"></span></div>
+
+    <div class="msg"><span class="time">20:46</span><div class="bodywrap">
+      <div class="who coral">Yasmin</div><div class="text">I'm near the north gate.</div></div></div>
+    <div class="msg"><span class="time">20:47</span><div class="bodywrap">
+      <div class="who violet">Omar</div><div class="text">Two minutes. I'm crossing the field.</div></div></div>
+    <div class="msg"><span class="time">20:48</span><div class="bodywrap">
+      <div class="who coral">Leila</div><div class="text">Take the path by the water, they're on the east side.</div></div></div>
+    <div class="msg"><span class="time">20:50</span><div class="bodywrap">
+      <div class="who violet">Tariq</div><div class="text">I can see the trail heading east.</div></div></div>
+
+    <div class="sysline"><span class="ln"></span><span class="lbl">YASMIN WAS TAGGED</span><span class="ln"></span></div>
+
+    <div class="msg own"><div class="bodywrap">
+      <div class="who">You &middot; 20:52</div><div class="text">One left. She's not going far.</div></div></div>
+    <div class="msg"><span class="time">20:53</span><div class="bodywrap">
+      <div class="who violet">Sara</div><div class="text">Meet at the east gate when it's called.</div></div></div>
+  </div>
+
+  <div class="composer">
+    <div class="input" style="color:var(--muted)">Message</div>
+    <div class="send-btn" id="send"></div>
+  </div>
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('back').innerHTML = ico('back');
+  document.getElementById('share').innerHTML = ico('share');
+  document.getElementById('history').innerHTML = ico('history');
+  document.getElementById('send').innerHTML = ico('send');
+  document.getElementById('nav').innerHTML = navBar();
+</script>
+</body>
+</html>

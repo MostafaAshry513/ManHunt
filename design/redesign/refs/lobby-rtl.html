@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head><meta charset="utf-8"><title>ManHunt — غرفة الانتظار</title><link rel="stylesheet" href="app.css">
+<style>
+  .phone[dir='rtl'] .board-meta, .phone[dir='rtl'] .data { font-family: var(--mono); }
+  .phone[dir='rtl'] .stateword { letter-spacing: 0; font-family: var(--ar); font-size: 10px; }
+  .phone[dir='rtl'] .board-name, .phone[dir='rtl'] .title, .phone[dir='rtl'] .lbl,
+  .phone[dir='rtl'] .body-s, .phone[dir='rtl'] .hint, .phone[dir='rtl'] .inline-action,
+  .phone[dir='rtl'] .player .pname, .phone[dir='rtl'] .pstat, .phone[dir='rtl'] .sheet-h .name { font-family: var(--ar); }
+  .phone[dir='rtl'] .pstat { letter-spacing: 0; font-size: 11px; }
+  .phone[dir='rtl'] .tag { font-family: var(--ar); }
+  .phone[dir='rtl'] .tabrule div { font-family: var(--ar); }
+  .ltrnum { direction: ltr; unicode-bidi: isolate; font-family: var(--mono); }
+</style></head>
+<body>
+<div class="phone" dir="rtl">
+  <div id="sb"></div>
+  <header class="screen-head">
+    <span class="hicon back-mirror" id="back"></span>
+    <span class="end" style="margin-left:auto"><span class="hicon" id="share"></span><span class="hicon" id="history"></span></span>
+  </header>
+
+  <div class="board" style="border-top:0">
+    <div class="board-top">
+      <div>
+        <div class="stateword">غرفة الانتظار</div>
+        <div class="board-name">نهر المساء</div>
+      </div>
+      <div class="board-right">
+        <div class="board-meta"><span class="ltrnum">5 / 5</span> مستعد</div>
+        <div class="readybar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+      </div>
+    </div>
+    <div class="board-vals" style="align-items:baseline">
+      <span class="board-meta" style="letter-spacing:0">رمز الانضمام</span>
+      <span class="data-l ltrnum" style="color:var(--chalk);font-size:18px;letter-spacing:.14em;direction:ltr">K7M2QX</span>
+      <span class="tag chalk" style="margin-right:auto;margin-left:0" id="shareTag"></span>
+    </div>
+  </div>
+
+  <div class="tabrule"><div class="on">المطاردة</div><div>الدردشة</div></div>
+
+  <div class="screen scrollable" style="gap:14px">
+    <div class="rule-with-label mt-2" style="font-family:var(--ar);letter-spacing:0">الفريقان</div>
+    <div class="sheets">
+      <section class="sheet prey">
+        <div class="sheet-h"><span id="preyIco"></span><span class="name">الفريسة</span><span class="count ltrnum">2</span></div>
+        <div class="player me">
+          <span class="avatar">ي</span>
+          <div style="min-width:0"><div class="pname">ياسمين</div><div class="pstat">مستعدة</div></div>
+          <span class="end"><span class="host-mark">المضيف</span></span>
+        </div>
+        <div class="player">
+          <span class="avatar">ل</span>
+          <div style="min-width:0"><div class="pname">ليلى</div><div class="pstat">مستعدة</div></div>
+          <span class="end" id="check1"></span>
+        </div>
+      </section>
+      <section class="sheet hunters">
+        <div class="sheet-h"><span id="hunIco"></span><span class="name">الصيادون</span><span class="count ltrnum">3</span></div>
+        <div class="player">
+          <span class="avatar">ع</span>
+          <div style="min-width:0"><div class="pname">عمر</div><div class="pstat">مستعد</div></div>
+          <span class="end" id="check2"></span>
+        </div>
+        <div class="player">
+          <span class="avatar">ط</span>
+          <div style="min-width:0"><div class="pname">طارق</div><div class="pstat">مستعد</div></div>
+          <span class="end" id="check3"></span>
+        </div>
+        <div class="player" style="border-bottom:0">
+          <span class="avatar">س</span>
+          <div style="min-width:0"><div class="pname">سارة</div><div class="pstat">مستعدة</div></div>
+          <span class="end" id="check4"></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="rule mt-2"></div>
+    <div class="row between">
+      <span class="data" style="font-family:var(--ar);letter-spacing:0">60 دقيقة. تقرير كل 5 دقائق. نطاق 240 مترًا.</span>
+      <span class="inline-action" style="font-size:12px">قواعد المطاردة</span>
+    </div>
+  </div>
+
+  <div class="dock">
+    <div class="status"><span class="txt">الجميع مستعدون. المطاردة تبدأ متى شئت.</span><span class="reason">المضيف</span></div>
+    <button class="btn" style="font-family:var(--ar)">ابدأ المطاردة</button>
+  </div>
+  <div id="nav"></div>
+</div>
+<script src="parts.js"></script>
+<script>
+  document.getElementById('sb').innerHTML = statusbar();
+  document.getElementById('back').innerHTML = ico('back');
+  document.getElementById('share').innerHTML = ico('share');
+  document.getElementById('history').innerHTML = ico('history');
+  document.getElementById('shareTag').innerHTML = ico('share') + ' شارك الرمز';
+  document.getElementById('preyIco').innerHTML = ico('prey');
+  document.getElementById('hunIco').innerHTML = ico('hunters');
+  for (const id of ['check1','check2','check3','check4']) document.getElementById(id).innerHTML = ico('check');
+  document.getElementById('nav').innerHTML = navBar();
+</script>
+</body>
+</html>
