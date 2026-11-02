@@ -1,4 +1,4 @@
-package com.manhunt.app
+﻿package com.manhunt.app
 
 import android.Manifest
 import android.content.Intent
@@ -105,10 +105,13 @@ class WarmInviteTest {
                 compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()
         }
         if (compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()) {
-            // A previous test left the app in a room; return to Home first.
-            compose.activityRule.scenario.onActivity { activity ->
-                activity.onBackPressedDispatcher.onBackPressed()
-            }
+            // A previous test left the app in a room. Leave through the real UI (the toolbar
+            // leave action + its confirm sheet) instead of a raw back press: the MATCHDAY
+            // design confirms destructive/leave actions, so one back press can stop on a
+            // sheet and the wait for Home would then time out.
+            compose.onNodeWithTag("room_leave").performClick()
+            waitForText("Leave the room?")
+            compose.onAllNodesWithText("Leave")[0].performClick()
         }
         if (compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty()) {
             compose.onNodeWithTag("auth_username").performTextInput(guestName)
