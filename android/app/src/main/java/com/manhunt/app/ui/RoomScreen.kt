@@ -260,14 +260,28 @@ class RoomViewModel(
             return
         }
         if (match == null || (match.phase != Phases.FINISHED && match.phase != Phases.CANCELLED)) return
-        if (finishedSnapshot?.matchId == match.id) return
+        // Rebuild on every finished payload: the driver/emitter may re-anchor the finished
+        // timeline (started_at/ended_at) after the first FINISHED frame, and caching the first
+        // snapshot was showing the planned duration. Later frames must be allowed to replace it.
         val prior = lastLiveState?.takeIf { it.match?.id == match.id }
         val nextHasFlags = next.members.any { it.eliminated }
         val priorHasFlags = prior != null && prior.members.any { it.eliminated }
-        val members = when {
+        val flagsSource = when {
             nextHasFlags -> next.members
             priorHasFlags -> prior!!.members
             else -> null
+        }
+        // Member elimination flags reset at finish on the server. Only trust a flag source whose
+        // tagged-prey count agrees with the authoritative finished score; otherwise omit the
+        // per-member statuses rather than show an impossible roster.
+        val expectedTagged = if (match.preyTotal > 0) {
+            (match.preyTotal - match.preyAlive).coerceAtLeast(0)
+        } else {
+            null
+        }
+        val members = flagsSource?.takeIf { source ->
+            expectedTagged == null ||
+                source.count { it.team == Teams.PREY && it.eliminated } == expectedTagged
         }
         finishedSnapshot = FinishedMatchSnapshot(
             matchId = match.id,
@@ -275,7 +289,7 @@ class RoomViewModel(
             winner = match.winner,
             startedAt = match.startedAt,
             endsAt = match.endsAt,
-            endedAt = 0,
+            endedAt = match.endedAt ?: 0,
             preyAlive = match.preyAlive,
             preyTotal = match.preyTotal,
             zoneRadiusM = match.zone?.radiusM,
@@ -291,13 +305,15 @@ class RoomViewModel(
         viewModelScope.launch {
             val summary = runCatching { repo.matchSummary(match.id) }.getOrNull() ?: return@launch
             val current = finishedSnapshot?.takeIf { it.matchId == match.id } ?: return@launch
+            // The summary is the post-finish authority (real endedAt, final counts); the room
+            // payload can be stale/already reset, so summary fields win when present.
             finishedSnapshot = current.copy(
                 startedAt = if (summary.startedAt > 0) summary.startedAt else current.startedAt,
                 endsAt = if (summary.endsAt > 0) summary.endsAt else current.endsAt,
-                endedAt = summary.endedAt ?: 0,
-                winner = current.winner ?: summary.winner,
-                preyAlive = if (current.preyAlive > 0) current.preyAlive else summary.preyAlive,
-                preyTotal = if (current.preyTotal > 0) current.preyTotal else summary.preyTotal,
+                endedAt = summary.endedAt ?: current.endedAt,
+                winner = summary.winner ?: current.winner,
+                preyAlive = summary.preyAlive,
+                preyTotal = if (summary.preyTotal > 0) summary.preyTotal else current.preyTotal,
                 zoneRadiusM = current.zoneRadiusM ?: summary.zone?.radiusM,
             )
         }

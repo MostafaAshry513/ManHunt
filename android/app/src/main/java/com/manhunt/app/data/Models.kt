@@ -1,4 +1,4 @@
-package com.manhunt.app.data
+﻿package com.manhunt.app.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -82,6 +82,8 @@ data class MatchDto(
     val startedAt: Long = 0,
     val headStartEndsAt: Long = 0,
     val endsAt: Long = 0,
+    /** Authoritative wall-clock finish time when the server includes it (finished matches). */
+    val endedAt: Long? = null,
     val now: Long = 0,
     val winner: String? = null,
     val preyAlive: Int = 0,

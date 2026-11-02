@@ -54,7 +54,8 @@ fun ScorePage(
 ) {
     val cancelled = snapshot.cancelled
     val winnerIsHunters = snapshot.winner == Teams.HUNTERS
-    val duration = snapshot.durationSeconds?.let(::formatScoreClock)
+    val view = finishedResultView(snapshot)
+    val duration = view.durationSeconds?.let(::formatScoreClock)
     // Opaque, full-bleed result surface: nothing from the hunt screen can show through.
     Surface(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
@@ -70,10 +71,8 @@ fun ScorePage(
                 phase = if (cancelled) "Cancelled" else "Full time",
                 clock = duration,
                 clockNote = if (duration != null) t("played") else null,
-                dataRight = if (snapshot.preyTotal > 0) {
-                    "PREY ${snapshot.preyAlive} / ${snapshot.preyTotal}"
-                } else {
-                    null
+                dataRight = view.shownPreyAlive?.let { alive ->
+                    "PREY $alive / ${snapshot.preyTotal}"
                 },
                 secondaryDataRight = snapshot.winner?.let { winner ->
                     t(if (winner == Teams.HUNTERS) "Hunters" else "Prey").uppercase()
@@ -100,9 +99,9 @@ fun ScorePage(
                         .semantics { heading() }
                         .testTag("result_winner"),
                 )
-                if (snapshot.preyTotal > 0) {
+                if (view.scoreVisible) {
                     Text(
-                        "${t("Prey remaining")}: ${snapshot.preyAlive} / ${snapshot.preyTotal}",
+                        "${t("Prey remaining")}: ${view.shownPreyAlive ?: 0} / ${snapshot.preyTotal}",
                         style = ManHuntType.data(),
                         color = BoardTheme.muted(),
                         modifier = Modifier.testTag("result_score"),
@@ -118,7 +117,11 @@ fun ScorePage(
                     animate = false,
                 )
                 snapshot.members?.let { members ->
-                    ResultTeams(members = members, modifier = Modifier.testTag("result_teams"))
+                    ResultTeams(
+                        members = members,
+                        preyAllTaggedByRule = view.preyAllTaggedByRule,
+                        modifier = Modifier.testTag("result_teams"),
+                    )
                 }
                 Spacer(Modifier.height(BoardSpace.s2))
                 BoardButton(
@@ -146,6 +149,7 @@ fun ScorePage(
 @Composable
 private fun ResultTeams(
     members: List<FinishedMemberSnapshot>,
+    preyAllTaggedByRule: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val prey = members.filter { it.team == Teams.PREY }
@@ -160,14 +164,18 @@ private fun ResultTeams(
         Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
         Spacer(Modifier.height(BoardSpace.s3))
         Row(horizontalArrangement = Arrangement.spacedBy(BoardSpace.s5)) {
-            Column(Modifier.weight(1f)) { ResultTeamColumn(Teams.PREY, prey) }
-            Column(Modifier.weight(1f)) { ResultTeamColumn(Teams.HUNTERS, hunters) }
+            Column(Modifier.weight(1f)) { ResultTeamColumn(Teams.PREY, prey, preyAllTaggedByRule) }
+            Column(Modifier.weight(1f)) { ResultTeamColumn(Teams.HUNTERS, hunters, preyAllTaggedByRule = false) }
         }
     }
 }
 
 @Composable
-private fun ResultTeamColumn(team: String, members: List<FinishedMemberSnapshot>) {
+private fun ResultTeamColumn(
+    team: String,
+    members: List<FinishedMemberSnapshot>,
+    preyAllTaggedByRule: Boolean,
+) {
     val color = teamColor(team)
     Column(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -198,7 +206,8 @@ private fun ResultTeamColumn(team: String, members: List<FinishedMemberSnapshot>
                     maxLines = 1,
                     modifier = Modifier.weight(1f),
                 )
-                if (member.eliminated) {
+                val tagged = member.eliminated || (team == Teams.PREY && preyAllTaggedByRule)
+                if (tagged) {
                     Text(
                         t("TAGGED").uppercase(),
                         style = ManHuntType.dataSmall(),
@@ -245,3 +254,42 @@ fun finishedSnapshotFromResult(match: MatchDto, members: List<MemberDto>): Finis
     )
 }
 
+
+/**
+ * Presentation model for the finished page, derived only from authoritative snapshot data.
+ * Kept as a pure function so the impossible S12/S13 combinations are pinned by a unit test:
+ * - a Hunters win means every prey was tagged, so a stale/planned "PREY 2 / 2" can never render;
+ * - played time comes from the real `endedAt` when it exists (planned `endsAt` is only a fallback);
+ * - per-member statuses are rule-derived only when the server winner proves them.
+ */
+data class FinishedResultView(
+    /** Null when the final numbers are unknown, so the score line/roster are omitted. */
+    val shownPreyAlive: Int?,
+    val scoreVisible: Boolean,
+    val preyAllTaggedByRule: Boolean,
+    val durationSeconds: Long?,
+)
+
+fun finishedResultView(snapshot: FinishedMatchSnapshot): FinishedResultView {
+    val huntersWin = snapshot.winner == Teams.HUNTERS
+    val duration = when {
+        snapshot.startedAt > 0 && snapshot.endedAt > snapshot.startedAt ->
+            (snapshot.endedAt - snapshot.startedAt) / 1000
+        snapshot.startedAt > 0 && snapshot.endsAt > snapshot.startedAt ->
+            (snapshot.endsAt - snapshot.startedAt) / 1000
+        else -> null
+    }
+    // A Hunters win is only possible once every prey was tagged; if a stale room payload still
+    // says prey remain, the winner is the authority and the remaining count is 0.
+    val shownAlive = when {
+        snapshot.preyTotal <= 0 -> null
+        huntersWin -> 0
+        else -> snapshot.preyAlive.coerceIn(0, snapshot.preyTotal)
+    }
+    return FinishedResultView(
+        shownPreyAlive = shownAlive,
+        scoreVisible = shownAlive != null,
+        preyAllTaggedByRule = huntersWin && snapshot.preyTotal > 0,
+        durationSeconds = duration,
+    )
+}
