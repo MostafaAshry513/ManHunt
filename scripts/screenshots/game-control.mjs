@@ -420,14 +420,34 @@ async function commandSyncClock() {
   log(`clock synced: ${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')} remaining`);
 }
 
-/** Make the finished match's "played" time equal --seconds (default 41:12). */
+/** Make the finished match's "played" time equal --seconds (default 18:48). */
 async function commandSetPlayed() {
   const state = readState();
   const seconds = Number(arg('seconds', String(HUNT_PLAYED_SEC)));
+  // Once the match is finished the result Board derives its "played" clock from the match
+  // timeline; a stale planned ends_at renders a full-hour duration. --sync-ends keeps
+  // started_at/ends_at exactly `seconds` apart so the finished board reads 18:48.
+  const syncEnds = argv.includes('--sync-ends');
+  const now = Date.now();
+  const startedAt = now - seconds * 1000;
   await withDb((db) => {
-    db.prepare('UPDATE matches SET started_at = ? WHERE id = ?').run(Date.now() - seconds * 1000, state.matchId);
+    if (syncEnds) {
+      db.prepare('UPDATE matches SET started_at = ?, ends_at = ? WHERE id = ?').run(
+        startedAt,
+        startedAt + seconds * 1000,
+        state.matchId,
+      );
+    } else {
+      db.prepare('UPDATE matches SET started_at = ? WHERE id = ?').run(startedAt, state.matchId);
+    }
   });
   log(`played time set to ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`);
+  // A peer chat line broadcasts a room-state refresh, so an already-open result page updates.
+  const triggerUser = arg('trigger-user', '');
+  if (triggerUser) {
+    const body = arg('trigger-body', 'Good hunt.');
+    await api('POST', `/api/rooms/${state.roomId}/messages`, user(state, triggerUser).token, { body });
+  }
 }
 
 async function commandReportTrails() {

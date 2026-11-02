@@ -90,6 +90,7 @@ debug_dump() {
   "$ADB" shell getprop persist.sys.timezone > "$OUT/_debug/timezone.txt" 2>&1 || true
   cp "$RUNTIME/network-setup.log" "$OUT/_debug/network-setup.log" 2>/dev/null || true
   cp "$RUNTIME/hosts-setup.log" "$OUT/_debug/hosts-setup.log" 2>/dev/null || true
+  cp "$RUNTIME/trust-setup.log" "$OUT/_debug/trust-setup.log" 2>/dev/null || true
   cp "$SERVER_LOG" "$OUT/_debug/server.log" 2>/dev/null || true
   cp "$PRESENCE_LOG" "$OUT/_debug/presence.log" 2>/dev/null || true
   "$ADB" shell wm size > "$OUT/_debug/wm-size.txt" 2>&1 || true
@@ -110,6 +111,8 @@ dump_app_network() {
     > "$OUT/_debug/nc-osm.txt" 2>&1 || true
   "$ADB" shell "toybox nc -w 5 1.1.1.1 443 </dev/null; echo nc_exit=\$?" \
     > "$OUT/_debug/nc-internet.txt" 2>&1 || true
+  # Full logcat so the exact TLS/Conscrypt reason for any tile failure is preserved.
+  "$ADB" logcat -d > "$OUT/_debug/logcat-full.txt" 2>/dev/null || true
 }
 
 fail() {
@@ -143,7 +146,8 @@ ui_wait() { ui wait "$1" "${2:-60}" || fail "UI element never appeared: $1"; }
 ui_gone() { ui wait-gone "$1" "${2:-30}" || fail "UI element never disappeared: $1"; }
 ui_tap() { ui tap "$1" "${2:-60}" || fail "could not tap UI element: $1"; }
 # Best-effort variant for optional controls (trail toggle, cancel, sheet expand).
-ui_try_tap() { ui tap "$1" "${2:-8}" >/dev/null 2>&1; }
+# `|| true` matters: with set -e, a missing optional control must never abort the capture.
+ui_try_tap() { ui tap "$1" "${2:-8}" >/dev/null 2>&1 || true; }
 
 # Tap a labelled form field: the label sits above the input box, so tap just below it; fall
 # back to the Nth EditText node (Compose exposes BasicTextField as android.widget.EditText).
@@ -343,6 +347,63 @@ setup_hostname() {
   fi
 
   note "no friendly server URL available; keeping the app default (see $report)"
+}
+
+# The OSM tile CDN is served by a GlobalSign Atlas chain. The emulator image rejected it with
+# "SSLHandshakeException: Chain validation failed" (all tiles blank), so make sure the device
+# trust store contains the GlobalSign Root R46. On Android 14+ the store lives in the immutable
+# Conscrypt APEX, so this copies that directory, adds the root, and bind-mounts the copy into
+# Zygote's mount namespace (new app processes inherit it). Best effort: log everything.
+setup_device_trust_for_osm() {
+  local report="$RUNTIME/trust-setup.log"
+  : >"$report"
+  log "ensuring the device trusts the OSM map-tile TLS chain"
+  local root_pem="" candidate
+  for candidate in /etc/ssl/certs/GlobalSign_Root_R46.pem \
+                   /usr/share/ca-certificates/mozilla/GlobalSign_Root_R46.crt; do
+    if [ -f "$candidate" ]; then root_pem="$candidate"; break; fi
+  done
+  if [ -z "$root_pem" ]; then
+    root_pem="$RUNTIME/GlobalSign_Root_R46.crt"
+    curl -fsSL --max-time 20 -o "$root_pem" "https://secure.globalsign.com/cacert/gsr46.crt" \
+      >>"$report" 2>&1 || true
+  fi
+  if [ ! -s "$root_pem" ]; then
+    echo "no GlobalSign R46 root available on the runner" >>"$report"
+    note "R46 root unavailable; map tiles may still fail TLS"
+    return 0
+  fi
+  local hash
+  hash="$(openssl x509 -in "$root_pem" -subject_hash_old -noout 2>/dev/null | tr -d '\r' || true)"
+  {
+    echo "root $root_pem hash=$hash"
+    echo "--- device stores ---"
+    "$ADB" shell "echo apex:; ls /apex/com.android.conscrypt/cacerts 2>/dev/null | wc -l; echo system:; ls /system/etc/security/cacerts 2>/dev/null | wc -l"
+    "$ADB" shell "ls /apex/com.android.conscrypt/cacerts/$hash.0 /system/etc/security/cacerts/$hash.0 2>/dev/null" || true
+  } >>"$report" 2>&1
+  if "$ADB" shell "ls /apex/com.android.conscrypt/cacerts/$hash.0 /system/etc/security/cacerts/$hash.0 2>/dev/null" 2>/dev/null | grep -q "$hash"; then
+    note "OSM root already trusted on the device"
+    return 0
+  fi
+  note "OSM root missing on the device; injecting it into a Zygote-bound trust store"
+  {
+    echo "--- prepare copy ---"
+    "$ADB" shell "rm -rf /data/local/tmp/cacerts; mkdir -p /data/local/tmp/cacerts"
+    "$ADB" shell "cp /apex/com.android.conscrypt/cacerts/* /data/local/tmp/cacerts/ 2>/dev/null || cp /system/etc/security/cacerts/* /data/local/tmp/cacerts/ 2>/dev/null" || true
+    "$ADB" push "$root_pem" "/data/local/tmp/cacerts/$hash.0" || true
+    "$ADB" shell "chmod 644 /data/local/tmp/cacerts/*; chown root:root /data/local/tmp/cacerts/*" || true
+    echo "--- bind into zygote namespace ---"
+    local pid
+    for pid in $("$ADB" shell pidof zygote64 2>/dev/null | tr -d '\r') $("$ADB" shell pidof zygote 2>/dev/null | tr -d '\r'); do
+      [ -n "$pid" ] || continue
+      echo "zygote pid $pid"
+      "$ADB" shell "nsenter --mount=/proc/$pid/ns/mnt -- mount --bind /data/local/tmp/cacerts /apex/com.android.conscrypt/cacerts" || true
+      "$ADB" shell "nsenter --mount=/proc/$pid/ns/mnt -- mount --bind /data/local/tmp/cacerts /system/etc/security/cacerts" || true
+    done
+    echo "--- verify ---"
+    "$ADB" shell "ls /apex/com.android.conscrypt/cacerts | wc -l"
+    "$ADB" shell "ls /apex/com.android.conscrypt/cacerts/$hash.0 2>/dev/null" || true
+  } >>"$report" 2>&1
 }
 
 grant_permissions() {
@@ -759,6 +820,7 @@ capture_live_hunt() {
     sleep 8
     "$ADB" exec-out screencap -p > "$RUNTIME/map-probe.png" 2>/dev/null || true
     probe_bytes=$(stat -c%s "$RUNTIME/map-probe.png" 2>/dev/null || echo 0)
+    mkdir -p "$OUT/_debug"
     cp "$RUNTIME/map-probe.png" "$OUT/_debug/map-probe-$((attempt + 1)).png" 2>/dev/null || true
     note "tile probe $((attempt + 1)): $probe_bytes bytes"
     if [ "$probe_bytes" -gt 360000 ]; then
@@ -851,6 +913,12 @@ capture_claim_and_hunters_result() {
   game confirm-claim || fail "could not confirm the claim"
   ui_wait "HUNTERS WIN|Hunt result|FULL TIME|Back to the lobby|Back to lobby" 90
   game verify --stage result-hunters || fail "Hunters-win result verification failed"
+  # Re-anchor the finished timeline so the result Board reads "18:48 played" (the planned
+  # ends_at left behind by the live clock would render a full-hour duration), then broadcast
+  # a peer chat line so the open result page refetches.
+  game set-played --seconds 1128 --sync-ends --trigger-user sara \
+    --trigger-body "Good hunt. Same time next week." || note "could not re-anchor the played time"
+  sleep 2.5
   sleep 1.8
   if pending_shot s12; then
     note "S12 pending: skipping capture"
@@ -872,6 +940,9 @@ capture_prey_result() {
   game end-match || fail "could not end the rematch"
   ui_wait "PREY WIN|Hunt result|FULL TIME|Prey win" 90
   game verify --stage result-prey || fail "Prey-win result verification failed"
+  game set-played --seconds 1128 --sync-ends --trigger-user sara \
+    --trigger-body "Good hunt. Same time next week." || note "could not re-anchor the played time"
+  sleep 2.5
   sleep 1.8
   if pending_shot s13; then
     note "S13 pending: skipping capture (data-gap: survivor count unavailable)"
@@ -883,12 +954,14 @@ capture_prey_result() {
 }
 
 leave_room_to_home() {
-  log "leaving the room to reach Home"
+  # Best effort: the next capture step force-stops and relaunches the app anyway, so a changed
+  # leave flow must never abort the run.
+  log "leaving the room to reach Home (best effort)"
   ui_try_tap "desc=Leave|text=Leave|room_leave"
   ui_try_tap "text=Leave|text=Leave room|text=Confirm"
   sleep 1.0
   ui_try_tap "text=Leave|text=Leave room|text=Confirm"
-  wait_home
+  sleep 1.0
 }
 
 capture_settings() {
@@ -1044,6 +1117,7 @@ main() {
   check_internet
   install_app
   setup_hostname
+  setup_device_trust_for_osm
   setup_timezone
   setup_device_clock
   setup_status_bar
