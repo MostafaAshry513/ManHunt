@@ -1,0 +1,100 @@
+name: Premium screenshots
+
+# Manual-only capture of the premium marketing screenshot set from a real Android emulator.
+#
+# What it does (all on the throwaway GitHub runner, never production):
+#   1. builds the debug APK from this commit,
+#   2. starts the ManHunt server on 127.0.0.1:8080 with a temp SQLite DB (production DB untouched),
+#   3. seeds the shotlist scenario with scripts/screenshots/game-control.mjs ("Riverside Run":
+#      Yasmin/Leila Prey, Omar/Tariq/Sara Hunters; live hunt at 41:12 with a fresh 5-point trail
+#      and a stale report; tag claim; Hunters-win result; Prey-win rematch),
+#   4. boots a Pixel-6-class KVM emulator with real network access (real OpenStreetMap tiles),
+#   5. drives the real app UI over adb with scripts/screenshots/capture-premium.sh and captures
+#      shotlist S01-S19 in demo-mode status bar (21:04, 100%, no notifications) / 1080x2400,
+#   6. verifies every PNG (dimensions, blank-frame heuristics) and uploads the premium-screenshots
+#      artifact (see scripts/screenshots/README.md for the download/manifest/contact-sheet step).
+#
+# Trigger only after the MATCHDAY BOARD redesign build has landed and the Lead has verified it:
+#   gh workflow run premium-screenshots.yml --ref master
+#   gh run list --workflow=premium-screenshots.yml --limit 3
+#   gh run watch <run-id> --exit-status
+#   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/screenshots/fetch-premium.ps1
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: premium-screenshots
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    name: Capture premium screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools emulator platforms;android-36 build-tools;36.0.0 system-images;android-36;google_apis;x86_64'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install backend dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew :app:assembleDebug --console=plain
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+
+      - name: Capture premium screenshots on the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot -writable-system
+          script: bash scripts/screenshots/capture-premium.sh
+
+      - name: Upload premium screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-screenshots
+          path: scripts/screenshots/out
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload runner diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: premium-diagnostics
+          path: |
+            /tmp/manhunt-premium
+          if-no-files-found: ignore
+          retention-days: 7
