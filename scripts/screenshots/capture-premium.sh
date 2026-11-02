@@ -52,6 +52,10 @@ SERVER_PID=""
 PRESENCE_PID=""
 GPS_PID=""
 DB_PATH_ARG="$RUNTIME/premium.db"
+# Flags for the review metadata: did the app fall back to the emulator dev address, or is a
+# dev address visible in-frame (which disqualifies the affected frame)?
+DEV_URL_FALLBACK=0
+DEV_URL_IN_FRAME=0
 
 # ---------------------------------------------------------------- helpers
 
@@ -81,6 +85,7 @@ debug_dump() {
   "$ADB" shell settings get system time_12_24 > "$OUT/_debug/time-format.txt" 2>&1 || true
   "$ADB" shell date > "$OUT/_debug/device-date.txt" 2>&1 || true
   "$ADB" shell getprop persist.sys.timezone > "$OUT/_debug/timezone.txt" 2>&1 || true
+  cp "$RUNTIME/network-setup.log" "$OUT/_debug/network-setup.log" 2>/dev/null || true
   cp "$RUNTIME/hosts-setup.log" "$OUT/_debug/hosts-setup.log" 2>/dev/null || true
   cp "$SERVER_LOG" "$OUT/_debug/server.log" 2>/dev/null || true
   cp "$PRESENCE_LOG" "$OUT/_debug/presence.log" 2>/dev/null || true
@@ -227,7 +232,9 @@ setup_status_bar() {
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command enter >/dev/null 2>&1 || true
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm "$CLOCK" >/dev/null 2>&1 || true
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false >/dev/null 2>&1 || true
-  "$ADB" shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 -e mobile hide >/dev/null 2>&1 || true
+  # Wi-Fi in demo mode renders a "no internet" warning badge on this image; show a clean
+  # full cellular signal instead (still a real, connected-looking status bar, no warning).
+  "$ADB" shell am broadcast -a com.android.systemui.demo -e command network -e wifi hide -e mobile show -e datatype none -e level 4 >/dev/null 2>&1 || true
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false >/dev/null 2>&1 || true
 }
 
@@ -253,54 +260,69 @@ setup_device_clock() {
 }
 
 setup_hostname() {
-  # The app's Auth screen shows the configured server. Map a self-hosted looking hostname
-  # (manhunt.local) so no emulator-local address (10.0.2.2) appears in frame. The write needs
-  # a writable /system; log every step so a failure is diagnosable from the artifact.
-  local report="$RUNTIME/hosts-setup.log"
+  # The app's Auth screen shows the configured server. Point it at a self-hosted looking
+  # hostname that actually resolves *inside the app's mount/network namespace*: a public
+  # loopback wildcard DNS name (lvh.me family -> 127.0.0.1) forwarded to the isolated server
+  # over `adb reverse`. /system/etc/hosts edits are only a last resort: a shell-namespace bind
+  # mount is computed by the shell but invisible to app processes (learned the hard way).
+  local report="$RUNTIME/network-setup.log"
   : >"$report"
-  log "mapping manhunt.local -> 10.0.2.2 for the in-app server row"
+  log "setting up the in-app server URL (adb reverse + loopback DNS name)"
+
   if ! "$ADB" root >/dev/null 2>&1; then
-    echo "adb root unavailable" >>"$report"
-    note "adb root unavailable; keeping the app's default server URL"
-    return 0
+    echo "adb root unavailable (clock/locale/hosts best-effort only)" >>"$report"
   fi
   sleep 2
   "$ADB" wait-for-device || true
   echo "adb root uid: $("$ADB" shell id -u 2>/dev/null | tr -d '\r')" >>"$report"
+
+  # Reverse from the device loopback to the isolated server on the runner (works without root).
+  echo "--- adb reverse ---" >>"$report"
+  "$ADB" reverse tcp:8080 tcp:8080 >>"$report" 2>&1 || true
+  # A root adbd can also bind device port 80, which lets the URL read without ":8080".
+  if "$ADB" reverse tcp:80 tcp:8080 >>"$report" 2>&1; then
+    local portless=1
+  else
+    local portless=0
+  fi
+  echo "portless reverse: $portless" >>"$report"
+
+  local host="" candidate
+  for candidate in manhunt.lvh.me manhunt.localhost.direct manhunt.127.0.0.1.nip.io; do
+    echo "--- resolving $candidate from the device ---" >>"$report"
+    if "$ADB" shell "ping -c 1 -W 3 $candidate" >>"$report" 2>&1; then
+      host="$candidate"
+      break
+    fi
+  done
+
+  if [ -n "$host" ]; then
+    if [ "$portless" = "1" ]; then
+      APP_SERVER_URL="http://$host"
+    else
+      APP_SERVER_URL="http://$host:8080"
+    fi
+    # Positive end-to-end probe when toybox has wget; harmless if unavailable.
+    echo "--- http probe ---" >>"$report"
+    "$ADB" shell "toybox wget -qO- '$APP_SERVER_URL/health'" >>"$report" 2>&1 || true
+    note "server row will read $APP_SERVER_URL (reverse + $host)"
+    return 0
+  fi
+
+  # Last resort: /system hosts edit (only useful to shell-namespace clients on this image).
+  echo "--- no loopback DNS name resolved; trying /system/etc/hosts ---" >>"$report"
   {
-    echo "--- remount ---"
     "$ADB" remount 2>&1 || true
-    echo "--- mount rw fallback ---"
-    "$ADB" shell 'mount -o rw,remount /' 2>&1 || true
-    echo "--- hosts before ---"
-    "$ADB" shell "cat /system/etc/hosts" 2>&1 || true
-    echo "--- append ---"
     "$ADB" shell "echo '10.0.2.2 manhunt.local' >> /system/etc/hosts" 2>&1 || true
-    echo "--- hosts after ---"
     "$ADB" shell "cat /system/etc/hosts" 2>&1 || true
   } >>"$report" 2>&1
-  if ! "$ADB" shell "grep -q 'manhunt.local' /system/etc/hosts" >/dev/null 2>&1; then
-    # Last resort: bind-mount an edited copy over the read-only hosts file.
-    "$ADB" shell 'cp /system/etc/hosts /data/local/tmp/hosts 2>/dev/null; echo "10.0.2.2 manhunt.local" >> /data/local/tmp/hosts; mount --bind /data/local/tmp/hosts /system/etc/hosts' >>"$report" 2>&1 || true
-  fi
   if "$ADB" shell "grep -q 'manhunt.local' /system/etc/hosts" >/dev/null 2>&1; then
     APP_SERVER_URL="http://manhunt.local:8080"
-    note "server row will read $APP_SERVER_URL"
+    note "hosts fallback only; server row will read $APP_SERVER_URL"
     return 0
   fi
 
-  # Fallback that needs no /system write: a public loopback hostname (lvh.me resolves
-  # every subdomain to 127.0.0.1) plus an adb reverse from the device port to the isolated
-  # server on the runner. Keeps the in-frame URL free of 10.0.2.2/localhost.
-  echo "--- hosts write failed; trying adb-reverse + lvh.me fallback ---" >>"$report"
-  if "$ADB" reverse tcp:8080 tcp:8080 >>"$report" 2>&1 \
-    && "$ADB" shell "ping -c 1 -W 3 manhunt.lvh.me" >/dev/null 2>&1; then
-    APP_SERVER_URL="http://manhunt.lvh.me:8080"
-    note "using adb-reverse fallback; server row will read $APP_SERVER_URL"
-    return 0
-  fi
-
-  note "hosts mapping unavailable; keeping the app's default server URL (see $report)"
+  note "no friendly server URL available; keeping the app default (see $report)"
 }
 
 grant_permissions() {
@@ -359,9 +381,24 @@ prime_first_run_prefs() {
 
 launch_app() { "$ADB" shell am start -W -n "$ACTIVITY" >/dev/null 2>&1 || fail "could not launch the app"; }
 
-wait_home() {
-  ui_wait "Create the hunt|Host a hunt|Create hunt|home_create|Hide from your friends" 120
+# Home is only accepted when a Home-only marker is on screen AND no Auth marker is present.
+# (Earlier the Auth hero heading "Hide from your friends." made a failed login look like Home,
+# which produced a non-Home S03 capture.)
+assert_home() {
+  ui_wait "Host a hunt|Create hunt|Join hunt|Playing as" 120
+  local dump="$RUNTIME/home-assert.txt"
+  python3 "$SCRIPTS/ui.py" dump >"$dump" 2>&1 || true
+  if grep -qE 'Create your account|Welcome back|New here\?' "$dump"; then
+    debug_dump
+    fail "Home assertion failed: Auth screen markers present after sign-in"
+  fi
+  if ! grep -qE 'Host a hunt|Playing as' "$dump"; then
+    debug_dump
+    fail "Home assertion failed: no Home content in the UI tree"
+  fi
 }
+
+wait_home() { assert_home; }
 
 switch_user() {
   local key="$1" dark="${2:-true}" language="${3:-en}"
@@ -388,36 +425,121 @@ logout_to_auth() {
   sleep 1.2
 }
 
+# Marketing captures use the real Home "Join a hunt" flow: focus the CodePlate input, type the
+# six-character code, then submit (IME Done; the Join button as fallback). This avoids the
+# known warm invite-link bug and is the real user path.
 join_room() {
   local code="${1:-$ROOM_CODE}"
-  local deep="manhunt://join?code=$code"
-  log "joining room $code through a cold-start invite deep link"
+  log "joining room $code through the Home CodePlate + Join hunt flow"
+  if ! ui wait "Host a hunt|Create hunt|Join hunt|Playing as" 6 >/dev/null 2>&1; then
+    launch_app
+    wait_home
+  fi
+  # CodePlate sits just below the "Join a hunt" section title; the fallback targets the hidden
+  # EditText directly so the flow still works in RTL (Arabic labels) captures.
+  if ! ui tap-near "text=Join a hunt" 0 210 20 >/dev/null 2>&1; then
+    ui tap-edit 1 20 >/dev/null 2>&1 || true
+  fi
+  type_text "$code"
+  sleep 0.3
+  # The code field's IME action is Done -> vm.joinRoom(); language-independent submit.
+  "$ADB" shell input keyevent 66 >/dev/null 2>&1 || true
+  sleep 2.5
+  if ! ui wait "Riverside Run|OpenStreetMap contributors" 8; then
+    hide_ime
+    ui_try_tap "text=Join hunt|text=Join Hunt|text=Join"
+    if ! ui wait "Riverside Run|OpenStreetMap contributors" 60; then
+      debug_dump
+      fail "room did not open through the Home join flow (room $code)"
+    fi
+  fi
+  note "joined room $code"
+}
 
-  # Cold start with the intent: the app's first activity handles the deep link in onCreate,
-  # so the pending-join effect runs exactly once against the freshly restored session
-  # (avoids the second-instance/task ambiguity of a warm VIEW intent).
+# Diagnostic only (never used by the capture): reproduces the invite deep link path, which has
+# a known app-side warm-intent bug (Phase 3 is fixing it).
+join_room_via_deep_link_diagnostic() {
+  local code="${1:-$ROOM_CODE}"
+  local deep="manhunt://join?code=$code"
+  log "diagnostic: cold-start invite deep link"
   "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
   sleep 1
   "$ADB" shell am start -W -a android.intent.action.VIEW -d "$deep" -n "$ACTIVITY" >/dev/null 2>&1 \
-    || fail "deep link launch failed"
-
-  # The MATCHDAY lobby Board shows the room name; the live-hunt page (Board + map) has no
-  # room title, so the always-visible OpenStreetMap attribution marks the room screen there.
-  if ui wait "Riverside Run|OpenStreetMap contributors" 70; then
-    return 0
-  fi
-
-  note "cold-start deep link did not show the room; retrying with a warm VIEW intent"
-  "$ADB" shell am start -a android.intent.action.VIEW -d "$deep" -n "$ACTIVITY" 2>&1 | tail -n 2 || true
-  if ui wait "Riverside Run|OpenStreetMap contributors" 45; then
-    return 0
-  fi
-
-  debug_dump
-  fail "room did not open after both deep-link attempts (room $code)"
+    || return 1
+  ui wait "Riverside Run|OpenStreetMap contributors" 30
 }
 
 # ---------------------------------------------------------------- captures
+
+# Set the app server URL through the real Auth "Change server" editor (the stored value is
+# then guaranteed to be what the app shows and uses). Returns non-zero on any failure.
+apply_auth_server_url() {
+  local url="$1"
+  log "setting the app server URL to $url through Auth"
+  if ! ui tap "text=Change server" 30 >/dev/null 2>&1; then
+    note "Change server control not found"
+    return 1
+  fi
+  ui wait "Server address|Test connection" 30 >/dev/null 2>&1 || true
+  if ! tap_field "Server address" 2; then
+    note "server address field not found"
+    return 1
+  fi
+  "$ADB" shell input keyevent KEYCODE_MOVE_END >/dev/null 2>&1 || true
+  for _ in $(seq 1 60); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
+  type_text "$url"
+  hide_ime
+  sleep 0.4
+  if ! ui tap "text=Save server" 30 >/dev/null 2>&1; then
+    note "Save server control not found"
+    return 1
+  fi
+  if ui wait "$url" 25 >/dev/null 2>&1; then
+    note "Auth server row shows $url"
+    return 0
+  fi
+  note "Auth server row did not update to $url"
+  return 1
+}
+
+# Probe app -> server connectivity with the real Auth "Test connection" action. On failure,
+# fall back to the emulator host default (10.0.2.2) so the capture can still complete; the
+# fallback is flagged and the Auth-state extras are skipped (they would show the dev address).
+verify_server_reachable() {
+  [ -n "$APP_SERVER_URL" ] || return 0
+  log "checking app -> server connectivity through the configured URL"
+  if ! ui tap "text=Test connection" 8 >/dev/null 2>&1; then
+    # The editor collapses after Save; reopen it to expose the Test connection action.
+    ui_tap "text=Change server" 25 >/dev/null 2>&1 || true
+    ui tap "text=Test connection" 20 >/dev/null 2>&1 || { note "Test connection control not found; skipping the probe"; return 1; }
+  fi
+  local deadline=$((SECONDS + 20)) state=""
+  while [ "$SECONDS" -lt "$deadline" ]; do
+    local dump
+    dump="$(python3 "$SCRIPTS/ui.py" dump 2>/dev/null || true)"
+    if printf '%s' "$dump" | grep -qiE 'reachable|server is online|connected to'; then
+      state=ok
+      break
+    fi
+    if printf '%s' "$dump" | grep -qiE 'did not respond|could not|failed|unable to'; then
+      state=fail
+      break
+    fi
+    sleep 1
+  done
+  if [ "$state" = "ok" ]; then
+    note "server reachable through $APP_SERVER_URL"
+    return 0
+  fi
+  note "server NOT reachable through $APP_SERVER_URL; reverting to the emulator host default"
+  DEV_URL_FALLBACK=1
+  # The server editor is still open after the failed probe; close it before editing again.
+  ui_try_tap "text=Cancel"
+  sleep 0.5
+  apply_auth_server_url "http://10.0.2.2:8080" >/dev/null 2>&1 || true
+  APP_SERVER_URL=""
+  return 1
+}
 
 capture_first_run_and_auth() {
   log "capture: S02 first-run safety"
@@ -430,26 +552,63 @@ capture_first_run_and_auth() {
   fi
   ui_tap "I understand|Let's play|Accept|Get started" 30
   log "capture: S01 Auth"
-  ui_wait "Welcome back|Sign in|Create your account" 120
-  sleep 1.5
+  ui_wait "Sign in|Create your account|Welcome back" 120
+  sleep 1.2
   hide_ime
+  if [ -n "$APP_SERVER_URL" ]; then
+    if ! apply_auth_server_url "$APP_SERVER_URL"; then
+      note "could not store the friendly server URL; the Auth shot may show the dev address"
+      DEV_URL_IN_FRAME=1
+      APP_SERVER_URL=""
+    fi
+  fi
+  sleep 1.0
+  if python3 "$SCRIPTS/ui.py" dump 2>/dev/null | grep -qE '10\.0\.2\.2|localhost'; then
+    DEV_URL_IN_FRAME=1
+    mkdir -p "$OUT/_debug"
+    python3 "$SCRIPTS/ui.py" dump > "$OUT/_debug/auth-dev-url-warning.txt" 2>&1 || true
+    note "WARNING: Auth server row contains a dev address"
+  fi
   if pending_shot s01; then
     note "S01 pending: skipping capture"
   else
     shot "s01-auth"
   fi
+  # Capture is clean; now prove the app can actually reach the server before signing in.
+  verify_server_reachable || true
+  sleep 0.8
 }
 
 login_omar() {
   log "signing in as Omar through the real UI"
+  fill_login_and_submit
+  if ui wait "Host a hunt|Create hunt|Join hunt|Playing as" 35; then
+    sleep 1.8
+    return 0
+  fi
+  note "sign-in did not reach Home; retrying from a fresh launch"
+  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
+  if [ -n "$APP_SERVER_URL" ]; then
+    DEV_URL_FALLBACK=1
+    apply_auth_server_url "http://10.0.2.2:8080" >/dev/null 2>&1 || true
+    APP_SERVER_URL=""
+  fi
+  launch_app
+  ui_wait "Sign in|Create your account|Welcome back" 90
+  sleep 1.2
+  hide_ime
+  fill_login_and_submit
+  wait_home
+  sleep 1.8
+}
+
+fill_login_and_submit() {
   tap_field "Username" 0 || fail "username field not found on Auth"
   type_text "Omar"
   tap_field "Password" 1 || fail "password field not found on Auth"
   type_text "$HUNT_PASSWORD"
   hide_ime
   ui_tap "text=Sign in|text=Sign In|res=auth_submit" 30
-  wait_home
-  sleep 1.8
 }
 
 capture_home_dark() {
@@ -687,9 +846,12 @@ capture_light_and_rtl() {
     return 0
   fi
   log "capture: S16 Lobby (Arabic RTL) - best effort"
-  join_room || note "RTL lobby join failed (optional shot)"
-  sleep 2.5
-  shot "s16-lobby-rtl" || true
+  # Optional shot: a failure here must not abort the rest of the set; it is recorded pending.
+  if ! ( join_room && sleep 2.5 && shot "s16-lobby-rtl" ); then
+    note "S16 RTL lobby capture failed; it will be recorded as pending"
+    launch_app >/dev/null 2>&1 || true
+    wait_home >/dev/null 2>&1 || true
+  fi
   ui_try_tap "desc=Leave|text=Leave|room_leave"
   ui_try_tap "text=Leave|text=Leave room|text=Confirm"
   sleep 1.0
@@ -725,13 +887,17 @@ capture_state_extras() {
     log "S18/S19 pending: skipping Auth state extras"
     return 0
   fi
+  if [ "$DEV_URL_FALLBACK" = "1" ] || [ "$DEV_URL_IN_FRAME" = "1" ]; then
+    log "skipping S18/S19: the Auth screen would show the emulator/dev server address"
+    return 0
+  fi
 
   log "capture: S18/S19 Auth loading + server error (best effort)"
   ui_tap "text=Sign out|desc=Sign out|home_signout" 30
   ui_wait "Sign in|Welcome back|Create your account" 60
-  ui_tap "text=Username|desc=Username|res=auth_username" 30
+  tap_field "Username" 0 || return 1
   type_text "Omar"
-  ui_tap "text=Password|desc=Password|res=auth_password" 30
+  tap_field "Password" 1 || return 1
   type_text "$HUNT_PASSWORD"
   hide_ime
   # Freeze the server so the submit spinner stays up long enough to capture.
@@ -758,7 +924,7 @@ write_meta() {
   local commit=""
   if [ -n "${GITHUB_SHA:-}" ]; then commit="$GITHUB_SHA"; else commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || echo unknown)"; fi
   node "$SCRIPTS/write-meta.mjs" --out "$OUT" --state "$STATE" --base "$BASE" --clock "$CLOCK" \
-    --apk "$APK" --commit "$commit" --pending "$PENDING" || fail "could not write capture metadata"
+    --apk "$APK" --commit "$commit" --pending "$EFFECTIVE_PENDING" || fail "could not write capture metadata"
 }
 
 # ---------------------------------------------------------------- main
@@ -795,7 +961,6 @@ main() {
   setup_timezone
   setup_device_clock
   setup_status_bar
-  prime_first_run_prefs
 
   launch_app
   capture_first_run_and_auth
@@ -820,9 +985,16 @@ main() {
     capture_state_extras || note "optional state extras failed; continuing without them"
   fi
 
+  # Dev-URL fallbacks invalidate the Auth-state extras: record them pending instead.
+  EFFECTIVE_PENDING="$PENDING"
+  if [ "$DEV_URL_FALLBACK" = "1" ] || [ "$DEV_URL_IN_FRAME" = "1" ]; then
+    EFFECTIVE_PENDING="$EFFECTIVE_PENDING,s18,s19"
+    note "dev server URL fallback flagged: S18/S19 recorded pending, and S01 flagged for review"
+  fi
+
   write_meta
   log "capture complete; verifying PNGs"
-  node "$SCRIPTS/verify-captures.mjs" "$OUT" --pending "$PENDING" || fail "capture verification failed"
+  node "$SCRIPTS/verify-captures.mjs" "$OUT" --pending "$EFFECTIVE_PENDING" || fail "capture verification failed"
   log "premium captures ready in $OUT"
   ls -lh "$OUT"/*.png
 }
