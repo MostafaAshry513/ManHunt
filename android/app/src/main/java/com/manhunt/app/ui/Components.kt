@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -10,6 +10,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import com.manhunt.app.ui.theme.ManHuntType
+import com.manhunt.app.ui.theme.BoardTheme
+import com.manhunt.app.ui.theme.BoardSpace
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -160,53 +163,28 @@ fun ScreenCard(
     elevation: Dp = ManHuntElevation.card,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(ManHuntRadius.lg),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)),
-        colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
-    ) {
+    // MATCHDAY: no card kit. A section is a 1 px rule + sentence-case title + air; the icon
+    // parameter is kept for call-site compatibility but feature glyphs are not rendered.
+    Column(modifier.fillMaxWidth()) {
+        Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
         Column(
-            Modifier.padding(ManHuntSpacing.card),
-            verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.md),
+            Modifier.padding(vertical = BoardSpace.s5),
+            verticalArrangement = Arrangement.spacedBy(BoardSpace.s4),
         ) {
             if (title != null) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (icon != null) {
-                        Box(
-                            Modifier
-                                .size(34.dp)
-                                .background(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                    RoundedCornerShape(ManHuntRadius.sm),
-                                ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                        Spacer(Modifier.width(ManHuntSpacing.md))
-                    }
-                    Column(Modifier.weight(1f)) {
+                Column {
+                    Text(
+                        title,
+                        style = ManHuntType.title(),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.semantics { heading() },
+                    )
+                    if (subtitle != null) {
                         Text(
-                            title,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.semantics { heading() },
+                            subtitle,
+                            style = ManHuntType.bodySmall(),
+                            color = BoardTheme.muted(),
                         )
-                        if (subtitle != null) {
-                            Text(
-                                subtitle,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
                     }
                 }
             }
@@ -224,38 +202,46 @@ fun ScreenHeader(
     onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = ManHuntSpacing.md, vertical = ManHuntSpacing.sm),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (onBack != null) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.size(ManHuntSizes.touchTarget),
-            ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = t("Back"))
+    Column(modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = BoardSpace.screen, end = BoardSpace.screen)
+                .heightIn(min = ManHuntSizes.touchTarget),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (onBack != null) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.size(ManHuntSizes.touchTarget),
+                ) {
+                    Icon(
+                        FieldMarks.back,
+                        contentDescription = t("Back"),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
             }
-        }
-        Column(Modifier.weight(1f)) {
-            Text(
-                title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.semantics { heading() },
-            )
-            if (subtitle != null) {
+            Column(Modifier.weight(1f)) {
                 Text(
-                    subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    title,
+                    style = ManHuntType.headline(),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.semantics { heading() },
                 )
+                if (subtitle != null) {
+                    Text(
+                        subtitle,
+                        style = ManHuntType.bodySmall(),
+                        color = BoardTheme.muted(),
+                    )
+                }
             }
+            actions()
         }
-        actions()
+        Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
     }
 }
 
@@ -368,22 +354,13 @@ fun PrimaryButton(
     loading: Boolean = false,
     icon: ImageVector? = null,
 ) {
-    Button(
+    BoardButton(
+        text = text,
         onClick = onClick,
-        enabled = enabled && !loading,
-        modifier = modifier.fillMaxWidth().heightIn(min = ManHuntSizes.button),
-        shape = RoundedCornerShape(ManHuntRadius.md),
-    ) {
-        if (loading) {
-            ManHuntLoader(size = 20.dp, color = MaterialTheme.colorScheme.onPrimary, label = text)
-        } else {
-            if (icon != null) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(ManHuntSpacing.sm))
-            }
-            Text(text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
-        }
-    }
+        modifier = modifier.fillMaxWidth(),
+        enabled = enabled,
+        loading = loading,
+    )
 }
 
 /** Full-width outlined action, 48 dp+ tall. */
@@ -396,19 +373,17 @@ fun SecondaryButton(
     icon: ImageVector? = null,
     contentColor: Color = MaterialTheme.colorScheme.primary,
 ) {
-    OutlinedButton(
+    BoardButton(
+        text = text,
         onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        tone = if (contentColor == MaterialTheme.colorScheme.error) {
+            BoardButtonTone.Destructive
+        } else {
+            BoardButtonTone.Outline
+        },
         enabled = enabled,
-        modifier = modifier.fillMaxWidth().heightIn(min = ManHuntSizes.touchTarget),
-        shape = RoundedCornerShape(ManHuntRadius.md),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor),
-    ) {
-        if (icon != null) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(ManHuntSpacing.sm))
-        }
-        Text(text, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
-    }
+    )
 }
 
 /** Compact inline text action that still honours the 48 dp touch target. */
