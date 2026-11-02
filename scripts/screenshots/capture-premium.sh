@@ -837,7 +837,7 @@ capture_live_hunt() {
     fi
     attempt=$((attempt + 1))
   done
-  game sync-clock --remaining 2475 --trigger-user sara --trigger-body "Clock is running. Stay sharp." || fail "could not sync the Board clock"
+  game sync-clock --remaining 2473 --trigger-user sara --trigger-body "Clock is running. Stay sharp." || fail "could not sync the Board clock"
   sleep 1.2
   shot "s07-hunt"
   sleep 4
@@ -888,15 +888,23 @@ capture_live_hunt() {
     return 0
   fi
   log "capture: S11 Chat (field log during the hunt)"
-  # The tile-readiness poll posted repeated "Clock is running" trigger lines; remove them so the
-  # field log reads like the seeded conversation (6 lines + the final "One left" line).
+  # The tile-readiness poll posted repeated "Clock is running" trigger lines and the account
+  # switches produced "joined" system rows; prune both so the field log reads like the seeded
+  # conversation, then restart + rejoin so the app refetches a clean list (chat deletions do
+  # not arrive over the socket, an already-open list would keep showing them).
   game prune-chat --body-contains "Clock is running" || note "could not prune the clock-trigger chat lines"
+  game prune-chat --body-contains "joined the" || note "could not prune the join notices"
   game chat --user sara --body "One left. She's not going far." || fail "could not post the chat line"
   game chat-clock --end 2052 || fail "could not normalise the chat clock"
+  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
+  launch_app
+  wait_home
+  join_room
+  sleep 2.0
   ui_tap "text=Chat|text=Chat tab" 40
   # New MATCHDAY field log: phase separator + timestamped rows + composer (the old chat-bubble
   # strings no longer exist).
-  ui_wait "Message|Match started|One left|Take the path|Clock is running" 60
+  ui_wait "Message|Match started|One left|Take the path" 60
   sleep 1.8
   hide_ime
   shot "s11-chat"
@@ -923,14 +931,16 @@ capture_claim_and_hunters_result() {
   fi
 
   log "finishing the match: Hunters win (both Prey tagged)"
-  game set-played || fail "could not set the played time"
-  game confirm-claim || fail "could not confirm the claim"
-  ui_wait "HUNTERS WIN|Hunt result|FULL TIME|Back to the lobby|Back to lobby" 90
+  # Anchor the played clock, then confirm the claim through the REAL app UI so the app receives
+  # the authoritative event and renders its result overlay (a DB-only confirmation left the
+  # claim sheet open and the result never appeared).
+  game set-played --seconds 1127 || fail "could not set the played time"
+  ui_tap "text=Confirm|desc=Confirm|tag_confirm" 60
+  ui_wait "Hunters win|Prey win|View hunt history|Back to lobby|FULL TIME|Full time" 90
   game verify --stage result-hunters || fail "Hunters-win result verification failed"
-  # Re-anchor the finished timeline so the result Board reads "18:48 played" (the planned
-  # ends_at left behind by the live clock would render a full-hour duration), then broadcast
-  # a peer chat line so the open result page refetches.
-  game set-played --seconds 1128 --sync-ends --trigger-user sara \
+  # Re-anchor against the real ended_at so the finished board reads exactly 18:48 played, then
+  # broadcast a peer line so the open result page refetches.
+  game set-played --seconds 1128 --anchor-ended --trigger-user sara \
     --trigger-body "Good hunt. Same time next week." || note "could not re-anchor the played time"
   sleep 2.5
   sleep 1.8
@@ -952,9 +962,9 @@ capture_prey_result() {
   game set-played || fail "could not set the played time"
   game tag-prey --hunter tariq --prey leila --confirm || fail "could not tag Leila in the rematch"
   game end-match || fail "could not end the rematch"
-  ui_wait "PREY WIN|Hunt result|FULL TIME|Prey win" 90
+  ui_wait "Prey win|Hunters win|View hunt history|Back to lobby|FULL TIME|Full time" 90
   game verify --stage result-prey || fail "Prey-win result verification failed"
-  game set-played --seconds 1128 --sync-ends --trigger-user sara \
+  game set-played --seconds 1128 --anchor-ended --trigger-user sara \
     --trigger-body "Good hunt. Same time next week." || note "could not re-anchor the played time"
   sleep 2.5
   sleep 1.8

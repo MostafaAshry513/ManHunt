@@ -441,10 +441,17 @@ async function commandSetPlayed() {
   // timeline; a stale planned ends_at renders a full-hour duration. --sync-ends keeps
   // started_at/ends_at exactly `seconds` apart so the finished board reads 18:48.
   const syncEnds = argv.includes('--sync-ends');
+  const anchorEnded = argv.includes('--anchor-ended');
   const now = Date.now();
   const startedAt = now - seconds * 1000;
   await withDb((db) => {
-    if (syncEnds) {
+    if (anchorEnded) {
+      // Finished match: the result Board prefers the real ended_at, so anchor started_at to it
+      // so the "played" clock reads exactly --seconds.
+      const row = db.prepare('SELECT ended_at FROM matches WHERE id = ?').get(state.matchId);
+      const endedAt = row && row.ended_at ? row.ended_at : now;
+      db.prepare('UPDATE matches SET started_at = ? WHERE id = ?').run(endedAt - seconds * 1000, state.matchId);
+    } else if (syncEnds) {
       db.prepare('UPDATE matches SET started_at = ?, ends_at = ? WHERE id = ?').run(
         startedAt,
         startedAt + seconds * 1000,

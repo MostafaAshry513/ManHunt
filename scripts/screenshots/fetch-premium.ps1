@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <#
 .SYNOPSIS
   Downloads, verifies and installs the premium screenshot set captured by the
@@ -426,7 +426,7 @@ $manifest = [ordered]@{
     device      = 'Android emulator, Pixel 6 profile (1080x2400 @ 420 dpi), Android 16 / API 36'
     theme       = 'Dark (Deep Teal night palette) except s15-home-light.png (light) and the RTL set'
     language    = 'English; s04-home-rtl.png and s16-lobby-rtl.png are Arabic RTL'
-    statusBar   = 'SystemUI demo mode: clock 21:04, battery 100% unplugged, wifi only full, notifications hidden'
+    statusBar   = 'SystemUI demo mode: clock 21:04, battery 100% unplugged, clean cellular signal (no Wi-Fi warning badge), notifications hidden'
     timings     = [ordered]@{
         huntingStarted       = if ($meta -and $meta.timings) { $meta.timings.huntingStarted } else { '20:45:12' }
         remainingAtCapture   = if ($meta -and $meta.timings) { $meta.timings.remainingAtCapture } else { '41:12' }
@@ -440,14 +440,14 @@ $manifest = [ordered]@{
     images      = @()
     crops       = @()
     notes       = @(
-        'Full frames are 1080x2400 portrait PNGs (s07-hunt-wide.png is 2400x1080 landscape).',
+        'Full frames are 1080x2400 portrait PNGs (s07-hunt-wide.png, when the optional landscape capture is enabled, is 2400x1080).',
         'Harvest crops are cut from the captured full frames only (no stretching, no re-render); each crop records its source shot.',
         'The old CI/Robolectric captures in docs/screenshots/*.png are untouched for comparison.',
-        'Hero shots for the site/GitHub page: s07-hunt.png (vertical) and s07-hunt-wide.png (landscape band); harvest/map-hero-16x9.png and harvest/map-hero-3x2.png are ready-made site bands.',
+        'Hero shots for the site/GitHub page: s07-hunt.png (vertical) plus harvest/map-hero-16x9.png and harvest/map-hero-3x2.png ready-made site bands (cut from the captured full frame).',
         's07-hunt-alt.png is a raw alternate hero frame kept only in the workflow artifact, not in this folder.',
         'Result timing: 41:12 is the remaining time at the S07 moment; the finished match ran 18:48 (never "41:12 played").',
         'S13 data-gap: survivor count unavailable - the server resets eliminations at match finish, so the app can only expose the honest Prey-win state.',
-        'Pending shots are screens not yet redesigned in the verified build; they are omitted and recorded here, never substituted with old UI.'
+        'Pending shots are screens not captured/clean in the verified build run (listed above); they are omitted and recorded here, never substituted with old UI.'
     )
 }
 foreach ($file in $installOrder) {
@@ -605,3 +605,4 @@ if ($dataGaps.Count -gt 0) {
     $dataGaps | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
 }
 Write-Host 'Old CI captures in docs/screenshots/*.png were not modified.'
+
