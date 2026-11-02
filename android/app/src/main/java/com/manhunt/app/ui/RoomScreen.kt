@@ -225,8 +225,13 @@ data class FinishedMatchSnapshot(
     val capturedAt: Long,
 ) {
     val cancelled: Boolean get() = phase == Phases.CANCELLED
+    /** Real played time: prefer the authoritative finish timestamp over the planned end. */
     val durationSeconds: Long?
-        get() = if (startedAt > 0 && endsAt > startedAt) (endsAt - startedAt) / 1000 else null
+        get() = when {
+            startedAt > 0 && endedAt > startedAt -> (endedAt - startedAt) / 1000
+            startedAt > 0 && endsAt > startedAt -> (endsAt - startedAt) / 1000
+            else -> null
+        }
 }
 
 private val LIVE_MATCH_PHASES = listOf(Phases.HEAD_START, Phases.HUNTING, Phases.PAUSED)
