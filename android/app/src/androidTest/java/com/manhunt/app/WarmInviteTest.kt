@@ -1,4 +1,4 @@
-﻿package com.manhunt.app
+package com.manhunt.app
 
 import android.Manifest
 import android.content.Intent
@@ -94,7 +94,8 @@ class WarmInviteTest {
             compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty() ||
                 compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty() ||
                 compose.onAllNodesWithTag("home_room_name").fetchSemanticsNodes().isNotEmpty() ||
-                compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()
+                compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("result_back").fetchSemanticsNodes().isNotEmpty()
         }
         if (compose.onAllNodesWithTag("safety_accept").fetchSemanticsNodes().isNotEmpty()) {
             compose.onNodeWithTag("safety_accept").performClick()
@@ -102,7 +103,13 @@ class WarmInviteTest {
         compose.waitUntil(40_000) {
             compose.onAllNodesWithTag("auth_username").fetchSemanticsNodes().isNotEmpty() ||
                 compose.onAllNodesWithTag("home_room_name").fetchSemanticsNodes().isNotEmpty() ||
-                compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()
+                compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty() ||
+                compose.onAllNodesWithTag("result_back").fetchSemanticsNodes().isNotEmpty()
+        }
+        if (compose.onAllNodesWithTag("result_back").fetchSemanticsNodes().isNotEmpty()) {
+            // InGameSmokeTest can finish on the full-screen ScorePage; close it first.
+            compose.onNodeWithTag("result_back").performClick()
+            waitForTag("room_code")
         }
         if (compose.onAllNodesWithTag("room_code").fetchSemanticsNodes().isNotEmpty()) {
             // A previous test left the app in a room. Leave through the real UI (the toolbar

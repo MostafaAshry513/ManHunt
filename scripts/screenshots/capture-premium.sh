@@ -113,6 +113,11 @@ dump_app_network() {
     > "$OUT/_debug/nc-internet.txt" 2>&1 || true
   # Full logcat so the exact TLS/Conscrypt reason for any tile failure is preserved.
   "$ADB" logcat -d > "$OUT/_debug/logcat-full.txt" 2>/dev/null || true
+  # Runner-side evidence of its own TLS path (chain the CI edge serves vs the device's view).
+  cp "$RUNTIME/osm-chain.pem" "$OUT/_debug/osm-chain.pem" 2>/dev/null || true
+  cp "$RUNTIME/trust-setup.log" "$OUT/_debug/trust-setup.log" 2>/dev/null || true
+  curl -sS -D "$OUT/_debug/runner-curltls-headers.txt" -o /dev/null --max-time 20 \
+    "https://tile.openstreetmap.org/0/0/0.png" >> "$OUT/_debug/runner-curltls-headers.txt" 2>&1 || true
 }
 
 fail() {
@@ -357,42 +362,46 @@ setup_hostname() {
 setup_device_trust_for_osm() {
   local report="$RUNTIME/trust-setup.log"
   : >"$report"
-  log "ensuring the device trusts the OSM map-tile TLS chain"
+  log "preparing a Zygote-bound device trust store for the OSM map-tile chain"
+  # Runner-side evidence of the chain the CI edge actually serves (Fastly rotates between
+  # RSA/ECDSA anchors by POP, so the emulator image may lack the anchor this runner gets).
+  openssl s_client -connect tile.openstreetmap.org:443 -servername tile.openstreetmap.org \
+    -showcerts </dev/null > "$RUNTIME/osm-chain.pem" 2>>"$report" || true
+  grep -E 'subject=|issuer=' "$RUNTIME/osm-chain.pem" >>"$report" 2>/dev/null || true
+
+  # Split the served chain into individual PEM certs, then add the image trust store's own
+  # contents plus the R46 root plus every served cert as an anchor candidate.
+  rm -rf "$RUNTIME/chaincerts"
+  mkdir -p "$RUNTIME/chaincerts"
+  awk -v dir="$RUNTIME/chaincerts" '
+    /BEGIN CERTIFICATE/ { n += 1; file = sprintf("%s/%02d.pem", dir, n) }
+    n > 0 { print > file }
+  ' "$RUNTIME/osm-chain.pem"
+
   local root_pem="" candidate
   for candidate in /etc/ssl/certs/GlobalSign_Root_R46.pem \
                    /usr/share/ca-certificates/mozilla/GlobalSign_Root_R46.crt; do
     if [ -f "$candidate" ]; then root_pem="$candidate"; break; fi
   done
-  if [ -z "$root_pem" ]; then
-    root_pem="$RUNTIME/GlobalSign_Root_R46.crt"
-    curl -fsSL --max-time 20 -o "$root_pem" "https://secure.globalsign.com/cacert/gsr46.crt" \
-      >>"$report" 2>&1 || true
-  fi
-  if [ ! -s "$root_pem" ]; then
-    echo "no GlobalSign R46 root available on the runner" >>"$report"
-    note "R46 root unavailable; map tiles may still fail TLS"
-    return 0
-  fi
-  local hash
-  hash="$(openssl x509 -in "$root_pem" -subject_hash_old -noout 2>/dev/null | tr -d '\r' || true)"
+
   {
-    echo "root $root_pem hash=$hash"
-    echo "--- device stores ---"
-    "$ADB" shell "echo apex:; ls /apex/com.android.conscrypt/cacerts 2>/dev/null | wc -l; echo system:; ls /system/etc/security/cacerts 2>/dev/null | wc -l"
-    "$ADB" shell "ls /apex/com.android.conscrypt/cacerts/$hash.0 /system/etc/security/cacerts/$hash.0 2>/dev/null" || true
-  } >>"$report" 2>&1
-  if "$ADB" shell "ls /apex/com.android.conscrypt/cacerts/$hash.0 /system/etc/security/cacerts/$hash.0 2>/dev/null" 2>/dev/null | grep -q "$hash"; then
-    note "OSM root already trusted on the device"
-    return 0
-  fi
-  note "OSM root missing on the device; injecting it into a Zygote-bound trust store"
-  {
-    echo "--- prepare copy ---"
+    echo "--- prepare trust copy ---"
     "$ADB" shell "rm -rf /data/local/tmp/cacerts; mkdir -p /data/local/tmp/cacerts"
     "$ADB" shell "cp /apex/com.android.conscrypt/cacerts/* /data/local/tmp/cacerts/ 2>/dev/null || cp /system/etc/security/cacerts/* /data/local/tmp/cacerts/ 2>/dev/null" || true
-    "$ADB" push "$root_pem" "/data/local/tmp/cacerts/$hash.0" || true
+  } >>"$report" 2>&1
+
+  local added=0 cert hash
+  for cert in "$root_pem" "$RUNTIME"/chaincerts/*.pem; do
+    [ -s "$cert" ] || continue
+    hash="$(openssl x509 -in "$cert" -subject_hash_old -noout 2>/dev/null | tr -d '\r' || true)"
+    [ -n "$hash" ] || continue
+    "$ADB" push "$cert" "/data/local/tmp/cacerts/$hash.0" >>"$report" 2>&1 || true
+    added=$((added + 1))
+  done
+  {
     "$ADB" shell "chmod 644 /data/local/tmp/cacerts/*; chown root:root /data/local/tmp/cacerts/*" || true
-    echo "--- bind into zygote namespace ---"
+    echo "anchor candidates added: $added"
+    echo "--- bind the copy into Zygote's mount namespace ---"
     local pid
     for pid in $("$ADB" shell pidof zygote64 2>/dev/null | tr -d '\r') $("$ADB" shell pidof zygote 2>/dev/null | tr -d '\r'); do
       [ -n "$pid" ] || continue
@@ -401,9 +410,9 @@ setup_device_trust_for_osm() {
       "$ADB" shell "nsenter --mount=/proc/$pid/ns/mnt -- mount --bind /data/local/tmp/cacerts /system/etc/security/cacerts" || true
     done
     echo "--- verify ---"
-    "$ADB" shell "ls /apex/com.android.conscrypt/cacerts | wc -l"
-    "$ADB" shell "ls /apex/com.android.conscrypt/cacerts/$hash.0 2>/dev/null" || true
+    "$ADB" shell "echo apex:; ls /apex/com.android.conscrypt/cacerts | wc -l; echo tmp:; ls /data/local/tmp/cacerts | wc -l"
   } >>"$report" 2>&1
+  note "map-tile trust store prepared ($added anchor candidates; see $report)"
 }
 
 grant_permissions() {
@@ -879,11 +888,16 @@ capture_live_hunt() {
     return 0
   fi
   log "capture: S11 Chat (field log during the hunt)"
+  # The tile-readiness poll posted repeated "Clock is running" trigger lines; remove them so the
+  # field log reads like the seeded conversation (6 lines + the final "One left" line).
+  game prune-chat --body-contains "Clock is running" || note "could not prune the clock-trigger chat lines"
   game chat --user sara --body "One left. She's not going far." || fail "could not post the chat line"
   game chat-clock --end 2052 || fail "could not normalise the chat clock"
   ui_tap "text=Chat|text=Chat tab" 40
-  ui_wait "north gate|Riverside Run|Say hello|No messages yet" 60
-  sleep 1.6
+  # New MATCHDAY field log: phase separator + timestamped rows + composer (the old chat-bubble
+  # strings no longer exist).
+  ui_wait "Message|Match started|One left|Take the path|Clock is running" 60
+  sleep 1.8
   hide_ime
   shot "s11-chat"
   ui_try_tap "text=Game|text=Game tab"

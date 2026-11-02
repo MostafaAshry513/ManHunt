@@ -231,6 +231,19 @@ async function commandChatClock() {
   log(`chat clock: ${count} lines stamped up to ${end.slice(0, 2)}:${end.slice(2)} UTC`);
 }
 
+/**
+ * Remove capture-only chat noise (the clock-refresh trigger lines posted while waiting for map
+ * tiles) so the S11 field log reads like a real hunt conversation. Matches by body substring.
+ */
+async function commandPruneChat() {
+  const state = readState();
+  const needle = arg('body-contains', 'Clock is running');
+  const removed = await withDb((db) =>
+    db.prepare('DELETE FROM messages WHERE room_id = ? AND body LIKE ?').run(state.roomId, `%${needle}%`).changes,
+  );
+  log(`pruned ${removed} chat line(s) matching "${needle}"`);
+}
+
 // ---------------------------------------------------------------- commands
 
 async function commandSeed() {
@@ -711,6 +724,7 @@ const commands = {
   'rematch-ready': commandRematchReady,
   chat: commandChat,
   'chat-clock': commandChatClock,
+  'prune-chat': commandPruneChat,
   'create-room': commandCreateRoom,
   'leave-room': commandLeaveRoom,
   state: commandState,
