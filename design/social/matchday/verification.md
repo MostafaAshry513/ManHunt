@@ -83,6 +83,7 @@ Key film beats downscaled to 390 px wide (`out/qa/phone-*.png`): hook, home, lob
 4. **Carousel caption:** `Zone 240 m` (was "Live zone 240 m").
 5. Optional brand suggestions adopted: chat microcopy `IN-GAME CHAT · CAPTURED MATCH`; hook #4 `The map is the field.`; hook #5 uses the approved mode line `Two teams. One block. One clock.`
 6. Re-rendered after the fixes: 15 s MP4/WebM, 30 s MP4 (chat microcopy re-rendered separately), GIF, all statics, contact sheet; re-verified durations/decode/GIF/PNG dims and the changed frames (`out/qa/15-hunt.png`, `out/qa/15-hook.png`, `out/qa/30-chat.png`, feed/story/carousel statics).
+7. **Result-static consistency (last string):** 1:1 result meta is `PREY REMAINING 0 / 2 · CAPTURED MATCH` (same phrasing as the chat beat; no surface says "real match" any more). Re-rendered `manhunt_matchday_feed-1x1-result.png` (1080×1080) and the contact sheet (1600×2400); re-checked dimensions. Only that static + contact sheet changed — video encodes untouched and still decode clean.
 
 ## 8. Safety / workflow
 
