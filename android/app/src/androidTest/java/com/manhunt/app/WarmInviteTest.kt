@@ -143,15 +143,15 @@ class WarmInviteTest {
             JSONObject().put("name", "Warm invite room"),
         ).getJSONObject("room").getString("code")
 
-        // 3) Deliver a real VIEW intent to the foregrounded activity. SINGLE_TOP (with
-        //    NEW_TASK from an app context) reuses the visible instance, so this exercises
-        //    MainActivity.onNewIntent -> DeepLink -> AppRoot auto-join, not a fresh launch.
-        compose.activityRule.scenario.onActivity { _ ->
+        // 3) Deliver a real VIEW intent to the foregrounded activity from the Activity
+        //    context with SINGLE_TOP (no NEW_TASK), so it is routed to the same visible
+        //    instance. Starting from the app context with NEW_TASK can create a second task;
+        //    ActivityScenarioRule then cannot destroy the paused original and teardown fails.
+        compose.activityRule.scenario.onActivity { activity ->
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("manhunt://join?code=$joinCode")).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
-            InstrumentationRegistry.getInstrumentation().targetContext.startActivity(intent)
+            activity.startActivity(intent)
         }
 
         // 4) The warm path must navigate to the room and compose the MATCHDAY Lobby.
