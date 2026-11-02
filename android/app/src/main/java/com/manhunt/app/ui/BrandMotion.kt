@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import android.provider.Settings
 import androidx.compose.animation.core.LinearEasing
@@ -37,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -62,6 +63,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.manhunt.app.i18n.t
+import com.manhunt.app.ui.theme.BoardShape
+import com.manhunt.app.ui.theme.BoardTheme
 import com.manhunt.app.ui.theme.ManHuntElevation
 import com.manhunt.app.ui.theme.ManHuntRadius
 import kotlin.math.PI
@@ -680,5 +683,28 @@ internal fun BrandWordmark(
                 }
             }
         }
+    }
+}
+
+/**
+ * The FieldPlate: the brand field drawing (radar scope, zone ring, Prey trail/pings, Hunter
+ * fan) with no copy, used as the Auth/Home plate. Static first frame with motion disabled;
+ * otherwise it runs the same 4 s Perpetual Pursuit loop only while the screen is RESUMED.
+ * Decorative: callers apply their own testTag; no semantics are exposed.
+ */
+@Composable
+internal fun BrandFieldPlate(
+    modifier: Modifier = Modifier,
+    animate: Boolean = false,
+) {
+    val motionEnabled = animate && rememberBrandMotionEnabled()
+    val phase = rememberBrandPhase(motionEnabled)
+    Box(
+        modifier
+            .fillMaxWidth()
+            .clip(BoardShape.plate)
+            .background(BoardTheme.board()),
+    ) {
+        BrandMotionArt(phase = phase, modifier = Modifier.matchParentSize())
     }
 }

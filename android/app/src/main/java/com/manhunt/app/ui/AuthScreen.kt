@@ -1,28 +1,27 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -44,15 +42,18 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.manhunt.app.BuildConfig
 import com.manhunt.app.Graph
 import com.manhunt.app.data.ApiException
 import com.manhunt.app.data.InputRules
 import com.manhunt.app.data.ManHuntRepository
 import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
-import com.manhunt.app.ui.theme.ManHuntSpacing
+import com.manhunt.app.ui.theme.BoardSpace
+import com.manhunt.app.ui.theme.BoardTheme
+import com.manhunt.app.ui.theme.ManHuntSizes
+import com.manhunt.app.ui.theme.ManHuntType
 import kotlinx.coroutines.launch
-
 data class AuthUi(
     val username: String = "",
     val password: String = "",
@@ -177,61 +178,64 @@ fun AuthScreen() {
         ui.username.length in InputRules.MIN_USERNAME..InputRules.MAX_USERNAME &&
         ui.password.length in 8..InputRules.MAX_PASSWORD
 
-    Surface(Modifier.fillMaxSize()) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.TopCenter,
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
+            Modifier
+                .fillMaxWidth()
+                .widthIn(max = 560.dp)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = ManHuntSpacing.xl, vertical = ManHuntSpacing.section),
-            verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.xl),
+                .imePadding(),
         ) {
-            // Animated brand hero: Open Zone radar with the drawn MANHUNT lockup and the
-            // campaign line. The sign-in card stays directly below it.
-            BrandMotionBanner(modifier = Modifier.fillMaxWidth())
-
-            ScreenCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        if (ui.register) Icons.Outlined.Person else Icons.Outlined.Lock,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(Modifier.width(ManHuntSpacing.sm))
-                    Text(
-                        if (ui.register) t("Create your account") else t("Welcome back"),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-
-                ManHuntTextField(
+            // FieldPlate: the drawn field is the first impression. It is decorative art, so it
+            // gets no semantics and its motion follows the reduced-motion/lifecycle policy.
+            BrandFieldPlate(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .testTag("auth_field_plate"),
+                animate = true,
+            )
+            Column(
+                Modifier.padding(horizontal = BoardSpace.screen),
+                verticalArrangement = Arrangement.spacedBy(BoardSpace.s8),
+            ) {
+                Spacer(Modifier.height(BoardSpace.s8))
+                HeadingText(t("Hide from your friends."), style = ManHuntType.displayL())
+                PlateTextField(
                     value = ui.username,
                     onValueChange = vm::onUsername,
                     label = t("Username"),
                     enabled = !ui.loading,
-                    isError = usernameError,
-                    supportingText = when {
-                        usernameError -> t("Username is required")
-                        ui.username.isNotEmpty() && ui.username.length < InputRules.MIN_USERNAME ->
-                            t("At least 3 characters")
-                        else -> null
+                    error = if (usernameError) t("Username is required") else null,
+                    helper = if (
+                        !usernameError &&
+                        ui.username.isNotEmpty() &&
+                        ui.username.length < InputRules.MIN_USERNAME
+                    ) {
+                        t("At least 3 characters")
+                    } else {
+                        null
                     },
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next,
-                    autofillType = if (ui.register) ContentType.NewUsername else ContentType.Username,
+                    autofillContentType = if (ui.register) ContentType.NewUsername else ContentType.Username,
                     testTag = "auth_username",
                 )
-
-                ManHuntTextField(
+                PlateTextField(
                     value = ui.password,
                     onValueChange = vm::onPassword,
                     label = t("Password"),
                     enabled = !ui.loading,
-                    isError = passwordError,
-                    supportingText = when {
-                        passwordError -> t("Password must be at least 8 characters")
-                        ui.password.isNotEmpty() && ui.password.length < 8 -> t("At least 8 characters")
-                        else -> null
+                    error = if (passwordError) t("Password must be at least 8 characters") else null,
+                    helper = if (!passwordError && ui.password.isNotEmpty() && ui.password.length < 8) {
+                        t("At least 8 characters")
+                    } else {
+                        null
                     },
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,
@@ -240,112 +244,137 @@ fun AuthScreen() {
                     } else {
                         PasswordVisualTransformation()
                     },
-                    autofillType = if (ui.register) ContentType.NewPassword else ContentType.Password,
-                    trailingIcon = {
+                    autofillContentType = if (ui.register) ContentType.NewPassword else ContentType.Password,
+                    trailing = {
                         IconButton(
                             onClick = { passwordVisible = !passwordVisible },
                             enabled = !ui.loading,
+                            modifier = Modifier.size(ManHuntSizes.touchTarget),
                         ) {
                             Icon(
-                                if (passwordVisible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                                contentDescription = t(if (passwordVisible) "Hide password" else "Show password"),
+                                if (passwordVisible) {
+                                    Icons.Outlined.VisibilityOff
+                                } else {
+                                    Icons.Outlined.Visibility
+                                },
+                                contentDescription = t(
+                                    if (passwordVisible) "Hide password" else "Show password",
+                                ),
+                                tint = MaterialTheme.colorScheme.onBackground,
                             )
                         }
                     },
-                    testTag = "auth_password",
                     keyboardActions = KeyboardActions(onDone = { if (canSubmit) vm.submit() }),
+                    testTag = "auth_password",
                 )
-
-                ErrorBanner(ui.error)
-
-                PrimaryButton(
+                ErrorStrip(message = ui.error, onRetry = vm::submit)
+                BoardButton(
                     text = if (ui.register) t("Create account") else t("Sign in"),
                     onClick = vm::submit,
-                    loading = ui.loading,
                     enabled = canSubmit,
-                    modifier = Modifier.testTag("auth_submit"),
+                    loading = ui.loading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("auth_submit"),
                 )
-
-                InlineAction(
-                    text = if (ui.register) t("I already have an account") else t("New here? Create an account"),
+                InlineLink(
+                    text = if (ui.register) {
+                        t("I already have an account")
+                    } else {
+                        t("New here? Create an account")
+                    },
                     onClick = vm::toggleMode,
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !ui.loading,
                 )
-            }
 
-            ScreenCard(
-                title = t("Game server"),
-                subtitle = t("The server your phone connects to."),
-                icon = Icons.Outlined.Wifi,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                ChalkRule()
+
+                // Server disclosure: a data row, below the rule, never above the primary action.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("auth_server_row"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        ui.serverUrl,
+                        t("Game server") + " · " + ui.serverUrl,
+                        style = ManHuntType.data(),
+                        color = BoardTheme.muted(),
+                        maxLines = 1,
                         modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    InlineAction(
+                    InlineLink(
                         text = if (ui.showServer) t("Cancel") else t("Change server"),
                         onClick = vm::toggleServer,
                     )
                 }
                 if (ui.showServer) {
-                    ManHuntTextField(
-                        value = ui.serverUrl,
-                        onValueChange = vm::onServerUrl,
-                        label = t("Server address"),
-                        // Format hint, not copy: a placeholder must never leak a private LAN address.
-                        placeholder = "http://server:8080",
-                        keyboardType = KeyboardType.Uri,
-                        autofillType = null,
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
-                        SecondaryButton(
-                            text = t("Cancel"),
-                            onClick = vm::toggleServer,
-                            modifier = Modifier.weight(1f),
+                    Column(verticalArrangement = Arrangement.spacedBy(BoardSpace.s4)) {
+                        PlateTextField(
+                            value = ui.serverUrl,
+                            onValueChange = vm::onServerUrl,
+                            label = t("Server address"),
+                            enabled = !ui.testingServer,
+                            helper = t("The server your phone connects to."),
+                            keyboardType = KeyboardType.Uri,
+                            imeAction = ImeAction.Done,
+                            testTag = "auth_server_field",
                         )
-                        PrimaryButton(
-                            text = t("Save server"),
-                            onClick = vm::saveServer,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
-
-                SecondaryButton(
-                    text = t("Test connection"),
-                    onClick = vm::testServer,
-                    enabled = !ui.testingServer,
-                    modifier = Modifier.testTag("auth_test_server"),
-                )
-                if (ui.testingServer) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ManHuntLoader(size = 18.dp)
-                        Spacer(Modifier.width(ManHuntSpacing.sm))
-                        Text(
-                            t("Loading"),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    ui.serverStatus?.let { status ->
-                        Text(
-                            status,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (ui.serverStatusOk == true) {
-                                MaterialTheme.colorScheme.primary
+                        Row(horizontalArrangement = Arrangement.spacedBy(BoardSpace.s4)) {
+                            BoardButton(
+                                text = t("Cancel"),
+                                onClick = vm::toggleServer,
+                                tone = BoardButtonTone.Outline,
+                                modifier = Modifier.weight(1f),
+                            )
+                            BoardButton(
+                                text = t("Save server"),
+                                onClick = vm::saveServer,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(BoardSpace.s4),
+                        ) {
+                            BoardButton(
+                                text = t("Test connection"),
+                                onClick = vm::testServer,
+                                tone = BoardButtonTone.Outline,
+                                enabled = !ui.testingServer,
+                                testTag = "auth_test_server",
+                            )
+                            if (ui.testingServer) {
+                                LoadingTicks()
+                                Text(
+                                    t("Loading"),
+                                    style = ManHuntType.caption(),
+                                    color = BoardTheme.muted(),
+                                )
                             } else {
-                                MaterialTheme.colorScheme.error
-                            },
-                        )
+                                ui.serverStatus?.let { status ->
+                                    Text(
+                                        status,
+                                        style = ManHuntType.caption(),
+                                        color = if (ui.serverStatusOk == true) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.error
+                                        },
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
+                Text(
+                    "v" + BuildConfig.VERSION_NAME + " · free APK · Android 8+",
+                    style = ManHuntType.dataSmall(),
+                    color = BoardTheme.muted(),
+                    modifier = Modifier.testTag("auth_version"),
+                )
+                Spacer(Modifier.height(BoardSpace.s10))
             }
-
-            Spacer(Modifier.height(ManHuntSpacing.sm))
         }
     }
 }

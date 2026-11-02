@@ -26,7 +26,7 @@
  *   end-match            host ends the active match
  *   set-ready            set a player's ready flag (--user leila --ready false)
  *   chat                 post one chat line (--user sara --body "...")
- *   chat-clock           DB: re-stamp all chat lines to end at --end HHMM (default 2104)
+ *   chat-clock           DB: re-stamp all chat lines to end at --end HHMM (default 2052)
  *   create-room          create a second empty room (for the empty-chat state)
  *   leave-room           a player leaves the room (--user yasmin)
  *   state                print the room/match summary as JSON
@@ -75,6 +75,9 @@ export const ROOM_SETTINGS = {
 
 /** The live-hunt clock shown on the Board: 41:12 remaining (shotlist S07). */
 export const HUNT_REMAINING_SEC = 41 * 60 + 12;
+
+/** The finished match's played time: 18:48 (shotlist S12). 41:12 is remaining, never "played". */
+export const HUNT_PLAYED_SEC = 18 * 60 + 48;
 
 /** 6-8 hunt-relevant chat lines (shotlist S11); times are normalised to the capture clock. */
 export const CHAT_LINES = [
@@ -199,8 +202,8 @@ function assert(condition, message) {
   log(`ok - ${message}`);
 }
 
-/** Fixed capture-clock date: today's UTC date at 21:04, used to normalise visible times. */
-function captureClockBase(hour = 21, minute = 4) {
+/** Fixed capture-clock date: today's UTC date at 20:52, used to normalise visible chat times. */
+function captureClockBase(hour = 20, minute = 52) {
   const now = new Date();
   return { base: Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour, minute, 0) };
 }
@@ -211,7 +214,7 @@ function captureClockBase(hour = 21, minute = 4) {
  * Re-stamp the player chat lines into a fixed window ending at the status-bar clock
  * (21:04) so the Chat screenshot reads as one coherent moment. Newest line = 21:04.
  */
-async function applyChatClockTo(db, roomId, endHour = 21, endMinute = 4) {
+async function applyChatClockTo(db, roomId, endHour = 20, endMinute = 52) {
   const rows = db.prepare("SELECT id FROM messages WHERE room_id = ? AND kind = 'chat' ORDER BY id").all(roomId);
   if (rows.length === 0) return 0;
   const { base } = captureClockBase(endHour, endMinute);
@@ -223,7 +226,7 @@ async function applyChatClockTo(db, roomId, endHour = 21, endMinute = 4) {
 
 async function commandChatClock() {
   const state = readState();
-  const end = String(arg('end', '2104')).padStart(4, '0');
+  const end = String(arg('end', '2052')).padStart(4, '0');
   const count = await withDb((db) => applyChatClockTo(db, state.roomId, Number(end.slice(0, 2)), Number(end.slice(2))));
   log(`chat clock: ${count} lines stamped up to ${end.slice(0, 2)}:${end.slice(2)} UTC`);
 }
@@ -286,7 +289,7 @@ async function commandSeed() {
   }
   if (databasePath) {
     const count = await withDb((db) => applyChatClockTo(db, state.roomId));
-    log(`chat clock: ${count} lines stamped up to 21:04 UTC`);
+    log(`chat clock: ${count} lines stamped up to 20:52 UTC`);
   }
 
   writeState(state);
@@ -395,13 +398,19 @@ async function commandForceHunting() {
   log(`hunting; ends at ${new Date(current.match.endsAt).toISOString()}`);
 }
 
-/** Set the live clock to exactly HUNT_REMAINING_SEC and poke the app to refetch state. */
+/** Freeze the match timeline at the shotlist moment: 41:12 remaining, 18:48 played. */
 async function commandSyncClock() {
   const state = readState();
   const remaining = Number(arg('remaining', String(HUNT_REMAINING_SEC)));
   const triggerUser = arg('trigger-user', '');
+  const now = Date.now();
+  const startedAt = now - HUNT_PLAYED_SEC * 1000;
   await withDb((db) => {
-    db.prepare('UPDATE matches SET ends_at = ? WHERE id = ?').run(Date.now() + remaining * 1000, state.matchId);
+    // started_at / head_start_ends_at / ends_at are kept consistent so the derived
+    // "played" duration is exactly 18:48 while the live clock shows 41:12 remaining.
+    db.prepare(
+      'UPDATE matches SET started_at = ?, head_start_ends_at = ?, ends_at = ? WHERE id = ?',
+    ).run(startedAt, startedAt + 300_000, now + remaining * 1000, state.matchId);
   });
   if (triggerUser) {
     // A peer chat line broadcasts, which makes the app refetch room state + countdown.
@@ -414,7 +423,7 @@ async function commandSyncClock() {
 /** Make the finished match's "played" time equal --seconds (default 41:12). */
 async function commandSetPlayed() {
   const state = readState();
-  const seconds = Number(arg('seconds', String(HUNT_REMAINING_SEC)));
+  const seconds = Number(arg('seconds', String(HUNT_PLAYED_SEC)));
   await withDb((db) => {
     db.prepare('UPDATE matches SET started_at = ? WHERE id = ?').run(Date.now() - seconds * 1000, state.matchId);
   });
@@ -601,11 +610,11 @@ async function commandVerify() {
       const db = new DatabaseSync(databasePath);
       const rows = db.prepare("SELECT created_at FROM messages WHERE room_id = ? AND kind = 'chat' ORDER BY id").all(state.roomId);
       db.close();
-      const { base: end } = captureClockBase(21, 4);
+      const { base: end } = captureClockBase(20, 52);
       const start = end - (rows.length - 1) * 60_000;
       assert(
         rows.every((row, index) => row.created_at === start + index * 60_000),
-        `chat clock: ${rows.length} player lines stamped up to 21:04 UTC`,
+        `chat clock: ${rows.length} player lines stamped up to 20:52 UTC`,
       );
     }
   }
@@ -628,6 +637,11 @@ async function commandVerify() {
     assert(
       remaining > HUNT_REMAINING_SEC - 30 && remaining <= HUNT_REMAINING_SEC,
       `live clock is about 41:12 (${remaining} s remaining)`,
+    );
+    const played = Math.round((current.match.now - current.match.startedAt) / 1000);
+    assert(
+      played >= HUNT_PLAYED_SEC - 30 && played <= HUNT_PLAYED_SEC + 30,
+      `played time is about 18:48 (${played} s elapsed)`,
     );
   }
 

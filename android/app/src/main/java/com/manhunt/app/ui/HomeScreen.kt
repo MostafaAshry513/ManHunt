@@ -1,5 +1,6 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,54 +8,51 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Login
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.manhunt.app.BuildConfig
 import com.manhunt.app.Graph
 import com.manhunt.app.data.ApiException
 import com.manhunt.app.data.InputRules
 import com.manhunt.app.data.ManHuntRepository
 import com.manhunt.app.i18n.t
 import com.manhunt.app.i18n.translate
-import com.manhunt.app.ui.theme.ManHuntElevation
-import com.manhunt.app.ui.theme.ManHuntSizes
-import com.manhunt.app.ui.theme.ManHuntSpacing
+import com.manhunt.app.ui.theme.BoardSpace
+import com.manhunt.app.ui.theme.BoardTheme
+import com.manhunt.app.ui.theme.ManHuntType
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 data class HomeUi(
     val roomName: String = "",
     val joinCode: String = "",
@@ -129,136 +127,151 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
         }
     }
 
-    Surface(Modifier.fillMaxSize()) {
-        // Adaptive: cap the reading width on tablets/foldables while phones keep full width.
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+    // Real device local time, refreshed once a minute (data face, not decoration fantasy).
+    var clock by remember {
+        mutableStateOf(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)))
+    }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(30_000L)
+            clock = LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+        }
+    }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.TopCenter,
+    ) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .widthIn(max = 640.dp)
-                .verticalScroll(rememberScrollState())
-                .padding(ManHuntSpacing.screen),
-            verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.lg),
+                .widthIn(max = 560.dp)
+                .verticalScroll(rememberScrollState()),
         ) {
-            Box(Modifier.fillMaxWidth()) {
-                // Full-bleed brand hero. The settings control floats in the empty top-right
-                // corner instead of taking a column away from the banner.
-                BrandMotionBanner(modifier = Modifier.fillMaxWidth(), compact = true)
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(ManHuntSpacing.sm),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
-                    tonalElevation = ManHuntElevation.card,
-                ) {
-                    IconButton(
-                        onClick = onOpenSettings,
-                        modifier = Modifier
-                            .size(ManHuntSizes.touchTarget)
-                            .testTag("home_settings"),
-                    ) {
-                        Icon(Icons.Outlined.Settings, contentDescription = t("Settings"))
-                    }
-                }
-            }
-
-            ScreenCard(
-                title = t("Host a hunt"),
-                subtitle = t("You set the rules. You call the hunt."),
-                icon = Icons.Outlined.AddCircle,
+            Masthead(clock = clock, onOpenSettings = onOpenSettings)
+            // The field plate is the brand introduction. It animates only when the screen is
+            // RESUMED and reduced motion is off; the static first frame is the returning state.
+            BrandFieldPlate(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .testTag("home_field_plate"),
+                animate = true,
+            )
+            Column(
+                Modifier.padding(horizontal = BoardSpace.screen),
+                verticalArrangement = Arrangement.spacedBy(BoardSpace.s8),
             ) {
-                ManHuntTextField(
+                Spacer(Modifier.height(BoardSpace.s6))
+                HeadingText(t("Hide from your friends."), style = ManHuntType.displayL())
+
+                // Host block: two verbs, no plate. The button is the only cyan surface.
+                Text(
+                    t("Host a hunt"),
+                    style = ManHuntType.title(),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .semantics { heading() }
+                        .testTag("home_host_section"),
+                )
+                PlateTextField(
                     value = ui.roomName,
                     onValueChange = vm::onRoomName,
                     label = t("Hunt name"),
                     enabled = !ui.busy,
-                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
-                    imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done,
                     keyboardActions = KeyboardActions(onDone = { if (!ui.busy) vm.createRoom() }),
                     testTag = "home_room_name",
                 )
-                PrimaryButton(
+                ErrorStrip(
+                    message = ui.createError,
+                    onRetry = vm::createRoom,
+                    testTag = "home_create_error",
+                )
+                BoardButton(
                     text = t("Create hunt"),
                     onClick = vm::createRoom,
                     enabled = !ui.busy,
-                    icon = Icons.Outlined.AddCircle,
-                    modifier = Modifier.testTag("home_create"),
+                    loading = ui.busy,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("home_create"),
                 )
-                ErrorBanner(ui.createError)
-            }
 
-            ScreenCard(
-                title = t("Join a hunt"),
-                subtitle = t("Got an invite code?"),
-                icon = Icons.Outlined.Login,
-            ) {
-                ManHuntTextField(
-                    value = ui.joinCode,
-                    onValueChange = vm::onJoinCode,
-                    label = t("Invite code"),
-                    enabled = !ui.busy,
-                    placeholder = "ABC123",
-                    supportingText = if (ui.joinCode.isNotEmpty() && ui.joinCode.length < InputRules.INVITE_CODE_LENGTH) {
-                        t("Enter the 6-character invite code")
-                    } else {
-                        null
-                    },
-                    imeAction = androidx.compose.ui.text.input.ImeAction.Done,
-                    keyboardActions = KeyboardActions(
-                        onDone = { if (!ui.busy && ui.joinCode.length == InputRules.INVITE_CODE_LENGTH) vm.joinRoom() },
-                    ),
+                ChalkRule()
+
+                Text(
+                    t("Join a hunt"),
+                    style = ManHuntType.title(),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .semantics { heading() }
+                        .testTag("home_join_section"),
+                )
+                CodePlate(
+                    code = ui.joinCode,
+                    onCodeChange = vm::onJoinCode,
                     testTag = "home_join_code",
                 )
-                PrimaryButton(
+                if (ui.joinCode.isNotEmpty() && ui.joinCode.length < InputRules.INVITE_CODE_LENGTH) {
+                    Text(
+                        t("Enter the 6-character invite code"),
+                        style = ManHuntType.bodySmall(),
+                        color = BoardTheme.muted(),
+                    )
+                }
+                ErrorStrip(
+                    message = ui.joinError,
+                    onRetry = vm::joinRoom,
+                    testTag = "home_join_error",
+                )
+                BoardButton(
                     text = t("Join hunt"),
                     onClick = vm::joinRoom,
+                    tone = BoardButtonTone.Outline,
                     enabled = !ui.busy && ui.joinCode.length == InputRules.INVITE_CODE_LENGTH,
-                    icon = Icons.Outlined.Login,
-                    modifier = Modifier.testTag("home_join"),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("home_join"),
                 )
-                ErrorBanner(ui.joinError)
-            }
 
-            ScreenCard(
-                title = t("How it works"),
-                subtitle = t("Roles, modes and safety"),
-                icon = Icons.Outlined.Info,
-            ) {
-                Text(
-                    t("Prey hide. Hunters track them down and tag them in person."),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                SecondaryButton(
-                    text = t("Read the roles"),
-                    onClick = onOpenRoles,
-                    icon = Icons.Outlined.Info,
-                    modifier = Modifier.testTag("home_roles_card"),
-                )
-            }
+                ChalkRule()
 
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    t("Signed in as") + " " + (session?.user?.username ?: "-"),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f),
-                )
-                TextButton(
-                    onClick = { repo.logout() },
-                    modifier = Modifier.heightIn(min = ManHuntSizes.touchTarget),
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.Logout,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
+                    InlineLink(
+                        text = t("Read the roles"),
+                        onClick = onOpenRoles,
+                        modifier = Modifier.testTag("home_roles_card"),
                     )
-                    Spacer(Modifier.width(ManHuntSpacing.xs))
-                    Text(t("Sign out"))
+                    Spacer(Modifier.weight(1f))
+                    session?.user?.username?.let { name ->
+                        Text(
+                            t("Playing as") + " " + name,
+                            style = ManHuntType.bodySmall(),
+                            color = BoardTheme.muted(),
+                            maxLines = 1,
+                        )
+                        Spacer(Modifier.width(BoardSpace.s4))
+                    }
+                    InlineLink(
+                        text = t("Sign out"),
+                        onClick = { repo.logout() },
+                        modifier = Modifier.testTag("home_signout"),
+                    )
                 }
+                Text(
+                    "v" + BuildConfig.VERSION_NAME + " · free APK · Android 8+",
+                    style = ManHuntType.dataSmall(),
+                    color = BoardTheme.muted(),
+                )
+                Spacer(Modifier.height(BoardSpace.s10))
             }
-        }
         }
     }
 }

@@ -55,6 +55,26 @@ const OPTIONAL = [
 
 const directory = process.argv[2] ?? 'scripts/screenshots/out';
 
+/**
+ * Optional shots the verified build does not have redesigned yet. They are not required:
+ * a missing pending shot is recorded in captures.json and does not fail the run. Pass as
+ * `--pending s02,s11,s14`.
+ */
+const pendingIndex = process.argv.indexOf('--pending');
+const pendingSet = new Set(
+  (pendingIndex >= 0 ? process.argv[pendingIndex + 1] ?? '' : '')
+    .split(',')
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean),
+);
+
+function isPending(spec) {
+  const short = spec.file.replace(/\.png$/, '').slice(0, 3).toLowerCase();
+  return pendingSet.has(spec.file.replace(/\.png$/, '').toLowerCase()) ||
+    pendingSet.has(spec.role.toLowerCase()) ||
+    pendingSet.has(short);
+}
+
 function pngSize(buffer) {
   const signature = '89504e470d0a1a0a';
   if (buffer.length < 24 || buffer.subarray(0, 8).toString('hex') !== signature) return null;
@@ -84,9 +104,11 @@ function check(spec, required) {
   const expectedWidth = spec.width ?? WIDTH;
   const expectedHeight = spec.height ?? HEIGHT;
   const problems = [];
+  const pending = required && isPending(spec);
   if (!existsSync(path)) {
-    if (required) problems.push('missing');
-    return { spec, path, problems, record: null };
+    // A pending shot is allowed to be absent and is recorded as pending, never faked.
+    if (required && !pending) problems.push('missing');
+    return { spec, path, problems, record: null, pending };
   }
   const buffer = readFileSync(path);
   const size = pngSize(buffer);
@@ -109,8 +131,9 @@ function check(spec, required) {
     bytes,
     sha256: createHash('sha256').update(buffer).digest('hex'),
     pixelStdDev: deviation === null ? null : Number(deviation.toFixed(5)),
+    pending,
   };
-  return { spec, path, problems, record };
+  return { spec, path, problems, record, pending };
 }
 
 const results = EXPECTED.map((spec) => check(spec, true));
@@ -119,14 +142,18 @@ const failures = results.filter((result) => result.problems.length > 0);
 const records = [...results, ...optionalResults].map((result) => result.record).filter(Boolean);
 
 for (const result of [...results, ...optionalResults]) {
-  if (!result.record && !result.problems.length) continue; // absent optional
+  if (!result.record && !result.problems.length) {
+    if (result.pending) console.log(`pending ${result.spec.file} (not in this verified build; recorded in MANIFEST)`);
+    continue;
+  }
   if (result.problems.length) {
     console.error(`FAIL ${result.spec.file}: ${result.problems.join('; ')}`);
   } else {
     const record = result.record;
     console.log(
       `ok   ${record.file}  ${record.width}x${record.height}  ${(record.bytes / 1024).toFixed(0)} KiB  ` +
-        `stddev=${record.pixelStdDev ?? 'n/a'}  ${record.sha256.slice(0, 16)}`,
+        `stddev=${record.pixelStdDev ?? 'n/a'}  ${record.sha256.slice(0, 16)}` +
+        `${record.pending ? '  (pending)' : ''}`,
     );
   }
 }
@@ -134,7 +161,16 @@ for (const result of [...results, ...optionalResults]) {
 if (records.length > 0) {
   writeFileSync(
     join(directory, 'captures.json'),
-    `${JSON.stringify({ capturedAt: new Date().toISOString(), shotlist: 'design/redesign/screenshot-shotlist.md', captures: records }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        capturedAt: new Date().toISOString(),
+        shotlist: 'design/redesign/screenshot-shotlist.md',
+        pending: [...pendingSet],
+        captures: records,
+      },
+      null,
+      2,
+    )}\n`,
   );
   console.log(`wrote ${join(directory, 'captures.json')}`);
 }
@@ -143,4 +179,5 @@ if (failures.length > 0) {
   console.error(`\n${failures.length} required capture(s) failed verification.`);
   process.exit(1);
 }
-console.log(`\nAll ${results.length} required premium captures verified.`);
+const pendingCount = results.filter((result) => result.pending && !result.record).length;
+console.log(`\nAll ${results.length - pendingCount} required premium captures verified${pendingCount ? `; ${pendingCount} pending` : ''}.`);

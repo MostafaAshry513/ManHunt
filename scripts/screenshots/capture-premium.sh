@@ -43,6 +43,10 @@ ACTIVITY="$PACKAGE/.MainActivity"
 CLOCK="${CAPTURE_CLOCK:-2104}"
 SETTLE="${SHOT_SETTLE:-0.9}"
 EXTRAS="${CAPTURE_EXTRAS:-1}"
+# Optional shots the verified build does not have redesigned yet (comma-separated IDs,
+# e.g. "s02,s11,s14"). They are skipped - never substituted with old UI - and recorded as
+# pending in capture-meta.json / MANIFEST.json at fetch time.
+PENDING="${CAPTURE_PENDING:-}"
 APP_SERVER_URL=""
 SERVER_PID=""
 PRESENCE_PID=""
@@ -53,6 +57,13 @@ DB_PATH_ARG="$RUNTIME/premium.db"
 
 log() { printf '\n== %s ==\n' "$*"; }
 note() { printf '   %s\n' "$*"; }
+
+pending_shot() {
+  case ",$PENDING," in
+    *",$1,"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 debug_dump() {
   mkdir -p "$OUT/_debug"
@@ -148,7 +159,7 @@ seed_game() {
   ROOM_CODE="$(state_value roomCode)"
   HUNT_PASSWORD="$(state_value users.omar.password)"
   note "room code $ROOM_CODE (real server-generated code)"
-  game verify --stage lobby || fail "seeded lobby verification failed"
+  note "lobby verification runs after WebSocket presence is live"
 }
 
 start_presence() {
@@ -308,13 +319,21 @@ capture_first_run_and_auth() {
   log "capture: S02 first-run safety"
   sleep 2.5 # cold-start Open Zone reveal
   ui_wait "Before you play|Welcome to ManHunt|I understand|Let's play" 150
-  shot "s02-safety"
+  if pending_shot s02; then
+    note "S02 pending: skipping capture"
+  else
+    shot "s02-safety"
+  fi
   ui_tap "I understand|Let's play|Accept|Get started" 30
   log "capture: S01 Auth"
   ui_wait "Welcome back|Sign in|Create your account" 120
   sleep 1.5
   hide_ime
-  shot "s01-auth"
+  if pending_shot s01; then
+    note "S01 pending: skipping capture"
+  else
+    shot "s01-auth"
+  fi
 }
 
 login_omar() {
@@ -330,6 +349,10 @@ login_omar() {
 }
 
 capture_home_dark() {
+  if pending_shot s03; then
+    log "S03 pending: skipping Home capture"
+    return 0
+  fi
   log "capture: S03 Home (dark, hunt name typed, playing as Omar)"
   local typed
   typed="$(ui tap "text=Hunt name|desc=Hunt name|res=home_room_name" 20 >/dev/null 2>&1 && echo yes || echo no)"
@@ -349,7 +372,11 @@ capture_lobby_host() {
   join_room
   game verify --stage lobby || fail "host lobby state verification failed"
   sleep 2.0
-  shot "s05-lobby-host"
+  if pending_shot s05; then
+    note "S05 pending: skipping capture"
+  else
+    shot "s05-lobby-host"
+  fi
 }
 
 capture_lobby_player() {
@@ -359,7 +386,11 @@ capture_lobby_player() {
   join_room
   game verify --stage lobby-waiting || fail "waiting lobby state verification failed"
   sleep 2.0
-  shot "s06-lobby-player"
+  if pending_shot s06; then
+    note "S06 pending: skipping capture"
+  else
+    shot "s06-lobby-player"
+  fi
   game set-ready --user leila --ready true || fail "could not ready Leila"
 }
 
@@ -367,7 +398,9 @@ start_live_hunt() {
   log "starting the hunt on the server"
   game start-hunt || fail "could not start the hunt"
   game force-hunting || fail "could not jump to hunting"
-  game sync-clock --trigger-user sara || fail "could not sync the hunt clock"
+  # Keep the timeline consistent before trails are posted; the countdown is re-synced
+  # immediately before the S07 capture (see capture_live_hunt) so the Board reads 41:12.
+  game sync-clock || fail "could not sync the hunt timeline"
   game report-trails || fail "could not post prey reports"
   game verify --stage hunting || fail "hunting state verification failed"
 
@@ -387,6 +420,11 @@ capture_live_hunt() {
     fi
   fi
   sleep 14 # let the real OSM tiles download (cold emulator cache)
+  # Freeze the Board clock at 41:12 right before the hero frame; the peer chat line is a
+  # real broadcast that makes the app refetch room state (and it is timestamp-normalised
+  # with the rest of the chat before S11).
+  game sync-clock --trigger-user sara --trigger-body "Clock is running. Stay sharp." || fail "could not sync the Board clock"
+  sleep 1.5
   shot "s07-hunt"
   sleep 4
   shot "s07-hunt-alt"
@@ -405,7 +443,11 @@ capture_live_hunt() {
   log "capture: S10 hunt sheet expanded"
   ui_tap "desc=Details|text=Details|text=DETAILS" 30
   sleep 1.6
-  shot "s10-hunt-sheet"
+  if pending_shot s10; then
+    note "S10 pending: skipping capture"
+  else
+    shot "s10-hunt-sheet"
+  fi
   ui_try_tap "desc=Hide details|text=Hide details|text=Close|text=Close details"
 
   log "tagging Leila out (result path) and capturing: S09 tag target sheet"
@@ -414,13 +456,21 @@ capture_live_hunt() {
   ui_tap "Tag prey|Tag Prey|TAG PREY" 40
   ui_wait "Who did you tag|Pick the player|tag_picker" 40
   sleep 1.4
-  shot "s09-tag-target-sheet"
+  if pending_shot s09; then
+    note "S09 pending: skipping capture"
+  else
+    shot "s09-tag-target-sheet"
+  fi
   ui_try_tap "text=Cancel|text=Keep playing|text=Never mind|desc=Cancel"
   sleep 1.2
 
+  if pending_shot s11; then
+    log "S11 pending: skipping Chat capture"
+    return 0
+  fi
   log "capture: S11 Chat (field log during the hunt)"
   game chat --user sara --body "One left. She's not going far." || fail "could not post the chat line"
-  game chat-clock --end 2104 || fail "could not normalise the chat clock"
+  game chat-clock --end 2052 || fail "could not normalise the chat clock"
   ui_tap "text=Chat|text=Chat tab" 40
   ui_wait "north gate|Riverside Run|Say hello|No messages yet" 60
   sleep 1.6
@@ -431,18 +481,22 @@ capture_live_hunt() {
 
 capture_claim_and_hunters_result() {
   log "switching to the Prey view (Yasmin) for the claim beat"
+  # Freeze the timeline before the app joins again, so the Prey Board also reads 41:12.
+  game sync-clock || fail "clock sync failed"
   switch_user yasmin
   join_room
   sleep 2.5
-  # Re-sync the clock and trigger a state refresh through a peer chat line.
-  game sync-clock --trigger-user sara --trigger-body "Tag incoming." || fail "clock sync failed"
   game claim-on-yasmin || fail "could not create the tag claim"
   game verify --stage claim || fail "claim state verification failed"
 
   log "capture: S08 live hunt, Prey tag claim"
   ui_wait "tagged|Tag claim|Confirm tag|REVIEW|claim" 90
   sleep 1.8
-  shot "s08-hunt-claim"
+  if pending_shot s08; then
+    note "S08 pending: skipping capture"
+  else
+    shot "s08-hunt-claim"
+  fi
 
   log "finishing the match: Hunters win (both Prey tagged)"
   game set-played || fail "could not set the played time"
@@ -450,23 +504,32 @@ capture_claim_and_hunters_result() {
   ui_wait "HUNTERS WIN|Hunt result|FULL TIME|Back to the lobby|Back to lobby" 90
   game verify --stage result-hunters || fail "Hunters-win result verification failed"
   sleep 1.8
-  shot "s12-result-hunters"
+  if pending_shot s12; then
+    note "S12 pending: skipping capture"
+  else
+    shot "s12-result-hunters"
+  fi
   ui_try_tap "Back to the lobby|Back to lobby|Back to Lobby"
   sleep 2.0
 }
 
 capture_prey_result() {
-  log "second match: Prey win (1 of 2 survives)"
+  log "second match: Prey win (1 of 2 survives on the roster; honest app state)"
   game rematch-ready || fail "could not ready everyone for the rematch"
   game start-hunt || fail "could not start the rematch"
   game force-hunting || fail "could not jump the rematch to hunting"
+  game sync-clock || fail "could not sync the rematch timeline"
   game set-played || fail "could not set the played time"
   game tag-prey --hunter tariq --prey leila --confirm || fail "could not tag Leila in the rematch"
   game end-match || fail "could not end the rematch"
   ui_wait "PREY WIN|Hunt result|FULL TIME|Prey win" 90
   game verify --stage result-prey || fail "Prey-win result verification failed"
   sleep 1.8
-  shot "s13-result-prey"
+  if pending_shot s13; then
+    note "S13 pending: skipping capture (data-gap: survivor count unavailable)"
+  else
+    shot "s13-result-prey"
+  fi
   ui_try_tap "Back to the lobby|Back to lobby|Back to Lobby"
   sleep 2.0
 }
@@ -481,6 +544,10 @@ leave_room_to_home() {
 }
 
 capture_settings() {
+  if pending_shot s14; then
+    log "S14 pending: skipping Settings capture"
+    return 0
+  fi
   log "capture: S14 Settings (Appearance, dark)"
   ui_tap "desc=Settings|text=Settings|home_settings" 40
   ui_wait "Theme|Appearance|Appearance & theme|Settings" 60
@@ -491,19 +558,30 @@ capture_settings() {
 }
 
 capture_light_and_rtl() {
-  log "capture: S15 Home (light theme)"
-  local omars_token omars_id
-  # Use the host account (Yasmin) currently signed in: read the active prefs back is not
-  # possible, so re-inject the host session with light theme.
-  switch_user yasmin "false" "en"
-  sleep 1.2
-  shot "s15-home-light"
+  if pending_shot s15 && pending_shot s04; then
+    log "S15/S04 pending: skipping light + RTL Home captures"
+  else
+    if pending_shot s15; then
+      log "S15 pending: skipping Home light capture"
+    else
+      log "capture: S15 Home (light theme)"
+    fi
+    if pending_shot s04; then
+      log "S04 pending: skipping Home RTL capture"
+    fi
+    # The host account (Yasmin) is currently signed in; re-inject it with the target theme.
+    switch_user yasmin "false" "en"
+    sleep 1.2
+    if ! pending_shot s15; then shot "s15-home-light"; fi
+    switch_user yasmin "true" "ar"
+    sleep 2.2
+    if ! pending_shot s04; then shot "s04-home-rtl"; fi
+  fi
 
-  log "capture: S04 Home (Arabic RTL, dark)"
-  switch_user yasmin "true" "ar"
-  sleep 2.2
-  shot "s04-home-rtl"
-
+  if pending_shot s16; then
+    log "S16 pending: skipping RTL lobby capture"
+    return 0
+  fi
   log "capture: S16 Lobby (Arabic RTL) - best effort"
   join_room || note "RTL lobby join failed (optional shot)"
   sleep 2.5
@@ -516,23 +594,33 @@ capture_light_and_rtl() {
 }
 
 capture_state_extras() {
-  log "capture: S17 empty chat state"
-  game create-room --user omar --name "Riverside Run" >/dev/null || return 1
-  local extra_code
-  extra_code="$(state_value extraRoomCode)"
-  switch_user omar "true" "en"
-  join_room "$extra_code" || return 1
-  sleep 1.5
-  ui_tap "text=Chat|text=Chat tab" 40
-  ui_wait "No messages yet|Say hello|Start the conversation" 60
-  sleep 1.2
-  shot "s17-empty-chat"
-  # Leave the empty room and head to Auth for the loading/error states.
-  ui_try_tap "desc=Leave|text=Leave|room_leave"
-  ui_try_tap "text=Leave|text=Leave room|text=Confirm"
-  sleep 1.0
-  ui_try_tap "text=Leave|text=Leave room|text=Confirm"
-  wait_home || return 1
+  if pending_shot s17 && pending_shot s18 && pending_shot s19; then
+    log "S17/S18/S19 pending: skipping state extras"
+    return 0
+  fi
+  if ! pending_shot s17; then
+    log "capture: S17 empty chat state"
+    game create-room --user omar --name "Riverside Run" >/dev/null || return 1
+    local extra_code
+    extra_code="$(state_value extraRoomCode)"
+    switch_user omar "true" "en"
+    join_room "$extra_code" || return 1
+    sleep 1.5
+    ui_tap "text=Chat|text=Chat tab" 40
+    ui_wait "No messages yet|Say hello|Start the conversation" 60
+    sleep 1.2
+    shot "s17-empty-chat"
+    # Leave the empty room and head to Auth for the loading/error states.
+    ui_try_tap "desc=Leave|text=Leave|room_leave"
+    ui_try_tap "text=Leave|text=Leave room|text=Confirm"
+    sleep 1.0
+    ui_try_tap "text=Leave|text=Leave room|text=Confirm"
+    wait_home || return 1
+  fi
+  if pending_shot s18 && pending_shot s19; then
+    log "S18/S19 pending: skipping Auth state extras"
+    return 0
+  fi
 
   log "capture: S18/S19 Auth loading + server error (best effort)"
   ui_tap "text=Sign out|desc=Sign out|home_signout" 30
@@ -546,11 +634,19 @@ capture_state_extras() {
   kill -STOP "$SERVER_PID" 2>/dev/null || return 1
   ui_tap "Sign in|Sign In|auth_submit" 20
   sleep 1.3
-  shot "s18-auth-loading"
+  if pending_shot s18; then
+    note "S18 pending: skipping capture"
+  else
+    shot "s18-auth-loading"
+  fi
   kill -9 "$SERVER_PID" 2>/dev/null || true
   SERVER_PID=""
   sleep 7
-  shot "s19-auth-error"
+  if pending_shot s19; then
+    note "S19 pending: skipping capture"
+  else
+    shot "s19-auth-error"
+  fi
 }
 
 write_meta() {
@@ -558,7 +654,7 @@ write_meta() {
   local commit=""
   if [ -n "${GITHUB_SHA:-}" ]; then commit="$GITHUB_SHA"; else commit="$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || echo unknown)"; fi
   node "$SCRIPTS/write-meta.mjs" --out "$OUT" --state "$STATE" --base "$BASE" --clock "$CLOCK" \
-    --apk "$APK" --commit "$commit" || fail "could not write capture metadata"
+    --apk "$APK" --commit "$commit" --pending "$PENDING" || fail "could not write capture metadata"
 }
 
 # ---------------------------------------------------------------- main
@@ -571,6 +667,9 @@ main() {
   start_server
   seed_game
   start_presence
+  # Presence must be live before asserting the connected roster (and before S05 is shot).
+  log "verifying the seeded lobby with live presence"
+  game verify --stage lobby || fail "seeded lobby verification failed (presence / WebSocket)"
 
   wait_for_boot() {
     log "waiting for the device to boot"
@@ -617,7 +716,7 @@ main() {
 
   write_meta
   log "capture complete; verifying PNGs"
-  node "$SCRIPTS/verify-captures.mjs" "$OUT" || fail "capture verification failed"
+  node "$SCRIPTS/verify-captures.mjs" "$OUT" --pending "$PENDING" || fail "capture verification failed"
   log "premium captures ready in $OUT"
   ls -lh "$OUT"/*.png
 }

@@ -192,12 +192,52 @@ if ($LocalPath) {
 }
 
 Write-Step 'Verifying captured full frames'
+
+# The capture metadata travels with the artifact (no tokens): room/scenario, timings,
+# pending shots and honest data gaps. Read it before verification so pending shots are
+# allowed to be absent (recorded, never substituted with old UI).
+$meta = $null
+$metaPath = Join-Path $sourceDir 'capture-meta.json'
+if (Test-Path $metaPath) {
+    try { $meta = Get-Content $metaPath -Raw | ConvertFrom-Json } catch { $meta = $null }
+}
+$pending = @()
+if ($meta -and $meta.pending) {
+    $pending = @($meta.pending | ForEach-Object { "$_".Trim().ToLowerInvariant() } | Where-Object { $_ })
+}
+$dataGaps = @()
+if ($meta -and $meta.dataGaps) { $dataGaps = @($meta.dataGaps | ForEach-Object { "$_" }) }
+
+function Test-IsPending([object]$spec) {
+    $short = $spec.File.Substring(0, 3).ToLowerInvariant()
+    $base = $spec.File.ToLowerInvariant() -replace '\.png$', ''
+    foreach ($entry in $pending) {
+        if ($entry -eq $short -or $entry -eq $base -or $entry -eq $spec.Role.ToLowerInvariant()) { return $true }
+    }
+    return $false
+}
+
 $verified = New-Object System.Collections.Generic.List[object]
+$pendingRecords = New-Object System.Collections.Generic.List[object]
 $failures = New-Object System.Collections.Generic.List[string]
 foreach ($spec in $expected) {
     $path = Join-Path $sourceDir $spec.File
     if (-not (Test-Path $path)) {
-        if ($spec.Required) { $failures.Add("$($spec.File): missing") }
+        if ($spec.Required) {
+            if (Test-IsPending $spec) {
+                # A pending shot is allowed to be absent: record it in the manifest, never fake it.
+                $pendingRecords.Add([pscustomobject]@{
+                    File     = $spec.File
+                    Role     = $spec.Role
+                    Scenario = $spec.Scenario
+                    Width    = $spec.Width
+                    Height   = $spec.Height
+                })
+                Write-Host ("pend {0}  (not in this verified build; recorded in MANIFEST)" -f $spec.File)
+            } else {
+                $failures.Add("$($spec.File): missing")
+            }
+        }
         continue
     }
     $dimensions = Get-PngDimensions $path
@@ -223,9 +263,14 @@ foreach ($spec in $expected) {
         Bytes    = $bytes
         Sha256   = (Get-Sha256 $path)
         Required = $spec.Required
+        Pending  = (Test-IsPending $spec)
     })
-    $state = if ($spec.Required) { 'ok  ' } else { 'ok* ' }
+    $state = if (-not $spec.Required) { 'ok* ' } elseif (Test-IsPending $spec) { 'pend ' } else { 'ok  ' }
     Write-Host ("{0}{1}  {2}x{3}  {4} KiB" -f $state, $spec.File, $dimensions.Width, $dimensions.Height, [math]::Round($bytes / 1KB))
+}
+
+if ($pendingRecords.Count -gt 0) {
+    Write-Host ("`npending shots recorded (not captured in this verified build): " + (($pendingRecords | ForEach-Object { $_.File }) -join ', ')) -ForegroundColor Yellow
 }
 
 if ($failures.Count -gt 0) {
@@ -343,11 +388,6 @@ if (-not $SkipCrops) {
 # ---------------------------------------------------------------- MANIFEST.json
 
 Write-Step 'Writing MANIFEST.json'
-$meta = $null
-$metaPath = Join-Path $sourceDir 'capture-meta.json'
-if (Test-Path $metaPath) {
-    try { $meta = Get-Content $metaPath -Raw | ConvertFrom-Json } catch { $meta = $null }
-}
 $commit = ''
 if ($runInfo -and $runInfo.headSha) { $commit = $runInfo.headSha }
 elseif ($meta -and $meta.commit -and $meta.commit -ne 'unknown') { $commit = $meta.commit }
@@ -365,7 +405,7 @@ $gameInfo = [ordered]@{
         [ordered]@{ username = 'Tariq'; team = 'hunters'; role = 'Hunter' },
         [ordered]@{ username = 'Sara'; team = 'hunters'; role = 'Hunter' }
     )
-    state = 'Lobby (all ready) -> live hunt 41:12 (fresh + stale reports, trail, 240 m zone) -> claim -> Hunters win (0/2) -> rematch Prey win (1/2)'
+    state = 'Lobby (all ready) -> live hunt 41:12 remaining/18:48 played (fresh + stale reports, trail, 240 m zone) -> claim -> Hunters win (0/2) -> rematch: honest Prey-win state (data-gap: survivor count unavailable)'
 }
 if ($meta -and $meta.players) {
     $gameInfo.players = @($meta.players | ForEach-Object { [ordered]@{ username = $_.username; team = $_.team } })
@@ -387,8 +427,16 @@ $manifest = [ordered]@{
     theme       = 'Dark (Deep Teal night palette) except s15-home-light.png (light) and the RTL set'
     language    = 'English; s04-home-rtl.png and s16-lobby-rtl.png are Arabic RTL'
     statusBar   = 'SystemUI demo mode: clock 21:04, battery 100% unplugged, wifi only full, notifications hidden'
+    timings     = [ordered]@{
+        huntingStarted       = if ($meta -and $meta.timings) { $meta.timings.huntingStarted } else { '20:45:12' }
+        remainingAtCapture   = if ($meta -and $meta.timings) { $meta.timings.remainingAtCapture } else { '41:12' }
+        finalPlayedDuration  = if ($meta -and $meta.timings) { $meta.timings.finalPlayedDuration } else { '18:48' }
+        chatWindow           = if ($meta -and $meta.timings) { $meta.timings.chatWindow } else { '20:46-20:52' }
+    }
     mapTiles    = 'Live OpenStreetMap raster tiles (copyright OpenStreetMap contributors), Riverside Park, Manhattan; zone centre 40.7995, -73.9735, radius 240 m'
     game        = $gameInfo
+    pending     = @($pendingRecords | ForEach-Object { $_.File })
+    dataGaps    = @($dataGaps)
     images      = @()
     crops       = @()
     notes       = @(
@@ -396,7 +444,10 @@ $manifest = [ordered]@{
         'Harvest crops are cut from the captured full frames only (no stretching, no re-render); each crop records its source shot.',
         'The old CI/Robolectric captures in docs/screenshots/*.png are untouched for comparison.',
         'Hero shots for the site/GitHub page: s07-hunt.png (vertical) and s07-hunt-wide.png (landscape band); harvest/map-hero-16x9.png and harvest/map-hero-3x2.png are ready-made site bands.',
-        's07-hunt-alt.png is a raw alternate hero frame kept only in the workflow artifact, not in this folder.'
+        's07-hunt-alt.png is a raw alternate hero frame kept only in the workflow artifact, not in this folder.',
+        'Result timing: 41:12 is the remaining time at the S07 moment; the finished match ran 18:48 (never "41:12 played").',
+        'S13 data-gap: survivor count unavailable - the server resets eliminations at match finish, so the app can only expose the honest Prey-win state.',
+        'Pending shots are screens not yet redesigned in the verified build; they are omitted and recorded here, never substituted with old UI.'
     )
 }
 foreach ($file in $installOrder) {
@@ -411,6 +462,20 @@ foreach ($file in $installOrder) {
         bytes    = $record.Bytes
         sha256   = $record.Sha256
         required = $record.Required
+        status   = if ($record.Pending) { 'pending' } else { 'captured' }
+    }
+}
+foreach ($pendingRecord in $pendingRecords) {
+    $manifest.images += [ordered]@{
+        file     = $pendingRecord.File
+        role     = $pendingRecord.Role
+        scenario = $pendingRecord.Scenario
+        width    = $pendingRecord.Width
+        height   = $pendingRecord.Height
+        bytes    = $null
+        sha256   = $null
+        required = $false
+        status   = 'pending'
     }
 }
 foreach ($crop in $crops) {
@@ -531,5 +596,12 @@ Write-Host '  Map hero:          s07-hunt.png (1080x2400) + s07-hunt-wide.png (2
 Write-Host '  README set:        s03-home, s05-lobby-host, s07-hunt, s12-result-hunters (+ harvest/home-line-16x9, harvest/result-score-4x5)'
 Write-Host '  Extras:            s01-auth, s02-safety, s04-home-rtl, s06-lobby-player, s08-hunt-claim, s09-tag-target-sheet,'
 Write-Host '                     s10-hunt-sheet, s11-chat, s13-result-prey, s14-settings, s15-home-light, s16-lobby-rtl, s17-s19 states'
-Write-Host 'MANIFEST.json records scenario, dimensions, SHA-256 and crop provenance for every image.'
+Write-Host 'MANIFEST.json records scenario, dimensions, SHA-256, crop provenance, pending shots and data gaps.'
+if ($pendingRecords.Count -gt 0) {
+    Write-Host ("PENDING shots (not redesigned in the verified build; recorded, not substituted): " + (($pendingRecords | ForEach-Object { $_.File }) -join ', ')) -ForegroundColor Yellow
+}
+if ($dataGaps.Count -gt 0) {
+    Write-Host 'DATA GAPS recorded in MANIFEST:'
+    $dataGaps | ForEach-Object { Write-Host "  - $_" -ForegroundColor Yellow }
+}
 Write-Host 'Old CI captures in docs/screenshots/*.png were not modified.'

@@ -18,7 +18,7 @@ the network.
 Scenario: **Riverside Run**, five believable players - **Yasmin** (host, Prey), **Leila**
 (Prey), **Omar** (capture device, Hunter), **Tariq** (Hunter), **Sara** (Hunter); 2 Prey / 3
 Hunters, all ready; real server-generated invite code; rules 5 min head start, 60 min hunt,
-5 min reports, trails on, 240 m zone; live hunt at **41:12**, Yasmin fresh report (12 s) with a
+5 min reports, trails on, 240 m zone; live hunt at **41:12 remaining** (played 18:48), Yasmin fresh report (12 s) with a
 5-point north-east trail, Leila stale report (14 min, no trail); tag claim on Yasmin; Hunters
 win (both Prey tagged); Prey-win rematch.
 
@@ -101,6 +101,13 @@ gh run list --workflow=premium-screenshots.yml --limit 3
 gh run watch <run-id> --exit-status          # ~20-30 min
 ```
 
+If the verified build is missing some redesigned screens, mark them pending instead of
+substituting old UI (comma-separated shot IDs; never captured, recorded in MANIFEST):
+
+```powershell
+gh workflow run premium-screenshots.yml --ref master -f pending_shots=s02,s11,s14
+```
+
 A successful run uploads the `premium-screenshots` artifact (PNGs + `captures.json` +
 `capture-meta.json`); a failed run uploads `premium-diagnostics` (server log, UI dump, logcat,
 failure screenshot) for fast iteration.
@@ -142,10 +149,11 @@ re-dispatch.
   dedicated landscape band shot).
 - **Status bar:** SystemUI demo mode - clock 21:04, battery 100% unplugged, wifi only full,
   notifications hidden.
-- **Chat clock:** seeded chat lines are re-stamped to end at 21:04 UTC so the Chat screenshot
-  matches the status bar clock.
-- **Hunt clock:** the isolated DB is nudged so the Board shows 41:12 at capture time, and the
-  finished match reports 41:12 played. The timer is live, so a 1 s drift is accepted.
+- **Chat clock:** seeded chat lines are re-stamped into the 20:46-20:52 window so the Chat
+  screenshot sits before the 21:04 status-bar clock (hunting started 20:45:12).
+- **Hunt clock:** the isolated DB is nudged so the Board shows 41:12 **remaining** at capture
+  time and the finished match reports **18:48 played** (41:12 is never used as "played"). The
+  timer is live, so a 1 s drift is accepted.
 - **Theme/language:** app preferences are injected per shot (dark/light, en/ar) before the
   screen is captured.
 - **No dev strings:** the isolated server is mapped to a self-hosted looking hostname
@@ -171,11 +179,14 @@ re-dispatch.
 - The workflow is `workflow_dispatch` only, must be committed to the default branch before it
   can be triggered, and must not be run for final captures until the MATCHDAY BOARD screens
   (client-polish Phase 1/2) are in the build and the Lead has verified that.
-- The shotlist and the current server disagree on one result detail: the server resets
-  eliminations on match finish, so a "Prey win with 1 of 2 surviving" is reported by the app as
-  the full Prey roster. `s13-result-prey.png` therefore shows the app's honest Prey-win state;
-  the manifest records this.
-- `s02-safety.png` captures the first-run screen that exists in the build at capture time; if
-  the redesigned "Before you play" surface is not implemented yet it is noted in the manifest.
-- Screens whose redesigned version is not yet implemented are captured in their current-build
-  equivalent form and labelled as such - pending Lead's go/no-go on the build.
+- **Pending shots:** a screen that is not redesigned in the verified build is never captured in
+  its old form. Pass it via `-f pending_shots=...`; the capture driver skips it, the verifier
+  accepts its absence, and `MANIFEST.json` records it under `pending` (no file, no checksum).
+- **S13 data-gap:** the server resets eliminations on match finish, so the app can only expose
+  an honest Prey-win state (winner + final duration + the roster state it actually has), not a
+  "1 of 2 survived" count. `MANIFEST.json` records `data-gap: survivor count unavailable`; S13
+  may also be marked pending if the verified build has no honest representation.
+- **Result timing:** S12/S13 show **18:48 played**; 41:12 is the remaining time at the S07
+  moment and must never be used as the final duration.
+- `s02-safety.png` captures the first-run safety surface only when the verified build has it;
+  otherwise it is marked pending (never replaced with the old roles page).

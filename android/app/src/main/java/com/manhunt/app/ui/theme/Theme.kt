@@ -1,4 +1,4 @@
-package com.manhunt.app.ui.theme
+﻿package com.manhunt.app.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -9,16 +9,22 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.manhunt.app.i18n.AppLanguage
+import com.manhunt.app.i18n.LocalLanguage
+
 
 /**
  * ManHunt design tokens.
@@ -135,42 +141,122 @@ private val LightColors = lightColorScheme(
     inversePrimary = Color(0xFF22D3EE),
 )
 
-private val ManHuntTypography = Typography(
-    headlineLarge = TextStyle(
-        fontSize = 40.sp,
+
+/**
+ * MATCHDAY BOARD typography, Latin set (tokens.md §2.2). Big Shoulders Display carries loud
+ * words and the clock, Instrument Sans carries all UI, Red Hat Mono carries machine data.
+ */
+private val LatinTypography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = BoardFonts.display,
+        fontSize = 64.sp,
+        lineHeight = 58.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = (-0.01).em,
+    ),
+    displayMedium = TextStyle(
+        fontFamily = BoardFonts.display,
+        fontSize = 48.sp,
         lineHeight = 44.sp,
-        fontWeight = FontWeight.Black,
-        letterSpacing = (-1).sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = (-0.01).em,
+    ),
+    displaySmall = TextStyle(
+        fontFamily = BoardFonts.display,
+        fontSize = 36.sp,
+        lineHeight = 34.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = (-0.005).em,
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = BoardFonts.display,
+        fontSize = 28.sp,
+        lineHeight = 30.sp,
+        fontWeight = FontWeight.Bold,
     ),
     headlineMedium = TextStyle(
-        fontSize = 30.sp,
-        lineHeight = 34.sp,
-        fontWeight = FontWeight.Black,
-        letterSpacing = (-0.5).sp,
+        fontFamily = BoardFonts.display,
+        fontSize = 28.sp,
+        lineHeight = 30.sp,
+        fontWeight = FontWeight.Bold,
     ),
-    headlineSmall = TextStyle(fontSize = 24.sp, lineHeight = 30.sp, fontWeight = FontWeight.Bold),
-    titleLarge = TextStyle(fontSize = 22.sp, lineHeight = 28.sp, fontWeight = FontWeight.Bold),
-    titleMedium = TextStyle(fontSize = 17.sp, lineHeight = 22.sp, fontWeight = FontWeight.SemiBold),
-    titleSmall = TextStyle(fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold),
-    bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 24.sp),
-    bodyMedium = TextStyle(fontSize = 15.sp, lineHeight = 21.sp),
-    bodySmall = TextStyle(fontSize = 13.sp, lineHeight = 18.sp),
-    labelLarge = TextStyle(fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold),
-    labelMedium = TextStyle(fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.SemiBold),
-    labelSmall = TextStyle(
+    headlineSmall = TextStyle(
+        fontFamily = BoardFonts.sans,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        fontWeight = FontWeight.Bold,
+    ),
+    titleLarge = TextStyle(
+        fontFamily = BoardFonts.sans,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        fontWeight = FontWeight.Bold,
+    ),
+    titleMedium = TextStyle(
+        fontFamily = BoardFonts.sans,
+        fontSize = 17.sp,
+        lineHeight = 22.sp,
+        fontWeight = FontWeight.Bold,
+    ),
+    titleSmall = TextStyle(
+        fontFamily = BoardFonts.sans,
+        fontSize = 13.sp,
+        lineHeight = 16.sp,
+        fontWeight = FontWeight.Bold,
+    ),
+    bodyLarge = TextStyle(fontFamily = BoardFonts.sans, fontSize = 15.sp, lineHeight = 22.sp),
+    bodyMedium = TextStyle(fontFamily = BoardFonts.sans, fontSize = 13.sp, lineHeight = 19.sp),
+    bodySmall = TextStyle(fontFamily = BoardFonts.sans, fontSize = 12.sp, lineHeight = 16.sp),
+    labelLarge = TextStyle(
+        fontFamily = BoardFonts.sans,
+        fontSize = 13.sp,
+        lineHeight = 16.sp,
+        fontWeight = FontWeight.Bold,
+    ),
+    // state / dataSmall: the only mono slots. Uppercase is applied by the component, not here.
+    labelMedium = TextStyle(
+        fontFamily = BoardFonts.mono,
         fontSize = 11.sp,
         lineHeight = 14.sp,
-        fontWeight = FontWeight.SemiBold,
-        letterSpacing = 0.6.sp,
+        letterSpacing = 0.10.em,
+    ),
+    labelSmall = TextStyle(
+        fontFamily = BoardFonts.mono,
+        fontSize = 11.sp,
+        lineHeight = 14.sp,
+        letterSpacing = 0.04.em,
     ),
 )
 
+/**
+ * Arabic set (tokens.md §2.3): platform Arabic sans, no tracking, larger line heights and the
+ * display face replaced. Digits that are machine data stay Latin/tabular (see ManHuntType).
+ */
+private val ArabicTypography = Typography(
+    displayLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 56.sp, lineHeight = 64.sp, fontWeight = FontWeight.Bold),
+    displayMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 42.sp, lineHeight = 52.sp, fontWeight = FontWeight.Bold),
+    displaySmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 32.sp, lineHeight = 42.sp, fontWeight = FontWeight.Bold),
+    headlineLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 26.sp, lineHeight = 34.sp, fontWeight = FontWeight.Bold),
+    headlineMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 26.sp, lineHeight = 34.sp, fontWeight = FontWeight.Bold),
+    headlineSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 22.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold),
+    titleLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 22.sp, lineHeight = 32.sp, fontWeight = FontWeight.Bold),
+    titleMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 17.sp, lineHeight = 26.sp, fontWeight = FontWeight.Bold),
+    titleSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 13.sp, lineHeight = 20.sp, fontWeight = FontWeight.Bold),
+    bodyLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 15.sp, lineHeight = 24.sp),
+    bodyMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 13.sp, lineHeight = 21.sp),
+    bodySmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 12.sp, lineHeight = 19.sp),
+    labelLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 13.sp, lineHeight = 20.sp, fontWeight = FontWeight.Bold),
+    labelMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 11.sp, lineHeight = 16.sp, fontWeight = FontWeight.Bold),
+    labelSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 12.sp, lineHeight = 18.sp),
+)
+
+/** Plates are 2 dp; pills and 20-28 dp default card radii are banned by the redesign. */
 private val ManHuntShapes = Shapes(
-    extraSmall = RoundedCornerShape(ManHuntRadius.xs),
-    small = RoundedCornerShape(ManHuntRadius.sm),
-    medium = RoundedCornerShape(ManHuntRadius.md),
-    large = RoundedCornerShape(ManHuntRadius.lg),
-    extraLarge = RoundedCornerShape(ManHuntRadius.xl),
+    extraSmall = RoundedCornerShape(2.dp),
+    small = RoundedCornerShape(2.dp),
+    medium = RoundedCornerShape(2.dp),
+    large = RoundedCornerShape(2.dp),
+    extraLarge = RoundedCornerShape(2.dp),
 )
 
 @Composable
@@ -191,34 +277,47 @@ fun ManHuntTheme(
             }
         }
     }
-    val typography = remember(fontScale) { ManHuntTypography.scaledBy(fontScale) }
-    MaterialTheme(
-        colorScheme = if (darkTheme) DarkColors else LightColors,
-        typography = typography,
-        shapes = ManHuntShapes,
-        content = content,
+    val language = LocalLanguage.current
+    val arabic = language == AppLanguage.Arabic
+    val typography = remember(fontScale, arabic) {
+        (if (arabic) ArabicTypography else LatinTypography).scaledFor(fontScale)
+    }
+    CompositionLocalProvider(LocalBoardArabic provides arabic) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) DarkColors else LightColors,
+            typography = typography,
+            shapes = ManHuntShapes,
+            content = content,
+        )
+    }
+}
+
+/**
+ * Text scaling: body/UI/data at the user's full scale; display faces at half rate capped at
+ * 1.25x so a 200 % text setting cannot turn the scoreboard into wallpaper (tokens.md §2).
+ */
+private fun Typography.scaledFor(fontScale: Float): Typography {
+    val displayScale = (1f + (fontScale - 1f).coerceAtLeast(0f) * 0.5f).coerceAtMost(1.25f)
+    return Typography(
+        displayLarge = displayLarge.scaledBy(displayScale),
+        displayMedium = displayMedium.scaledBy(displayScale),
+        displaySmall = displaySmall.scaledBy(displayScale),
+        headlineLarge = headlineLarge.scaledBy(displayScale),
+        headlineMedium = headlineMedium.scaledBy(displayScale),
+        headlineSmall = headlineSmall.scaledBy(fontScale),
+        titleLarge = titleLarge.scaledBy(fontScale),
+        titleMedium = titleMedium.scaledBy(fontScale),
+        titleSmall = titleSmall.scaledBy(fontScale),
+        bodyLarge = bodyLarge.scaledBy(fontScale),
+        bodyMedium = bodyMedium.scaledBy(fontScale),
+        bodySmall = bodySmall.scaledBy(fontScale),
+        labelLarge = labelLarge.scaledBy(fontScale),
+        labelMedium = labelMedium.scaledBy(fontScale),
+        labelSmall = labelSmall.scaledBy(fontScale),
     )
 }
 
 private fun TextStyle.scaledBy(scale: Float): TextStyle = copy(
     fontSize = fontSize * scale,
     lineHeight = lineHeight * scale,
-)
-
-private fun Typography.scaledBy(scale: Float): Typography = Typography(
-    displayLarge = displayLarge.scaledBy(scale),
-    displayMedium = displayMedium.scaledBy(scale),
-    displaySmall = displaySmall.scaledBy(scale),
-    headlineLarge = headlineLarge.scaledBy(scale),
-    headlineMedium = headlineMedium.scaledBy(scale),
-    headlineSmall = headlineSmall.scaledBy(scale),
-    titleLarge = titleLarge.scaledBy(scale),
-    titleMedium = titleMedium.scaledBy(scale),
-    titleSmall = titleSmall.scaledBy(scale),
-    bodyLarge = bodyLarge.scaledBy(scale),
-    bodyMedium = bodyMedium.scaledBy(scale),
-    bodySmall = bodySmall.scaledBy(scale),
-    labelLarge = labelLarge.scaledBy(scale),
-    labelMedium = labelMedium.scaledBy(scale),
-    labelSmall = labelSmall.scaledBy(scale),
 )

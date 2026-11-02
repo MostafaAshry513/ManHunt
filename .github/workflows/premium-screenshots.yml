@@ -16,11 +16,17 @@ name: Premium screenshots
 #
 # Trigger only after the MATCHDAY BOARD redesign build has landed and the Lead has verified it:
 #   gh workflow run premium-screenshots.yml --ref master
+#   gh workflow run premium-screenshots.yml --ref master -f pending_shots=s02,s11,s14
 #   gh run list --workflow=premium-screenshots.yml --limit 3
 #   gh run watch <run-id> --exit-status
 #   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/screenshots/fetch-premium.ps1
 on:
   workflow_dispatch:
+    inputs:
+      pending_shots:
+        description: 'Comma-separated shot IDs that are not redesigned yet and must be marked pending (e.g. s02,s11,s14). Never substitutes old UI.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -71,6 +77,9 @@ jobs:
 
       - name: Capture premium screenshots on the emulator
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          # Optional shots not yet redesigned in this build: skipped + recorded as pending.
+          CAPTURE_PENDING: ${{ github.event.inputs.pending_shots }}
         with:
           api-level: 36
           target: google_apis

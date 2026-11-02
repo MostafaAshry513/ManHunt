@@ -127,7 +127,7 @@ try {
 
     Write-Step 'Normalising the chat clock (21:04 capture clock)'
     Invoke-Game @('chat', '--user', 'sara', '--body', "One left. She's not going far.")
-    Invoke-Game @('chat-clock', '--end', '2104')
+    Invoke-Game @('chat-clock', '--end', '2052')
 
     Write-Step 'Confirming the claim -> Hunters win'
     Invoke-Game @('set-played')

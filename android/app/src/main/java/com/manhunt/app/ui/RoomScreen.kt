@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import android.Manifest
 import android.content.ClipData
@@ -140,9 +140,12 @@ import com.manhunt.app.data.Teams
 import com.manhunt.app.data.TrailPoint
 import com.manhunt.app.location.TrackingService
 import com.manhunt.app.map.MatchMap
+import com.manhunt.app.ui.theme.BoardSpace
+import com.manhunt.app.ui.theme.BoardTheme
 import com.manhunt.app.ui.theme.ManHuntElevation
 import com.manhunt.app.ui.theme.ManHuntRadius
 import com.manhunt.app.ui.theme.ManHuntSizes
+import com.manhunt.app.ui.theme.ManHuntType
 import com.manhunt.app.ui.theme.Motion
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -1072,89 +1075,72 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                Modifier.fillMaxWidth().padding(horizontal = BoardSpace.screen),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconButton(onClick = requestLeave) {
+                IconButton(
+                    onClick = requestLeave,
+                    modifier = Modifier.testTag("room_leave"),
+                ) {
                     Icon(
                         Icons.AutoMirrored.Outlined.Logout,
                         contentDescription = t("Leave"),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = MaterialTheme.colorScheme.onBackground,
                     )
                 }
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        state?.room?.name ?: t("Room"),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (state != null) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Text(
-                                state.room.code,
-                                style = MaterialTheme.typography.labelMedium.copy(letterSpacing = 2.sp),
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.testTag("room_code")
-                                    // Tap-to-copy: the code was display-only before; a host
-                                    // had to read it aloud to invite anyone.
-                                    .clickable {
-                                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                        clipboard.setPrimaryClip(
-                                            ClipData.newPlainText(joinCodeLabel, state.room.code),
-                                        )
-                                        Toast.makeText(context, roomCodeCopied, Toast.LENGTH_SHORT).show()
-                                    }
-                                    .background(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                        RoundedCornerShape(6.dp),
-                                    )
-                                    .padding(horizontal = 8.dp, vertical = 3.dp),
-                            )
-                            Box(
-                                Modifier
-                                    .size(7.dp)
-                                    .background(
-                                        if (ui.connected) MaterialTheme.colorScheme.primary
-                                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        CircleShape,
-                                    ),
-                            )
-                            Text(
-                                t(if (ui.connected) "Live" else "Reconnecting…"),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-                if (ui.loading) ManHuntLoader(size = 18.dp)
+                Spacer(Modifier.weight(1f))
                 if (state != null) {
-                    IconButton(onClick = {
-                        // A tappable invite link: opening it in the app auto-joins the room.
-                        val link = repo.serverUrl.trimEnd('/') + "/join?code=" + state.room.code
-                        val text = "$joinRoomPrefix\n${state.room.name} - $codeWord ${state.room.code}\n$link"
-                        val send = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, text)
-                        }
-                        context.startActivity(Intent.createChooser(send, shareRoomTitle))
-                    }, modifier = Modifier.testTag("share_room")) {
+                    IconButton(
+                        onClick = {
+                            val link = repo.serverUrl.trimEnd('/') + "/join?code=" + state.room.code
+                            val text = "$joinRoomPrefix\n${state.room.name} - $codeWord ${state.room.code}\n$link"
+                            val send = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, text)
+                            }
+                            context.startActivity(Intent.createChooser(send, shareRoomTitle))
+                        },
+                        modifier = Modifier.testTag("share_room"),
+                    ) {
                         Icon(Icons.Outlined.Share, contentDescription = shareRoomTitle)
                     }
-                }
-                IconButton(onClick = {
-                    vm.loadHistory()
-                    showHistory = true
-                }) {
-                    Icon(Icons.Outlined.History, contentDescription = t("History"))
+                    IconButton(
+                        onClick = {
+                            vm.loadHistory()
+                            showHistory = true
+                        },
+                        modifier = Modifier.testTag("room_history"),
+                    ) {
+                        Icon(Icons.Outlined.History, contentDescription = t("History"))
+                    }
                 }
             }
-
+            if (state != null && state.room.status == "lobby") {
+                LobbyBoard(
+                    roomName = state.room.name ?: t("Room"),
+                    readyCount = state.members.count { it.ready },
+                    totalPlayers = state.members.size,
+                    roomCode = state.room.code,
+                    onCopyCode = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText(joinCodeLabel, state.room.code))
+                        Toast.makeText(context, roomCodeCopied, Toast.LENGTH_SHORT).show()
+                    },
+                )
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = BoardSpace.screen, vertical = BoardSpace.s4),
+                    verticalArrangement = Arrangement.spacedBy(BoardSpace.s2),
+                ) {
+                    Text(
+                        t("Invite code"),
+                        style = ManHuntType.caption(),
+                        color = BoardTheme.muted(),
+                    )
+                    CodePlate(code = state.room.code)
+                }
+            }
             TabRow(
                 selectedTabIndex = pagerState.currentPage,
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -1164,7 +1150,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     selected = pagerState.currentPage == 0,
                     modifier = Modifier.testTag("tab_game"),
                     onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
-                    icon = { Icon(Icons.Outlined.SportsEsports, contentDescription = null) },
+
                     text = { Text(t("Game")) },
                 )
                 Tab(
@@ -1173,13 +1159,6 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     onClick = {
                         lastReadId = vm.chat.messages.maxOfOrNull { it.id } ?: -1L
                         scope.launch { pagerState.animateScrollToPage(1) }
-                    },
-                    icon = {
-                        BadgedBox(badge = {
-                            if (unread > 0) Badge { Text(unread.toString()) }
-                        }) {
-                            Icon(Icons.AutoMirrored.Outlined.Chat, contentDescription = null)
-                        }
                     },
                     text = { Text(t("Chat")) },
                 )
@@ -1325,68 +1304,27 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
                 }
 
-                item { RosterCard(state = state, lobby = lobby) }
-
-                if (lobby) {
-                    item {
-                        ScreenCard {
-                            SectionLabel(t("Choose your side"), Icons.Outlined.SwapHoriz)
-                            ErrorBanner(ui.error)
-                            val ready = me?.ready == true
-                            val readyBg by animateColorAsState(
-                                targetValue = if (ready) MaterialTheme.colorScheme.surfaceVariant
-                                else MaterialTheme.colorScheme.primary,
-                                animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
-                                label = "ready-bg",
+                if (!lobby) {
+                    item { RosterCard(state = state, lobby = lobby) }
+                    item(key = "phase") { matchCard() }
+                } else {
+                    item(key = "team_sheets") {
+                        TeamSheet(
+                            state = state,
+                            me = me,
+                            busy = ui.busy,
+                            onSetTeam = vm::setTeam,
+                        )
+                    }
+                    if (me?.isAdmin == true) {
+                        item(key = "rules_action") {
+                            InlineLink(
+                                text = t("Hunt rules"),
+                                onClick = { showSettings = true },
+                                modifier = Modifier.testTag("room_rules"),
                             )
-                            val readyFg by animateColorAsState(
-                                targetValue = if (ready) MaterialTheme.colorScheme.onSurfaceVariant
-                                else MaterialTheme.colorScheme.onPrimary,
-                                animationSpec = tween(Motion.STANDARD, easing = Motion.EaseOutExpo),
-                                label = "ready-fg",
-                            )
-                            Row(
-                                Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                TeamChoiceCard(
-                                    team = Teams.PREY,
-                                    selected = me?.team == Teams.PREY,
-                                    // Tapping the side you are already on is a no-op; disable it
-                                    // so it is obvious the choice is already applied.
-                                    enabled = !ui.busy && me?.team != Teams.PREY,
-                                    onClick = { vm.setTeam(Teams.PREY) },
-                                    modifier = Modifier.weight(1f).testTag("team_prey"),
-                                )
-                                TeamChoiceCard(
-                                    team = Teams.HUNTERS,
-                                    selected = me?.team == Teams.HUNTERS,
-                                    enabled = !ui.busy && me?.team != Teams.HUNTERS,
-                                    onClick = { vm.setTeam(Teams.HUNTERS) },
-                                    modifier = Modifier.weight(1f).testTag("team_hunters"),
-                                )
-                            }
-
-                            Button(
-                                onClick = vm::toggleReady,
-                                enabled = !ui.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp).testTag("ready_button"),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = readyBg,
-                                    contentColor = readyFg,
-                                ),
-                            ) {
-                                Icon(
-                                    if (ready) Icons.Outlined.Close else Icons.Outlined.CheckCircle,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                                Spacer(Modifier.width(8.dp))
-                                Text(t(if (ready) "Stand down" else "Ready to hunt"))
-                            }
                         }
                     }
-                    item(key = "phase") { matchCard() }
                 }
 
                 }
@@ -1399,6 +1337,15 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
+            }
+            if (state.room.status == "lobby" && pagerState.currentPage == 0) {
+                LobbyDock(
+                    state = state,
+                    me = me,
+                    busy = ui.busy,
+                    onToggleReady = vm::toggleReady,
+                    onStartMatch = vm::startMatch,
+                )
             }
         }
     }
@@ -1575,7 +1522,7 @@ private fun PhaseCard(
                 target = target,
                 offset = offset,
                 prefix = "${t("Hunting.")} ",
-                suffix = " · ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
+                suffix = " Â· ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
             )
             Phases.PAUSED -> Text(
                 t("The hunt is paused. The clock is stopped."),
@@ -1608,7 +1555,7 @@ private fun PhaseCard(
             // it sat below "Hunt rules", off the first screen (human review finding).
             if (blockers.isNotEmpty()) {
                 Text(
-                    "${t("Before you can start")}: ${blockers.joinToString(" · ")}",
+                    "${t("Before you can start")}: ${blockers.joinToString(" Â· ")}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth().testTag("start_blockers"),
@@ -1907,8 +1854,31 @@ private fun TacticalHuntPage(
         ?.takeIf { me?.isAdmin == true && ui.pendingDispute == null }
     val staleReports = (ui.locations?.prey ?: emptyList()).any { it.stale && it.hasReport }
 
-    Box(Modifier.fillMaxSize()) {
-        MatchMap(
+    val boardTarget = when (match.phase) {
+        Phases.HEAD_START -> match.headStartEndsAt
+        Phases.HUNTING -> match.endsAt
+        else -> null
+    }
+    val boardClock = formatRemaining(boardTarget, remainingSeconds(boardTarget, offset))
+    val zoneMetres = match.zone?.radiusM?.toInt()
+    val alivePrey = state.members.count { it.team == Teams.PREY && !it.eliminated }
+    val totalPrey = state.members.count { it.team == Teams.PREY }
+
+    Column(Modifier.fillMaxSize()) {
+        MatchBoard(
+            phase = when (match.phase) {
+                Phases.HUNTING -> "Live"
+                Phases.HEAD_START -> "Head start"
+                Phases.PAUSED -> "Paused"
+                else -> match.phase.replace('_', ' ')
+            },
+            clock = boardClock,
+            dataRight = zoneMetres?.let { "ZONE $it m" },
+            secondaryDataRight = if (me?.team == Teams.HUNTERS) "PREY $alivePrey / $totalPrey" else null,
+            live = match.phase == Phases.HUNTING,
+            modifier = Modifier.testTag("hunt_hud"),
+        )
+        Box(Modifier.weight(1f).fillMaxWidth()) {        MatchMap(
             modifier = Modifier.fillMaxSize().testTag("match_map_card"),
             ownLocation = ownLocation,
             prey = ui.locations?.prey ?: emptyList(),
@@ -1923,15 +1893,6 @@ private fun TacticalHuntPage(
         )
 
         ScreenScrim(modifier = Modifier.align(Alignment.TopStart), top = true)
-
-        TacticalHud(
-            match = match,
-            phase = match.phase,
-            offset = offset,
-            isHunter = me?.team == Teams.HUNTERS,
-            staleReports = staleReports,
-            modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
-        )
 
         // Bottom stack. Letting each piece size itself (instead of fixed offsets) keeps the
         // layout intact at fontScale 1.35 and with long Arabic strings.
@@ -1986,6 +1947,7 @@ private fun TacticalHuntPage(
             )
         }
     }
+    }
 }
 
 /**
@@ -2030,7 +1992,7 @@ private fun PendingClaimBanner(
 private fun OsmAttribution(modifier: Modifier = Modifier) {
     val uriHandler = LocalUriHandler.current
     Text(
-        "© OpenStreetMap contributors",
+        "Â© OpenStreetMap contributors",
         modifier = modifier
             .testTag("hunt_attribution")
             .clickable { uriHandler.openUri(OSM_COPYRIGHT_URL) }
@@ -2200,7 +2162,7 @@ private fun HuntStatusLines(
                 CountdownText(
                     target = nextShrink,
                     offset = offset,
-                    prefix = "${t("Zone")}: ${zone.radiusM.toInt()} ${t("m")} · ${t("Zone shrinks in")} ",
+                    prefix = "${t("Zone")}: ${zone.radiusM.toInt()} ${t("m")} Â· ${t("Zone shrinks in")} ",
                     style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
                     color = MaterialTheme.colorScheme.tertiary,
                 )
@@ -2556,7 +2518,7 @@ private fun RosterCard(state: RoomState, lobby: Boolean) {
 }
 
 @Composable
-private fun startBlockers(state: RoomState): List<String> {
+internal fun startBlockers(state: RoomState): List<String> {
     val settings = state.room.settings
     val blockers = mutableListOf<String>()
     if (state.members.size < settings.minPlayers) {
@@ -2572,4 +2534,3 @@ private fun startBlockers(state: RoomState): List<String> {
     }
     return blockers
 }
-
