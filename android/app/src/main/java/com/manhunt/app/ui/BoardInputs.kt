@@ -1,6 +1,11 @@
 ﻿package com.manhunt.app.ui
 
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.runtime.remember
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -16,6 +21,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -62,6 +72,7 @@ import com.manhunt.app.ui.theme.ManHuntSizes
 import com.manhunt.app.ui.theme.ManHuntType
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
@@ -331,3 +342,92 @@ fun HeadingText(
     )
 }
 
+
+/**
+ * MATCHDAY text-size slider: one 1 px chalk track, one cyan-filled progress rule and a single
+ * 6 x 28 dp chalk thumb - no Material dot rail, no detached halo. The whole 48 dp band is the
+ * touch target; platform semantics expose the range/steps and a SetProgress action so tests and
+ * TalkBack can drive it. The % label lives in the caller (Settings).
+ */
+@Composable
+fun BoardScaleSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    modifier: Modifier = Modifier,
+    testTag: String? = null,
+) {
+    val span = (valueRange.endInclusive - valueRange.start)
+    val stepSize = if (steps > 0) span / steps else span
+    fun snap(raw: Float): Float {
+        val clamped = raw.coerceIn(valueRange.start, valueRange.endInclusive)
+        if (steps <= 0) return clamped
+        val snapped = valueRange.start + kotlin.math.round((clamped - valueRange.start) / stepSize) * stepSize
+        return snapped.coerceIn(valueRange.start, valueRange.endInclusive)
+    }
+    var widthPx by remember { mutableIntStateOf(1) }
+    val fraction = ((value - valueRange.start) / span).coerceIn(0f, 1f)
+    val trackColor = BoardTheme.hairline()
+    val fillColor = MaterialTheme.colorScheme.primary
+    val thumbColor = MaterialTheme.colorScheme.onBackground
+    Box(
+        modifier
+            .fillMaxWidth()
+            .heightIn(min = ManHuntSizes.touchTarget)
+            .then(if (testTag != null) Modifier.testTag(testTag) else Modifier)
+            .onSizeChanged { widthPx = it.width.coerceAtLeast(1) }
+            .semantics {
+                stateDescription = "${(value * 100f).roundToInt()}%"
+                setProgress { target ->
+                    onValueChange(snap(target))
+                    onValueChangeFinished()
+                    true
+                }
+            }
+            .pointerInput(valueRange, steps) {
+                detectTapGestures { offset ->
+                    onValueChange(snap(valueRange.start + (offset.x / widthPx) * span))
+                    onValueChangeFinished()
+                }
+            }
+            .pointerInput(valueRange, steps) {
+                detectDragGestures(
+                    onDragEnd = { onValueChangeFinished() },
+                    onDrag = { change, _ ->
+                        change.consume()
+                        onValueChange(snap(valueRange.start + (change.position.x / widthPx) * span))
+                    },
+                )
+            },
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            val centerY = size.height / 2f
+            val thumbHalfW = 3.dp.toPx()
+            val thumbHalfH = 14.dp.toPx()
+            drawRect(
+                color = trackColor,
+                topLeft = Offset(0f, centerY - 0.5.dp.toPx()),
+                size = Size(size.width, 1.dp.toPx()),
+            )
+            drawRect(
+                color = fillColor,
+                topLeft = Offset(0f, centerY - 1.dp.toPx()),
+                size = Size(size.width * fraction, 2.dp.toPx()),
+            )
+            val cx = (size.width * fraction).coerceIn(thumbHalfW, size.width - thumbHalfW)
+            drawRect(
+                color = thumbColor,
+                topLeft = Offset(cx - thumbHalfW, centerY - thumbHalfH),
+                size = Size(thumbHalfW * 2f, thumbHalfH * 2f),
+            )
+            drawRect(
+                color = fillColor,
+                topLeft = Offset(cx - thumbHalfW, centerY - thumbHalfH),
+                size = Size(thumbHalfW * 2f, thumbHalfH * 2f),
+                style = androidx.compose.ui.graphics.drawscope.Stroke(1.dp.toPx()),
+            )
+        }
+    }
+}

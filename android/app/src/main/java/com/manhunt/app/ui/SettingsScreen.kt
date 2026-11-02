@@ -1,6 +1,15 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import android.Manifest
+import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import com.manhunt.app.ui.theme.BoardShape
+import com.manhunt.app.ui.theme.BoardTheme
+import com.manhunt.app.ui.theme.ManHuntType
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -186,10 +195,11 @@ private fun AppearanceTab(
     var scale by remember(storedScale) { mutableFloatStateOf(storedScale) }
 
     ScreenCard(title = t("Theme"), icon = Icons.Outlined.Palette) {
-        Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
-            FilterChip(selected = dark, onClick = { onTheme(true) }, label = { Text(t("Dark")) })
-            FilterChip(selected = !dark, onClick = { onTheme(false) }, label = { Text(t("Light")) })
-        }
+        BoardChoiceRow(
+            options = listOf(t("Dark"), t("Light")),
+            selectedIndex = if (dark) 0 else 1,
+            onSelect = { onTheme(it == 0) },
+        )
     }
 
     ScreenCard(title = t("Text size"), icon = Icons.Outlined.Person) {
@@ -198,17 +208,17 @@ private fun AppearanceTab(
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
         )
-        Slider(
+        BoardScaleSlider(
             value = scale,
             // Drag only moves the draft + preview. Committing here would rescale the whole
-            // app under the finger (and reflow every card while sliding).
+            // app under the finger (and reflow every layout while sliding).
             onValueChange = { scale = it },
             // Release (finger up / keyboard commit) is the only thing that rescales the app.
             onValueChangeFinished = { onScale(scale) },
             valueRange = 0.85f..1.35f,
             // steps=9 => 11 stops: 85, 90, 95, 100, 105, ... 135. Includes exactly 100%.
             steps = 9,
-            modifier = Modifier.testTag("text_scale_slider"),
+            testTag = "text_scale_slider",
         )
         Text(
             t("Preview only: the app applies this size when you release the slider."),
@@ -236,18 +246,11 @@ private fun AppearanceTab(
 @Composable
 private fun LanguageTab(language: AppLanguage, onLanguage: (AppLanguage) -> Unit) {
     ScreenCard(title = t("Language"), icon = Icons.Outlined.Translate) {
-        Row(horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm)) {
-            FilterChip(
-                selected = language == AppLanguage.English,
-                onClick = { onLanguage(AppLanguage.English) },
-                label = { Text("English") },
-            )
-            FilterChip(
-                selected = language == AppLanguage.Arabic,
-                onClick = { onLanguage(AppLanguage.Arabic) },
-                label = { Text("العربية") },
-            )
-        }
+        BoardChoiceRow(
+            options = listOf("English", "العربية"),
+            selectedIndex = if (language == AppLanguage.English) 0 else 1,
+            onSelect = { onLanguage(if (it == 0) AppLanguage.English else AppLanguage.Arabic) },
+        )
         Text(
             t("Language applies immediately and mirrors the whole layout."),
             style = MaterialTheme.typography.bodySmall,
@@ -616,4 +619,51 @@ private fun openAppSettings(context: Context) {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
     context.startActivity(intent)
+}
+
+/**
+ * MATCHDAY segmented choice (replaces Material FilterChip pills in Settings): two 2 dp plates
+ * side by side, 48 dp tall, selected = 2 dp cyan border + 12 % tint, unselected = 1 dp
+ * hairlineStrong. Selectable semantics keep keyboard/TalkBack behaviour.
+ */
+@Composable
+private fun BoardChoiceRow(
+    options: List<String>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        options.forEachIndexed { index, label ->
+            val selected = index == selectedIndex
+            val color = MaterialTheme.colorScheme.primary
+            Row(
+                Modifier
+                    .weight(1f)
+                    .heightIn(min = 48.dp)
+                    .background(
+                        if (selected) color.copy(alpha = 0.12f) else Color.Transparent,
+                        BoardShape.plate,
+                    )
+                    .border(
+                        if (selected) 2.dp else 1.dp,
+                        if (selected) color else BoardTheme.hairlineStrong(),
+                        BoardShape.plate,
+                    )
+                    .selectable(
+                        selected = selected,
+                        role = Role.RadioButton,
+                        onClick = { onSelect(index) },
+                    )
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    label,
+                    style = ManHuntType.label(),
+                    color = if (selected) color else MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
 }

@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -2168,6 +2169,10 @@ private fun HuntSheet(
                 // Short screens (landscape, big font scale): the sheet scrolls itself
                 // instead of clipping controls; on a normal phone the content fits.
                 .verticalScroll(rememberScrollState())
+                // The sheet sits on the edge of the map above the gesture bar: reserve the
+                // navigation-bar inset inside the scroll so expanded rows can scroll to a clean
+                // stop above the gesture bar instead of being sliced by it.
+                .navigationBarsPadding()
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp),
         ) {
             // Drag-handle affordance: this sheet is the hunt's command surface.

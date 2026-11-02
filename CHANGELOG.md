@@ -4,6 +4,16 @@ All notable changes to ManHunt are recorded here. The release workflow copies th
 for a tag into the GitHub Release body, and the in-app Updates page shows that text plus the
 release date.
 
+## [0.16.1] — 2026-11-02
+
+### Fixed
+
+- Settings text-size control is now one coherent MATCHDAY slider (single track, one thumb,
+  48 dp touch band, accessible value/action) and the theme/language selectors use board plates
+  instead of chips.
+- The expanded hunt sheet reserves the navigation-bar inset, so its roster scrolls to a clean
+  stop instead of being clipped by the gesture bar.
+
 ## [0.16.0] — 2026-11-02
 
 ### Changed

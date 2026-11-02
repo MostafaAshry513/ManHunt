@@ -337,6 +337,10 @@ private val arabic: Map<String, String> = mapOf(
         "الرجوع التنبؤي يُظهر الصفحة الرئيسية أثناء السحب للخلف.",
     "New Open Zone icon system and adaptive launcher icon." to
         "نظام أيقونة Open Zone الجديد وأيقونة المشغّل التكيفية.",
+    "Settings text size is a clear MATCHDAY slider." to
+        "حجم نص الإعدادات أصبح شريط تمرير MATCHDAY واضحًا.",
+    "Hunt sheet roster clears the navigation bar." to
+        "قائمة بطاقة المطاردة لا تتداخل مع شريط التنقل.",
     "Short Open Zone startup reveal on cold launch." to
         "كشف قصير لـ Open Zone عند بدء التشغيل البارد.",
     "MATCHDAY BOARD redesign: scoreboards, team sheets and full-screen results." to
