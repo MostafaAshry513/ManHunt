@@ -143,15 +143,16 @@ class WarmInviteTest {
             JSONObject().put("name", "Warm invite room"),
         ).getJSONObject("room").getString("code")
 
-        // 3) Deliver a real VIEW intent to the foregrounded activity from the Activity
-        //    context with SINGLE_TOP (no NEW_TASK), so it is routed to the same visible
-        //    instance. Starting from the app context with NEW_TASK can create a second task;
-        //    ActivityScenarioRule then cannot destroy the paused original and teardown fails.
+        // 3) Deliver the VIEW intent to the existing MainActivity through its real
+        //    onNewIntent callback. Calling startActivity could put a second instance on top,
+        //    pausing the original; ActivityScenarioRule then cannot destroy it during teardown.
         compose.activityRule.scenario.onActivity { activity ->
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("manhunt://join?code=$joinCode")).apply {
-                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            }
-            activity.startActivity(intent)
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("manhunt://join?code=$joinCode"))
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            val onNewIntent = MainActivity::class.java
+                .getDeclaredMethod("onNewIntent", Intent::class.java)
+                .apply { isAccessible = true }
+            onNewIntent.invoke(activity, intent)
         }
 
         // 4) The warm path must navigate to the room and compose the MATCHDAY Lobby.
