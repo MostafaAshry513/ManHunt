@@ -50,7 +50,7 @@ import com.manhunt.app.ui.theme.BoardTheme
 import com.manhunt.app.ui.theme.ManHuntType
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 data class HomeUi(
@@ -129,12 +129,12 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
 
     // Real device local time, refreshed once a minute (data face, not decoration fantasy).
     var clock by remember {
-        mutableStateOf(LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)))
+        mutableStateOf(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())))
     }
     LaunchedEffect(Unit) {
         while (true) {
             delay(30_000L)
-            clock = LocalTime.now().format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+            clock = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault()))
         }
     }
 

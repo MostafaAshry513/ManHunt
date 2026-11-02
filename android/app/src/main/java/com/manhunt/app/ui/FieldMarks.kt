@@ -1,4 +1,4 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
@@ -110,7 +110,7 @@ object FieldMarks {
     }
 
     // --- Directional / platform conventions -----------------------------------------
-    val back: ImageVector = strokeMark("back") {
+    val back: ImageVector = strokeMark("back", autoMirror = true) {
         moveTo(19f, 12f); lineTo(5f, 12f)
         moveTo(11f, 6f); lineTo(5f, 12f); lineTo(11f, 18f)
     }
@@ -144,6 +144,7 @@ private fun mark(
     name: String,
     stroke: (PathBuilder.() -> Unit)? = null,
     fill: (PathBuilder.() -> Unit)? = null,
+    autoMirror: Boolean = false,
 ): ImageVector {
     val builder = ImageVector.Builder(
         name = name,
@@ -151,6 +152,7 @@ private fun mark(
         defaultHeight = 24.dp,
         viewportWidth = MARK_SIZE,
         viewportHeight = MARK_SIZE,
+        autoMirror = autoMirror,
     )
     if (stroke != null) {
         builder.path(
@@ -170,8 +172,11 @@ private fun mark(
     return builder.build()
 }
 
-private fun strokeMark(name: String, stroke: PathBuilder.() -> Unit): ImageVector =
-    mark(name, stroke)
+private fun strokeMark(
+    name: String,
+    autoMirror: Boolean = false,
+    stroke: PathBuilder.() -> Unit,
+): ImageVector = mark(name, stroke, autoMirror = autoMirror)
 
 /** Full circle as two arcs (works for stroke or fill). */
 private fun PathBuilder.circleStroke(cx: Float, cy: Float, r: Float) {

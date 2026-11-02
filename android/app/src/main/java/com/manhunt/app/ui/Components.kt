@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -165,7 +166,7 @@ fun ScreenCard(
 ) {
     // MATCHDAY: no card kit. A section is a 1 px rule + sentence-case title + air; the icon
     // parameter is kept for call-site compatibility but feature glyphs are not rendered.
-    Column(modifier.fillMaxWidth()) {
+    Column(modifier.fillMaxWidth().widthIn(max = 560.dp)) {
         Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
         Column(
             Modifier.padding(vertical = BoardSpace.s5),

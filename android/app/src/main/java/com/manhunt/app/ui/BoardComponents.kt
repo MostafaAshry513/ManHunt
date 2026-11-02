@@ -280,7 +280,7 @@ fun BoardButton(
                     Icon(leadingMark, contentDescription = null, modifier = Modifier.size(18.dp), tint = labelColor)
                     Spacer(Modifier.width(BoardSpace.s4))
                 }
-                Text(text, style = ManHuntType.label(), color = labelColor, maxLines = 1)
+                Text(text, style = ManHuntType.label(), color = labelColor, maxLines = 2)
             }
         }
     }
