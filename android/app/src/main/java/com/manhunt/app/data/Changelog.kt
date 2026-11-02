@@ -16,6 +16,16 @@ data class ChangelogEntry(
 object Changelog {
     val recent: List<ChangelogEntry> = listOf(
         ChangelogEntry(
+            version = "0.16.0",
+            date = "2026-11-02",
+            changes = listOf(
+                "MATCHDAY BOARD redesign: scoreboards, team sheets and full-screen results.",
+                "New type system, chalk icons and a 24-hour match clock.",
+                "Lobby, live map, chat, history and match sheets rebuilt as match equipment.",
+                "Warm invite links now open the room while the app is running.",
+            ),
+        ),
+        ChangelogEntry(
             version = "0.15.1",
             date = "2026-11-01",
             changes = listOf(

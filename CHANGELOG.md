@@ -4,6 +4,31 @@ All notable changes to ManHunt are recorded here. The release workflow copies th
 for a tag into the GitHub Release body, and the in-app Updates page shows that text plus the
 release date.
 
+## [0.16.0] — 2026-11-02
+
+### Changed
+
+- **MATCHDAY BOARD redesign**: the app now reads as match equipment rather than a dashboard —
+  scoreboard-style Boards, chalk rules, CodePlate, team sheets, FieldMarks and a full-screen
+  ScorePage replace the generic card kit, gradient hero and result dialog.
+- New bundled type system: Big Shoulders Display, Instrument Sans and Red Hat Mono (OFL), a
+  24-hour masthead clock, mirrored RTL back marks, two-line button labels and a 560 dp reading cap.
+- Lobby is a matchday team sheet with a pinned Ready/Begin dock; live hunt puts the clock, zone
+  and latest reports in one Board over the real OpenStreetMap field.
+- Chat is a field log with a plate composer; history is a full-screen ruled match report; tag,
+  claim, dispute, leave and end flows are MatchSheets.
+- Home uses the full-width Open Zone field plate and a CodePlate join block.
+- Warm invite links now navigate to the room when the app is already foregrounded.
+- Install page, README and screenshots were rebuilt from the same design language and real
+  emulator captures.
+
+### Fixed
+
+- Result screen now uses the authoritative finished match data (winner, final prey counts,
+  endedAt duration) instead of a stale live snapshot.
+- OSM attribution renders as “© OpenStreetMap contributors”.
+- Arabic chat input/placeholder follows RTL.
+
 ## [0.15.1] — 2026-11-01
 
 ### Added

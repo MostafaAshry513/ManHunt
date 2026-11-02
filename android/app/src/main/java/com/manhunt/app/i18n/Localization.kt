@@ -339,6 +339,14 @@ private val arabic: Map<String, String> = mapOf(
         "نظام أيقونة Open Zone الجديد وأيقونة المشغّل التكيفية.",
     "Short Open Zone startup reveal on cold launch." to
         "كشف قصير لـ Open Zone عند بدء التشغيل البارد.",
+    "MATCHDAY BOARD redesign: scoreboards, team sheets and full-screen results." to
+        "إعادة تصميم MATCHDAY BOARD: لوحات النتائج وقوائم الفرق والنتائج بملء الشاشة.",
+    "New type system, chalk icons and a 24-hour match clock." to
+        "نظام خطوط جديد وأيقونات طباشيرية وساعة مباراة بنظام 24 ساعة.",
+    "Lobby, live map, chat, history and match sheets rebuilt as match equipment." to
+        "أُعيد بناء غرفة الانتظار والخريطة الحية والدردشة والسجل وبطاقات المباراة كعتاد مباراة.",
+    "Warm invite links now open the room while the app is running." to
+        "روابط الدعوة أثناء تشغيل التطبيق تفتح الغرفة الآن.",
     "Reduced-motion launches show a calm static mark." to
         "عند تقليل الحركة يظهر الشعار الثابت الهادئ.",
     "New slogan: hide from your friends." to
