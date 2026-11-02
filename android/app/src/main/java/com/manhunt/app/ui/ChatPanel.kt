@@ -1,6 +1,13 @@
-package com.manhunt.app.ui
+﻿package com.manhunt.app.ui
 
 import androidx.compose.foundation.background
+import com.manhunt.app.ui.theme.ManHuntType
+import com.manhunt.app.ui.theme.BoardTheme
+import com.manhunt.app.ui.theme.BoardSpace
+import com.manhunt.app.ui.theme.BoardShape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.material3.Surface
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,13 +15,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -213,73 +223,57 @@ fun ChatPanel(
     }
 }
 
+/**
+ * Field log row (MATCHDAY): time in the mono data face, name in the label face, body as flat
+ * chalk text on the field - no bubbles, no tails, no cards. System frames are a centred data
+ * line between two hairlines.
+ */
 @Composable
 private fun MessageBubble(message: ChatMessage, mine: Boolean) {
     if (message.kind == "system") {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text(
-                message.body,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-                        RoundedCornerShape(10.dp),
-                    )
-                    .padding(horizontal = 10.dp, vertical = 4.dp),
-            )
-        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
+        Text(
+            message.body,
+            style = ManHuntType.dataSmall(),
+            color = BoardTheme.muted(),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = BoardSpace.s2),
+        )
+        Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline()))
         return
     }
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
+        Modifier.fillMaxWidth().padding(vertical = BoardSpace.s2),
+        verticalAlignment = Alignment.Top,
     ) {
-        Column(
-            horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
-            modifier = Modifier.widthIn(max = 300.dp),
-        ) {
-            if (!mine) {
-                Text(
-                    message.username,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(start = 6.dp, bottom = 2.dp),
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .background(
-                        color = if (mine) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(
-                            topStart = 18.dp,
-                            topEnd = 18.dp,
-                            bottomEnd = if (mine) 4.dp else 18.dp,
-                            bottomStart = if (mine) 18.dp else 4.dp,
-                        ),
-                    )
-                    .padding(horizontal = 14.dp, vertical = 9.dp),
-            ) {
-                Text(
-                    message.body,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (mine) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurface,
-                )
-            }
+        Text(
+            formatTime(message.createdAt),
+            style = ManHuntType.dataSmall(),
+            color = BoardTheme.muted(),
+            maxLines = 1,
+            modifier = Modifier.width(44.dp),
+        )
+        Column(Modifier.weight(1f)) {
             Text(
-                formatTime(message.createdAt),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp, start = 6.dp, end = 6.dp),
+                message.username,
+                style = ManHuntType.label(),
+                color = if (mine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+            )
+            Text(
+                message.body,
+                style = ManHuntType.body(),
+                color = MaterialTheme.colorScheme.onBackground,
             )
         }
     }
+    Box(Modifier.fillMaxWidth().height(1.dp).background(BoardTheme.hairline().copy(alpha = 0.6f)))
 }
 
+/** Field-log composer: one 52 dp plate input + a square 48 dp send action with FieldMark. */
 @Composable
 private fun Composer(
     draft: String,
@@ -287,51 +281,74 @@ private fun Composer(
     sending: Boolean,
     onSend: () -> Unit,
 ) {
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val inputAlign = if (isRtl) TextAlign.Right else TextAlign.Left
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = BoardSpace.screen, vertical = BoardSpace.s3),
         verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(BoardSpace.s3),
     ) {
-        // TextField direction is content-driven, so an Arabic placeholder can stay
-        // visually LTR even when the rest of the screen is RTL. Align both the entered
-        // text and the placeholder explicitly with the app's layout direction.
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-        val inputAlign = if (isRtl) TextAlign.Right else TextAlign.Left
-        OutlinedTextField(
-            value = draft,
-            onValueChange = onDraftChange,
-            modifier = Modifier.weight(1f).testTag("chat_input"),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(textAlign = inputAlign),
-            placeholder = {
-                Text(
-                    t("Message"),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = inputAlign,
+        Row(
+            Modifier
+                .weight(1f)
+                .heightIn(min = 52.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant, BoardShape.plate)
+                .border(1.dp, BoardTheme.hairlineStrong(), BoardShape.plate)
+                .padding(horizontal = BoardSpace.s4, vertical = BoardSpace.s3),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(Modifier.weight(1f)) {
+                if (draft.isEmpty()) {
+                    Text(
+                        t("Message"),
+                        style = ManHuntType.body(),
+                        color = BoardTheme.muted(),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = inputAlign,
+                    )
+                }
+                BasicTextField(
+                    value = draft,
+                    onValueChange = onDraftChange,
+                    modifier = Modifier.fillMaxWidth().testTag("chat_input"),
+                    textStyle = ManHuntType.body().copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = inputAlign,
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    maxLines = 4,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Send,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSend = { if (draft.isNotBlank() && !sending) onSend() },
+                    ),
                 )
-            },
-            maxLines = 4,
-            shape = RoundedCornerShape(22.dp),
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Sentences,
-                imeAction = ImeAction.Send,
-            ),
-            keyboardActions = KeyboardActions(
-                onSend = { if (draft.isNotBlank() && !sending) onSend() },
-            ),
-        )
-        FilledIconButton(
+            }
+        }
+        Surface(
             onClick = onSend,
             enabled = draft.isNotBlank() && !sending,
-            modifier = Modifier.size(48.dp).testTag("chat_send"),
+            modifier = Modifier
+                .size(52.dp)
+                .testTag("chat_send"),
+            shape = BoardShape.plate,
+            color = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
         ) {
-            if (sending) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            } else {
-                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = t("Send message"))
+            Box(contentAlignment = Alignment.Center) {
+                if (sending) {
+                    ManHuntLoader(size = 18.dp, color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Icon(
+                        FieldMarks.send,
+                        contentDescription = t("Send message"),
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
         }
     }
@@ -340,7 +357,7 @@ private fun Composer(
 /**
  * LazyColumn keys, guaranteed unique for the current list.
  *
- * - Persisted messages (server id > 0): `m-<id>` — the database primary key is unique and
+ * - Persisted messages (server id > 0): `m-<id>` â€” the database primary key is unique and
  *   survives paging, so the key is stable when older pages are prepended.
  * - Realtime/system frames (server sends `id: 0` for the broadcast-only system message):
  *   `s-<createdAt>-<occurrence>`, where occurrence counts earlier id-less rows with the
