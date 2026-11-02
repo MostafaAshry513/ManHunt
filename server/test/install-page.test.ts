@@ -53,6 +53,12 @@ test('install page renders version, size, checksum and server from the update ma
   assert.doesNotMatch(res.body, /Server\s*<\/p>/, 'the old blank "Server:" line does not come back');
   assert.match(res.body, /Install in four steps/);
   assert.match(res.body, /Privacy &amp; safety/);
+  assert.match(res.body, /id="watch"/);
+  assert.match(res.body, /id="screens"/);
+  assert.match(res.body, /id="how"/);
+  assert.match(res.body, /id="features"/);
+  assert.match(res.body, /id="faq"/);
+  assert.match(res.body, /src="\/media\/home\.png"/);
   assert.match(res.body, /github\.com\/MostafaAshry513\/ManHunt/);
 });
 
@@ -87,6 +93,14 @@ test('install page favicon and social preview assets are served', async (t) => {
   assert.equal(og.statusCode, 200);
   assert.equal(og.headers['content-type'], 'image/png');
   assert.ok(og.rawPayload.length > 1000);
+
+  const home = await app.inject({ method: 'GET', url: '/media/home.png' });
+  assert.equal(home.statusCode, 200);
+  assert.equal(home.headers['content-type'], 'image/png');
+  assert.ok(home.rawPayload.length > 1000);
+
+  const missing = await app.inject({ method: 'GET', url: '/media/not-on-the-list.png' });
+  assert.equal(missing.statusCode, 404);
 });
 
 test('/api/app/latest serves the manifest JSON without a PowerShell BOM', async (t) => {  const dir = await mkdtemp(join(tmpdir(), 'manhunt-install-page-'));

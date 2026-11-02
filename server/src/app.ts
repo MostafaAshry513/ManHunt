@@ -166,6 +166,33 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     }
   });
 
+  // Small, fixed set of landing-page screenshots/cover art. Allowlisted so the public route
+  // can never read arbitrary files from the server.
+  const siteMedia: Record<string, string> = {
+    'auth.png': 'image/png',
+    'home.png': 'image/png',
+    'lobby.png': 'image/png',
+    'roles.png': 'image/png',
+    'chat.png': 'image/png',
+    'settings.png': 'image/png',
+    'result.png': 'image/png',
+    'explainer-cover.png': 'image/png',
+  };
+  app.get<{ Params: { file: string } }>('/media/:file', async (req, reply) => {
+    const type = siteMedia[req.params.file];
+    if (!type) return reply.code(404).send();
+    try {
+      const bytes = await readFile(resolve(process.cwd(), 'public', 'site', req.params.file));
+      return reply
+        .type(type)
+        .header('cache-control', 'public, max-age=86400')
+        .header('x-content-type-options', 'nosniff')
+        .send(bytes);
+    } catch {
+      return reply.code(404).send();
+    }
+  });
+
   app.get('/', async (req, reply) => {
     const raw = await readManifestText(manifestPath);
     const manifest = raw === null ? null : parseManifest(raw);
@@ -184,7 +211,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .header('x-content-type-options', 'nosniff')
       .header('x-frame-options', 'DENY')
       .header('referrer-policy', 'no-referrer')
-      .header('content-security-policy', "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+      .header('content-security-policy', "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
       .send(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }));
   });
 
@@ -199,7 +226,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .header('x-content-type-options', 'nosniff')
       .header('x-frame-options', 'DENY')
       .header('referrer-policy', 'no-referrer')
-      .header('content-security-policy', "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+      .header('content-security-policy', "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
       .send(renderJoinPage(code, publicBaseUrl(req)));
   });
 
@@ -834,9 +861,111 @@ function renderInstallPage(
 }
 
 
+/* ============================================================================
+   Game-site layer over the install page. Same Open Zone system, wider canvas.
+   CSS only: no scripts, no remote assets. Images are served from /media/*.
+   ============================================================================ */
+:root{--surface:#101A2C;--surface-2:#0C1524;--coral:#FF7A59;--violet:#A79BFF;--line-strong:#2B3B57}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px calc(48px + env(safe-area-inset-bottom))}
+.site-nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:24px;max-width:1120px;margin:0 auto;padding:14px 20px;background:rgba(11,18,32,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(30,43,68,.8)}
+.site-brand{display:flex;align-items:center;gap:9px;color:var(--text);text-decoration:none;font-weight:800;letter-spacing:-.02em;font-size:18px}
+.site-brand img{width:28px;height:28px;border-radius:8px;display:block}
+.site-links{display:flex;align-items:center;gap:22px;margin-left:auto}
+.site-links a{color:var(--muted);text-decoration:none;font-size:14px}
+.site-links a:hover,.site-links a:focus-visible{color:var(--text)}
+.nav-cta{border:1px solid rgba(34,211,238,.5);border-radius:999px;padding:9px 14px;background:var(--cyan);color:#06121F;text-decoration:none;font-size:13px;font-weight:800;white-space:nowrap}
+.nav-cta:hover,.nav-cta:focus-visible{filter:brightness(1.06)}
+.mh-hero{margin-top:18px;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+.lead{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start;margin:30px 0 18px}
+.lead-title{margin:6px 0 14px;font-size:clamp(28px,4.2vw,46px);line-height:1.02;letter-spacing:-.035em}
+.lead .pitch{font-size:16px;line-height:1.6;margin:0 0 8px;max-width:620px}
+.lead-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 10px}
+.lead .button{display:inline-block;width:auto;min-width:0;padding:13px 20px}
+.button-ghost{background:transparent;color:var(--text);border:1px solid var(--line-strong);text-decoration:none;font-weight:700}
+.button-ghost:hover,.button-ghost:focus-visible{border-color:var(--cyan);color:var(--cyan)}
+.lead-panel{background:linear-gradient(180deg,rgba(34,211,238,.07),rgba(255,255,255,.015)) var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px}
+.panel-kicker{display:block;font-family:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;font-size:10.5px;letter-spacing:.16em;color:var(--cyan)}
+.field-notes{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:12px}
+.field-notes li{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:baseline;border-top:1px solid rgba(30,43,68,.8);padding-top:10px}
+.field-notes li:first-child{border-top:0;padding-top:0}
+.field-notes b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.field-notes span{font-size:13.5px;color:var(--muted)}
+.section{margin:64px 0;scroll-margin-top:82px}
+.section-head{max-width:660px;margin:0 0 22px}
+.section h2{margin:4px 0 10px;font-size:clamp(24px,3.4vw,38px);line-height:1.08;letter-spacing:-.03em}
+.section-head p,.section-copy p{margin:0;color:var(--muted);font-size:15px}
+.eyebrow{display:block;margin:0;font-family:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;font-size:10.5px;letter-spacing:.16em;color:var(--cyan)}
+.split{display:grid;grid-template-columns:.9fr 1.1fr;gap:36px;align-items:center}
+.media-cover{display:block;border-radius:20px;overflow:hidden;border:1px solid var(--line-strong);background:var(--surface);box-shadow:0 18px 50px rgba(0,0,0,.3)}
+.media-cover img{display:block;width:100%;height:auto;max-height:520px;object-fit:cover;object-position:top center}
+.section-copy h2{font-size:clamp(24px,3.4vw,38px)}
+.section-copy p{margin:0 0 10px;line-height:1.6}
+.inline-links{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;margin-top:16px}
+.inline-links a{color:var(--cyan);font-weight:700;text-decoration:none;font-size:14px}
+.inline-links a:hover,.inline-links a:focus-visible{text-decoration:underline}
+.screen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.screen-grid figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.screen-grid img{display:block;width:100%;height:auto;max-height:420px;object-fit:cover;object-position:top center}
+.screen-grid figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:12px 14px}
+.screen-grid b{font-size:14px}
+.screen-grid span{color:var(--muted);font-size:12px}
+.side-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0 24px}
+.side-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px}
+.side-card.prey{border-color:rgba(255,122,89,.42)}
+.side-card.hunters{border-color:rgba(167,155,255,.42)}
+.side-tag{display:inline-block;border-radius:999px;padding:4px 9px;font:700 11px/1.4 ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;letter-spacing:.12em;margin-bottom:10px}
+.side-card.prey .side-tag{color:var(--coral);border:1px solid rgba(255,122,89,.45);background:rgba(255,122,89,.08)}
+.side-card.hunters .side-tag{color:var(--violet);border:1px solid rgba(167,155,255,.45);background:rgba(167,155,255,.08)}
+.side-card h3{margin:0 0 8px;font-size:20px}
+.side-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+.flow{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.flow li{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.flow b{display:block;color:var(--cyan);font:700 11px/1.4 ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;letter-spacing:.12em;margin-bottom:8px}
+.flow span{display:block;color:var(--text);font-size:13.5px;line-height:1.45}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.feature{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.feature h3{margin:0 0 6px;font-size:15px}
+.feature p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
+.card{scroll-margin-top:82px}
+#download,#install,#privacy,#faq{scroll-margin-top:82px}
+.faq{display:grid;gap:10px}
+.faq details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.faq summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--text)}
+.faq summary::marker{color:var(--cyan)}
+.faq details p{margin:10px 0 0;color:var(--muted);font-size:13.5px;line-height:1.6}
+.footer{border-top:1px solid var(--line);margin-top:54px;padding-top:22px}
+.footer a{color:var(--cyan)}
+@media (max-width:820px){
+  .site-links{display:none}
+  .lead,.split{grid-template-columns:1fr;gap:20px}
+  .screen-grid,.feature-grid{grid-template-columns:repeat(2,1fr)}
+  .flow{grid-template-columns:repeat(2,1fr)}
+  .media-cover img{max-height:420px}
+}
+@media (max-width:560px){
+  .wrap{padding-left:14px;padding-right:14px}
+  .site-nav{padding-left:14px;padding-right:14px}
+  .lead-title{font-size:30px}
+  .screen-grid,.feature-grid,.side-grid,.flow{grid-template-columns:1fr}
+  .screen-grid img{max-height:260px;object-fit:cover;object-position:top center}
+  .media-cover img{max-height:360px}
+  .field-notes li{grid-template-columns:68px 1fr}
+  .card{padding:16px}
+  .footer{text-align:left}
+}
 </style>
 </head>
 <body>
+<header class="site-nav">
+  <a class="site-brand" href="/"><img src="/favicon.png" alt="" width="28" height="28">ManHunt</a>
+  <nav class="site-links" aria-label="Primary">
+    <a href="#watch">Watch</a>
+    <a href="#screens">Screens</a>
+    <a href="#how">How it works</a>
+    <a href="#download">Download</a>
+  </nav>
+  <a class="nav-cta" href="#download">Get the APK</a>
+</header>
 <main class="wrap">
   <section class="mh-hero" aria-labelledby="mh-hero-title">
   <div class="mh-hero__frame">
@@ -919,14 +1048,110 @@ function renderInstallPage(
   </div>
 </section>
 
-  <p class="pitch">Real-world hide-and-seek for Android. Prey hide while their phones report
-  position; Hunters follow on a live map and tag them in person. One server keeps the timers,
-  teams and tag rules fair.</p>
-  <p class="hint">ManHunt needs at least two phones in one place — send this page to your group chat.</p>
+<section class="lead" aria-labelledby="lead-title">
+  <div class="lead-copy">
+    <span class="eyebrow">REAL-WORLD HIDE-AND-SEEK</span>
+    <h2 class="lead-title" id="lead-title">Two sides.<br>One street.<br>No place to hide forever.</h2>
+    <p class="pitch">Prey hide while their phones report position. Hunters follow the latest reports
+    on a live map and tag them in person. One server keeps the clock, the teams and the tag rules
+    fair.</p>
+    <div class="lead-actions">
+      <a class="button" href="#download">Download free APK</a>
+      <a class="button button-ghost" href="#watch">Watch 60s</a>
+    </div>
+    <p class="hint">ManHunt needs at least two Android phones in one place. Send this page to the
+    group chat, then pick sides.</p>
+  </div>
+  <aside class="lead-panel" aria-label="Field notes">
+    <span class="panel-kicker">OPEN ZONE / FIELD NOTES</span>
+    <ul class="field-notes">
+      <li><b>Prey</b><span>Hide in the real world and survive the clock.</span></li>
+      <li><b>Hunters</b><span>Read the latest reports, move, and tag in person.</span></li>
+      <li><b>Server</b><span>Owns timers, tag claims and who can see what.</span></li>
+    </ul>
+  </aside>
+</section>
 
-  ${statsBlock}
+${statsBlock}
 
-  <section class="card" aria-labelledby="download-heading">
+<section class="section split" id="watch" aria-labelledby="watch-title">
+  <a class="media-cover" href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4" title="Watch the 60-second ManHunt explainer">
+    <img src="/media/explainer-cover.png" alt="ManHunt 60-second explainer cover — Hide from your friends" loading="lazy">
+  </a>
+  <div class="section-copy">
+    <span class="eyebrow">THE 60-SECOND VERSION</span>
+    <h2 id="watch-title">See the whole hunt.</h2>
+    <p>The hook, the two sides, how phones report position, how Hunters read the last report, how
+    tagging works, and the two-phone setup — explained in one minute.</p>
+    <div class="inline-links">
+      <a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_explainer_60s_1080x1920.mp4">Watch the 60s film ↗</a>
+      <a href="https://raw.githubusercontent.com/MostafaAshry513/ManHunt/master/design/social/motion/out/v5/manhunt_15s_1080x1920.mp4">15s hook</a>
+      <a href="https://github.com/MostafaAshry513/ManHunt">Source &amp; releases</a>
+    </div>
+    <p class="fine">Fully animated. Original geometry and score; no stock footage or real people.</p>
+  </div>
+</section>
+
+<section class="section" id="screens" aria-labelledby="screens-title">
+  <div class="section-head">
+    <span class="eyebrow">IN THE APP</span>
+    <h2 id="screens-title">Built for the street, not a menu.</h2>
+    <p>Dark by default, Arabic and English, 48dp targets and a moving map that reads like a field radar.</p>
+  </div>
+  <div class="screen-grid">
+    <figure><img src="/media/home.png" alt="Home: full-width Open Zone hero and host/join cards" loading="lazy"><figcaption><b>Home</b><span>Host or join</span></figcaption></figure>
+    <figure><img src="/media/lobby.png" alt="Lobby: choose Prey or Hunters and ready up" loading="lazy"><figcaption><b>Lobby</b><span>Pick a side</span></figcaption></figure>
+    <figure><img src="/media/roles.png" alt="Roles: how Prey and Hunters play" loading="lazy"><figcaption><b>Roles</b><span>Know the rules</span></figcaption></figure>
+    <figure><img src="/media/chat.png" alt="Room chat with match updates" loading="lazy"><figcaption><b>Chat</b><span>Stay in touch</span></figcaption></figure>
+    <figure><img src="/media/settings.png" alt="Settings: account, appearance, language, permissions and updates" loading="lazy"><figcaption><b>Settings</b><span>Your setup</span></figcaption></figure>
+    <figure><img src="/media/result.png" alt="Hunt result dialog" loading="lazy"><figcaption><b>Result</b><span>Who won</span></figcaption></figure>
+  </div>
+</section>
+
+<section class="section" id="how" aria-labelledby="how-title">
+  <div class="section-head">
+    <span class="eyebrow">HOW A HUNT RUNS</span>
+    <h2 id="how-title">Two sides. One clock.</h2>
+    <p>No gear, no fee, no referee required. The server handles the rules; the street handles the tension.</p>
+  </div>
+  <div class="side-grid">
+    <article class="side-card prey">
+      <span class="side-tag">PREY</span>
+      <h3>Hide. Survive.</h3>
+      <p>Your phone reports position to the Hunters at the interval the room set. Stay hidden until
+      the clock stops — if at least one Prey is still free, Prey win.</p>
+    </article>
+    <article class="side-card hunters">
+      <span class="side-tag">HUNTERS</span>
+      <h3>Track. Tag.</h3>
+      <p>Follow the latest reports and trails on the map. Find a Prey in the real world and tag
+      them in person; the Prey confirms or disputes. Tag every Prey to win.</p>
+    </article>
+  </div>
+  <ol class="flow">
+    <li><b>01 / ROOM</b><span>Host creates a room, or everyone joins with a 6-character code.</span></li>
+    <li><b>02 / SIDES</b><span>Pick Prey or Hunters. The host sets the clock, reports, trails and zone.</span></li>
+    <li><b>03 / HUNT</b><span>Prey hide. Hunters chase reports. The server keeps the clock honest.</span></li>
+    <li><b>04 / RESULT</b><span>All Prey tagged, or time runs out. History is kept; rematch when ready.</span></li>
+  </ol>
+</section>
+
+<section class="section" id="features" aria-labelledby="features-title">
+  <div class="section-head">
+    <span class="eyebrow">WHY IT WORKS</span>
+    <h2 id="features-title">Small rules. Real tension.</h2>
+  </div>
+  <div class="feature-grid">
+    <article class="feature"><h3>Server-authoritative</h3><p>Timers, phases, tag outcomes and victory are decided and stored on the server. The app sends intents, never the truth.</p></article>
+    <article class="feature"><h3>Latest-report map</h3><p>Hunters see the last report and optional trails, not a perfect live feed. Positions stay hidden from Prey.</p></article>
+    <article class="feature"><h3>Fair tag flow</h3><p>Hunter claims, Prey confirms or disputes, Huntmaster resolves. Duplicate claims cannot double-apply.</p></article>
+    <article class="feature"><h3>Built to recover</h3><p>Reconnects, restarts and flaky signal do not break the round. Pause/resume shifts the clock correctly.</p></article>
+    <article class="feature"><h3>Yours to host</h3><p>One Node process, one SQLite file, no Docker, no paid map or push service. Read the deployment guide and run it yourself.</p></article>
+    <article class="feature"><h3>Made for everyone</h3><p>English and Arabic with full RTL, dark-first UI, adjustable text size and 48dp controls.</p></article>
+  </div>
+</section>
+
+  <section class="card" id="download" aria-labelledby="download-heading">
     <h2 id="download-heading">Download for Android</h2>
     <div class="chips">
         ${chips}
@@ -936,7 +1161,7 @@ function renderInstallPage(
     ${serverBlock}
   </section>
 
-  <section class="card">
+  <section class="card" id="install">
     <h2>Install in four steps</h2>
     <ol class="steps">
       <li><b>Download</b> the APK on the Android phone you will play on.</li>
@@ -949,7 +1174,7 @@ function renderInstallPage(
     </ol>
   </section>
 
-  <section class="card">
+  <section class="card" id="privacy">
     <h2>Privacy &amp; safety</h2>
     <ul class="notes">
       <li>Your position is shown only to the <b>Hunters in your room</b> while a match is running.
@@ -963,11 +1188,40 @@ function renderInstallPage(
     </ul>
   </section>
 
-  <footer class="footer">
+  <section class="section" id="faq" aria-labelledby="faq-title">
+  <div class="section-head">
+    <span class="eyebrow">BEFORE YOU PLAY</span>
+    <h2 id="faq-title">The honest answers.</h2>
+  </div>
+  <div class="faq">
+    <details>
+      <summary>Is ManHunt free?</summary>
+      <p>Yes. The APK is free to download and the server is MIT-licensed. You can play on the hosted test server or run the backend yourself.</p>
+    </details>
+    <details>
+      <summary>Why is it not on Google Play?</summary>
+      <p>ManHunt is distributed as a signed, sideloaded APK. That means allowing installs from your browser and possibly seeing a Play Protect warning. The release and its SHA-256 are published on GitHub.</p>
+    </details>
+    <details>
+      <summary>How many phones do we need?</summary>
+      <p>At least two, and everyone should be in the same physical area. One device hosts the room and shares the 6-character code; the others join and pick a side.</p>
+    </details>
+    <details>
+      <summary>Who can see my location?</summary>
+      <p>Only the Hunters in your room, during the hunting phase, see your latest report. Prey never see locations, and admins get no extra location access. Location history is shown only when the host enables trails.</p>
+    </details>
+    <details>
+      <summary>Is the hosted server safe for real games?</summary>
+      <p>It is a plain-HTTP test server with no availability guarantee and no account recovery. Use it for test games; for anything sensitive, self-host behind HTTPS and play with people you trust.</p>
+    </details>
+  </div>
+</section>
+<footer class="footer">
     <p><a href="https://github.com/MostafaAshry513/ManHunt/releases/latest">GitHub release</a> ·
       <a href="https://github.com/MostafaAshry513/ManHunt">source code</a> ·
-      <a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/DEPLOYMENT.md">self-hosting guide</a></p>
-    <p class="fine">MIT licensed · Map data &copy; OpenStreetMap contributors</p>
+      <a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/DEPLOYMENT.md">self-hosting guide</a> ·
+      <a href="https://github.com/MostafaAshry513/ManHunt/blob/master/docs/brand/README.md">brand kit</a></p>
+    <p class="fine">MIT licensed · Map data &copy; OpenStreetMap contributors · free APK, not on Google Play</p>
   </footer>
 </main>
 </body>
