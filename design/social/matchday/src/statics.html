@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ManHunt — MATCHDAY static social pack</title>
+<link rel="stylesheet" href="statics.css">
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- ── 1:1 FEED · hook + map ─────────────────────────────────────── -->
+  <section class="layout" id="l-feed1x1" data-w="1080" data-h="1080">
+    <div class="rule top"></div>
+    <img class="lockup lk-h" src="../assets/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt">
+    <div class="tag mono">MATCHDAY · 2026</div>
+    <h1 class="display feedline">HIDE FROM<br>YOUR FRIENDS.</h1>
+    <div class="flow mono">HOME → LOBBY → HUNTING → RESULT</div>
+    <div class="rule flowrule"></div>
+    <div class="panel mappanel">
+      <div class="panelimg"><img id="f1map" src="../assets/screens/s07-hunt.png" alt="Real ManHunt hunt capture"></div>
+      <div class="chip">
+        <span class="mono"><i class="dot cyan-dot"></i>HUNTING</span>
+        <b class="display">41:12</b>
+        <span class="mono">ZONE 240 m</span>
+      </div>
+      <div class="osm mono">© OpenStreetMap contributors</div>
+    </div>
+    <div class="foot mono">FREE APK · ANDROID 8+ · NOT ON PLAY STORE</div>
+    <div class="url mono">http://74.208.99.178/</div>
+  </section>
+
+  <!-- ── 1:1 FEED · result ──────────────────────────────────────────────── -->
+  <section class="layout" id="l-feed1x1b" data-w="1080" data-h="1080">
+    <div class="rule top"></div>
+    <img class="lockup lk-h sm" src="../assets/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt">
+    <div class="tag mono">FULL TIME · 18:48 PLAYED</div>
+    <h1 class="display resultline">HUNTERS WIN.</h1>
+    <div class="sub mono">PREY REMAINING 0 / 2 · REAL MATCH</div>
+    <div class="panel resultpanel">
+      <div class="panelimg"><img id="f2result" src="../assets/screens/s12-result-hunters.png" alt="Real ManHunt result capture"></div>
+    </div>
+    <div class="foot mono">FREE APK · ANDROID 8+ · NOT ON PLAY STORE</div>
+    <div class="url mono">http://74.208.99.178/</div>
+  </section>
+
+  <!-- ── 4:5 PORTRAIT · lobby ───────────────────────────────────────────── -->
+  <section class="layout" id="l-portrait4x5" data-w="1080" data-h="1350">
+    <div class="rule top"></div>
+    <img class="lockup lk-h" src="../assets/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt">
+    <div class="tag mono">02 — LOBBY</div>
+    <h1 class="display p45line">PICK A SIDE.</h1>
+    <div class="sub mono">5 / 5 READY · ROOM VMJYBU</div>
+    <div class="panel p45panel">
+      <div class="panelimg"><img id="p45lobby" src="../assets/screens/s05-lobby-host.png" alt="Real ManHunt lobby capture"></div>
+    </div>
+    <div class="ctaline mono">CREATE A HUNT. SEND THE CODE.</div>
+    <div class="url mono">http://74.208.99.178/</div>
+    <div class="rule bottom"></div>
+  </section>
+
+  <!-- ── 9:16 STORY · HUNTING ─────────────────────────────────────────── -->
+  <section class="layout" id="l-story916" data-w="1080" data-h="1920">
+    <div class="bleed"><img id="storymap" src="../assets/screens/s07-hunt.png" alt="Real ManHunt hunt capture"></div>
+    <div class="boardbar">
+      <span class="mono"><i class="dot cyan-dot"></i>HUNTING</span>
+      <b class="display">41:12</b>
+      <span class="mono">ZONE 240 m · PREY 2 / 2</span>
+    </div>
+    <div class="lower storylower">
+      <div class="rule short"></div>
+      <h2 class="display storyline">HIDE FROM<br>YOUR FRIENDS.</h2>
+      <div class="ctabig">Install free for Android</div>
+      <div class="url mono">http://74.208.99.178/</div>
+      <div class="osm mono">LATEST REPORTS · © OpenStreetMap contributors</div>
+    </div>
+  </section>
+
+  <!-- ── 9:16 STORY · end card ──────────────────────────────────────────── -->
+  <section class="layout" id="l-storyend" data-w="1080" data-h="1920">
+    <div class="rule top"></div>
+    <img class="lockup lk-h endbrand" src="../assets/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt">
+    <div class="tag mono">MATCHDAY · THE APP FILM</div>
+    <h1 class="display endline">HIDE FROM<br>YOUR FRIENDS.</h1>
+    <img class="lockup lk-stacked" src="../assets/lockup/lockup-stacked-light-on-dark.svg" alt="ManHunt — Open Zone lockup">
+    <div class="ctabig">Install free for Android</div>
+    <div class="url mono">http://74.208.99.178/</div>
+    <div class="micro mono">FREE APK · ANDROID 8+ · NOT ON PLAY STORE</div>
+    <div class="trust">Play with people you trust.</div>
+    <div class="rule bottom"></div>
+    <div class="foot mono">MANHUNT · MATCHDAY · 2026</div>
+  </section>
+
+  <!-- ── CAROUSEL · 5 panels (4:5) ──────────────────────────────────────── -->
+  <section class="layout carousel" id="l-carousel" data-w="1080" data-h="1350">
+    <div class="rule top"></div>
+    <div class="ctag mono" id="c-tag">MATCHDAY 01 / 05</div>
+    <img class="lockup lk-h c-lockup" src="../assets/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt">
+    <div class="car-panel" data-p="1">
+      <h1 class="display cline">YOUR FRIENDS<br>ARE HUNTING<br>YOU.</h1>
+      <div class="cwin"><img src="../assets/screens/s03-home.png" alt="Real ManHunt Home capture"></div>
+      <div class="cswipe mono">SWIPE →</div>
+    </div>
+    <div class="car-panel" data-p="2">
+      <h1 class="display cline">CREATE<br>A HUNT.</h1>
+      <div class="cwin tall home"><img src="../assets/screens/s03-home.png" alt="Real ManHunt Home capture"></div>
+      <div class="csub mono">SEND THE CODE. HIDE.</div>
+    </div>
+    <div class="car-panel" data-p="3">
+      <h1 class="display cline">PICK<br>A SIDE.</h1>
+      <div class="cwin tall lobby"><img src="../assets/screens/s05-lobby-host.png" alt="Real ManHunt lobby capture"></div>
+      <div class="csub mono">5 / 5 READY · ROOM VMJYBU</div>
+    </div>
+    <div class="car-panel" data-p="4">
+      <h1 class="display cline">THE MAP HAS<br>YOUR LAST<br>REPORT.</h1>
+      <div class="cwin map"><img src="../assets/screens/s07-hunt.png" alt="Real ManHunt hunt capture"></div>
+      <div class="cchip"><span class="mono"><i class="dot cyan-dot"></i>HUNTING</span><b class="display">41:12</b></div>
+      <div class="csub mono">ZONE 240 m · © OpenStreetMap contributors</div>
+    </div>
+    <div class="car-panel" data-p="5">
+      <h1 class="display cline">HIDE FROM<br>YOUR FRIENDS.</h1>
+      <img class="lockup lk-stacked c-endlock" src="../assets/lockup/lockup-stacked-light-on-dark.svg" alt="ManHunt — Open Zone lockup">
+      <div class="ctabig">Install free for Android</div>
+      <div class="url mono">http://74.208.99.178/</div>
+      <div class="micro mono">FREE APK · ANDROID 8+ · NOT ON PLAY STORE</div>
+      <div class="trust">Play with people you trust.</div>
+      <div class="csub mono">MATCHDAY · THE APP FILM</div>
+    </div>
+  </section>
+
+  <!-- ── COVER 9:16 ─────────────────────────────────────────────────────── -->
+  <section class="layout" id="l-cover" data-w="1080" data-h="1920">
+    <div class="rule top"></div>
+    <img class="lockup lk-h" src="../assets/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt">
+    <div class="tag mono">MATCHDAY · THE APP FILM</div>
+    <h1 class="display coverline">HIDE FROM<br>YOUR FRIENDS.</h1>
+    <div class="rule coverrule"></div>
+    <div class="panel coverband">
+      <div class="panelimg"><img id="coverlobby" src="../assets/screens/s05-lobby-host.png" alt="Real ManHunt lobby capture"></div>
+    </div>
+    <div class="covermeta mono">CREATE A HUNT · SEND THE CODE · HIDE</div>
+    <div class="foot mono">FREE APK · ANDROID 8+ · NOT ON PLAY STORE</div>
+    <div class="url mono">http://74.208.99.178/</div>
+  </section>
+
+  <!-- ── CONTACT SHEET ──────────────────────────────────────────────────── -->
+  <section class="layout" id="l-contact" data-w="1600" data-h="2400">
+    <h1 class="display cs-title">MATCHDAY SOCIAL PACK</h1>
+    <div class="tag mono">REAL PREMIUM APP CAPTURES · 2026-11-02 · DIMENSIONS + PROVENANCE IN README</div>
+    <div class="cs-grid" id="csGrid"></div>
+    <div class="cs-foot mono">MANHUNT · MATCHDAY · ALL FRAMES FROM docs/screenshots/premium (commit e25310e6) · OSM ATTRIBUTION ON MAP FRAMES · COPY PROVISIONAL</div>
+  </section>
+
+</div>
+<script src="statics.js"></script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080,height=1920">
+<title>ManHunt — MATCHDAY app film (1080×1920)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- guides (only with ?guides=1) -->
+  <div id="guides" aria-hidden="true">
+    <div class="safe"></div>
+    <div class="mid"></div>
+  </div>
+
+  <!-- ══ SCENE 1 · HOOK ═══════════════════════════════════════════════════ -->
+  <section class="scene" id="scHook" aria-label="Hook">
+    <div class="topline"></div>
+    <div id="hookBrand">
+      <!-- Official horizontal lockup (806×220) inlined verbatim from
+           assets/lockup/lockup-horizontal-light-on-dark.svg
+           sha256 1CD1975E01C63C68D7339A8FC8FBB717B9BE3759A4C5AED434E79C515B55E022
+           No retyping, no letter-spacing, no font dependency. -->
+      <svg id="hookLockupSvg" viewBox="0 0 806 220" role="img" aria-label="ManHunt">
+        <g transform="translate(9.69 9.69) scale(1.86)"><g transform="rotate(0 54 54)"><path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4" stroke-linecap="butt"/><circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/></g></g>
+        <g transform="translate(226 60)">
+          <path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/>
+          <path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/>
+          <path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+          <path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/>
+          <path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/>
+          <path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+          <path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/>
+        </g>
+      </svg>
+    </div>
+    <div class="kicker mono" id="hookKicker">MATCHDAY — THE APP FILM</div>
+    <h1 class="display hookline" id="hookLine"><span id="hookL1">YOUR FRIENDS</span><br><span id="hookL2">ARE HUNTING</span><br><span id="hookL3">YOU<span class="cyan">.</span></span></h1>
+    <div class="rule" id="hookRule"></div>
+    <div class="hookfoot mono" id="hookFoot">REAL-WORLD HIDE &amp; SEEK · ANDROID</div>
+    <div class="corner mono" id="hookCorner">00 / 04</div>
+    <div class="hooknav mono" id="hookNav"><span class="hn on">01 HOME</span><span class="hn">02 LOBBY</span><span class="hn">03 HUNTING</span><span class="hn">04 RESULT</span></div>
+    <div class="rule hooknavrule" id="hookNavRule"></div>
+  </section>
+
+  <!-- ══ SCENE 2 · HOME ═══════════════════════════════════════════════════ -->
+  <section class="scene" id="scHome" aria-label="Home">
+    <div class="topline"></div>
+    <div class="kicker mono">01 — HOME</div>
+    <h2 class="display headline" id="homeHead">CREATE A HUNT.</h2>
+    <div class="sub mono" id="homeSub">SEND THE CODE. HIDE.</div>
+    <div class="window" id="homeWin">
+      <img id="homeImg" src="../assets/screens/s03-home.png" alt="ManHunt Home screen, real app capture">
+      <i class="wcorner tl"></i><i class="wcorner tr"></i><i class="wcorner bl"></i><i class="wcorner br"></i>
+    </div>
+    <div class="foot mono" id="homeFoot">HOME — 01 / 04</div>
+  </section>
+
+  <!-- ══ SCENE 3 · LOBBY ══════════════════════════════════════════════════ -->
+  <section class="scene" id="scLobby" aria-label="Lobby">
+    <div class="topline"></div>
+    <div class="kicker mono">02 — LOBBY</div>
+    <h2 class="display headline" id="lobbyHead">PICK A SIDE.</h2>
+    <div class="sub mono" id="lobbySub">5 / 5 READY · ROOM VMJYBU</div>
+    <div class="window" id="lobbyWin">
+      <img id="lobbyImg" src="../assets/screens/s05-lobby-host.png" alt="ManHunt Lobby screen with invite code, real app capture">
+      <i class="wcorner tl"></i><i class="wcorner tr"></i><i class="wcorner bl"></i><i class="wcorner br"></i>
+    </div>
+    <div class="foot mono" id="lobbyFoot">LOBBY — 02 / 04</div>
+  </section>
+
+  <!-- ══ SCENE 4 · HUNTING ══════════════════════════════════════════════ -->
+  <section class="scene" id="scHunt" aria-label="HUNTING">
+    <div class="bleed"><img id="huntImg" src="../assets/screens/s07-hunt.png" alt="ManHunt hunt map, real app capture"></div>
+    <div class="boardbar">
+      <span class="state"><i class="dot cyan-dot"></i>HUNTING</span>
+      <b class="clock display" id="huntClock">41:12</b>
+      <span class="boardmeta mono" id="huntMeta">ZONE 240 m · PREY 2 / 2</span>
+    </div>
+    <div class="lower">
+      <div class="lowerrule"></div>
+      <h2 class="display lowerhead" id="huntHead">THE MAP HAS<br>YOUR LAST REPORT.</h2>
+      <div class="lowermeta mono" id="huntFoot">LATEST REPORTS · © OpenStreetMap contributors</div>
+    </div>
+  </section>
+
+  <!-- ══ SCENE 5 · TAG CLAIM ══════════════════════════════════════════════ -->
+  <section class="scene" id="scClaim" aria-label="Tag claim">
+    <div class="bleed"><img id="claimImg" src="../assets/screens/s08-hunt-claim.png" alt="ManHunt tag claim sheet, real app capture"></div>
+    <div class="boardbar">
+      <span class="state"><i class="dot coral-dot"></i>TAG CLAIM</span>
+      <b class="clock display" id="claimClock">40:27</b>
+      <span class="boardmeta mono" id="claimMeta">PREY CONFIRMS</span>
+    </div>
+    <div class="lower">
+      <div class="lowerrule coral"></div>
+      <h2 class="display lowerhead" id="claimHead">TOUCH TO TAG.</h2>
+      <div class="lowermeta mono" id="claimFoot">THE PREY CONFIRMS THE TAG · © OpenStreetMap contributors</div>
+    </div>
+  </section>
+
+  <!-- ══ SCENE 6 · CHAT (30s cut) ═════════════════════════════════════════ -->
+  <section class="scene" id="scChat" aria-label="Chat">
+    <div class="bleed"><img id="chatImg" src="../assets/screens/s11-chat.png" alt="ManHunt in-game chat, real app capture"></div>
+    <div class="boardbar">
+      <span class="state"><i class="dot cyan-dot"></i>CHAT</span>
+      <b class="clock display" id="chatClock">21:04</b>
+      <span class="boardmeta mono" id="chatMeta">ROOM VMJYBU · 5 PLAYERS</span>
+    </div>
+    <div class="lower">
+      <div class="lowerrule"></div>
+      <h2 class="display lowerhead" id="chatHead">TALK WHILE<br>YOU MOVE.</h2>
+      <div class="lowermeta mono" id="chatFoot">IN-GAME CHAT · CAPTURED MATCH</div>
+    </div>
+  </section>
+
+  <!-- ══ SCENE 7 · RESULT ═════════════════════════════════════════════════ -->
+  <section class="scene" id="scResult" aria-label="Result">
+    <div class="topline"></div>
+    <div class="kicker mono">03 — RESULT</div>
+    <h2 class="display headline" id="resultHead">HUNT OVER.</h2>
+    <div class="sub mono" id="resultSub">FULL TIME · 18:48 PLAYED · PREY 0 / 2</div>
+    <div class="window" id="resultWin">
+      <img id="resultImg" src="../assets/screens/s12-result-hunters.png" alt="ManHunt result screen, real app capture">
+      <i class="wcorner tl"></i><i class="wcorner tr"></i><i class="wcorner bl"></i><i class="wcorner br"></i>
+    </div>
+    <div class="foot mono" id="resultFoot">RESULT — 04 / 04</div>
+  </section>
+
+  <!-- ══ SCENE 7 · END CARD ═══════════════════════════════════════════════ -->
+  <section class="scene" id="scEnd" aria-label="End card">
+    <div class="rule endtop"></div>
+    <div class="endbrand mono" id="endBrandTop">
+      <svg id="endSmallWordmark" viewBox="0 0 530 100" role="img" aria-label="ManHunt">
+        <path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/>
+        <path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/>
+        <path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+        <path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/>
+        <path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/>
+        <path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+        <path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/>
+      </svg>
+    </div>
+    <div class="endtag mono" id="endTagTop">MATCHDAY · THE APP FILM</div>
+    <h2 class="display endline" id="endLine">HIDE FROM<br>YOUR FRIENDS.</h2>
+    <!-- Official approved lockup: mark above wordmark, 630×376, clear space
+         baked in. Inlined verbatim from
+         assets/lockup/lockup-stacked-light-on-dark.svg
+         sha256 BF72BFDF1175CA9DCDEC44FA7F22CB94D1D60975B1DE825E72399BA69FBB859B
+         Slogan sits OUTSIDE this lockup; never retype/letter-space the wordmark. -->
+    <div class="endlockup" id="endLockup" aria-label="ManHunt">
+      <svg id="endLockupSvg" viewBox="0 0 630 376" role="img" aria-hidden="true">
+        <g transform="translate(214.69 9.69) scale(1.86)">
+          <g transform="rotate(0 54 54)">
+            <path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4" stroke-linecap="butt"/>
+            <circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/>
+          </g>
+        </g>
+        <g transform="translate(50 226)">
+          <path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z" fill="#E6EDF7"/>
+          <path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z" fill="#E6EDF7"/>
+          <path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+          <path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z" fill="#E6EDF7"/>
+          <path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill="#E6EDF7" fill-rule="evenodd"/>
+          <path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z" fill="#E6EDF7"/>
+          <path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z" fill="#E6EDF7"/>
+        </g>
+      </svg>
+    </div>
+    <div class="endcta" id="endCta">Install free for Android</div>
+    <div class="endurl mono" id="endUrl">http://74.208.99.178/</div>
+    <div class="endmicro mono" id="endMicro">free APK · Android 8+ · not on Play Store</div>
+    <div class="endtrust" id="endTrust">Play with people you trust.</div>
+    <div class="rule endbottom"></div>
+    <div class="endfoot mono" id="endFoot">MANHUNT · MATCHDAY · 2026</div>
+  </section>
+
+  <!-- ══ BEAT STRIP OVERLAY ═══════════════════════════════════════════════ -->
+  <div class="beatstrip" id="beatStrip" aria-hidden="true">
+    <span class="bs-index mono" id="bsIndex">01</span>
+    <span class="bs-label mono" id="bsLabel">HOME</span>
+    <span class="bs-right mono" id="bsRight">RIVERSIDE RUN</span>
+  </div>
+
+  <div class="safe-overlay" id="safeOverlay" aria-hidden="true"></div>
+</div>
+
+<script src="animate.js"></script>
+</body>
+</html>

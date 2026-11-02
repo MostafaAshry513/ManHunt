@@ -49,8 +49,9 @@ a timed hunt.
   English is authoritative.
 - Slogan must pass: not generic (“Play outside” fails), no “AI purple gradient” cliché,
   does not promise safety/rescue, no trademark collisions.
-- Keep or replace `Hide. Hunt. Survive.` — the owner decides. If kept, the icon must pair
-  with it rather than repeat the words inside the mark.
+- The shipped permanent line is **“Hide from your friends.”**; the owner only needs to confirm
+  the line already in the product. The icon pairs with it rather than repeating the words inside
+  the mark.
 
 ## 4. Icon design constraints
 

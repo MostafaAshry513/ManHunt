@@ -1,0 +1,4 @@
+ManHunt MATCHDAY social pack — COPY STATUS: PROVISIONAL — OWNER APPROVAL PENDING.
+Copy family v2 (hook "Your friends are hunting you.", permanent line "Hide from your friends.", film end-card button "Install free for Android", campaign CTA "Create a hunt. Send the code. Hide.").
+All footage is real capture from docs/screenshots/premium (commit e25310e6); map frames carry (c) OpenStreetMap contributors.
+Do not publish until the owner approves. No app/server edits, no commits, no posts.

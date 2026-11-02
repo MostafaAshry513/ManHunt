@@ -1,0 +1,38 @@
+[
+    {
+        "File":  "wordmark-light-on-dark.svg",
+        "Canonical":  "BF6E14937B34DDCD27DE3FE21B83726A7DAC7324746882121F1CDCBE0964600D",
+        "Copy":  "BF6E14937B34DDCD27DE3FE21B83726A7DAC7324746882121F1CDCBE0964600D",
+        "Identical":  true
+    },
+    {
+        "File":  "lockup-horizontal-light-on-dark.svg",
+        "Canonical":  "1CD1975E01C63C68D7339A8FC8FBB717B9BE3759A4C5AED434E79C515B55E022",
+        "Copy":  "1CD1975E01C63C68D7339A8FC8FBB717B9BE3759A4C5AED434E79C515B55E022",
+        "Identical":  true
+    },
+    {
+        "File":  "lockup-stacked-light-on-dark.svg",
+        "Canonical":  "BF72BFDF1175CA9DCDEC44FA7F22CB94D1D60975B1DE825E72399BA69FBB859B",
+        "Copy":  "BF72BFDF1175CA9DCDEC44FA7F22CB94D1D60975B1DE825E72399BA69FBB859B",
+        "Identical":  true
+    },
+    {
+        "File":  "mark-light-on-dark.svg",
+        "Canonical":  "C41EB92F02A888114C1EB3CE1F2E3B8CC9484576D6407E8FDF780F784DE960AD",
+        "Copy":  "C41EB92F02A888114C1EB3CE1F2E3B8CC9484576D6407E8FDF780F784DE960AD",
+        "Identical":  true
+    },
+    {
+        "File":  "wordmark-dark-on-light.svg",
+        "Canonical":  "B2025D9D1BB9B1DAD49893AF6B5EFAD16C2EEC6317505694E2CAD175D57CEC52",
+        "Copy":  "B2025D9D1BB9B1DAD49893AF6B5EFAD16C2EEC6317505694E2CAD175D57CEC52",
+        "Identical":  true
+    },
+    {
+        "File":  "lockup-horizontal-dark-on-light.svg",
+        "Canonical":  "A0403611B18CEEA21EAC376B954778334621A2ACA36287349A88AD5346FD5345",
+        "Copy":  "A0403611B18CEEA21EAC376B954778334621A2ACA36287349A88AD5346FD5345",
+        "Identical":  true
+    }
+]
