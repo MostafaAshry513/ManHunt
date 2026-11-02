@@ -1,4 +1,4 @@
-package com.manhunt.app
+﻿package com.manhunt.app
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.fillMaxSize
@@ -79,7 +79,10 @@ class BrandMotionTest {
             }
         }
         rule.waitForIdle()
-        rule.onNodeWithTag("brand_motion_banner").assertExists()
+        // MATCHDAY Home: the brand is structure now - the drawn FieldPlate plus the masthead
+        // (Open Zone mark + wordmark + clock + settings). The old banner card is gone.
+        rule.onNodeWithTag("home_field_plate").assertExists()
+        rule.onNodeWithTag("masthead").assertExists()
     }
 
     @Test
@@ -91,7 +94,10 @@ class BrandMotionTest {
             }
         }
         rule.waitForIdle()
-        rule.onNodeWithTag("brand_motion_banner").assertExists()
+        // MATCHDAY Auth: the Form field plate is the brand moment; the form itself is the
+        // preserved auth flow (submit tag stays stable for the instrumentation tests).
+        rule.onNodeWithTag("auth_field_plate").assertExists()
+        rule.onNodeWithTag("auth_submit").assertExists()
     }
 
     private fun capture(name: String, dark: Boolean, arabic: Boolean = false) {

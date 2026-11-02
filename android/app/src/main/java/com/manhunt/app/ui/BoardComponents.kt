@@ -65,7 +65,7 @@ import com.manhunt.app.ui.theme.ManHuntType
 @Composable
 fun MatchBoard(
     phase: String,
-    clock: String,
+    clock: String? = null,
     modifier: Modifier = Modifier,
     clockNote: String? = null,
     dataRight: String? = null,
@@ -101,29 +101,33 @@ fun MatchBoard(
                 }
             }
         }
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = BoardMetrics.boardPaddingH)
-                .padding(bottom = BoardMetrics.boardPaddingV),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Text(
-                text = clock,
-                style = ManHuntType.boardClock(hero = heroClock),
-                color = BoardColors.chalk,
-                maxLines = 1,
-            )
-            if (clockNote != null) {
-                Spacer(Modifier.width(BoardSpace.s4))
+        if (clock != null) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = BoardMetrics.boardPaddingH)
+                    .padding(bottom = BoardMetrics.boardPaddingV),
+                verticalAlignment = Alignment.Bottom,
+            ) {
                 Text(
-                    text = clockNote,
-                    style = ManHuntType.dataSmall(),
-                    color = BoardColors.chalkMuted,
-                    modifier = Modifier.padding(bottom = BoardSpace.s3),
+                    text = clock,
+                    style = ManHuntType.boardClock(hero = heroClock),
+                    color = BoardColors.chalk,
                     maxLines = 1,
                 )
+                if (clockNote != null) {
+                    Spacer(Modifier.width(BoardSpace.s4))
+                    Text(
+                        text = clockNote,
+                        style = ManHuntType.dataSmall(),
+                        color = BoardColors.chalkMuted,
+                        modifier = Modifier.padding(bottom = BoardSpace.s3),
+                        maxLines = 1,
+                    )
+                }
             }
+        } else {
+            Spacer(Modifier.height(BoardMetrics.boardPaddingV))
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(boardRuleColor()))
     }
@@ -481,5 +485,3 @@ fun BoardDock(
         )
     }
 }
-
-

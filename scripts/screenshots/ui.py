@@ -59,6 +59,16 @@ def bounds_of(node):
     return x1, y1, x2, y2
 
 
+def screen_bounds():
+    """Root hierarchy bounds, used to clamp tap-near offsets to the screen."""
+    try:
+        root = ET.fromstring(dump_xml())
+    except SystemExit:
+        return None
+    node = root.find("node")
+    return bounds_of(node) if node is not None else None
+
+
 def matches(node, needle):
     """True when any `|` alternative matches this node."""
     for alternative in needle.split("|"):
@@ -150,6 +160,62 @@ def main():
             raise SystemExit(f"adb input tap failed for {needle!r}")
         print(f"tapped {needle!r} at ({center_x},{center_y}) text={node.get('text')!r} desc={node.get('content-desc')!r}")
         return
+
+    if command == "tap-near":
+        # Tap a point offset from a matching label, e.g. the input box below "Hunt name".
+        needle = sys.argv[2]
+        offset_x = int(sys.argv[3]) if len(sys.argv) > 3 else 0
+        offset_y = int(sys.argv[4]) if len(sys.argv) > 4 else 90
+        timeout = float(sys.argv[5]) if len(sys.argv) > 5 else 30.0
+        found = wait_for(needle, timeout)
+        if not found:
+            raise SystemExit(f"tap-near failed: {needle!r} not found in {timeout:.0f}s")
+        node, (x1, y1, x2, y2) = min(found, key=lambda item: (item[1][2] - item[1][0]) * (item[1][3] - item[1][1]))
+        center_x = (x1 + x2) // 2 + offset_x
+        center_y = (y1 + y2) // 2 + offset_y
+        bounds = screen_bounds()
+        if bounds:
+            center_x = min(max(center_x, bounds[0] + 2), bounds[2] - 2)
+            center_y = min(max(center_y, bounds[1] + 2), bounds[3] - 2)
+        tap = run(["shell", "input", "tap", str(center_x), str(center_y)])
+        if tap.returncode != 0:
+            raise SystemExit(f"adb input tap failed for {needle!r}")
+        print(
+            f"tapped near {needle!r} at ({center_x},{center_y}) "
+            f"node={node.get('text')!r} desc={node.get('content-desc')!r}"
+        )
+        return
+
+    if command == "tap-edit":
+        # Tap the Nth text field; Compose exposes BasicTextField as android.widget.EditText.
+        index = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+        timeout = float(sys.argv[3]) if len(sys.argv) > 3 else 30.0
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            try:
+                root = ET.fromstring(dump_xml())
+            except SystemExit:
+                time.sleep(0.6)
+                continue
+            edits = [
+                (node, bounds_of(node))
+                for node in root.iter("node")
+                if "EditText" in (node.get("class") or "")
+            ]
+            edits = [(node, box) for node, box in edits if box]
+            if len(edits) > index:
+                node, (x1, y1, x2, y2) = edits[index]
+                center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2
+                tap = run(["shell", "input", "tap", str(center_x), str(center_y)])
+                if tap.returncode != 0:
+                    raise SystemExit(f"adb input tap failed for text field {index}")
+                print(
+                    f"tapped text field {index} at ({center_x},{center_y}) "
+                    f"of {len(edits)} fields, text={node.get('text')!r}"
+                )
+                return
+            time.sleep(0.6)
+        raise SystemExit(f"tap-edit {index} failed: no text field found in {timeout:.0f}s")
 
     if command == "dump":
         try:

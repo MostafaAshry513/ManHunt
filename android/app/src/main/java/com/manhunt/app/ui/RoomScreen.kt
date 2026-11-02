@@ -64,7 +64,6 @@ import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material.icons.outlined.SwapHoriz
 import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -197,6 +196,39 @@ private const val SOCKET_REFRESH_DEBOUNCE_MS = 350L
 
 /** Required attribution for the OSM tiles; the tactical sheet carries it because it hides the in-map chip. */
 private const val OSM_COPYRIGHT_URL = "https://www.openstreetmap.org/copyright"
+/** A member's final state as captured before the server finish reset. */
+data class FinishedMemberSnapshot(
+    val userId: String,
+    val username: String,
+    val team: String,
+    val eliminated: Boolean,
+    val isAdmin: Boolean,
+)
+
+/**
+ * Client-side final match snapshot (Phase 2 decision, option a): the server resets a finished
+ * match and clears elimination flags, so the result page keeps the last authoritative final
+ * state it observed. Anything that could not be captured is absent and the ScorePage omits
+ * it (honest degradation, never fabricated counts).
+ */
+data class FinishedMatchSnapshot(
+    val matchId: String,
+    val phase: String,
+    val winner: String?,
+    val startedAt: Long,
+    val endsAt: Long,
+    val preyAlive: Int,
+    val preyTotal: Int,
+    val zoneRadiusM: Double?,
+    val members: List<FinishedMemberSnapshot>?,
+    val capturedAt: Long,
+) {
+    val cancelled: Boolean get() = phase == Phases.CANCELLED
+    val durationSeconds: Long?
+        get() = if (startedAt > 0 && endsAt > startedAt) (endsAt - startedAt) / 1000 else null
+}
+
+private val LIVE_MATCH_PHASES = listOf(Phases.HEAD_START, Phases.HUNTING, Phases.PAUSED)
 
 class RoomViewModel(
     private val repo: ManHuntRepository,
@@ -208,6 +240,54 @@ class RoomViewModel(
 
     var chat by mutableStateOf(ChatUi())
         private set
+
+    /** Last final match state captured before the server reset it; ScorePage reads this. */
+    var finishedSnapshot by mutableStateOf<FinishedMatchSnapshot?>(null)
+        private set
+
+    private var lastLiveState: RoomState? = null
+
+    /**
+     * Captures the final match state just before the server finish reset and keeps the final
+     * elimination flags from the last live snapshot when the finished payload already cleared
+     * them. Called from every authoritative state path (poll + socket), never fabricated.
+     */
+    private fun trackStateForSnapshot(next: RoomState) {
+        val match = next.match
+        if (match != null && match.phase in LIVE_MATCH_PHASES) {
+            lastLiveState = next
+            return
+        }
+        if (match == null || (match.phase != Phases.FINISHED && match.phase != Phases.CANCELLED)) return
+        if (finishedSnapshot?.matchId == match.id) return
+        val prior = lastLiveState?.takeIf { it.match?.id == match.id }
+        val nextHasFlags = next.members.any { it.eliminated }
+        val priorHasFlags = prior != null && prior.members.any { it.eliminated }
+        val members = when {
+            nextHasFlags -> next.members
+            priorHasFlags -> prior!!.members
+            else -> null
+        }
+        finishedSnapshot = FinishedMatchSnapshot(
+            matchId = match.id,
+            phase = match.phase,
+            winner = match.winner,
+            startedAt = match.startedAt,
+            endsAt = match.endsAt,
+            preyAlive = match.preyAlive,
+            preyTotal = match.preyTotal,
+            zoneRadiusM = match.zone?.radiusM,
+            members = members?.map {
+                FinishedMemberSnapshot(it.userId, it.username, it.team, it.eliminated, it.isAdmin)
+            },
+            capturedAt = System.currentTimeMillis(),
+        )
+        lastLiveState = null
+    }
+
+    fun clearFinishedSnapshot() {
+        finishedSnapshot = null
+    }
 
     private var started = false
     private var pollJob: Job? = null
@@ -221,7 +301,10 @@ class RoomViewModel(
     // every handler below runs on the main thread and is cancelled with the ViewModel.
     private val socket = RoomSocket(Graph.container.httpClient, viewModelScope) { event ->
         when (event) {
-            is SocketEvent.Room -> updateUi { it.replayPendingTags(event.state).copy(loading = false) }
+            is SocketEvent.Room -> {
+                trackStateForSnapshot(event.state)
+                updateUi { it.replayPendingTags(event.state).copy(loading = false) }
+            }
             // Coalesce the refresh storm: a single location/chat frame should not cause one
             // network round per event (they often arrive in bursts).
             is SocketEvent.Chat -> scheduleRefresh(silent = true, debounceMs = SOCKET_REFRESH_DEBOUNCE_MS)
@@ -359,6 +442,7 @@ class RoomViewModel(
                 } else {
                     null
                 }
+                trackStateForSnapshot(state)
                 updateUi {
                     it.copy(
                         state = state,
@@ -878,61 +962,87 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
     }
 
     if (showLeaveConfirm) {
-        AlertDialog(
+        MatchSheet(
             onDismissRequest = { showLeaveConfirm = false },
-            title = { Text(t("Leave the room?")) },
-            text = {
-                Text(
-                    t(
-                        if (state?.room?.status == "active") {
-                            "You are abandoning this hunt. It runs without you."
-                        } else {
-                            "You will leave the room and lose your spot in the lobby."
-                        }
-                    )
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
+            title = t("Leave the room?"),
+            body = t(
+                if (state?.room?.status == "active") {
+                    "You are abandoning this hunt. It runs without you."
+                } else {
+                    "You will leave the room and lose your spot in the lobby."
+                },
+            ),
+        ) {
+            BoardButton(
+                text = t("Leave"),
+                onClick = {
                     showLeaveConfirm = false
                     vm.leave()
-                }) { Text(t("Leave")) }
-            },
-            dismissButton = { TextButton(onClick = { showLeaveConfirm = false }) { Text(t("Cancel")) } },
-        )
+                },
+                tone = BoardButtonTone.Destructive,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(BoardSpace.s3))
+            BoardButton(
+                text = t("Cancel"),
+                onClick = { showLeaveConfirm = false },
+                tone = BoardButtonTone.Outline,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 
+
     if (showEndConfirm) {
-        AlertDialog(
+        MatchSheet(
             onDismissRequest = { showEndConfirm = false },
-            title = { Text(t("End the hunt?")) },
-            text = { Text(t("This ends the hunt for everyone and returns the room to the lobby.")) },
-            confirmButton = {
-                TextButton(onClick = {
+            title = t("End the hunt?"),
+            body = t("This ends the hunt for everyone and returns the room to the lobby."),
+        ) {
+            BoardButton(
+                text = t("End hunt"),
+                onClick = {
                     showEndConfirm = false
                     vm.endMatch()
-                }) { Text(t("End hunt")) }
-            },
-            dismissButton = { TextButton(onClick = { showEndConfirm = false }) { Text(t("Cancel")) } },
-        )
+                },
+                tone = BoardButtonTone.Destructive,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(BoardSpace.s3))
+            BoardButton(
+                text = t("Cancel"),
+                onClick = { showEndConfirm = false },
+                tone = BoardButtonTone.Outline,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
+
 
     if (me?.isAdmin == true) {
         ui.pendingDispute?.let { tag ->
             val hunter = state?.members?.firstOrNull { it.userId == tag.hunterId }?.username ?: t("A hunter")
             val prey = state?.members?.firstOrNull { it.userId == tag.preyId }?.username ?: t("a prey")
-            AlertDialog(
+            MatchSheet(
                 onDismissRequest = vm::dismissPendingDispute,
-                title = { Text(t("Disputed tag")) },
-                text = {
-                    Text(
-                        "$hunter ${t("says they tagged")} $prey" +
-                            t(", and they dispute it. Confirm or reject the tag.")
-                    )
-                },
-                confirmButton = { TextButton(onClick = { vm.resolveDisputed("confirmed") }) { Text(t("Confirm tag")) } },
-                dismissButton = { TextButton(onClick = { vm.resolveDisputed("rejected") }) { Text(t("Reject")) } },
-            )
+                title = t("Disputed tag"),
+                body = "$hunter ${t("says they tagged")} $prey" +
+                    t(", and they dispute it. Confirm or reject the tag."),
+            ) {
+                BoardButton(
+                    text = t("Confirm tag"),
+                    onClick = { vm.resolveDisputed("confirmed") },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(BoardSpace.s3))
+                BoardButton(
+                    text = t("Reject"),
+                    onClick = { vm.resolveDisputed("rejected") },
+                    tone = BoardButtonTone.Destructive,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+
         }
     }
 
@@ -945,78 +1055,36 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
         )
     }
 
-    // A match used to end as a grey chat line with no moment of its own (UI review).
-    // Show the result once per finished/cancelled match, with a clear way onward.
+    // A match used to end as a grey chat line with no moment of its own (UI review), then a
+    // dialog. The MATCHDAY result is now a full-screen ScorePage fed by the final-state
+    // snapshot captured before the server reset (RoomViewModel.trackStateForSnapshot); the
+    // still-present finished match is only a fallback.
     val resultMatch = state?.match?.takeIf {
         it.phase == Phases.FINISHED || it.phase == Phases.CANCELLED
     }
-    if (resultMatch != null && seenActivePhase && shownResultFor != resultMatch.id) {
-        val cancelled = resultMatch.phase == Phases.CANCELLED
-        val huntersWin = resultMatch.winner == Teams.HUNTERS
-        val accent = if (huntersWin) teamColor(Teams.HUNTERS) else teamColor(Teams.PREY)
+    val resultSnapshot = vm.finishedSnapshot
+        ?: resultMatch?.let { finishedSnapshotFromResult(it, state?.members ?: emptyList()) }
+    if (resultSnapshot != null && seenActivePhase && shownResultFor != resultSnapshot.matchId) {
         Dialog(
-            onDismissRequest = { shownResultFor = resultMatch.id },
-            properties = DialogProperties(),
+            onDismissRequest = {
+                shownResultFor = resultSnapshot.matchId
+                vm.clearFinishedSnapshot()
+            },
+            properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
         ) {
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 6.dp,
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    Icon(
-                        imageVector = when {
-                            cancelled -> Icons.Outlined.Stop
-                            huntersWin -> Icons.Outlined.GpsFixed
-                            else -> Icons.Outlined.Pets
-                        },
-                        contentDescription = null,
-                        modifier = Modifier.size(44.dp),
-                        tint = accent,
-                    )
-                    Text(
-                        t("Hunt result"),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        when {
-                            cancelled -> t("Hunt cancelled")
-                            huntersWin -> t("Hunters win!")
-                            else -> t("Prey win!")
-                        },
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                    )
-                    Text(
-                        "${t("Prey remaining")}: ${resultMatch.preyAlive}/${resultMatch.preyTotal}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        TextButton(
-                            onClick = {
-                                shownResultFor = resultMatch.id
-                                vm.loadHistory()
-                                showHistory = true
-                            },
-                            modifier = Modifier.weight(1f),
-                        ) { Text(t("View hunt history")) }
-                        Button(
-                            onClick = { shownResultFor = resultMatch.id },
-                            modifier = Modifier.weight(1f),
-                        ) { Text(t("Back to lobby")) }
-                    }
-                }
-            }
+            ScorePage(
+                snapshot = resultSnapshot,
+                onBackToLobby = {
+                    shownResultFor = resultSnapshot.matchId
+                    vm.clearFinishedSnapshot()
+                },
+                onViewHistory = {
+                    shownResultFor = resultSnapshot.matchId
+                    vm.clearFinishedSnapshot()
+                    vm.loadHistory()
+                    showHistory = true
+                },
+            )
         }
     }
 
@@ -1033,43 +1101,64 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
     ui.pendingTag?.let { tag ->
         val hunter = state?.members?.firstOrNull { it.userId == tag.hunterId }?.username ?: t("A hunter")
-        AlertDialog(
+        MatchSheet(
             onDismissRequest = vm::dismissPendingTag,
-            title = { Text(t("Tag claim")) },
-            text = { Text("$hunter ${t("says they physically touched you. Confirm the tag?")}") },
-            confirmButton = { TextButton(onClick = vm::confirmIncomingTag) { Text(t("Confirm")) } },
-            dismissButton = { TextButton(onClick = vm::disputeIncomingTag) { Text(t("Dispute")) } },
-        )
+            title = t("Tag claim"),
+            body = "$hunter ${t("says they physically touched you. Confirm the tag?")}",
+        ) {
+            BoardButton(
+                text = t("Confirm"),
+                onClick = vm::confirmIncomingTag,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(BoardSpace.s3))
+            BoardButton(
+                text = t("Dispute"),
+                onClick = vm::disputeIncomingTag,
+                tone = BoardButtonTone.Outline,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
     }
 
     if (showTagPicker && state != null) {
         val targets = state.members.filter { it.team == Teams.PREY && !it.eliminated }
-        AlertDialog(
+        MatchSheet(
             onDismissRequest = { showTagPicker = false },
-            title = { Text(t("Who did you tag?")) },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .heightIn(max = 360.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    if (targets.isEmpty()) Text(t("No eligible prey"))
-                    targets.forEach { target ->
-                        TextButton(onClick = {
+            title = t("Who did you tag?"),
+            body = t("You must be physically touching the prey. False claims can be disputed."),
+        ) {
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 360.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(BoardSpace.s3),
+            ) {
+                if (targets.isEmpty()) {
+                    Text(t("No eligible prey"), style = ManHuntType.bodySmall(), color = BoardTheme.muted())
+                }
+                targets.forEach { target ->
+                    BoardButton(
+                        text = target.username,
+                        onClick = {
                             showTagPicker = false
                             vm.claimTag(target.userId)
-                        }) { Text(target.username) }
-                    }
-                    Text(
-                        t("You must be physically touching the prey. False claims can be disputed."),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        },
+                        tone = BoardButtonTone.Outline,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
-            },
-            confirmButton = { TextButton(onClick = { showTagPicker = false }) { Text(t("Cancel")) } },
-        )
+            }
+            Spacer(Modifier.height(BoardSpace.s3))
+            BoardButton(
+                text = t("Cancel"),
+                onClick = { showTagPicker = false },
+                tone = BoardButtonTone.Outline,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
     }
 
     Surface(Modifier.fillMaxSize()) {

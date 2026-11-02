@@ -69,7 +69,19 @@ debug_dump() {
   mkdir -p "$OUT/_debug"
   "$ADB" exec-out screencap -p > "$OUT/_debug/failure.png" 2>/dev/null || true
   python3 "$SCRIPTS/ui.py" dump > "$OUT/_debug/failure-ui.txt" 2>&1 || true
-  "$ADB" logcat -d -t 1000 > "$OUT/_debug/logcat.txt" 2>&1 || true
+  "$ADB" logcat -d -t 1500 > "$OUT/_debug/logcat.txt" 2>&1 || true
+  # App crash buffer + which activity is actually resumed are the fast way to tell a
+  # composition/lifecycle failure from a navigation/selector miss.
+  "$ADB" logcat -d -b crash -t 400 > "$OUT/_debug/crash.txt" 2>&1 || true
+  "$ADB" shell pidof "$PACKAGE" > "$OUT/_debug/pid.txt" 2>&1 || true
+  "$ADB" shell dumpsys activity activities 2>/dev/null | grep -E 'mResumedActivity|topResumedActivity|Hist #' \
+    > "$OUT/_debug/activities.txt" 2>&1 || true
+  "$ADB" shell dumpsys window 2>/dev/null | grep -E 'mCurrentFocus|mFocusedApp' \
+    > "$OUT/_debug/focus.txt" 2>&1 || true
+  "$ADB" shell settings get system time_12_24 > "$OUT/_debug/time-format.txt" 2>&1 || true
+  "$ADB" shell date > "$OUT/_debug/device-date.txt" 2>&1 || true
+  "$ADB" shell getprop persist.sys.timezone > "$OUT/_debug/timezone.txt" 2>&1 || true
+  cp "$RUNTIME/hosts-setup.log" "$OUT/_debug/hosts-setup.log" 2>/dev/null || true
   cp "$SERVER_LOG" "$OUT/_debug/server.log" 2>/dev/null || true
   cp "$PRESENCE_LOG" "$OUT/_debug/presence.log" 2>/dev/null || true
   "$ADB" shell wm size > "$OUT/_debug/wm-size.txt" 2>&1 || true
@@ -107,6 +119,18 @@ ui_gone() { ui wait-gone "$1" "${2:-30}" || fail "UI element never disappeared: 
 ui_tap() { ui tap "$1" "${2:-60}" || fail "could not tap UI element: $1"; }
 # Best-effort variant for optional controls (trail toggle, cancel, sheet expand).
 ui_try_tap() { ui tap "$1" "${2:-8}" >/dev/null 2>&1; }
+
+# Tap a labelled form field: the label sits above the input box, so tap just below it; fall
+# back to the Nth EditText node (Compose exposes BasicTextField as android.widget.EditText).
+# Avoids matching an icon whose description contains the label (e.g. "Show password").
+tap_field() {
+  local label="$1" index="$2"
+  if ui tap-near "text=$label" 0 80 20 >/dev/null 2>&1; then
+    return 0
+  fi
+  note "$label label not tappable; falling back to text field #$index"
+  ui tap-edit "$index" 20 >/dev/null 2>&1
+}
 
 type_text() {
   "$ADB" shell input text "$(printf '%s' "$1" | sed 's/ /%s/g')" || fail "input text failed"
@@ -197,6 +221,8 @@ setup_display() {
 
 setup_status_bar() {
   log "status bar demo mode: clock ${CLOCK:0:2}:${CLOCK:2}, battery 100%, wifi only, no notifications"
+  # 24-hour format so the demo clock reads 21:04 (not 9:04) as in the shotlist.
+  "$ADB" shell settings put system time_12_24 24 || true
   "$ADB" shell settings put global sysui_demo_allowed 1 || true
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command enter >/dev/null 2>&1 || true
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm "$CLOCK" >/dev/null 2>&1 || true
@@ -210,28 +236,71 @@ setup_timezone() {
   "$ADB" shell setprop persist.sys.timezone UTC || true
 }
 
+# Pin the device wall clock to the capture moment (21:04 UTC) so the MATCHDAY masthead time,
+# the demo status-bar clock and the normalised chat bubbles agree. Best effort: needs the
+# rooted (adb root) userdebug image; if it fails the set is still captured and the
+# diagnostics record the real device time.
+setup_device_clock() {
+  log "pinning the device clock to the capture moment (best effort)"
+  "$ADB" shell settings put global auto_time 0 >/dev/null 2>&1 || true
+  if "$ADB" shell "date 110221042026.00" >/dev/null 2>&1; then
+    local actual
+    actual="$("$ADB" shell date 2>/dev/null | tr -d '\r')"
+    note "device clock set: $actual"
+  else
+    note "could not set the device clock (needs root); masthead will show the real time"
+  fi
+}
+
 setup_hostname() {
-  # The app shows the configured server. Map a self-hosted looking hostname so no
-  # emulator-local address appears in frame; fall back to the app default when the
-  # image refuses a writable /system.
-  log "trying a friendly server hostname for the in-app server row"
+  # The app's Auth screen shows the configured server. Map a self-hosted looking hostname
+  # (manhunt.local) so no emulator-local address (10.0.2.2) appears in frame. The write needs
+  # a writable /system; log every step so a failure is diagnosable from the artifact.
+  local report="$RUNTIME/hosts-setup.log"
+  : >"$report"
+  log "mapping manhunt.local -> 10.0.2.2 for the in-app server row"
   if ! "$ADB" root >/dev/null 2>&1; then
+    echo "adb root unavailable" >>"$report"
     note "adb root unavailable; keeping the app's default server URL"
     return 0
   fi
   sleep 2
   "$ADB" wait-for-device || true
-  "$ADB" remount >/dev/null 2>&1 || "$ADB" shell 'mount -o rw,remount /' >/dev/null 2>&1 || true
+  echo "adb root uid: $("$ADB" shell id -u 2>/dev/null | tr -d '\r')" >>"$report"
+  {
+    echo "--- remount ---"
+    "$ADB" remount 2>&1 || true
+    echo "--- mount rw fallback ---"
+    "$ADB" shell 'mount -o rw,remount /' 2>&1 || true
+    echo "--- hosts before ---"
+    "$ADB" shell "cat /system/etc/hosts" 2>&1 || true
+    echo "--- append ---"
+    "$ADB" shell "echo '10.0.2.2 manhunt.local' >> /system/etc/hosts" 2>&1 || true
+    echo "--- hosts after ---"
+    "$ADB" shell "cat /system/etc/hosts" 2>&1 || true
+  } >>"$report" 2>&1
   if ! "$ADB" shell "grep -q 'manhunt.local' /system/etc/hosts" >/dev/null 2>&1; then
-    "$ADB" shell "echo '10.0.2.2 manhunt.local' >> /system/etc/hosts" >/dev/null 2>&1 || true
+    # Last resort: bind-mount an edited copy over the read-only hosts file.
+    "$ADB" shell 'cp /system/etc/hosts /data/local/tmp/hosts 2>/dev/null; echo "10.0.2.2 manhunt.local" >> /data/local/tmp/hosts; mount --bind /data/local/tmp/hosts /system/etc/hosts' >>"$report" 2>&1 || true
   fi
-  if "$ADB" shell "grep -q 'manhunt.local' /system/etc/hosts" >/dev/null 2>&1 \
-    && "$ADB" shell "ping -c 1 -W 2 manhunt.local" >/dev/null 2>&1; then
+  if "$ADB" shell "grep -q 'manhunt.local' /system/etc/hosts" >/dev/null 2>&1; then
     APP_SERVER_URL="http://manhunt.local:8080"
     note "server row will read $APP_SERVER_URL"
-  else
-    note "hosts mapping unavailable; keeping the app's default server URL"
+    return 0
   fi
+
+  # Fallback that needs no /system write: a public loopback hostname (lvh.me resolves
+  # every subdomain to 127.0.0.1) plus an adb reverse from the device port to the isolated
+  # server on the runner. Keeps the in-frame URL free of 10.0.2.2/localhost.
+  echo "--- hosts write failed; trying adb-reverse + lvh.me fallback ---" >>"$report"
+  if "$ADB" reverse tcp:8080 tcp:8080 >>"$report" 2>&1 \
+    && "$ADB" shell "ping -c 1 -W 3 manhunt.lvh.me" >/dev/null 2>&1; then
+    APP_SERVER_URL="http://manhunt.lvh.me:8080"
+    note "using adb-reverse fallback; server row will read $APP_SERVER_URL"
+    return 0
+  fi
+
+  note "hosts mapping unavailable; keeping the app's default server URL (see $report)"
 }
 
 grant_permissions() {
@@ -255,7 +324,7 @@ install_app() {
 # views without leaving/rejoining the room (leaving would change the host mid-set).
 # Sessions are real server sessions minted by game-control.mjs, not fake data.
 write_app_prefs() {
-  local token="${1:-}" userId="${2:-}" username="${3:-}" dark="${4:-true}" language="${5:-en}"
+  local token="${1:-}" userId="${2:-}" username="${3:-}" dark="${4:-true}" language="${5:-en}" welcome="${6:-true}"
   local xml="$RUNTIME/manhunt-prefs.xml"
   {
     echo "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>"
@@ -263,16 +332,29 @@ write_app_prefs() {
     [ -n "$token" ] && echo "    <string name=\"token\">$token</string>"
     [ -n "$userId" ] && echo "    <string name=\"user\">{\"id\":\"$userId\",\"username\":\"$username\"}</string>"
     echo "    <boolean name=\"dark_theme\" value=\"$dark\" />"
-    echo '    <boolean name="welcome_accepted_v2" value="true" />'
+    echo "    <boolean name=\"welcome_accepted_v2\" value=\"$welcome\" />"
     echo "    <string name=\"language\">$language</string>"
     echo '    <float name="text_scale" value="1.0" />'
     [ -n "$APP_SERVER_URL" ] && echo "    <string name=\"server_url\">$APP_SERVER_URL</string>"
     echo '</map>'
   } >"$xml"
-  "$ADB" push "$xml" /data/local/tmp/manhunt-prefs.xml >/dev/null 2>&1 || fail "could not push prefs"
+  "$ADB" push "$xml" /data/local/tmp/manhunt-prefs.xml >/dev/null 2>&1 || return 1
   "$ADB" shell run-as "$PACKAGE" mkdir -p shared_prefs >/dev/null 2>&1 || true
   "$ADB" shell run-as "$PACKAGE" cp /data/local/tmp/manhunt-prefs.xml shared_prefs/manhunt.xml >/dev/null 2>&1 \
-    || fail "could not write app preferences (run-as)"
+    || return 1
+  return 0
+}
+
+# Before the very first launch: pin the friendly server URL but keep the welcome unaccepted
+# so the S02 first-run surface still appears (and the Auth shot never shows 10.0.2.2).
+prime_first_run_prefs() {
+  [ -n "$APP_SERVER_URL" ] || return 0
+  log "priming first-run preferences with $APP_SERVER_URL"
+  if write_app_prefs "" "" "" "true" "en" "false"; then
+    note "first-run prefs primed (welcome not yet accepted)"
+  else
+    note "could not prime prefs; Auth may show the app's default server URL"
+  fi
 }
 
 launch_app() { "$ADB" shell am start -W -n "$ACTIVITY" >/dev/null 2>&1 || fail "could not launch the app"; }
@@ -290,7 +372,8 @@ switch_user() {
   [ -n "$token" ] || fail "no session token for $key (seed first)"
   log "switching to $username (dark=$dark, language=$language)"
   "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
-  write_app_prefs "$token" "$userId" "$username" "$dark" "$language"
+  write_app_prefs "$token" "$userId" "$username" "$dark" "$language" \
+    || fail "could not write session preferences for $username"
   launch_app
   wait_home
   sleep 1.2
@@ -299,7 +382,7 @@ switch_user() {
 logout_to_auth() {
   log "signing out to the Auth screen"
   "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
-  write_app_prefs "" "" "" "true" "en"
+  write_app_prefs "" "" "" "true" "en" || fail "could not clear session preferences"
   launch_app
   ui_wait "Sign in|Welcome back|Create your account|auth_username" 90
   sleep 1.2
@@ -307,10 +390,31 @@ logout_to_auth() {
 
 join_room() {
   local code="${1:-$ROOM_CODE}"
-  log "joining the room through the real invite deep link (code $code)"
-  "$ADB" shell am start -a android.intent.action.VIEW -d "manhunt://join?code=$code" -n "$ACTIVITY" >/dev/null 2>&1 \
+  local deep="manhunt://join?code=$code"
+  log "joining room $code through a cold-start invite deep link"
+
+  # Cold start with the intent: the app's first activity handles the deep link in onCreate,
+  # so the pending-join effect runs exactly once against the freshly restored session
+  # (avoids the second-instance/task ambiguity of a warm VIEW intent).
+  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
+  sleep 1
+  "$ADB" shell am start -W -a android.intent.action.VIEW -d "$deep" -n "$ACTIVITY" >/dev/null 2>&1 \
     || fail "deep link launch failed"
-  ui_wait "Riverside Run" 120
+
+  # The MATCHDAY lobby Board shows the room name; the live-hunt page (Board + map) has no
+  # room title, so the always-visible OpenStreetMap attribution marks the room screen there.
+  if ui wait "Riverside Run|OpenStreetMap contributors" 70; then
+    return 0
+  fi
+
+  note "cold-start deep link did not show the room; retrying with a warm VIEW intent"
+  "$ADB" shell am start -a android.intent.action.VIEW -d "$deep" -n "$ACTIVITY" 2>&1 | tail -n 2 || true
+  if ui wait "Riverside Run|OpenStreetMap contributors" 45; then
+    return 0
+  fi
+
+  debug_dump
+  fail "room did not open after both deep-link attempts (room $code)"
 }
 
 # ---------------------------------------------------------------- captures
@@ -338,12 +442,12 @@ capture_first_run_and_auth() {
 
 login_omar() {
   log "signing in as Omar through the real UI"
-  ui_tap "text=Username|desc=Username|res=auth_username" 30
+  tap_field "Username" 0 || fail "username field not found on Auth"
   type_text "Omar"
-  ui_tap "text=Password|desc=Password|res=auth_password" 30
+  tap_field "Password" 1 || fail "password field not found on Auth"
   type_text "$HUNT_PASSWORD"
   hide_ime
-  ui_tap "Sign in|Sign In|res=auth_submit" 30
+  ui_tap "text=Sign in|text=Sign In|res=auth_submit" 30
   wait_home
   sleep 1.8
 }
@@ -354,15 +458,15 @@ capture_home_dark() {
     return 0
   fi
   log "capture: S03 Home (dark, hunt name typed, playing as Omar)"
-  local typed
-  typed="$(ui tap "text=Hunt name|desc=Hunt name|res=home_room_name" 20 >/dev/null 2>&1 && echo yes || echo no)"
-  if [ "$typed" = "yes" ]; then
+  if tap_field "Hunt name" 0; then
     type_text "Riverside Run"
     sleep 0.8
     hide_ime
     sleep 0.8
   else
-    note "hunt-name field not found; capturing Home without a typed name"
+    mkdir -p "$OUT/_debug"
+    python3 "$SCRIPTS/ui.py" dump > "$OUT/_debug/home-s03-ui.txt" 2>&1 || true
+    note "hunt-name field not found; captured Home without a typed name (ui dump kept)"
   fi
   shot "s03-home"
 }
@@ -689,7 +793,9 @@ main() {
   install_app
   setup_hostname
   setup_timezone
+  setup_device_clock
   setup_status_bar
+  prime_first_run_prefs
 
   launch_app
   capture_first_run_and_auth

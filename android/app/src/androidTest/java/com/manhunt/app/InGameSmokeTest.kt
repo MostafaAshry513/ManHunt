@@ -121,7 +121,9 @@ class InGameSmokeTest {
         // a brand-new username gets HTTP 401 and never reaches Home.
         waitForText("New here? Create an account")
         compose.onAllNodesWithText("New here? Create an account")[0].performClick()
-        waitForText("Create your account")
+        // MATCHDAY Auth has no "Create your account" heading: the mode row flips to
+        // "I already have an account" and the primary action becomes "Create account".
+        waitForText("I already have an account")
         compose.onNodeWithTag("auth_submit").performClick()
 
         try {
@@ -171,7 +173,8 @@ class InGameSmokeTest {
         compose.onNodeWithTag("ready_button").performClick()
         waitForTag("start_match")
         compose.onNodeWithTag("start_match").performClick()
-        waitForText("HUNTING", 40_000)
+        // MATCHDAY Live Hunt: the Board (hunt_hud) replaces the old phase text chip.
+        waitForTag("hunt_hud", 40_000)
         Thread.sleep(5_000)
         capture("02-hunting")
 
