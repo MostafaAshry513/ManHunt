@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-02T05:40:02.720Z",
+  "generatedAt": "2026-11-02T06:16:28.079Z",
   "kit": "design/github-redesign",
   "runtime": "v24.22.1",
   "summary": {
@@ -246,7 +246,7 @@
       "detail": ""
     },
     {
-      "name": "README.md: canonical APK size 2.4 MB",
+      "name": "README.md: canonical APK size 2.3 MB",
       "pass": true,
       "detail": ""
     },

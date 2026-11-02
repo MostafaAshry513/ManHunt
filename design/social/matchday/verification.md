@@ -84,6 +84,11 @@ Key film beats downscaled to 390 px wide (`out/qa/phone-*.png`): hook, home, lob
 5. Optional brand suggestions adopted: chat microcopy `IN-GAME CHAT · CAPTURED MATCH`; hook #4 `The map is the field.`; hook #5 uses the approved mode line `Two teams. One block. One clock.`
 6. Re-rendered after the fixes: 15 s MP4/WebM, 30 s MP4 (chat microcopy re-rendered separately), GIF, all statics, contact sheet; re-verified durations/decode/GIF/PNG dims and the changed frames (`out/qa/15-hunt.png`, `out/qa/15-hook.png`, `out/qa/30-chat.png`, feed/story/carousel statics).
 7. **Result-static consistency (last string):** 1:1 result meta is `PREY REMAINING 0 / 2 · CAPTURED MATCH` (same phrasing as the chat beat; no surface says "real match" any more). Re-rendered `manhunt_matchday_feed-1x1-result.png` (1080×1080) and the contact sheet (1600×2400); re-checked dimensions. Only that static + contact sheet changed — video encodes untouched and still decode clean.
+8. **Lead re-audit — social composition fixes (no video re-encode):**
+   - `carousel-5-end`: the cyan Install button was overlapping the stacked MANHUNT lockup. Re-laid out with vertical separation — headline ends ~452 px, stacked lockup 512–709, CTA 790–882, URL/micro/trust 934/994/1050, slide label at the foot. No text or lockup collision.
+   - `feed-1x1-result`: was repeating the result (board headline + a framed inner capture that repeated the score and cropped mid-radar). Rebuilt as a **board-only composition**: one statement (`HUNTERS WIN.`), the real full-time board data in a single plate (`FULL TIME`, `18:48 played`, `PREY 0 / 2 · HUNTERS`, status bar cropped out), no duplicated winner word, no radar crop.
+   - Collision sweep of the other panels: carousel 1/2/3/4, feed-1x1, portrait-4x5, story-9x16, story-end, cover and contact sheet checked for overlaps — none found.
+   - Re-rendered only `manhunt_matchday_feed-1x1-result.png`, `manhunt_matchday_carousel-5-end.png` and `manhunt_matchday_contact-sheet.png`; video encodes untouched (15 s / 30 s MP4 still decode exit 0); dimensions re-verified (1080×1080 / 1080×1350 / 1600×2400).
 
 ## 8. Safety / workflow
 

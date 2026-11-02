@@ -97,7 +97,7 @@ an argument about the clock or a tag has an answer.</sub>
 
 ## Get on the field
 
-> **Free, signed APK. No account email. Not on Google Play.** Android 8.0+ · about 2.4 MB · the current
+> **Free, signed APK. No account email. Not on Google Play.** Android 8.0+ · about 2.3 MB · the current
 > version, size and SHA-256 are always on the install page.
 
 **[Download the free APK](http://74.208.99.178/)**

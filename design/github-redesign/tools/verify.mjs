@@ -167,7 +167,7 @@ async function readmeChecks(readmePath, { final, label }) {
   check(`${label}: no placeholder strings`, !/TODO|Lorem ipsum|PREMIUM CAPTURE PENDING/.test(md));
   check(`${label}: canonical clock 41:12`, md.includes('41:12') && !md.includes('41:14'));
   check(`${label}: canonical lobby code VMJYBU`, md.includes('VMJYBU') && !md.includes('WNWHA3'));
-  check(`${label}: canonical APK size 2.4 MB`, md.includes('2.4 MB') && !/about 2\.2 MB/i.test(md));
+  check(`${label}: canonical APK size 2.3 MB`, md.includes('2.3 MB') && !/about 2\.2 MB/i.test(md));
   check(`${label}: accurate Prey visibility claim`, !md.includes('Prey never see the map') && md.includes('never other players'));
   check(`${label}: rejected premium frames not referenced`, !/s01-auth|s10-hunt-sheet|s14-settings/.test(md));
   if (final) {

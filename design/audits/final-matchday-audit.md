@@ -3,6 +3,8 @@
 Independent adversarial audit of the v0.16.0 "MATCHDAY BOARD" sprint. Read-only: no code/assets changed; this document plus `design/audits/evidence/` are the only additions.
 Date: 2026-11-02 · Repo: `C:\dev\ManHunt` @ `1a2c441` (master, working tree had only in-flight `design/social/matchday/`) · Live: http://74.208.99.178/
 
+> **Re-audit banner (task-60, 2026-11-02 post-cleanup):** the findings below are the first-pass audit; every blocker was re-tested after cleanup — see **“Re-audit — 2026-11-02 (post-cleanup, task-60)”** at the end of this document. Current status: **app captures, live site, GitHub README and brand assets MEET THE BAR; the whole sprint still NEEDS ANOTHER PASS for the social pack only (two composition defects) plus one APK-size copy nit.** All eight original blockers B1–B8 are resolved on the app/site/GitHub surfaces.
+
 **Verdict: NEEDS ANOTHER PASS.** The design direction is genuinely premium and internally consistent, the app captures are real (no mockups), the live site is current, the README is pushed and its assets resolve, and the APK hash claim verifies byte-for-byte. But the "final" evidence set ships a handful of visible defects and one factually wrong product claim: a dev server URL in the flagship auth frame, a visually broken slider in the Settings frame, a clipped expanded sheet, cross-surface clock/code/size drift (41:14 vs 41:12, WNWHA3 vs VMJYBU, 2.2 MB vs 2.48 MB), and "Prey never see the map" — which the app (and the sprint's own prey-view capture S08) contradicts. The new social pack is still landing (only 7 test stills exist) and the committed site QA captures are a release behind the live site. None of these are design-direction problems; they are a focused cleanup + a small reshoot before the sprint can be called complete.
 
 ---
@@ -119,3 +121,76 @@ Committed captures in `design/site-redesign/shots/final/` show **v0.15.1 / 2.1 M
 ## Verdict
 
 **NEEDS ANOTHER PASS — narrow and mechanical, not a redesign.** The MATCHDAY direction itself clears the bar: app screens, site, README and social previews now look like one premium product with a distinct voice (condensed boards, mono data, cyan field, honest sideload story), and the hard, unsexy parts — real device capture, deterministic data, checksummed manifest, served site with correct headers, verified APK hash, pushed README — are done properly. What keeps this from being a final matchday set is execution hygiene at the edges: one banned dev URL, one broken control, one clipped frame, a handful of numbers that disagree between surfaces, a product claim that is simply false, a social pack still rendering, and site evidence one release old. Fix B1–B8 (plus B4's asset regeneration), re-shoot S01/S14/S10 (and ideally S06 alignment + S12 full result), refresh the site evidence set at v0.16.0, land and QA the social reel, then this audit flips to **meets the bar**. I would not hand the current captures/site to a press or partner reviewer yet; I would happily hand them over after that pass.
+
+---
+
+# Re-audit — 2026-11-02 (post-cleanup, task-60)
+
+Second pass after the cleanup sprint (app v0.16.1, commits `08b2ff0` → `83bd4e0`, master pushed). Same method as the first pass; every claim below was re-checked on the current tree, the live server, GitHub, and the regenerated artefact set.
+
+## Verdict (re-audit)
+
+**App captures, live site, GitHub README, brand assets: MEETS THE BAR.**
+**Whole sprint: NEEDS ANOTHER PASS — but this time it is one small, well-defined surface: the new social pack has two visible composition defects, and one APK-size fact still disagrees between README and site.** No previously reported blocker survives on the app/site/GitHub surfaces. If the social pack is held from publication pending owner copy approval (its own COPY-STATUS says it must be), the app/site/README sprint deliverables are signable now.
+
+## B1–B8 status (re-verified)
+
+| Blocker | Status | Evidence |
+|---|---|---|
+| B1 dev URL in S01 | **RESOLVED (by removal)** | `s01-auth.png` gone from `docs/screenshots/premium/`; `MANIFEST.json` `rejected[]` lists it with the exact reason ("manhunt.lvh.me … removed, not substituted"); the only remaining mention of the host in owned docs is that honest rejection note. No re-shot auth frame. |
+| B2 broken settings slider | **RESOLVED in code; frame removed** | v0.16.1 commit `08b2ff0` adds `ui/BoardInputs.kt` `BoardScaleSlider` (single track / one thumb) + `BoardScaleSliderTest.kt`; `SettingsScreen.kt` switched to it; CHANGELOG 0.16.1: "one coherent MATCHDAY slider (single track, one thumb…)". `s14-settings.png` removed, not replaced. |
+| B3 clipped expanded sheet | **RESOLVED in code; frame removed** | `08b2ff0` adds the navigation-bar inset to the expanded hunt sheet (`RoomScreen.kt`, `navigationBarsPadding()` inside the scroll) + CHANGELOG entry; `s10-hunt-sheet.png` removed. |
+| B4 cross-surface facts | **MOSTLY RESOLVED — one residual** | README no longer contains `41:14`, `WNWHA3` or `2.2 MB`; README now reads 41:12 (`README.md:3,58`), VMJYBU (`:58`), "about 2.4 MB" (`:100`). Hero asset regenerated: `docs/brand/matchday-hero-1280x560.png` now shows board **HUNTING 41:12** (verified visually; file hash changed). Live site: 41:12 ×3, VMJYBU, no 41:14. **Residual:** live site + refreshed site evidence print **2.3 MB** (actual APK 2,460,570 B = 2.35 MiB) while README says "about 2.4 MB" → pick one rounding. |
+| B5 false "Prey never see the map" | **RESOLVED** | README now: "Prey see the field, the zone and their own position, never another player's" (`README.md:21`); live site field deck: "Prey see the field and their own position — never another player's."; FAQ: "Prey never see another player's position." Zero occurrences of "never see the map" across README/docs/site. |
+| B6 social pack not landed | **PARTIALLY RESOLVED — landed but not clean** | `design/social/matchday/out/` now contains 15s/30s MP4+WebM, 6s GIF, reel frames, poster, cover, 5-carousel, story (9:16 + end card), 1:1 feed + result feed, QA frames (`out/qa/`), audio scores, contact sheet, `COPY-STATUS.txt`. Real premium captures, OSM credit on map frames, HUNTING/CAPTURED MATCH wording present, no fake claims. **Two visible composition defects remain** (R1/R2) and copy is explicitly "PROVISIONAL — owner approval pending; do not publish". |
+| B7 site QA evidence stale | **RESOLVED** | `design/site-redesign/shots/final/report.json` regenerated 2026-11-02T05:38:49Z; refreshed `mobile-390-viewport.png` shows **v0.16.1 / 2.3 MB** matching live; `report.json` now reports `horizontalOverflow:false`, `blankImages:0`, `smallImages:0` for desktop/tablet/mobile (the previous tablet 3 px text overflow and mobile decorative-SVG flags are gone). Live site itself: v0.16.1, `Content-Type: text/html; charset=utf-8`, CSP / X-Frame-Options / Referrer-Policy intact. |
+| B8 S13 result / MANIFEST contradiction | **RESOLVED** | `MANIFEST.json` now: S13 "Prey win, full time with both Prey alive — honest 2/2 score (no fabricated survivor count)", `dataGaps` notes the earlier "one prey survived" phrasing was wrong and removed. Consistent with the captured screen. |
+
+## What was re-verified as clean
+
+- **Premium set integrity:** 11 captured frames + 7 harvest crops; all SHA-256s re-computed → 0 mismatches. Contact sheet regenerated, shows only the 11 clean frames. `rejected[]` (3 frames with reasons) and `pending[]` (5 frames) are honest; no old-UI substitution. No dev URL, clipped sheet or broken slider remains in the published set.
+- **README/GitHub:** local README blob (`git hash-object`) equals the GitHub contents API blob for `master`; remote `master` = local HEAD `83bd4e0`; latest release `v0.16.1` ships `manhunt-v0.16.1.apk` (2,460,570 B) + `.sha256`. README references only surviving frames (`s03, s05, s07, s12, s08, s09, s11, s15`); removed frames are unreferenced. Alt text now uses canonical 41:12/VMJYBU.
+- **Live site / APK:** v0.16.1, versionCode 44, 2,460,570 B; `/app.apk` downloaded and SHA-256 re-computed = `0596bee7…b56e114de`, exactly the API/page claim. No old slogan, placeholders, dev URLs or mojibake in served HTML.
+- **App v0.16.1:** `versionName 0.16.1` / `versionCode 44`; slider + hunt-sheet inset fixes and their JVM test committed; CHANGELOG entries present. (No new device captures of Settings — the screen is absent from the premium set rather than shown fixed.)
+
+## Remaining issues in the re-audit
+
+**Still blockers (narrow — social publication only)**
+- **R1 — `design/social/matchday/out/manhunt_matchday_carousel-5-end.png`:** the cyan "Install free for Android" button is laid on top of the MANHUNT wordmark — the lower third of the logotype is visibly occluded; the card reads as a z-order/layout collision.
+- **R2 — `design/social/matchday/out/manhunt_matchday_feed-1x1-result.png`:** the result content is duplicated — outer board "HUNTERS WIN. / PREY REMAINING 0 / 2 · CAPTURED MATCH", then a framed inner app capture repeating "Hunters win. / Prey remaining: 0 / 2", cropped mid-radar (only a thin arc of the plate is visible). It reads as a double scoreboard with a bad crop; re-crop the result capture (or drop the inner window) so the card has one clear statement.
+- **R3 (nit) — APK size:** README "about 2.4 MB" vs site/evidence "2.3 MB" (actual 2,460,570 B). Align README to the site formatter or drop the hard number.
+
+**Polish (previously reported; still visible in the 11 surviving frames — frames are unchanged)**
+- **R4 — Status bar shows 3G** on all remaining premium frames while shotlist §0 rule 3 requires "Wi-Fi only, full"; `MANIFEST.statusBar` still documents "clean cellular signal". Re-capture with the demo Wi-Fi state or amend the spec/manifest so the set is internally truthful.
+- **R5 — Clock contradiction in-frame:** masthead live clock 21:05/21:10 vs frozen status-bar 21:04 (visible in S03/S04/S15); hurts the set's own "time progresses plausibly" bar.
+- **R6 — S06 team-selector plates still vertically misaligned** (2 Prey vs 3 Hunters columns) with dead space under the Prey column.
+- **R7 — Hero-map clarity:** no marker legend (coral fresh / white stale) on S07, site hero or social map frames — only alt text explains it.
+- **R8 — Design-system drift inside frames:** hunt dock/sheet pills ("Tag prey", "Hide trails", "View hunt history") vs rectangular Board buttons elsewhere; S07 rounded sheet vs S08/S09 square sheets. S11 still top-anchored (~28 % void); S12/S13 results still lack the spec's final team sheets/honest summary/trail plate.
+- **R9 — Coverage gap after rejection:** premium set no longer evidences Auth (first screen), expanded hunt sheet, or Settings. v0.16.1 makes S14 re-shootable, and S01 needs only a collapsed/public server row — worth re-capturing if the set is used as a press kit; MANIFEST is honest about the omission either way.
+- **R10 — GitHub custom social preview still unset:** `og:image` is GitHub's generated `opengraph.githubassets.com` card, not `docs/brand/github-social-matchday-1280x640.png` (repo-settings upload only; can't be fixed in a commit).
+- **R11 — `docs/brand/README.md` still mixes v1 assets** (`readme-hero.gif`, old `github-social-1280x640.png`, old identity/banner contact sheets) with MATCHDAY v2 without a legacy marker; copy still labelled "provisional pending final sign-off". The site footer links to this page.
+- **R12 — site mobile nit:** hero meta still wraps with a leading separator ("… Android 8.0+ / | Not on Play Store"); homepage stat "9 accounts started" is honest but weak social proof for launch.
+
+## Re-audit surface scores
+
+| Surface | Before | Now | Note |
+|---|---|---|---|
+| Premium app captures | 3/5 | **4/5** | Clean contracted set, honest manifest, hashes verify; loses a point for residual spec deviations (3G/clock) and lost auth/settings coverage. |
+| Live game site | 4/5 | **5/5** | v0.16.1, accurate copy, current evidence, verified APK SHA, good headers; only mobile-meta nits remain. |
+| GitHub README / repo | 3/5 | **4/5** | Canonical facts fixed, synced with GitHub, assets resolve, release v0.16.1; untouched OG card + size nit. |
+| Brand assets | 3/5 | **4/5** | Hero rebuilt to 41:12, map band and tags intact; legacy v1 assets still mixed into `docs/brand/README.md`. |
+| Social MATCHDAY pack | 2/5 (not landed) | **3/5** | Now landed, full format set, on-brand, real captures, no fake claims — but two visible composition defects and provisional copy block publication. |
+| Spec vs captures | 3/5 | **3/5** | Rejections handled honestly; residual 3G/clock/S12-scope deviations persist in unchanged frames. |
+| Cross-surface coherence | 3/5 | **4/5** | 41:12 / VMJYBU / visibility copy now agree everywhere; only APK size rounding disagrees. |
+| Honesty & trust | 3/5 | **5/5** | Rejected frames documented with reasons, S13 corrected, site/FAQ/README accurate, provisional social copy disclosed, SHA verified. |
+
+**Weighted overall: 4/5 — the redesign now reads as premium and coherent across app, site, GitHub and brand. One publishable surface (the social pack) still has two visible composition bugs and one copy number (APK size) needs to agree; after those, this sprint is done.**
+
+## Exact re-audit evidence (re-runnable)
+
+- Premium: `docs/screenshots/premium/{MANIFEST.json,contact-sheet.png,s03,s04,s05,s06,s07,s08,s09,s11,s12,s13,s15}`; all SHA-256s re-computed 2026-11-02 (~06:15Z) → 11/11 images + 7/7 crops OK.
+- Live: `http://74.208.99.178/` fetched 06:15Z — v0.16.1 ×3, 41:12 ×3, 0× 41:14/dev URL; `/api/app/latest` v0.16.1 code 44; `/app.apk` 2,460,570 B SHA-256 `0596bee7b6ac110db823c68b365483f21b06c82f9fd6ce62b974219b56e114de` matches page claim.
+- GitHub: `git ls-remote origin master` = local HEAD `83bd4e0`; contents API README blob `b755e055…` = local `git hash-object README.md`; release `v0.16.1` assets = APK + sha256.
+- Site evidence: `design/site-redesign/shots/final/report.json` generatedAt `2026-11-02T05:38:49Z`, desktop/tablet/mobile all `overflow:false / blanks:0 / small:0`; refreshed `mobile-390-viewport.png` shows v0.16.1 · 2.3 MB.
+- App fixes: `git show 08b2ff0` (`BoardInputs.kt`, `BoardScaleSliderTest.kt`, `RoomScreen.kt` navigationBarsPadding, `SettingsScreen.kt`); CHANGELOG `[0.16.1]`.
+- Social: `design/social/matchday/out/` (reels/carousel/story/feed/QA/contact sheet/`COPY-STATUS.txt`), reviewed contact sheet + cover, carousel 04-hunt and 05-end, feed result, reel30 frame.

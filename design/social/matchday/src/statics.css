@@ -1,4 +1,4 @@
-﻿/* ManHunt MATCHDAY static pack — flat fills, hairlines, no gradients, no shadows. */
+/* ManHunt MATCHDAY static pack — flat fills, hairlines, no gradients, no shadows. */
 @font-face{font-family:"Big Shoulders";src:url("../assets/fonts/BigShoulders-Bold.ttf") format("truetype");font-weight:700;font-display:block}
 @font-face{font-family:"Instrument Sans";src:url("../assets/fonts/InstrumentSans-Regular.ttf") format("truetype");font-weight:400;font-display:block}
 @font-face{font-family:"Instrument Sans";src:url("../assets/fonts/InstrumentSans-Bold.ttf") format("truetype");font-weight:700;font-display:block}
@@ -47,10 +47,10 @@ body{font-family:"Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:a
 .flowrule{position:absolute;left:64px;top:536px;width:952px}
 .mappanel{left:64px;top:588px;width:952px;height:300px}
 #f1map{object-position:50% 63%}
-.resultline{position:absolute;left:64px;top:222px;font-size:180px;line-height:.86}
-#l-feed1x1b .sub{left:64px;top:424px}
-.resultpanel{left:64px;top:504px;width:952px;height:380px}
-#f2result{object-position:50% 26%}
+.resultline{position:absolute;left:64px;top:214px;font-size:176px;line-height:.86}
+#l-feed1x1b .sub{left:64px;top:404px}
+.boardpanel{left:64px;top:478px;width:952px;height:330px}
+#f2board{object-position:50% 6%}
 
 /* 4:5 portrait */
 #l-portrait4x5{width:1080px;height:1350px}
@@ -105,12 +105,12 @@ body{font-family:"Instrument Sans",system-ui,sans-serif;-webkit-font-smoothing:a
 .cchip{position:absolute;left:64px;top:640px;height:78px;width:952px;display:flex;align-items:center;gap:24px;padding:0 28px;background:var(--field);border-bottom:1px solid var(--hairline)}
 .cchip .display{font-size:46px}
 .cchip .mono{font-size:18px}
-#l-carousel .ctabig{top:802px;bottom:auto}
-#l-carousel .url{top:936px;bottom:auto;font-size:36px}
-#l-carousel .micro{top:996px;bottom:auto;font-size:19px;left:64px}
-#l-carousel .trust{top:1052px;bottom:auto;font-size:25px;left:64px}
+#l-carousel .ctabig{top:790px;bottom:auto}
+#l-carousel .url{top:934px;bottom:auto;font-size:36px}
+#l-carousel .micro{top:994px;bottom:auto;font-size:19px;left:64px}
+#l-carousel .trust{top:1050px;bottom:auto;font-size:25px;left:64px}
 #l-carousel .rule.bottom{bottom:56px}
-.c-endlock{width:360px;left:50%;top:624px;transform:translateX(-50%)}
+.c-endlock{width:330px;left:50%;top:512px;transform:translateX(-50%)}
 
 /* cover */
 #l-cover{width:1080px;height:1920px}

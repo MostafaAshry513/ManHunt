@@ -1,6 +1,6 @@
 # GitHub landing page v2 — verification (final)
 
-Generated 2026-11-02T05:40:02.720Z · Node v24.22.1 · 65/65 checks pass, 0 fail, 0 pending.
+Generated 2026-11-02T06:16:28.079Z · Node v24.22.1 · 65/65 checks pass, 0 fail, 0 pending.
 
 **Result: all implemented checks pass**
 
@@ -53,7 +53,7 @@ Generated 2026-11-02T05:40:02.720Z · Node v24.22.1 · 65/65 checks pass, 0 fail
 | PASS | README.md: no placeholder strings |  |
 | PASS | README.md: canonical clock 41:12 |  |
 | PASS | README.md: canonical lobby code VMJYBU |  |
-| PASS | README.md: canonical APK size 2.4 MB |  |
+| PASS | README.md: canonical APK size 2.3 MB |  |
 | PASS | README.md: accurate Prey visibility claim |  |
 | PASS | README.md: rejected premium frames not referenced |  |
 | PASS | README.md: uses only premium app captures (no old CI screenshot set) |  |
