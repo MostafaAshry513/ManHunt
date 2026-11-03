@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -238,8 +239,8 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
         Box(
             Modifier
                 .size(32.dp)
-                .background(color.copy(alpha = 0.16f), BoardShape.plate)
-                .border(1.dp, color, BoardShape.plate),
+                .background(color.copy(alpha = 0.16f), RoundedCornerShape(5.dp))
+                .border(1.dp, color, RoundedCornerShape(5.dp)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
