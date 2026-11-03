@@ -252,40 +252,38 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
         }
         Spacer(Modifier.width(BoardSpace.s4))
         Column(Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    displayName,
-                    style = ManHuntType.title().copy(
-                        fontFamily = FontFamily.SansSerif,
-                        fontSize = 17.sp,
-                        lineHeight = 21.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                if (member.isAdmin) {
-                    Spacer(Modifier.width(BoardSpace.s2))
-                    Text("HOST", style = ManHuntType.dataSmall(), color = BoardTheme.muted(), maxLines = 1)
-                }
-                if (isMe) {
-                    Spacer(Modifier.width(BoardSpace.s2))
-                    Text("YOU", style = ManHuntType.dataSmall(), color = color, maxLines = 1)
-                }
-            }
             Text(
-                t(
-                    when {
-                        member.eliminated -> "Tagged"
-                        !member.connected -> "Offline"
-                        member.ready -> "Ready"
-                        else -> "Gearing up"
-                    },
+                displayName,
+                style = ManHuntType.title().copy(
+                    fontFamily = FontFamily.SansSerif,
+                    fontSize = 17.sp,
+                    lineHeight = 21.sp,
+                    fontWeight = FontWeight.SemiBold,
                 ),
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            val status = t(
+                when {
+                    member.eliminated -> "Tagged"
+                    !member.connected -> "Offline"
+                    member.ready -> "Ready"
+                    else -> "Gearing up"
+                },
+            )
+            val tags = buildList {
+                add(status)
+                if (member.isAdmin) add("HOST")
+                if (isMe) add("YOU")
+            }.joinToString(" · ")
+            Text(
+                tags,
                 style = ManHuntType.dataSmall(),
                 color = BoardTheme.muted(),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
         if (member.ready) {
