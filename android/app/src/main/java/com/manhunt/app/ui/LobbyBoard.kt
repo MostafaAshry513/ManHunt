@@ -139,7 +139,7 @@ fun TeamSheet(
     val prey = state.members.filter { it.team == Teams.PREY }
     val hunters = state.members.filter { it.team == Teams.HUNTERS }
     BoxWithConstraints(modifier.fillMaxWidth()) {
-        val stacked = maxWidth < 340.dp
+        val stacked = maxWidth < 300.dp
         if (stacked) {
             Column(verticalArrangement = Arrangement.spacedBy(BoardSpace.s6)) {
                 TeamColumn(Teams.PREY, prey, me, busy, onSetTeam)
@@ -239,8 +239,8 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
         Box(
             Modifier
                 .size(32.dp)
-                .background(color.copy(alpha = 0.16f), RoundedCornerShape(5.dp))
-                .border(1.dp, color, RoundedCornerShape(5.dp)),
+                .background(color.copy(alpha = 0.16f), RoundedCornerShape(2.dp))
+                .border(1.dp, color, RoundedCornerShape(2.dp)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -274,18 +274,24 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
                     else -> "Gearing up"
                 },
             )
-            val tags = buildList {
-                add(status)
-                if (member.isAdmin) add("HOST")
-                if (isMe) add("YOU")
-            }.joinToString(" · ")
             Text(
-                tags,
+                status,
                 style = ManHuntType.dataSmall(),
                 color = BoardTheme.muted(),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
+            val badges = buildList {
+                if (member.isAdmin) add("HOST")
+                if (isMe) add("YOU")
+            }.joinToString(" · ")
+            if (badges.isNotEmpty()) {
+                Text(
+                    badges,
+                    style = ManHuntType.dataSmall(),
+                    color = if (isMe) color else BoardTheme.muted(),
+                    maxLines = 1,
+                )
+            }
         }
         if (member.ready) {
             androidx.compose.material3.Icon(
@@ -338,7 +344,7 @@ fun LobbyDock(
     val blockers = startBlockers(state)
     val ready = me?.ready == true
     val status: String? = when {
-        isAdmin -> blockers.joinToString(" Â· ").ifBlank { null }
+        isAdmin -> blockers.joinToString(" · ").ifBlank { null }
         ready -> t("Ready to hunt")
         else -> null
     }

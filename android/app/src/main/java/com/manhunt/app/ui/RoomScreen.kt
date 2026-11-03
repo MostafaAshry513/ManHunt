@@ -1178,7 +1178,7 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
 
     }
 
-    Surface(Modifier.fillMaxSize()) {
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(Modifier.fillMaxSize()) {
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = BoardSpace.screen),
@@ -1655,7 +1655,7 @@ private fun PhaseCard(
                 target = target,
                 offset = offset,
                 prefix = "${t("Hunting.")} ",
-                suffix = " Â· ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
+                suffix = " · ${t("Prey remaining")} ${match?.preyAlive ?: 0}/${match?.preyTotal ?: 0}",
             )
             Phases.PAUSED -> Text(
                 t("The hunt is paused. The clock is stopped."),
@@ -1688,7 +1688,7 @@ private fun PhaseCard(
             // it sat below "Hunt rules", off the first screen (human review finding).
             if (blockers.isNotEmpty()) {
                 Text(
-                    "${t("Before you can start")}: ${blockers.joinToString(" Â· ")}",
+                    "${t("Before you can start")}: ${blockers.joinToString(" · ")}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth().testTag("start_blockers"),
@@ -2299,7 +2299,7 @@ private fun HuntStatusLines(
                 CountdownText(
                     target = nextShrink,
                     offset = offset,
-                    prefix = "${t("Zone")}: ${zone.radiusM.toInt()} ${t("m")} Â· ${t("Zone shrinks in")} ",
+                    prefix = "${t("Zone")}: ${zone.radiusM.toInt()} ${t("m")} · ${t("Zone shrinks in")} ",
                     style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
                     color = MaterialTheme.colorScheme.tertiary,
                 )

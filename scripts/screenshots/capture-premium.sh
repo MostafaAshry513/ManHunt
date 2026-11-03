@@ -240,9 +240,9 @@ start_presence() {
 # ---------------------------------------------------------------- device setup
 
 setup_display() {
-  log "setting up deterministic 1080x2400 @ 420 dpi"
+  log "setting up deterministic 1080x2400 @ 442 dpi (390 dp phone width)"
   "$ADB" shell wm size 1080x2400 || true
-  "$ADB" shell wm density 420 || true
+  "$ADB" shell wm density 442 || true
   "$ADB" shell settings put system font_scale 1.0 || true
   "$ADB" shell settings put system accelerometer_rotation 0 || true
   "$ADB" shell settings put system user_rotation 0 || true
