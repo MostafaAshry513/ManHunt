@@ -128,6 +128,8 @@ fail() {
 
 cleanup() {
   local status=$?
+  # Restore the system bars even on failure; the demo status bar is not needed for delivery.
+  "$ADB" shell settings put global policy_control "" >/dev/null 2>&1 || true
   [ -n "$GPS_PID" ] && kill "$GPS_PID" 2>/dev/null || true
   [ -n "$PRESENCE_PID" ] && kill "$PRESENCE_PID" 2>/dev/null || true
   [ -n "$SERVER_PID" ] && kill "$SERVER_PID" 2>/dev/null || true
@@ -265,6 +267,14 @@ setup_status_bar() {
   # full cellular signal instead (still a real, connected-looking status bar, no warning).
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command network -e wifi hide -e mobile show -e datatype 5g -e level 4 >/dev/null 2>&1 || true
   "$ADB" shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false >/dev/null 2>&1 || true
+}
+
+hide_status_bar_for_delivery() {
+  # Clean page captures: hide the OS status bar entirely while the app keeps its edge-to-edge
+  # layout. This is applied after the demo status bar is configured; cleanup resets it.
+  log "hiding status bar for delivery captures (immersive.status)"
+  "$ADB" shell settings put global policy_control "immersive.status=com.manhunt.app" || true
+  "$ADB" shell settings put global policy_control "immersive.status=*" || true
 }
 
 setup_timezone() {
@@ -1148,6 +1158,7 @@ main() {
   setup_timezone
   setup_device_clock
   setup_status_bar
+  hide_status_bar_for_delivery
   "$ADB" logcat -c >/dev/null 2>&1 || true
 
   launch_app

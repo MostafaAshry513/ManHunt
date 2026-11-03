@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.manhunt.app.data.MemberDto
@@ -218,6 +220,8 @@ private fun TeamColumn(
 private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
     val color = teamColor(team)
     val isMe = member.userId == me?.userId
+    val displayName = member.username.trim().ifBlank { "Player" }
+    val initial = firstGrapheme(displayName)
     val rowModifier = if (isMe) {
         Modifier
             .fillMaxWidth()
@@ -239,19 +243,23 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                member.username.firstOrNull()?.uppercase() ?: "?",
-                style = ManHuntType.label(),
+                initial,
+                style = ManHuntType.label().copy(fontFamily = FontFamily.SansSerif),
                 color = color,
+                maxLines = 1,
+                overflow = TextOverflow.Clip,
             )
         }
         Spacer(Modifier.width(BoardSpace.s4))
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    member.username,
-                    style = ManHuntType.title(),
+                    displayName,
+                    style = ManHuntType.title().copy(fontFamily = FontFamily.SansSerif),
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 if (member.isAdmin) {
                     Spacer(Modifier.width(BoardSpace.s3))
@@ -283,6 +291,29 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
                 tint = BoardColors.chalk,
             )
         }
+    }
+}
+
+/**
+ * First user-perceived character, safe for emoji, combining marks and scripts the bundled
+ * display face has no glyphs for. A plain `firstOrNull()` splits surrogate pairs and can
+ * render a tofu box on a normal Android device.
+ */
+private fun firstGrapheme(text: String): String {
+    val value = text.trim()
+    if (value.isEmpty()) return "?"
+    return try {
+        val iterator = java.text.BreakIterator.getCharacterInstance(java.util.Locale.ROOT)
+        iterator.setText(value)
+        val start = iterator.first()
+        val end = iterator.next()
+        if (start == java.text.BreakIterator.DONE || end == java.text.BreakIterator.DONE || end <= start) {
+            value.substring(0, 1)
+        } else {
+            value.substring(start, end)
+        }.uppercase(java.util.Locale.ROOT)
+    } catch (_: Exception) {
+        value.substring(0, 1).uppercase(java.util.Locale.ROOT)
     }
 }
 

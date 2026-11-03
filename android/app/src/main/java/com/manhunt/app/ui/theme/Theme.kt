@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui.theme
+package com.manhunt.app.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -250,13 +250,13 @@ private val ArabicTypography = Typography(
     labelSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 12.sp, lineHeight = 18.sp),
 )
 
-/** Plates are 2 dp; pills and 20-28 dp default card radii are banned by the redesign. */
+/** Classic dashboard radii: soft cards, visible rounded plates, no matchday sharp corners. */
 private val ManHuntShapes = Shapes(
-    extraSmall = RoundedCornerShape(2.dp),
-    small = RoundedCornerShape(2.dp),
-    medium = RoundedCornerShape(2.dp),
-    large = RoundedCornerShape(2.dp),
-    extraLarge = RoundedCornerShape(2.dp),
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(20.dp),
+    extraLarge = RoundedCornerShape(28.dp),
 )
 
 @Composable

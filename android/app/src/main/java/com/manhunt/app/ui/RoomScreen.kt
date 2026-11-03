@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import android.Manifest
 import android.content.ClipData
@@ -1415,12 +1415,21 @@ fun RoomScreen(roomId: String, onBack: () -> Unit) {
                     item(key = "phase") { matchCard() }
                 } else {
                     item(key = "team_sheets") {
-                        TeamSheet(
-                            state = state,
-                            me = me,
-                            busy = ui.busy,
-                            onSetTeam = vm::setTeam,
-                        )
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Column(Modifier.padding(16.dp)) {
+                                TeamSheet(
+                                    state = state,
+                                    me = me,
+                                    busy = ui.busy,
+                                    onSetTeam = vm::setTeam,
+                                )
+                            }
+                        }
                     }
                     if (me?.isAdmin == true) {
                         item(key = "rules_action") {
