@@ -1,12 +1,12 @@
 {
-  "description": "Harvest crops for README/site/OG, cut from the captured full frames (never re-rendered). Rectangles re-checked against the MATCHDAY 1080x2400 layout after the Phase 2/3 capture run; fetch-premium.ps1 validates bounds and aspect ratio and records crop provenance in MANIFEST.json.",
+  "description": "Harvest crops for README/site/OG, cut from the captured full frames (never re-rendered). Rectangles re-checked against the restored CLASSIC DASHBOARD layout: 1080 x 2304 delivery frames (96 px OS status bar cropped after verification). fetch-premium.ps1 validates bounds and aspect ratio and records crop provenance in MANIFEST.json.",
   "crops": [
     {
       "name": "map-hero-16x9",
       "source": "s07-hunt.png",
       "aspect": "16:9",
       "x": 0,
-      "y": 710,
+      "y": 600,
       "width": 1080,
       "height": 608,
       "note": "Live map band: zone ring, fresh + stale prey markers, trail (site hero, shotlist S07)"
@@ -16,7 +16,7 @@
       "source": "s07-hunt.png",
       "aspect": "3:2",
       "x": 0,
-      "y": 700,
+      "y": 520,
       "width": 1080,
       "height": 720,
       "note": "3:2 landscape map band alternative for site-redesigner"
@@ -26,7 +26,7 @@
       "source": "s07-hunt.png",
       "aspect": "4:5",
       "x": 0,
-      "y": 395,
+      "y": 200,
       "width": 1080,
       "height": 1350,
       "note": "Board clock 41:12 + LIVE tag + map top - signature social crop (shotlist S07)"
@@ -36,7 +36,7 @@
       "source": "s05-lobby-host.png",
       "aspect": "1:1",
       "x": 0,
-      "y": 250,
+      "y": 80,
       "width": 1080,
       "height": 1080,
       "note": "Room title + real invite code plate + readiness (social crop, shotlist S05)"
@@ -46,17 +46,17 @@
       "source": "s05-lobby-host.png",
       "aspect": "4:5",
       "x": 0,
-      "y": 600,
+      "y": 540,
       "width": 1080,
       "height": 1350,
-      "note": "Prey/Hunters team sheets + readiness checks (social crop, shotlist S05)"
+      "note": "Two-sided Prey/Hunters team sheets + readiness checks (social crop, shotlist S05)"
     },
     {
       "name": "result-score-4x5",
       "source": "s12-result-hunters.png",
       "aspect": "4:5",
       "x": 0,
-      "y": 250,
+      "y": 0,
       "width": 1080,
       "height": 1350,
       "note": "FULL TIME board + 'Hunters win.' word + 0/2 prey remaining (shotlist S12)"
@@ -66,10 +66,10 @@
       "source": "s03-home.png",
       "aspect": "16:9",
       "x": 0,
-      "y": 96,
+      "y": 0,
       "width": 1080,
       "height": 608,
-      "note": "Masthead + Open Zone plate + permanent line - site band (shotlist S03)"
+      "note": "Classic dashboard masthead + hero plate + permanent line - site band (shotlist S03)"
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+    "reference":  "statusbar-1080x96.png",
+    "strip":  {
+                  "width":  1080,
+                  "height":  96
+              },
+    "sourceFile":  "docs/screenshots/premium/s03-home.png (previous MATCHDAY capture with visible demo status bar)",
+    "sourceSha256":  "0632f0f819849ba6546afd547d6e20b62bfc1cd24b74058bd33e4265cb79dbe0",
+    "stripSha256":  "6666a3cee0bc05a85980b06c08c0ecc99755277f742d6ad60056d7426675e603",
+    "purpose":  "Template for detecting whether a delivery capture still contains the system status bar (glyph mask from rows 48-78 of this strip).",
+    "generatedAt":  "2026-11-03T04:06:36Z"
+}

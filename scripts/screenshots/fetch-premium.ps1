@@ -1,4 +1,4 @@
-﻿#requires -Version 5.1
+#requires -Version 5.1
 <#
 .SYNOPSIS
   Downloads, verifies and installs the premium screenshot set captured by the
@@ -104,9 +104,9 @@ $alternates = @('s07-hunt-alt.png')
 # Frames rejected by visual review after capture: never installed, never substituted. They are
 # recorded in MANIFEST.json under `rejected` with the concrete defect so no surface uses them.
 $rejectedShots = [ordered]@{
-    's01-auth.png'         = 'Dev/infrastructure server host visible in frame (manhunt.lvh.me) and wrong signal state; removed, not substituted.'
-    's10-hunt-sheet.png'   = 'Expanded hunt sheet clipped at the frame bottom (roster/gesture bar cut); removed, not substituted.'
-    's14-settings.png'     = 'Text-size slider renders broken (detached thumb/rail), contradicting the spec; removed, not substituted.'
+    's01-auth.png'         = 'Still shows the dev/infrastructure server host (manhunt.lvh.me) in-frame on the restored theme; removed, not substituted.'
+    's10-hunt-sheet.png'   = 'Hunt sheet still clips the roster at the frame bottom on the restored theme; removed, not substituted.'
+    's14-settings.png'     = 'Text-size slider thumb does not match the 100% label (track/thumb mismatch) on the restored theme; removed, not substituted.'
 }
 
 # Installation order (fractional prefixes sort predictably on disk and in the contact sheet).
@@ -215,6 +215,11 @@ if ($meta -and $meta.pending) {
 }
 $dataGaps = @()
 if ($meta -and $meta.dataGaps) { $dataGaps = @($meta.dataGaps | ForEach-Object { "$_" }) }
+$statusBarCrop = 0
+if ($meta -and $meta.statusBarCrop) { $statusBarCrop = [int]$meta.statusBarCrop }
+if ($statusBarCrop -gt 0) {
+    $dataGaps += "No system status bar: immersive policy_control did not hide the OS bar on the emulator, so $statusBarCrop px were cropped from the top of every delivery frame and the top strip re-verified clean (scripts/screenshots/check-status-bar.ps1)."
+}
 
 function Test-IsPending([object]$spec) {
     $short = $spec.File.Substring(0, 3).ToLowerInvariant()
@@ -264,8 +269,10 @@ foreach ($spec in $expected) {
         $failures.Add("$($spec.File): not a valid PNG")
         continue
     }
-    if ($dimensions.Width -ne $spec.Width -or $dimensions.Height -ne $spec.Height) {
-        $failures.Add("$($spec.File): $($dimensions.Width)x$($dimensions.Height), expected $($spec.Width)x$($spec.Height)")
+    $expectedHeight = $spec.Height
+    if ($statusBarCrop -gt 0) { $expectedHeight = $spec.Height - $statusBarCrop }
+    if ($dimensions.Width -ne $spec.Width -or $dimensions.Height -ne $expectedHeight) {
+        $failures.Add("$($spec.File): $($dimensions.Width)x$($dimensions.Height), expected $($spec.Width)x$expectedHeight (statusBarCrop=$statusBarCrop)")
         continue
     }
     if ($bytes -lt $spec.MinBytes) {
@@ -439,15 +446,20 @@ $manifest = [ordered]@{
     source      = 'Real Android emulator capture of the ManHunt debug build (no mockups, no compositing)'
     workflow    = [ordered]@{
         name   = $workflowFile
-        runId  = if ($RunId) { $RunId } else { $null }
-        runUrl = if ($runInfo) { $runInfo.url } else { $null }
+        runId  = if ($RunId) { $RunId } elseif ($meta -and $meta.runId) { $meta.runId } else { $null }
+        runUrl = if ($runInfo) { $runInfo.url } elseif ($meta -and $meta.runUrl) { $meta.runUrl } else { $null }
+        branch = if ($meta -and $meta.branch) { $meta.branch } else { $null }
         commit = $commit
         repo   = $repository
     }
     device      = 'Android emulator, Pixel 6 profile (1080x2400 @ 420 dpi), Android 16 / API 36'
     theme       = 'Dark (Deep Teal night palette) except s15-home-light.png (light) and the RTL set'
     language    = 'English; s04-home-rtl.png and s16-lobby-rtl.png are Arabic RTL'
-    statusBar   = 'SystemUI demo mode: clock 21:04, battery 100% unplugged, clean cellular signal (no Wi-Fi warning badge), notifications hidden'
+    statusBar   = $(if ($statusBarCrop -gt 0) {
+        "No system status bar in the delivery set: the OS bar was visible, removed by cropping $statusBarCrop px from the top of every frame, and the top strip re-verified clean (the emulator ignored policy_control immersive.status under SystemUI demo mode)."
+    } else {
+        'SystemUI demo mode status bar hidden; no OS bar present (top strip verified clean)'
+    })
     timings     = [ordered]@{
         huntingStarted       = if ($meta -and $meta.timings) { $meta.timings.huntingStarted } else { '20:45:12' }
         remainingAtCapture   = if ($meta -and $meta.timings) { $meta.timings.remainingAtCapture } else { '41:12' }
@@ -469,7 +481,11 @@ $manifest = [ordered]@{
     images      = @()
     crops       = @()
     notes       = @(
-        'Full frames are 1080x2400 portrait PNGs (s07-hunt-wide.png, when the optional landscape capture is enabled, is 2400x1080).',
+        $(if ($statusBarCrop -gt 0) {
+            "Full frames are 1080 x $((2400 - $statusBarCrop)) portrait PNGs (s07-hunt-wide.png, when enabled, is 2400x1080); $statusBarCrop px were cropped from the top to remove the OS status bar - nothing below the system bar was edited."
+        } else {
+            'Full frames are 1080x2400 portrait PNGs (s07-hunt-wide.png, when enabled, is 2400x1080).'
+        }),
         'Harvest crops are cut from the captured full frames only (no stretching, no re-render); each crop records its source shot.',
         'The old CI/Robolectric captures in docs/screenshots/*.png are untouched for comparison.',
         'Hero shots for the site/GitHub page: s07-hunt.png (vertical) plus harvest/map-hero-16x9.png and harvest/map-hero-3x2.png ready-made site bands (cut from the captured full frame).',
@@ -572,7 +588,9 @@ function New-ContactSheet {
     $accentBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(34, 211, 238))
 
     $graphics.DrawString('MANHUNT  -  premium screenshots', $titleFont, $titleBrush, $gap, 20)
-    $graphics.DrawString('Riverside Run  |  real emulator capture  |  1080x2400 + 2400x1080 band  |  shotlist S01-S19', $subtitleFont, $mutedBrush, $gap, 58)
+    $deliveryHeight = 2400 - $statusBarCrop
+    $subtitle = "Riverside Run  |  real emulator capture  |  1080 x $deliveryHeight delivery frames (OS status bar removed)  |  shotlist S01-S19"
+    $graphics.DrawString($subtitle, $subtitleFont, $mutedBrush, $gap, 58)
 
     $y = $titleHeight
     foreach ($row in $rows) {
@@ -622,7 +640,7 @@ if ($crops.Count -gt 0) {
     $crops | Select-Object File, Width, Height, SourceShot | Format-Table -AutoSize
 }
 Write-Host 'Site/GitHub-ready shots:' -ForegroundColor Green
-Write-Host '  Map hero:          s07-hunt.png (1080x2400) + harvest/map-hero-16x9.png / map-hero-3x2.png'
+Write-Host ('  Map hero:          s07-hunt.png (1080 x {0}) + harvest/map-hero-16x9.png / map-hero-3x2.png' -f (2400 - $statusBarCrop))
 Write-Host '  README set:        s03-home, s05-lobby-host, s07-hunt, s12-result-hunters (+ harvest/home-line-16x9, harvest/result-score-4x5)'
 Write-Host '  Extras:            s04-home-rtl, s06-lobby-player, s08-hunt-claim, s09-tag-target-sheet,'
 Write-Host '                     s11-chat, s13-result-prey, s15-home-light, s16-lobby-rtl, s17-s19 states'
