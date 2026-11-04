@@ -9,8 +9,8 @@
 <style>
   .home-brandline { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 31px; letter-spacing: -0.01em; }
   .verb { font-family: var(--font-display); font-weight: 700; font-size: 76px; line-height: 68px; letter-spacing: -0.02em; }
-  .home-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; gap: 12px; }
-  .home-dock .btn { flex: 1 1 0; }
+  .home-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+  .home-dock .btn { width: 100%; min-width: 0; }
   .settings-entry { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; font-family: var(--font-ui); font-weight: 700; font-size: 14px; color: var(--chalk); }
   .host-block { border-top: 2px solid var(--cyan); }
 </style>
@@ -72,7 +72,7 @@
         <button class="inline inline--muted" style="border:0;min-height:48px" type="button">Sign out</button>
       </div>
     </div>
-    <div class="credit-line" style="padding-bottom:2px">v0.16.1 · free APK · Android 8+ · not on Play Store</div>
+    <div class="credit-line tight" style="padding-bottom:2px">v0.16.1 · free APK · Android 8+ · not on Play Store</div>
   </footer>
 
   <!-- the two verbs' actions sit together in the thumb zone -->

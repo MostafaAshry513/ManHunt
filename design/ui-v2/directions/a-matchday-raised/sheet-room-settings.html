@@ -16,6 +16,8 @@
   .rules-sheet .row { min-height: 40px; padding: 3px 0; }
   .rule-field { width: 62px; height: 34px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--a-raised); border: 1px solid var(--a-rule-strong); border-radius: 2px; font-family: var(--a-mono); font-size: 13px; color: var(--a-ink); }
   .rule-unit { font-family: var(--a-mono); font-size: 11px; line-height: 14px; color: var(--a-muted); width: 34px; flex: none; padding-inline-start: 6px; }
+  .row.num-row { display: grid; grid-template-columns: 1fr 62px 34px; column-gap: 12px; }
+  .row.sw-row { display: grid; grid-template-columns: 1fr 48px 34px; column-gap: 12px; }
   .sw { width: 40px; height: 22px; flex: none; border: 1px solid var(--a-rule-strong); border-radius: 2px; position: relative; }
   .sw i { position: absolute; top: 3px; inset-inline-start: 3px; width: 14px; height: 14px; background: var(--a-muted); display: block; }
   .sw.on { border-color: var(--a-cyan); }
@@ -180,9 +182,9 @@
     <div class="rules-body">
       <section class="section">
         <div class="section-h"><span class="ti">Timing</span><span class="ca">Minutes</span></div>
-        <div class="row"><span class="row-label">Prey head start</span><span class="rule-field">5</span><span class="rule-unit">min</span></div>
-        <div class="row"><span class="row-label">Hunt duration</span><span class="rule-field">60</span><span class="rule-unit">min</span></div>
-        <div class="row"><span class="row-label">Location report interval</span><span class="rule-field">5</span><span class="rule-unit">min</span></div>
+        <div class="row num-row"><span class="row-label">Prey head start</span><span class="rule-field">5</span><span class="rule-unit">min</span></div>
+        <div class="row num-row"><span class="row-label">Hunt duration</span><span class="rule-field">60</span><span class="rule-unit">min</span></div>
+        <div class="row num-row"><span class="row-label">Location report interval</span><span class="rule-field">5</span><span class="rule-unit">min</span></div>
       </section>
 
       <section class="section">
@@ -191,14 +193,14 @@
           <div class="seg-cell">Open</div>
           <div class="seg-cell on">Zone</div>
         </div>
-        <div class="row"><span class="row-label">Zone radius</span><span class="rule-field">240</span><span class="rule-unit">m</span></div>
+        <div class="row num-row"><span class="row-label">Zone radius</span><span class="rule-field">240</span><span class="rule-unit">m</span></div>
         <div class="row"><div class="p-main"><div class="row-label">Zone centre</div><div class="row-sub">Set on the map · 40.8008, -73.9720</div></div><span class="inline">Use my location</span></div>
-        <div class="row"><div class="p-main"><div class="row-label">Shrink over time</div><div class="row-sub">120 s · 25 m per step</div></div><span class="sw-hit"><span class="sw" role="switch" aria-checked="false"><i></i></span></span><span class="sw-label">Off</span></div>
+        <div class="row sw-row"><div class="p-main"><div class="row-label">Shrink over time</div><div class="row-sub">120 s · 25 m per step</div></div><span class="sw-hit"><span class="sw" role="switch" aria-checked="false"><i></i></span></span><span class="sw-label">Off</span></div>
       </section>
 
       <section class="section">
         <div class="section-h"><span class="ti">Visibility</span></div>
-        <div class="row"><span class="row-label">Hunters can see trails</span><span class="sw-hit"><span class="sw on" role="switch" aria-checked="true"><i></i></span></span><span class="sw-label" style="color:var(--a-ink)">On</span></div>
+        <div class="row sw-row"><span class="row-label">Hunters can see trails</span><span class="sw-hit"><span class="sw on" role="switch" aria-checked="true"><i></i></span></span><span class="sw-label" style="color:var(--a-ink)">On</span></div>
         <div class="tag-policy">
           <span class="row-label">Tags need the prey to confirm</span>
           <span class="ca">Server-enforced</span>
