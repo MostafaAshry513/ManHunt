@@ -887,14 +887,31 @@ ellipsizes without overlapping the tags or leaving the row.
 | `You were tagged. You are spectating this match. You can still chat, but you cannot tag or share new positions.` | state-eliminated | existing app string (verbatim, translated) |
 | `Change side`/`اختر جانبك`, `مستعد` etc. | lobby-rtl | existing strings; no middot separators |
 
-### 13.4 Post-review hygiene (verified after the pack was captured)
+### 13.4 Post-review hygiene + final residual polish (verified; pack refresh note)
 
-reviewer-visual's residual "3 CSS declarations at 10–11 px" is closed by source hygiene only: every remaining
-base declaration below 12 px in `assets/pages.css` / `assets/field.css` was raised to 12 px (they were already
-superseded by later round-2 rules, so the rendered output could not change). Re-rendered all 17 pages and
-byte-compared SHA-256 against the captured pack: **all 18 PNGs (17 pages + contact sheet) are byte-identical**,
-so the design-env pack and both reviewers' re-scores remain valid — no re-capture needed. CSS/runtime audit
-still reports 0 rendered text nodes < 12 px.
+**CSS hygiene (after the first pack capture).** reviewer-visual's residual "3 CSS declarations at 10–11 px"
+was closed at source: every base declaration below 12 px in `assets/pages.css` / `assets/field.css` is now
+12 px (they were already superseded by later round-2 rules, so nothing rendered could change). Re-rendered all
+17 pages and byte-compared: all captures were byte-identical → first pack + re-scores unaffected.
+
+**reviewer-ux round-2 residual polish (final source state).**
+1. `lobby-rtl` Arabic manifest names: the RTL row fix had left a 20 px line box under 16 px Arabic (content
+   22 px). `.manifest .who` in RTL is now `line-height: 24px`; DOM check reports
+   `scrollHeight == clientHeight == 24` for all five names (was 22 vs 20) — vertical clipping is structurally
+   impossible now, including longer names/diacritics/1.35× text. The rendered PNG is **byte-identical** to the
+   captured one (glyphs already painted inside the old box), so no scoring impact.
+2. Paper-note metadata contrast: `.paper` 12 px metadata was `#4A5568` = **6.75:1** on `#F2F3EE` (just under
+   the ≤12 px 7:1 rule). The match-record 12 px metadata (incl. `PLAYED OF 60:00`, the label/date line, the
+   footer line) is now `#2B3546` = **11.07:1** on the paper; computed-style verified in the browser. This is a
+   contrast-only change — no layout, hierarchy or copy change.
+
+**Render/pack state:** `result.png` and `sheet-tag-claim.png` change (contrast only);
+`lobby-rtl.png` is pixel-identical; all other 15 pages unchanged. New SHA-256:
+`result.png c8c41679e597faf293afaf1bea8e5b1b90ee02a4d09bffcba2f75aadc2fdf2fc`,
+`sheet-tag-claim.png f63620443ae18e0fbab35199e8fdecada4b4be4be70e6333b460f1bc837cc8e9`,
+`contact-sheet.png a761ae70f4f319da…` (2704×6128). design-env was asked to refresh those two captures + the C
+sheet in the frozen owner pack; the rest of the pack rows/strips remain valid. All 17 pages re-audited after
+the polish: 0 sub-12 rendered text, 0 sub-48 targets, 0 clipping, canvas exact.
 
 ### 13.5 Known weaknesses after round 2 (and what remains for the owner/final task)
 
