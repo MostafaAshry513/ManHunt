@@ -1,0 +1,7 @@
+# Toolchain state — large, machine-local, do not commit.
+node_modules/
+.browsers/
+
+# Generated review output (safe to delete and regenerate; render proofs are
+# intentionally not ignored so the Lead can include them in the review pack).
+out/_src/

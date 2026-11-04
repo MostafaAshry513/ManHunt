@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Env smoke test — ManHunt UI/UX v2</title>
+<link rel="stylesheet" href="../canvas.css">
+<style>
+  /* Smoke-test layout only. Designers write their own page CSS on top of canvas.css. */
+  .page { display: flex; flex-direction: column; padding: var(--mh-gutter); }
+  .topbar { display: flex; align-items: center; gap: 12px; }
+  .topbar .mark { width: 40px; height: 40px; flex: none; }
+  .brandline { display: flex; flex-direction: column; gap: 2px; }
+  .brandline .word { font-family: var(--mh-font-display); font-weight: 700; font-size: 28px; line-height: 0.9; letter-spacing: 0.02em; }
+  .brandline .tag { font-family: var(--mh-font-mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mh-cyan); }
+  .role { margin-left: auto; font-family: var(--mh-font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--mh-ink-mute); text-transform: uppercase; }
+
+  .rule { height: 1px; background: var(--mh-rule); margin: 20px 0; }
+
+  .eyebrow { font-family: var(--mh-font-mono); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mh-cyan); }
+  .headline { font-family: var(--mh-font-display); font-weight: 700; font-size: 92px; line-height: 0.86; text-transform: uppercase; letter-spacing: 0.005em; margin-top: 6px; }
+  .headline .coral { color: var(--mh-coral); }
+  .headline .violet { color: var(--mh-violet); }
+
+  .meta { display: flex; align-items: baseline; gap: 14px; margin-top: 14px; font-family: var(--mh-font-mono); font-size: 14px; font-variant-numeric: tabular-nums; color: var(--mh-ink-dim); }
+  .meta b { color: var(--mh-ink); font-weight: 700; }
+  .meta .dot { color: var(--mh-ink-mute); }
+
+  .body { font-size: 15px; line-height: 1.5; color: var(--mh-ink-dim); margin-top: 16px; max-width: 32ch; }
+  .body b { color: var(--mh-ink); font-weight: 700; }
+
+  .ladder { margin-top: auto; display: grid; gap: 8px; }
+  .ladder .row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .ladder .sample { display: flex; align-items: baseline; gap: 10px; }
+  .ladder .s-display { font-family: var(--mh-font-display); font-weight: 700; font-size: 34px; line-height: 1; text-transform: uppercase; }
+  .ladder .s-ui { font-family: var(--mh-font-ui); font-size: 15px; }
+  .ladder .s-ui-b { font-family: var(--mh-font-ui); font-weight: 700; font-size: 15px; }
+  .ladder .s-mono { font-family: var(--mh-font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .ladder .tag { font-family: var(--mh-font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mh-ink-mute); white-space: nowrap; }
+
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 16px; }
+  .swatch { height: 44px; border: 1px solid var(--mh-rule); display: flex; flex-direction: column; justify-content: flex-end; padding: 5px; }
+  .swatch .hex { font-family: var(--mh-font-mono); font-size: 9px; letter-spacing: 0.02em; color: var(--mh-ink); }
+  .swatch .name { font-family: var(--mh-font-mono); font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mh-ink-mute); }
+
+  .footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; font-family: var(--mh-font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mh-ink-mute); }
+  .footer .px { color: var(--mh-cyan); }
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <svg class="mark" viewBox="0 0 108 108" role="img" aria-label="ManHunt Open Zone mark">
+        <g transform="rotate(0 54 54)">
+          <path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4" stroke-linecap="butt"/>
+          <circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/>
+        </g>
+      </svg>
+      <div class="brandline">
+        <span class="word">ManHunt</span>
+        <span class="tag">Open Zone</span>
+      </div>
+      <span class="role">env · sample</span>
+    </header>
+
+    <div class="rule"></div>
+
+    <p class="eyebrow">Seed scenario · smoke test</p>
+    <h1 class="headline">River<span class="coral">side</span><br>Run <span class="violet">01</span></h1>
+
+    <div class="meta">
+      <span>code <b>K7M2QX</b></span>
+      <span class="dot">·</span>
+      <span>clock <b>41:12</b></span>
+      <span class="dot">·</span>
+      <span>zone <b>240 m</b></span>
+    </div>
+
+    <p class="body">Brand fonts, palette tokens and the page canvas load here. If this reads in <b>Big Shoulders</b>, <b>Instrument Sans</b> and <b>Red Hat Mono</b>, the environment is working.</p>
+
+    <section class="ladder" aria-label="Type ladder">
+      <div class="row"><span class="s-display">Full time</span><span class="tag">Big Shoulders Bold 700 · display</span></div>
+      <div class="row"><span class="s-ui">Quiet UI text that carries the instructions.</span><span class="tag">Instrument Sans 400 · body</span></div>
+      <div class="row"><span class="s-ui-b">Hunters closing in</span><span class="tag">Instrument Sans 700 · emphasis</span></div>
+      <div class="row"><span class="s-mono">034.9122 / 056.1071 · 09:48.2</span><span class="tag">Red Hat Mono · data</span></div>
+    </section>
+
+    <div class="swatches" aria-label="Palette roles">
+      <div class="swatch" style="background:#0B1220"><span class="name">field</span><span class="hex">0B1220</span></div>
+      <div class="swatch" style="background:#E6EDF7"><span class="name" style="color:#0B1220">chalk</span><span class="hex" style="color:#0B1220">E6EDF7</span></div>
+      <div class="swatch" style="background:#22D3EE"><span class="name" style="color:#04121A">signal</span><span class="hex" style="color:#04121A">22D3EE</span></div>
+      <div class="swatch" style="background:#FF7A59"><span class="name" style="color:#04121A">prey</span><span class="hex" style="color:#04121A">FF7A59</span></div>
+      <div class="swatch" style="background:#A79BFF"><span class="name" style="color:#04121A">hunters</span><span class="hex" style="color:#04121A">A79BFF</span></div>
+    </div>
+
+    <footer class="footer">
+      <span>env/out/sample.png · proof</span>
+      <span class="px">1170 × 2532 px</span>
+    </footer>
+  </main>
+</body>
+</html>

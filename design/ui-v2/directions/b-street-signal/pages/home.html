@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .home-brandline { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 31px; letter-spacing: -0.01em; }
+  .verb { font-family: var(--font-display); font-weight: 700; font-size: 76px; line-height: 68px; letter-spacing: -0.02em; }
+  .home-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; gap: 12px; }
+  .home-dock .btn { flex: 1 1 0; }
+  .settings-entry { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; font-family: var(--font-ui); font-weight: 700; font-size: 14px; color: var(--chalk); }
+  .host-block { border-top: 2px solid var(--cyan); }
+</style>
+</head>
+<body>
+<main class="page" style="padding-bottom:108px">
+
+  <header class="strip">
+    <img src="/design/brand/identity/final/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt" style="height:20px;width:auto">
+    <span class="gutter-right"></span>
+    <button class="settings-entry" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" class="stroke">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+        <path d="M8 3v6M16 9v6M11 15v6" stroke-width="2"/>
+      </svg>
+      Settings
+    </button>
+  </header>
+
+  <!-- identity, quieter than the two verbs -->
+  <section class="gutter" style="margin-top:10px">
+    <h1 class="home-brandline">Hide from your friends.</h1>
+    <p class="small muted" style="margin-top:6px">Real-world GPS hide-and-seek.</p>
+  </section>
+
+  <div style="height:26px"></div>
+
+  <!-- HOST: one of the two objects; its own field + its own action -->
+  <section class="block host-block">
+    <div class="verb">Host</div>
+    <div class="mt12">
+      <div class="field-label">Hunt name</div>
+      <div class="input"><span style="font-family:var(--font-ui);font-size:16px;color:var(--chalk)">Riverside Run</span></div>
+      <div class="help" style="margin-top:6px">Leave it blank and the room is called ManHunt.</div>
+    </div>
+  </section>
+
+  <!-- JOIN: the other object; the code is the input -->
+  <section class="block" style="border-top:1px solid var(--rule-mid);padding-top:18px">
+    <div class="verb">Join</div>
+    <div class="mt12">
+      <div class="field-label">Got an invite code?</div>
+      <div class="code-cells" style="margin-top:8px">
+        <span class="code-cell"></span><span class="code-cell"></span><span class="code-cell"></span>
+        <span class="code-cell"></span><span class="code-cell"></span><span class="code-cell"></span>
+      </div>
+      <div class="help" style="margin-top:8px">Enter the 6-character invite code the host sends you.</div>
+    </div>
+  </section>
+
+  <div class="flex1"></div>
+
+  <footer class="gutter" style="padding-bottom:4px">
+    <div class="rule"></div>
+    <div class="row spread" style="min-height:48px">
+      <span class="data" style="color:var(--muted)">PLAYING AS NADIA</span>
+      <div class="row gap16">
+        <button class="inline" style="border:0;min-height:48px" type="button">Read the roles</button>
+        <button class="inline inline--muted" style="border:0;min-height:48px" type="button">Sign out</button>
+      </div>
+    </div>
+    <div class="credit-line" style="padding-bottom:2px">v0.16.1 · FREE APK · ANDROID 8+ · NOT ON PLAY STORE</div>
+  </footer>
+
+  <!-- the two verbs' actions sit together in the thumb zone -->
+  <div class="home-dock">
+    <button class="btn btn--primary" type="button"><span class="btn-label">Create hunt</span></button>
+    <button class="btn btn--outline" type="button"><span class="btn-label">Join hunt</span></button>
+  </div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field log — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .chat-head { padding: 10px 24px; border-bottom: 1px solid var(--rule); }
+  .chat-head .title { font-size: 17px; line-height: 22px; }
+  .log { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+  .log-row { padding: 8px 24px; }
+  .log-row--own { background: rgba(230,237,247,.045); box-shadow: inset 2px 0 0 var(--chalk); }
+  [dir="rtl"] .log-row--own { box-shadow: inset -2px 0 0 var(--chalk); }
+  .log-row--own .log-body { text-align: start; }
+  .log-row--own .log-who { justify-content: flex-start; }
+  .log-text { font-size: 15px; line-height: 21px; }
+  .composer { display: flex; gap: 10px; align-items: center; padding: 10px 24px 24px; border-top: 1px solid var(--rule); }
+  .composer .input { flex: 1 1 auto; border: 1.5px solid var(--rule-strong); padding: 0 12px; height: 56px; }
+  .send { width: 56px; height: 56px; background: var(--cyan); color: var(--on-cyan); display: flex;
+          align-items: center; justify-content: center; flex: none; }
+  .log-older { padding: 8px 24px; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="col" style="padding:10px 24px 6px;gap:2px">
+    <div class="row" style="gap:8px">
+      <button class="icon-btn icon-btn--bare" type="button" aria-label="Back">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M15 4 7 12l8 8"/></svg>
+      </button>
+      <h1 class="title" style="font-size:17px">Field log</h1>
+      <span class="gutter-right row gap8">
+        <button class="inline" style="border:0;min-height:44px;font-size:11px;color:var(--dim)" type="button">Game</button>
+        <span class="tape tape--ink" style="height:22px;font-size:10px;padding:0 8px">Chat</span>
+      </span>
+    </div>
+    <span class="data" style="color:var(--muted);padding-inline-start:56px">Riverside Run · LIVE · 5 in room</span>
+  </header>
+
+  <div class="log-older">
+    <button class="inline" style="border:0;min-height:32px;font-size:12px" type="button">
+      <span class="data-l" style="color:var(--dim)">LOAD OLDER MESSAGES</span>
+    </button>
+  </div>
+
+  <section class="log">
+
+    <div class="sys-row"><span class="rule"></span><span class="txt">Hunt started · 20:41</span><span class="rule"></span></div>
+
+    <div class="log-row log-row--own">
+      <div class="log-time">20:44</div>
+      <div class="log-body">
+        <div class="log-who">
+          <span class="kit kit--prey" style="height:22px;font-size:11px;padding:0 7px">Nadia</span>
+          <span class="data-l">YOU</span>
+        </div>
+        <div class="log-text">I'm near the north gate. Heading for the river path.</div>
+      </div>
+    </div>
+
+    <div class="log-row">
+      <div class="log-time">20:45</div>
+      <div class="log-body">
+        <div class="log-who"><span class="kit kit--hunters" style="height:22px;font-size:11px;padding:0 7px">Omar</span><span class="data-l">HUNTERS</span></div>
+        <div class="log-text">Keep her talking. Selim is coming from the bridge.</div>
+      </div>
+    </div>
+
+    <div class="log-row">
+      <div class="log-time">20:46</div>
+      <div class="log-body">
+        <div class="log-who"><span class="kit kit--prey" style="height:22px;font-size:11px;padding:0 7px">Rana</span><span class="data-l">PREY</span></div>
+        <div class="log-text">Two of them on the east side. I'm doubling back.</div>
+      </div>
+    </div>
+
+    <div class="sys-row"><span class="rule"></span><span class="txt">Nadia's report went out · 20:48</span><span class="rule"></span></div>
+
+    <div class="log-row">
+      <div class="log-time">20:49</div>
+      <div class="log-body">
+        <div class="log-who"><span class="kit kit--hunters" style="height:22px;font-size:11px;padding:0 7px">Youssef</span><span class="data-l">HUNTERS</span></div>
+        <div class="log-text">I've got the south exit covered.</div>
+      </div>
+    </div>
+
+    <div class="log-row log-row--own">
+      <div class="log-time">20:50</div>
+      <div class="log-body">
+        <div class="log-who">
+          <span class="kit kit--prey" style="height:22px;font-size:11px;padding:0 7px">Nadia</span>
+          <span class="data-l">YOU</span>
+        </div>
+        <div class="log-text">They're closing in. Going quiet for a minute.</div>
+      </div>
+    </div>
+
+    <div class="log-row">
+      <div class="log-time">20:51</div>
+      <div class="log-body">
+        <div class="log-who"><span class="kit kit--hunters" style="height:22px;font-size:11px;padding:0 7px">Omar</span><span class="data-l">HUNTERS</span></div>
+        <div class="log-text">Claimed the tag by the gate. Waiting on the confirm.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="composer">
+    <div class="input" style="color:var(--chalk)">Heading for the bridge.</div>
+    <button class="send" type="button" aria-label="Send message">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M3 12h16"/><path d="M13 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+</main>
+</body>
+</html>

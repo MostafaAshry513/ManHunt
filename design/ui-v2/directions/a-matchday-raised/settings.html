@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt — Settings</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="_a.css">
+<style>
+  .header .title-block { display: flex; flex-direction: column; gap: 1px; flex: 1; padding-inline-start: 4px; }
+  .header .title-block .title { padding: 0; flex: none; }
+  .header .title-block .hsub { font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .05em; color: var(--a-muted); }
+  .set-body { padding: 4px 24px 0; overflow: hidden; }
+  .set-body .section { margin-top: 6px; }
+  .set-body .section:first-of-type { margin-top: 0; }
+  .set-body .section-h { padding-bottom: 5px; }
+  .set-body .row { min-height: 40px; padding: 4px 0; }
+  .theme-row, .lang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 42px; padding: 3px 0; border-bottom: 1px solid var(--a-rule); }
+  .seg.small { width: 148px; flex: none; }
+  .seg.small .seg-cell { min-height: 38px; font-size: 12px; }
+  .slider-row { padding: 4px 0 0; }
+  .slider-row .row-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .slider { height: 26px; margin-top: 2px; }
+  .slider .track { top: 12px; }
+  .slider .tick { top: 10px; }
+  .slider .thumb { top: 6px; }
+  .preview-line { font-family: var(--a-ui); font-size: 13px; line-height: 18px; color: var(--a-ink); }
+  .preview-line .ca { margin-top: 1px; }
+  .upd-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 4px 0 6px; }
+  .upd-head .name { font-family: var(--a-ui); font-weight: 700; font-size: 15px; line-height: 20px; color: var(--a-ink); }
+  .upd-head .meta { font-family: var(--a-mono); font-size: 11px; line-height: 15px; letter-spacing: .04em; color: var(--a-muted); }
+  .upd-note { font-family: var(--a-ui); font-size: 12px; line-height: 17px; color: var(--a-muted); padding: 7px 0 0; }
+  .set-body .btn.primary { min-height: 48px; }
+  .set-body .btn.destructive { min-height: 44px; }
+  .set-foot { padding: 8px 24px 14px; margin-top: auto; }
+  .set-foot p { font-family: var(--a-mono); font-size: 9.5px; line-height: 13px; letter-spacing: .03em; color: var(--a-muted); }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="header">
+    <button class="icon-btn start" type="button" aria-label="Back">
+      <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="title-block">
+      <div class="title">Settings</div>
+      <div class="hsub">v0.16.1 · free APK · Android 8+</div>
+    </div>
+  </header>
+
+  <div class="set-body grow">
+    <section class="section">
+      <div class="section-h"><span class="ti">Appearance</span><span class="ca">Applies immediately</span></div>
+      <div class="theme-row">
+        <span class="row-label">Theme</span>
+        <div class="seg small" role="radiogroup" aria-label="Theme">
+          <div class="seg-cell on">Dark</div>
+          <div class="seg-cell">Light</div>
+        </div>
+      </div>
+      <div class="slider-row">
+        <div class="row-head">
+          <span class="row-label">Text size</span>
+          <span class="row-value">1.0×</span>
+        </div>
+        <div class="slider" role="slider" aria-label="Text size" aria-valuenow="100" aria-valuemin="85" aria-valuemax="135">
+          <div class="track"></div>
+          <i class="tick" style="inset-inline-start:0"></i><i class="tick" style="inset-inline-start:12.5%"></i><i class="tick" style="inset-inline-start:25%"></i><i class="tick" style="inset-inline-start:37.5%"></i><i class="tick" style="inset-inline-start:50%"></i><i class="tick" style="inset-inline-start:62.5%"></i><i class="tick" style="inset-inline-start:75%"></i><i class="tick" style="inset-inline-start:87.5%"></i><i class="tick" style="inset-inline-start:100%"></i>
+          <div class="thumb" style="inset-inline-start:30%"></div>
+        </div>
+        <div class="preview-line">Hunters see prey positions every few minutes.</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-h"><span class="ti">Language</span><span class="ca">Mirrors the layout</span></div>
+      <div class="lang-row">
+        <span class="row-label">App language</span>
+        <div class="seg small" role="radiogroup" aria-label="Language">
+          <div class="seg-cell on">English</div>
+          <div class="seg-cell">العربية</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-h"><span class="ti">Permissions</span></div>
+      <div class="row">
+        <div class="p-main"><div class="row-label">Location</div><div class="row-sub">Required while you play as Prey in an active hunt.</div></div>
+        <span class="row-value" style="color:var(--a-ink)">Allowed</span>
+        <span class="inline">Manage</span>
+      </div>
+      <div class="row">
+        <div class="p-main"><div class="row-label">Notifications</div><div class="row-sub">Tag claims, start and end of the hunt.</div></div>
+        <span class="row-value" style="color:var(--a-ink)">On</span>
+        <span class="inline">Manage</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-h"><span class="ti">Updates</span><span class="ca">Installed v0.16.1</span></div>
+      <div class="upd-head">
+        <span class="name">Update available</span>
+        <span class="meta">v0.16.2 · 2.3 MB</span>
+      </div>
+      <button class="btn primary" type="button">Download update</button>
+      <p class="upd-note">Updates install over the app. Android confirms once.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-h"><span class="ti">Account</span><span class="ca">Signed in as Nadia</span></div>
+      <div class="row">
+        <div class="p-main"><div class="row-label">Server</div><div class="row-sub">Change on the sign-in screen.</div></div>
+        <span class="row-value">hosted test server</span>
+      </div>
+      <div class="row">
+        <div class="p-main"><div class="row-label">Cache</div></div>
+        <span class="row-value">0 B</span>
+        <span class="inline">Clear cache</span>
+      </div>
+      <div style="padding-top:4px">
+        <button class="btn destructive" type="button">Sign out</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="set-foot">
+    <div class="rule-ticks" style="margin-bottom:8px"></div>
+    <p>ManHunt · free APK · MIT licence · Map data © OpenStreetMap contributors</p>
+  </footer>
+</main>
+</body>
+</html>

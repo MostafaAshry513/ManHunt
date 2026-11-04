@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roles — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .roles-hero { font-family: var(--font-display); font-weight: 700; font-size: 31px; line-height: 29px; letter-spacing: -0.01em; }
+  .side { padding: 10px 12px 12px; min-height: 150px; display: flex; flex-direction: column; }
+  .side h3 { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 32px; letter-spacing: -0.01em; }
+  .side p { margin-top: 6px; font-family: var(--font-ui); font-size: 12.5px; line-height: 17px; }
+  .step { display: flex; gap: 10px; align-items: baseline; padding: 2px 0; }
+  .step .n { font-family: var(--font-mono); font-size: 11px; color: var(--dim); width: 16px; flex: none; }
+  .step .t { font-family: var(--font-ui); font-size: 13px; line-height: 19px; color: var(--chalk); }
+  .mode-row { display: flex; align-items: center; gap: 10px; padding: 8px 24px; border-top: 1px solid var(--rule); }
+  .mode-row .name { font-family: var(--font-ui); font-weight: 700; font-size: 14px; color: var(--chalk); }
+  .mode-row .tag { font-family: var(--font-ui); font-weight: 400; font-size: 12.5px; color: var(--muted); }
+  .roles-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; }
+</style>
+</head>
+<body>
+<main class="page" style="padding-bottom:104px">
+
+  <header class="strip" style="padding-top:14px;padding-bottom:6px;gap:10px">
+    <button class="icon-btn icon-btn--bare" type="button" aria-label="Back">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M15 4 7 12l8 8"/></svg>
+    </button>
+    <div class="col" style="gap:1px">
+      <h1 class="title" style="font-size:17px">Welcome to ManHunt</h1>
+      <span class="data-l">FIRST RUN · HOW IT WORKS</span>
+    </div>
+    <span class="gutter-right"><span class="tape tape--ink" style="height:22px;font-size:10px;padding:0 8px">The game</span></span>
+  </header>
+
+  <section class="gutter" style="margin-top:6px">
+    <div class="roles-hero">Two teams. One block.<br>One clock.</div>
+  </section>
+
+  <section class="gutter" style="margin-top:10px">
+    <div class="stack-2">
+      <div class="side block--coral">
+        <div class="row spread" style="align-items:flex-start">
+          <h3>Prey</h3><span class="data" style="color:rgba(11,18,32,.65)">2</span>
+        </div>
+        <p>You hide. Your phone reports your position to the Hunters at the room's interval. Stay free when the clock stops.</p>
+      </div>
+      <div class="side block--violet">
+        <div class="row spread" style="align-items:flex-start">
+          <h3>Hunters</h3><span class="data" style="color:rgba(11,18,32,.65)">3</span>
+        </div>
+        <p>You chase. You see each Prey's latest report and tag by touching. Every tag is confirmed by the Prey.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="gutter" style="margin-top:12px">
+    <div class="row spread" style="align-items:baseline">
+      <h2 class="head">How a hunt runs</h2><span class="data-l">5 STEPS</span>
+    </div>
+    <div class="rule" style="margin-top:5px"></div>
+    <div class="mt4">
+      <div class="step"><span class="n">1</span><span class="t">Create a room, or join one with a code.</span></div>
+      <div class="step"><span class="n">2</span><span class="t">Pick a side. The room needs both teams.</span></div>
+      <div class="step"><span class="n">3</span><span class="t">Ready up. The host begins the hunt.</span></div>
+      <div class="step"><span class="n">4</span><span class="t">Head start: Prey hide, Hunters wait.</span></div>
+      <div class="step"><span class="n">5</span><span class="t">Tag by touching. The Prey confirms it.</span></div>
+    </div>
+  </section>
+
+  <section style="margin-top:10px">
+    <div class="gutter row spread" style="align-items:baseline">
+      <h2 class="head">Modes</h2><span class="data-l">CLASSIC IS PLAYABLE</span>
+    </div>
+    <div class="mode-row">
+      <div style="flex:1 1 auto">
+        <div class="name">Classic hunt</div>
+        <div class="tag">Two teams. One block. One clock.</div>
+      </div>
+      <span class="tape" style="height:22px;font-size:10px;padding:0 8px;transform:rotate(1.5deg)">Playable now</span>
+    </div>
+    <div class="mode-row" style="padding-block:6px">
+      <div style="flex:1 1 auto">
+        <div class="name">Single Prey <span class="tag">· No backup.</span></div>
+        <div class="name" style="margin-top:2px">Shrinking Zone <span class="tag">· The walls close in.</span></div>
+      </div>
+      <span class="stamp stamp--sm" style="color:var(--muted)">Coming soon</span>
+    </div>
+    <div class="gutter" style="padding-top:6px">
+      <span class="cap">Classic is the only playable mode right now. </span>
+      <button class="inline" style="border:0;min-height:28px;font-size:12px;color:var(--muted)" type="button">Play Classic instead</button>
+    </div>
+  </section>
+
+  <div class="flex1"></div>
+
+  <section class="gutter" style="padding-bottom:6px">
+    <div class="rule"></div>
+    <p class="cap" style="margin-top:6px">This is a game, not a safety service. Play with people you trust. Play in places you're allowed to be.</p>
+  </section>
+
+  <div class="roles-dock">
+    <button class="btn btn--primary" type="button"><span class="btn-label">Let's play</span></button>
+  </div>
+
+</main>
+</body>
+</html>

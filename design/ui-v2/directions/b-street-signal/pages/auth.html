@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .auth-brand { font-family: var(--font-display); font-weight: 700; font-size: 60px; line-height: 54px; letter-spacing: -0.015em; }
+  .auth-underline { margin-top: 6px; display: block; }
+  .auth-form { display: flex; flex-direction: column; }
+  .auth-helper { margin-top: 6px; }
+  .eye { color: var(--muted); }
+  .server-strip { border-top: 1px solid var(--rule); margin-top: 18px; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="strip" style="padding-top:22px">
+    <img src="/design/brand/identity/final/lockup/lockup-horizontal-light-on-dark.svg" alt="ManHunt" style="height:20px;width:auto">
+  </header>
+
+  <!-- poster: the permanent line is the loudest thing on the screen -->
+  <section class="gutter" style="margin-top:26px">
+    <h1 class="auth-brand">Hide from<br>your friends.</h1>
+    <svg class="auth-underline" width="236" height="12" viewBox="0 0 236 12" aria-hidden="true">
+      <path d="M2 8 C 46 4, 92 10, 138 6 S 202 9, 234 4" fill="none" stroke="var(--chalk)" stroke-width="2.2" opacity=".55"/>
+    </svg>
+    <p class="body muted mt12" style="max-width:300px">Real-world GPS hide-and-seek. Two teams, a live map and a clock the players can't bend.</p>
+  </section>
+
+  <div class="flex1"></div>
+
+  <!-- the quiet form: real fields, real helpers, one action -->
+  <section class="gutter auth-form">
+    <div class="row spread">
+      <h2 class="head">Sign in</h2>
+      <span class="data">LOCAL ACCOUNT</span>
+    </div>
+
+    <div class="mt16">
+      <div class="field-label">Username</div>
+      <div class="input"><span class="mono" style="font-size:15px;color:var(--chalk)">nadia</span></div>
+      <div class="help auth-helper">At least 3 characters.</div>
+    </div>
+
+    <div class="mt12">
+      <div class="field-label">Password</div>
+      <div class="input">
+        <span class="mono" style="font-size:15px;color:var(--chalk);letter-spacing:.12em">••••••••</span>
+        <svg class="eye" style="margin-inline-start:auto" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="butt">
+            <path d="M2.5 12c3.6-5.4 15.4-5.4 19 0-3.6 5.4-15.4 5.4-19 0Z"/>
+            <circle cx="12" cy="12" r="2.6"/>
+          </g>
+        </svg>
+      </div>
+      <div class="help auth-helper">At least 8 characters.</div>
+    </div>
+
+    <div class="mt16">
+      <button class="btn btn--primary" type="button"><span class="btn-label">Sign in</span></button>
+    </div>
+
+    <div class="mt8">
+      <button class="inline" style="border:0;min-height:48px" type="button">New here? Create an account</button>
+    </div>
+
+    <!-- plumbing demoted below the task, as a mono footnote -->
+    <div class="server-strip">
+      <div class="row spread" style="min-height:44px">
+        <span class="credit-line">GAME SERVER · TEST DEPLOYMENT</span>
+        <button class="inline inline--muted" style="min-height:44px;font-size:12px" type="button">Change server</button>
+      </div>
+    </div>
+
+    <div class="row spread" style="padding-bottom:22px;padding-top:2px">
+      <span class="credit-line">v0.16.1 · FREE APK · ANDROID 8+</span>
+      <span class="credit-line">NOT ON PLAY STORE</span>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

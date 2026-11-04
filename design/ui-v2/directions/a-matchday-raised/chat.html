@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt — Field log</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="_a.css">
+<style>
+  .toolbar { flex: none; height: 52px; display: flex; align-items: center; justify-content: space-between; padding-inline: 12px; border-bottom: 1px solid var(--a-rule); }
+  .toolbar .tools { display: flex; align-items: center; }
+  .toolbar .icon-btn { margin-inline-end: 0; }
+  .room-strip { gap: 8px; }
+  .room-strip .room { font-family: var(--a-ui); font-weight: 700; font-size: 15px; line-height: 20px; }
+  .room-strip .count { margin-inline-start: auto; font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--a-muted); }
+  .chatlog { padding-top: 0; display: flex; flex-direction: column; justify-content: flex-end; }
+  .msg { padding: 9px 0; }
+  .msg .msg-name { display: flex; align-items: baseline; gap: 8px; }
+  .msg .msg-name .msg-time { width: auto; padding: 0; }
+  .msg.own .msg-main { padding: 7px 10px; border-inline-end: 0; border-inline-start: 2px solid var(--a-ink); }
+  .own-head { display: flex; align-items: baseline; justify-content: flex-end; gap: 8px; margin-bottom: 2px; }
+  .own-head .msg-name { font-weight: 700; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--a-muted); font-family: var(--a-mono); }
+  .own-head .msg-time { font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; color: var(--a-muted); }
+  .system-row { padding: 12px 0; }
+  .composer .field { color: var(--a-muted); }
+  .composer .send-btn { color: var(--a-muted); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <div class="toolbar">
+    <button class="icon-btn start" type="button" aria-label="Back">
+      <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="tools">
+      <button class="icon-btn" type="button" aria-label="Share the code">
+        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="18" cy="18" r="2.2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+      </button>
+      <button class="icon-btn" type="button" aria-label="Hunt history">
+        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M4 12a8 8 0 1 0 2.3-5.7"/><path d="M4 4v4h4"/><path d="M12 8v4l3 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="room-strip">
+    <span class="tag-state live"><span class="dot-live" style="width:6px;height:6px;background:var(--a-cyan);display:inline-block"></span>Live</span>
+    <span class="room">Riverside Run</span>
+    <span class="count">5 in room</span>
+  </div>
+
+  <div class="tabrule">
+    <div class="tabcell">Hunt</div>
+    <div class="tabcell on">Chat</div>
+  </div>
+
+  <div class="chatlog grow">
+    <div class="system-row">Hunting began</div>
+
+    <div class="msg">
+      <div class="msg-time">20:44</div>
+      <div class="msg-main">
+        <div class="msg-name hunters">Selim</div>
+        <div class="msg-body">North gate is clear.</div>
+      </div>
+    </div>
+
+    <div class="msg own">
+      <div class="msg-main">
+        <div class="own-head"><span class="msg-name">You</span><span class="msg-time">20:45</span></div>
+        <div class="msg-body">I can hear you. Moving east.</div>
+      </div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-time">20:46</div>
+      <div class="msg-main">
+        <div class="msg-name hunters">Omar</div>
+        <div class="msg-body">Two of us on the field.</div>
+      </div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-time">20:48</div>
+      <div class="msg-main">
+        <div class="msg-name prey">Rana</div>
+        <div class="msg-body">Take the path by the water. They're on the east side.</div>
+      </div>
+    </div>
+
+    <div class="msg">
+      <div class="msg-time">20:49</div>
+      <div class="msg-main">
+        <div class="msg-name hunters">Youssef</div>
+        <div class="msg-body">Trail heading east, by the pond.</div>
+      </div>
+    </div>
+
+    <div class="system-row">Rana was tagged</div>
+
+    <div class="msg">
+      <div class="msg-time">20:51</div>
+      <div class="msg-main">
+        <div class="msg-name hunters">Selim</div>
+        <div class="msg-body">One left.</div>
+      </div>
+    </div>
+
+    <div class="msg own">
+      <div class="msg-main">
+        <div class="own-head"><span class="msg-name">You</span><span class="msg-time">20:52</span></div>
+        <div class="msg-body">Going quiet.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="composer">
+    <div class="field" style="flex:1"><span class="helper">Message</span></div>
+    <button class="send-btn" type="button" aria-label="Send message">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</main>
+</body>
+</html>

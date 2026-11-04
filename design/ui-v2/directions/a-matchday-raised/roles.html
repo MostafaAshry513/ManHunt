@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt — Roles</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="_a.css">
+<style>
+  .roles-body { padding: 8px 24px 0; }
+  .roles-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .roles-hook { margin-top: 4px; }
+  .mode-plate { height: 100px; margin: 8px -24px 0; border-top: 1px solid var(--a-rule); border-bottom: 1px solid var(--a-rule); }
+  .sides { margin-top: 8px; }
+  .side-row { display: flex; align-items: flex-start; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--a-rule); }
+  .side-row .tag-team { flex: none; margin-top: 1px; }
+  .side-row .bs { margin-top: 1px; }
+  .steps { margin-top: 8px; }
+  .step { display: flex; align-items: baseline; gap: 14px; padding: 3px 0; }
+  .step .n { font-family: var(--a-mono); font-size: 11px; line-height: 15px; letter-spacing: .08em; color: var(--a-muted); width: 20px; flex: none; }
+  .step .bs { color: var(--a-ink); font-size: 13px; line-height: 18px; }
+  .modes { margin-top: 8px; }
+  .mode-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-height: 30px; border-bottom: 1px solid var(--a-rule); }
+  .mode-row .name { font-family: var(--a-ui); font-weight: 700; font-size: 14px; line-height: 20px; color: var(--a-ink); }
+  .mode-row .desc { font-family: var(--a-ui); font-size: 13px; line-height: 18px; color: var(--a-muted); flex: 1; }
+  .mode-row .status { font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .03em; color: var(--a-muted); flex: none; }
+  .honest { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0 0; }
+  .pager { display: flex; gap: 14px; padding: 10px 0 0; }
+  .pager i { width: 34px; height: 2px; background: var(--a-rule-strong); display: block; }
+  .pager i.on { background: var(--a-cyan); }
+  .dock-roles { padding: 12px 24px 22px; }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="header">
+    <button class="icon-btn start" type="button" aria-label="Back">
+      <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="title">Roles</div>
+  </header>
+
+  <div class="roles-body grow">
+    <div class="roles-head">
+      <h1 class="d-m">Classic hunt</h1>
+      <span class="ca">Playable today</span>
+    </div>
+    <p class="bo roles-hook">Two teams. One block. One clock.</p>
+
+    <div class="field-plate mode-plate" aria-hidden="true">
+      <svg viewBox="0 0 390 122" preserveAspectRatio="xMidYMid slice">
+        <rect width="390" height="122" fill="#0b1220"/>
+        <g fill="#101827" stroke="#26324b" stroke-width="1">
+          <rect x="12" y="10" width="60" height="22"/><rect x="80" y="10" width="72" height="22"/><rect x="160" y="10" width="50" height="22"/><rect x="218" y="10" width="62" height="22"/><rect x="288" y="10" width="42" height="22"/><rect x="338" y="10" width="40" height="22"/>
+          <rect x="12" y="40" width="60" height="28"/><rect x="80" y="40" width="72" height="28"/><rect x="218" y="40" width="62" height="28"/><rect x="288" y="40" width="42" height="28"/>
+          <rect x="12" y="76" width="60" height="24"/><rect x="80" y="76" width="72" height="24"/><rect x="160" y="76" width="50" height="24"/><rect x="218" y="76" width="62" height="24"/>
+        </g>
+        <g stroke="#223049" stroke-width="3"><path d="M156 0v122M0 34h390M0 68h390M0 100h390M280 0v122"/></g>
+        <ellipse cx="208" cy="60" rx="112" ry="48" fill="none" stroke="#22d3ee" stroke-width="1.7" stroke-dasharray="8 7" opacity=".85"/>
+        <circle cx="250" cy="46" r="6" fill="#ff7a59"/><circle cx="250" cy="46" r="13" fill="none" stroke="#ff7a59" stroke-opacity=".5" stroke-width="1.5"/>
+        <circle cx="150" cy="66" r="5" fill="#ff7a59" fill-opacity=".4" stroke="#ff7a59" stroke-opacity=".7" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <circle cx="196" cy="88" r="5" fill="#e6edf7"/><circle cx="196" cy="88" r="11" fill="none" stroke="#e6edf7" stroke-opacity=".7" stroke-width="1.4"/>
+        <g stroke="#a79bff" stroke-width="2" stroke-linecap="butt"><path d="M104 26l8 8-8 8M114 26l8 8-8 8"/><path d="M330 62l8 8-8 8M340 62l8 8-8 8"/><path d="M318 96l8 8-8 8M328 96l8 8-8 8"/></g>
+      </svg>
+    </div>
+
+    <section class="sides">
+      <div class="sec-head"><span class="ti">The two sides</span><span class="ca">One hunt, two jobs</span></div>
+      <div class="side-row">
+        <span class="tag-team tag-prey"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="6.5" stroke-dasharray="30 11"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>Prey</span>
+        <p class="bs">You hide. Your phone reports your position to the Hunters every 5 minutes while the hunt runs. Outlast the clock.</p>
+      </div>
+      <div class="side-row">
+        <span class="tag-team tag-hunters"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt" stroke-linejoin="miter"><path d="M4 6l5 6-5 6M10 6l5 6-5 6M16 6l5 6-5 6"/></svg>Hunters</span>
+        <p class="bs">You chase. Read the latest reports, follow the trails, and tag on contact. Every tag is confirmed by the Prey.</p>
+      </div>
+    </section>
+
+    <section class="steps">
+      <div class="sec-head"><span class="ti">How a hunt runs</span><span class="ca">Five steps</span></div>
+      <div class="step"><span class="n">01</span><span class="bs">Create or join a room, then pick a side.</span></div>
+      <div class="step"><span class="n">02</span><span class="bs">Ready up. The huntmaster starts the hunt.</span></div>
+      <div class="step"><span class="n">03</span><span class="bs">Prey hide while the head start runs.</span></div>
+      <div class="step"><span class="n">04</span><span class="bs">Hunters track the latest reports.</span></div>
+      <div class="step"><span class="n">05</span><span class="bs">Touch to tag; the Prey confirms.</span></div>
+    </section>
+
+    <section class="modes">
+      <div class="sec-head"><span class="ti">Other modes</span><span class="ca">Not playable yet</span></div>
+      <div class="mode-row"><span class="name">Single Prey</span><span class="desc">One prey. No backup.</span><span class="status">Coming soon</span></div>
+      <div class="mode-row"><span class="name">Shrinking Zone</span><span class="desc">The walls close in.</span><span class="status">Coming soon</span></div>
+      <div class="honest">
+        <span class="bs" style="color:var(--a-ink)">Classic is the only playable mode right now.</span>
+        <span class="inline">Play Classic instead</span>
+      </div>
+    </section>
+
+    <div class="pager" role="tablist" aria-label="Modes"><i class="on"></i><i></i><i></i></div>
+  </div>
+
+  <div class="dock dock-roles">
+    <button class="btn primary" type="button">Let's play</button>
+  </div>
+</main>
+</body>
+</html>

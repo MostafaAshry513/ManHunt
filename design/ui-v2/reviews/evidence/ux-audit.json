@@ -1,0 +1,3756 @@
+{
+  "meta": {
+    "tool": "reviewer-ux ux-audit",
+    "when": "2026-11-04T19:28:28.299Z",
+    "canvas": "390x844 @3x",
+    "stress": false,
+    "dirs": [
+      "b-street-signal"
+    ]
+  },
+  "directions": {
+    "b-street-signal": {
+      "pages": {
+        "auth": {
+          "file": "auth.html",
+          "id": "auth",
+          "rel": "pages/auth.html",
+          "collect": {
+            "page": {
+              "title": "Sign in — ManHunt · Street signal",
+              "lang": "en",
+              "dir": "ltr",
+              "theme": "dark",
+              "pageCount": 1,
+              "pageRect": {
+                "w": 390,
+                "h": 844
+              },
+              "scroll": {
+                "w": 390,
+                "h": 844
+              },
+              "viewport": {
+                "w": 390,
+                "h": 844
+              }
+            },
+            "contrast": [
+              {
+                "sel": "section.gutter.auth-form > div.mt16 > div.help.auth-helper",
+                "text": "At least 3 characters.",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 12,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.mt12 > div.help.auth-helper",
+                "text": "At least 8 characters.",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 12,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.server-strip > div.row.spread > span.credit-line",
+                "text": "GAME SERVER · TEST DEPLOYMENT",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.row.spread > span.credit-line",
+                "text": "v0.16.1 · FREE APK · ANDROID 8+",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.row.spread > span.credit-line",
+                "text": "NOT ON PLAY STORE",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              }
+            ],
+            "smallText": [
+              {
+                "sel": "section.gutter.auth-form > div.row.spread > span.data",
+                "text": "LOCAL ACCOUNT",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.mt16 > div.field-label",
+                "text": "Username",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.mt16 > div.help.auth-helper",
+                "text": "At least 3 characters.",
+                "size": 12,
+                "weight": 400,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.mt12 > div.field-label",
+                "text": "Password",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.mt12 > div.help.auth-helper",
+                "text": "At least 8 characters.",
+                "size": 12,
+                "weight": 400,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.server-strip > div.row.spread > span.credit-line",
+                "text": "GAME SERVER · TEST DEPLOYMENT",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.server-strip > div.row.spread > button.inline.inline--muted",
+                "text": "Change server",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.row.spread > span.credit-line",
+                "text": "v0.16.1 · FREE APK · ANDROID 8+",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "section.gutter.auth-form > div.row.spread > span.credit-line",
+                "text": "NOT ON PLAY STORE",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              }
+            ],
+            "targets": [
+              {
+                "sel": "section.gutter.auth-form > div.mt16 > button.btn.btn--primary",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Sign in",
+                "w": 342,
+                "h": 60,
+                "ok": true,
+                "top": 627,
+                "left": 24
+              },
+              {
+                "sel": "section.gutter.auth-form > div.mt8 > button.inline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "New here? Create an account",
+                "w": 199,
+                "h": 48,
+                "ok": true,
+                "top": 695,
+                "left": 24
+              },
+              {
+                "sel": "div.server-strip > div.row.spread > button.inline.inline--muted",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Change server",
+                "w": 84,
+                "h": 44,
+                "ok": false,
+                "top": 762,
+                "left": 282
+              }
+            ],
+            "overflow": [
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter.auth-form > div.row.spread > h2.head",
+                "detail": "h 22.0 font 17px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter.auth-form > div.row.spread > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter.auth-form > div.mt16 > div.field-label",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.mt16 > div.input > span.mono",
+                "detail": "h 21.8 font 15px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter.auth-form > div.mt16 > div.help.auth-helper",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter.auth-form > div.mt12 > div.field-label",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.mt12 > div.input > span.mono",
+                "detail": "h 21.8 font 15px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter.auth-form > div.mt12 > div.help.auth-helper",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.mt16 > button.btn.btn--primary > span.btn-label",
+                "detail": "h 16.0 font 16px"
+              }
+            ],
+            "clippedText": [],
+            "borders": [],
+            "fonts": {
+              "used": {
+                "\"Big Shoulders\", \"Arial Narrow\", sans-serif": 1,
+                "\"Instrument Sans\", \"Segoe UI\", sans-serif": 9,
+                "\"Red Hat Mono\", ui-monospace, \"Courier New\", monospace": 6
+              },
+              "faces": [
+                {
+                  "family": "Big Shoulders",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "Big Shoulders",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "700",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "700",
+                  "status": "unloaded"
+                }
+              ],
+              "failures": 0,
+              "loaded": 4
+            },
+            "directionality": {
+              "htmlDir": "ltr",
+              "rtlElements": 0,
+              "physical": [
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".log-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "30%",
+                  "selector": ".slider .thumb",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                }
+              ],
+              "physicalBySheet": {
+                "direction.css": 48
+              },
+              "ltrIsolations": 0,
+              "rtlUnisolated": []
+            },
+            "colors": {
+              "cyanFills": 1,
+              "cyanSurfaces": 1,
+              "cyanAccents": 0,
+              "cyanText": 0,
+              "coralText": 0,
+              "violetText": 0,
+              "distinctFills": {
+                "11,18,32": 3,
+                "34,211,238": 1
+              },
+              "cyanSurfaceList": [
+                {
+                  "sel": "section.gutter.auth-form > div.mt16 > button.btn.btn--primary",
+                  "text": "Sign in",
+                  "area": 20520
+                }
+              ]
+            },
+            "seed": {
+              "found": {
+                "240": false,
+                "Riverside Run": false,
+                "K7M2QX": false,
+                "41:12": false,
+                "60:00": false,
+                "Nadia": false,
+                "Omar": false,
+                "Selim": false,
+                "Rana": false,
+                "Youssef": false
+              },
+              "missing": [],
+              "expectedKnown": false,
+              "present": [],
+              "expected": [],
+              "missingExpected": []
+            },
+            "forbidden": [],
+            "headings": [
+              {
+                "tag": "H1",
+                "text": "Hide fromyour friends."
+              },
+              {
+                "tag": "H2",
+                "text": "Sign in"
+              }
+            ],
+            "landmarks": [
+              "main",
+              "header"
+            ],
+            "a11y": {
+              "imgsWithoutAlt": 0,
+              "buttonsWithoutLabel": 0,
+              "inputsWithoutLabel": 0,
+              "svgWithoutTitle": 0,
+              "positiveTabindex": 0,
+              "h1Count": 1,
+              "langTokens": 1
+            }
+          }
+        },
+        "home": {
+          "file": "home.html",
+          "id": "home",
+          "rel": "pages/home.html",
+          "collect": {
+            "page": {
+              "title": "Home — ManHunt · Street signal",
+              "lang": "en",
+              "dir": "ltr",
+              "theme": "dark",
+              "pageCount": 1,
+              "pageRect": {
+                "w": 390,
+                "h": 844
+              },
+              "scroll": {
+                "w": 390,
+                "h": 844
+              },
+              "viewport": {
+                "w": 390,
+                "h": 844
+              }
+            },
+            "contrast": [
+              {
+                "sel": "section.block.host-block > div.mt12 > div.help",
+                "text": "Leave it blank and the room is called ManHunt.",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 12,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "section.block > div.mt12 > div.help",
+                "text": "Enter the 6-character invite code the host sends you.",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 12,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "main.page > footer.gutter > div.credit-line",
+                "text": "v0.16.1 · FREE APK · ANDROID 8+ · NOT ON PLAY STORE",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              }
+            ],
+            "smallText": [
+              {
+                "sel": "section.block.host-block > div.mt12 > div.field-label",
+                "text": "Hunt name",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.block.host-block > div.mt12 > div.help",
+                "text": "Leave it blank and the room is called ManHunt.",
+                "size": 12,
+                "weight": 400,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.block > div.mt12 > div.field-label",
+                "text": "Got an invite code?",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.block > div.mt12 > div.help",
+                "text": "Enter the 6-character invite code the host sends you.",
+                "size": 12,
+                "weight": 400,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "footer.gutter > div.row.spread > span.data",
+                "text": "PLAYING AS NADIA",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "main.page > footer.gutter > div.credit-line",
+                "text": "v0.16.1 · FREE APK · ANDROID 8+ · NOT ON PLAY STORE",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              }
+            ],
+            "targets": [
+              {
+                "sel": "main.page > header.strip > button.settings-entry",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Settings",
+                "w": 86,
+                "h": 48,
+                "ok": true,
+                "top": 12,
+                "left": 280
+              },
+              {
+                "sel": "div.row.spread > div.row.gap16 > button.inline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Read the roles",
+                "w": 96,
+                "h": 48,
+                "ok": true,
+                "top": 668,
+                "left": 197
+              },
+              {
+                "sel": "div.row.spread > div.row.gap16 > button.inline.inline--muted",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Sign out",
+                "w": 57,
+                "h": 48,
+                "ok": true,
+                "top": 668,
+                "left": 309
+              },
+              {
+                "sel": "main.page > div.home-dock > button.btn.btn--primary",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Create hunt",
+                "w": 164,
+                "h": 60,
+                "ok": true,
+                "top": 760,
+                "left": 24
+              },
+              {
+                "sel": "main.page > div.home-dock > button.btn.btn--outline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Join hunt",
+                "w": 166,
+                "h": 60,
+                "ok": true,
+                "top": 760,
+                "left": 200
+              }
+            ],
+            "overflow": [
+              {
+                "kind": "tight-box",
+                "sel": "main.page > section.gutter > h1.home-brandline",
+                "detail": "h 31.0 font 34px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "main.page > section.gutter > p.small.muted",
+                "detail": "h 21.0 font 14px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "main.page > section.block.host-block > div.verb",
+                "detail": "h 68.0 font 76px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.block.host-block > div.mt12 > div.field-label",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.mt12 > div.input > span",
+                "detail": "h 23.2 font 16px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.block.host-block > div.mt12 > div.help",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "main.page > section.block > div.verb",
+                "detail": "h 68.0 font 76px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.block > div.mt12 > div.field-label",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.block > div.mt12 > div.help",
+                "detail": "h 16.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "footer.gutter > div.row.spread > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.home-dock > button.btn.btn--primary > span.btn-label",
+                "detail": "h 16.0 font 16px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.home-dock > button.btn.btn--outline > span.btn-label",
+                "detail": "h 16.0 font 16px"
+              }
+            ],
+            "clippedText": [],
+            "borders": [
+              {
+                "sel": "main.page > div.home-dock > button.btn.btn--outline",
+                "ratio": 2.8,
+                "color": "rgb(230,237,247)",
+                "bg": "rgb(11,18,32)"
+              }
+            ],
+            "fonts": {
+              "used": {
+                "\"Instrument Sans\", \"Segoe UI\", sans-serif": 11,
+                "\"Big Shoulders\", \"Arial Narrow\", sans-serif": 3,
+                "\"Red Hat Mono\", ui-monospace, \"Courier New\", monospace": 2
+              },
+              "faces": [
+                {
+                  "family": "Big Shoulders",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "Big Shoulders",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "700",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "700",
+                  "status": "unloaded"
+                }
+              ],
+              "failures": 0,
+              "loaded": 4
+            },
+            "directionality": {
+              "htmlDir": "ltr",
+              "rtlElements": 0,
+              "physical": [
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".log-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "30%",
+                  "selector": ".slider .thumb",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "24px",
+                  "selector": ".home-dock",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "right",
+                  "value": "24px",
+                  "selector": ".home-dock",
+                  "sheet": "inline"
+                }
+              ],
+              "physicalBySheet": {
+                "direction.css": 48,
+                "inline": 2
+              },
+              "ltrIsolations": 0,
+              "rtlUnisolated": []
+            },
+            "colors": {
+              "cyanFills": 1,
+              "cyanSurfaces": 1,
+              "cyanAccents": 0,
+              "cyanText": 0,
+              "coralText": 0,
+              "violetText": 0,
+              "distinctFills": {
+                "11,18,32": 3,
+                "34,211,238": 1
+              },
+              "cyanSurfaceList": [
+                {
+                  "sel": "main.page > div.home-dock > button.btn.btn--primary",
+                  "text": "Create hunt",
+                  "area": 9840
+                }
+              ]
+            },
+            "seed": {
+              "found": {
+                "240": false,
+                "Riverside Run": true,
+                "K7M2QX": false,
+                "41:12": false,
+                "60:00": false,
+                "Nadia": false,
+                "Omar": false,
+                "Selim": false,
+                "Rana": false,
+                "Youssef": false
+              },
+              "missing": [],
+              "expectedKnown": false,
+              "present": [
+                "Riverside Run"
+              ],
+              "expected": [
+                "Nadia"
+              ],
+              "missingExpected": [
+                "Nadia"
+              ]
+            },
+            "forbidden": [],
+            "headings": [
+              {
+                "tag": "H1",
+                "text": "Hide from your friends."
+              }
+            ],
+            "landmarks": [
+              "main",
+              "header",
+              "footer"
+            ],
+            "a11y": {
+              "imgsWithoutAlt": 0,
+              "buttonsWithoutLabel": 0,
+              "inputsWithoutLabel": 0,
+              "svgWithoutTitle": 0,
+              "positiveTabindex": 0,
+              "h1Count": 1,
+              "langTokens": 2
+            }
+          }
+        },
+        "hunt-hunter": {
+          "file": "hunt-hunter.html",
+          "id": "hunt-hunter",
+          "rel": "pages/hunt-hunter.html",
+          "collect": {
+            "page": {
+              "title": "Live hunt (Hunter) — ManHunt · Street signal",
+              "lang": "en",
+              "dir": "ltr",
+              "theme": "dark",
+              "pageCount": 1,
+              "pageRect": {
+                "w": 390,
+                "h": 844
+              },
+              "scroll": {
+                "w": 390,
+                "h": 844
+              },
+              "viewport": {
+                "w": 390,
+                "h": 844
+              }
+            },
+            "contrast": [
+              {
+                "sel": "main.page > div.status-row > span.data-l",
+                "text": "OSM DARK TILES",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 11,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              }
+            ],
+            "smallText": [
+              {
+                "sel": "div.row.spread > span.row.gap8 > span.state",
+                "text": "LIVE",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.row.spread > span.row.gap8 > span.data",
+                "text": "Riverside Run",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.row.spread > div.col > span.data",
+                "text": "ZONE 240 m",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.row.spread > div.col > span.data",
+                "text": "PREY 2 / 2",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.map.flex1 > svg > text",
+                "text": "Nadia · 12 s",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.map.flex1 > svg > text",
+                "text": "Rana · stale 14 min",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "svg > g > text",
+                "text": "YOU",
+                "size": 10,
+                "weight": 700,
+                "mono": false,
+                "class": "hard"
+              },
+              {
+                "sel": "main.page > div.map.flex1 > span.map-credit",
+                "text": "© OpenStreetMap contributors",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "main.page > div.status-row > span.data-l",
+                "text": "OSM DARK TILES",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.dock > div.row.spread > button.inline",
+                "text": "Hunt details",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.row.spread > button.inline > span.data-l",
+                "text": "TRAILS ON",
+                "size": 11,
+                "weight": 700,
+                "mono": true,
+                "class": "hard"
+              }
+            ],
+            "targets": [
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Zoom in",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 136,
+                "left": 326
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Zoom out",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 192,
+                "left": 326
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Recentre on me",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 248,
+                "left": 326
+              },
+              {
+                "sel": "div.dock > div.row.spread > button.inline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Hunt details",
+                "w": 69,
+                "h": 32,
+                "ok": false,
+                "top": 720,
+                "left": 24
+              },
+              {
+                "sel": "div.dock > div.row.spread > button.inline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "TRAILS ON",
+                "w": 72.9,
+                "h": 32,
+                "ok": false,
+                "top": 720,
+                "left": 293.1
+              },
+              {
+                "sel": "main.page > div.dock > button.btn.btn--primary",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Tag prey",
+                "w": 342,
+                "h": 60,
+                "ok": true,
+                "top": 760,
+                "left": 24
+              }
+            ],
+            "overflow": [
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,580 440x146"
+              },
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,580 440x43"
+              },
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,311 440x30"
+              },
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,311 440x30"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > span.row.gap8 > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > div.col > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > div.col > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "main.page > header.hunt-strip > div.clock",
+                "detail": "h 64.0 font 64px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.dock > button.btn.btn--primary > span.btn-label",
+                "detail": "h 16.0 font 16px"
+              }
+            ],
+            "clippedText": [],
+            "borders": [
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "ratio": 2.8,
+                "color": "rgb(230,237,247)",
+                "bg": "rgb(11,18,32)"
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "ratio": 2.8,
+                "color": "rgb(230,237,247)",
+                "bg": "rgb(11,18,32)"
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "ratio": 2.8,
+                "color": "rgb(230,237,247)",
+                "bg": "rgb(11,18,32)"
+              }
+            ],
+            "fonts": {
+              "used": {
+                "\"Red Hat Mono\", ui-monospace, \"Courier New\", monospace": 7,
+                "\"Big Shoulders\", \"Arial Narrow\", sans-serif": 1,
+                "\"Red Hat Mono\", monospace": 2,
+                "\"Instrument Sans\", sans-serif": 1,
+                "\"Instrument Sans\", \"Segoe UI\", sans-serif": 3
+              },
+              "faces": [
+                {
+                  "family": "Big Shoulders",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "Big Shoulders",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "700",
+                  "status": "unloaded"
+                }
+              ],
+              "failures": 0,
+              "loaded": 5
+            },
+            "directionality": {
+              "htmlDir": "ltr",
+              "rtlElements": 0,
+              "physical": [
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".log-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "30%",
+                  "selector": ".slider .thumb",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".hunt-strip",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".hunt-strip",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".status-row",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".status-row",
+                  "sheet": "inline"
+                }
+              ],
+              "physicalBySheet": {
+                "direction.css": 48,
+                "inline": 4
+              },
+              "ltrIsolations": 0,
+              "rtlUnisolated": []
+            },
+            "colors": {
+              "cyanFills": 2,
+              "cyanSurfaces": 1,
+              "cyanAccents": 1,
+              "cyanText": 1,
+              "coralText": 0,
+              "violetText": 0,
+              "distinctFills": {
+                "11,18,32": 7,
+                "34,211,238": 2
+              },
+              "cyanSurfaceList": [
+                {
+                  "sel": "main.page > div.dock > button.btn.btn--primary",
+                  "text": "Tag prey",
+                  "area": 20520
+                }
+              ]
+            },
+            "seed": {
+              "found": {
+                "240": true,
+                "Riverside Run": true,
+                "K7M2QX": false,
+                "41:12": true,
+                "60:00": false,
+                "Nadia": true,
+                "Omar": false,
+                "Selim": false,
+                "Rana": true,
+                "Youssef": false
+              },
+              "missing": [],
+              "expectedKnown": false,
+              "present": [
+                "Riverside Run",
+                "240",
+                "41:12",
+                "Nadia",
+                "Rana"
+              ],
+              "expected": [
+                "Riverside Run",
+                "K7M2QX",
+                "240",
+                "41:12",
+                "Nadia",
+                "Rana"
+              ],
+              "missingExpected": [
+                "K7M2QX"
+              ]
+            },
+            "forbidden": [],
+            "headings": [],
+            "landmarks": [
+              "main",
+              "header"
+            ],
+            "a11y": {
+              "imgsWithoutAlt": 0,
+              "buttonsWithoutLabel": 0,
+              "inputsWithoutLabel": 0,
+              "svgWithoutTitle": 0,
+              "positiveTabindex": 0,
+              "h1Count": 0,
+              "langTokens": 0
+            }
+          }
+        },
+        "hunt-prey": {
+          "file": "hunt-prey.html",
+          "id": "hunt-prey",
+          "rel": "pages/hunt-prey.html",
+          "collect": {
+            "page": {
+              "title": "Live hunt (Prey) — ManHunt · Street signal",
+              "lang": "en",
+              "dir": "ltr",
+              "theme": "dark",
+              "pageCount": 1,
+              "pageRect": {
+                "w": 390,
+                "h": 844
+              },
+              "scroll": {
+                "w": 390,
+                "h": 844
+              },
+              "viewport": {
+                "w": 390,
+                "h": 844
+              }
+            },
+            "contrast": [
+              {
+                "sel": "main.page > div.status-row > span.data-l",
+                "text": "KEEP MOVING",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 11,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.claim-strip > div.row.spread > button.inline",
+                "text": "Review tag claim",
+                "ratio": 6.78,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(255,122,89)",
+                "bg": "rgb(16,26,44)",
+                "fontSize": 12,
+                "weight": 700,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              }
+            ],
+            "smallText": [
+              {
+                "sel": "div.row.spread > span.row.gap8 > span.state",
+                "text": "LIVE",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.row.spread > span.row.gap8 > span.data",
+                "text": "Riverside Run",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.row.spread > div.col > span.data",
+                "text": "ZONE 240 m",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.row.spread > div.col > span.data",
+                "text": "SHRINKS IN 04:12",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "svg > g > text",
+                "text": "YOU",
+                "size": 10,
+                "weight": 700,
+                "mono": false,
+                "class": "hard"
+              },
+              {
+                "sel": "div.map.flex1 > svg > text",
+                "text": "Nadia",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "main.page > div.map.flex1 > span.map-credit",
+                "text": "© OpenStreetMap contributors",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "main.page > div.status-row > span.data-l",
+                "text": "KEEP MOVING",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.claim-strip > div.row.spread > button.inline",
+                "text": "Review tag claim",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.dock > div.row.spread > span.data-l",
+                "text": "SHARING POSITION",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.dock > div.row.spread > span.data",
+                "text": "LAST REPORT 20:41",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "main.page > div.dock > span.cap",
+                "text": "The clock is the only thing you and the Hunters agree on.",
+                "size": 12,
+                "weight": 400,
+                "mono": false,
+                "class": "aux-or-body"
+              }
+            ],
+            "targets": [
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Zoom in",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 136,
+                "left": 326
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Zoom out",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 192,
+                "left": 326
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Recentre on me",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 248,
+                "left": 326
+              },
+              {
+                "sel": "div.claim-strip > div.row.spread > button.inline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Review tag claim",
+                "w": 97,
+                "h": 32,
+                "ok": false,
+                "top": 734.1,
+                "left": 269
+              }
+            ],
+            "overflow": [
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,578 440x146"
+              },
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,578 440x43"
+              },
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,310 440x30"
+              },
+              {
+                "kind": "out-of-canvas",
+                "sel": "div.map.flex1 > svg > path",
+                "detail": "rect -20,310 440x30"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > span.row.gap8 > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > div.col > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > div.col > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "main.page > header.hunt-strip > div.clock",
+                "detail": "h 64.0 font 64px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "main.page > div.status-row > span.small",
+                "detail": "h 21.0 font 14px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.claim-strip > div.row.spread > span.small",
+                "detail": "h 21.0 font 14px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.dock > div.row.spread > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "main.page > div.dock > span.cap",
+                "detail": "h 17.0 font 12px"
+              }
+            ],
+            "clippedText": [],
+            "borders": [
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "ratio": 2.8,
+                "color": "rgb(230,237,247)",
+                "bg": "rgb(11,18,32)"
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "ratio": 2.8,
+                "color": "rgb(230,237,247)",
+                "bg": "rgb(11,18,32)"
+              },
+              {
+                "sel": "div.map.flex1 > div.map-controls > button.icon-btn",
+                "ratio": 2.8,
+                "color": "rgb(230,237,247)",
+                "bg": "rgb(11,18,32)"
+              }
+            ],
+            "fonts": {
+              "used": {
+                "\"Red Hat Mono\", ui-monospace, \"Courier New\", monospace": 8,
+                "\"Big Shoulders\", \"Arial Narrow\", sans-serif": 1,
+                "\"Instrument Sans\", sans-serif": 1,
+                "\"Red Hat Mono\", monospace": 1,
+                "\"Instrument Sans\", \"Segoe UI\", sans-serif": 4
+              },
+              "faces": [
+                {
+                  "family": "Big Shoulders",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "Big Shoulders",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "700",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "700",
+                  "status": "unloaded"
+                }
+              ],
+              "failures": 0,
+              "loaded": 4
+            },
+            "directionality": {
+              "htmlDir": "ltr",
+              "rtlElements": 0,
+              "physical": [
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".log-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "30%",
+                  "selector": ".slider .thumb",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".hunt-strip",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".hunt-strip",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".status-row",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".status-row",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".claim-strip",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".claim-strip",
+                  "sheet": "inline"
+                }
+              ],
+              "physicalBySheet": {
+                "direction.css": 48,
+                "inline": 6
+              },
+              "ltrIsolations": 0,
+              "rtlUnisolated": []
+            },
+            "colors": {
+              "cyanFills": 1,
+              "cyanSurfaces": 0,
+              "cyanAccents": 1,
+              "cyanText": 1,
+              "coralText": 2,
+              "violetText": 0,
+              "distinctFills": {
+                "11,18,32": 7,
+                "34,211,238": 1,
+                "16,26,44": 1
+              },
+              "cyanSurfaceList": []
+            },
+            "seed": {
+              "found": {
+                "240": true,
+                "Riverside Run": true,
+                "K7M2QX": false,
+                "41:12": true,
+                "60:00": false,
+                "Nadia": true,
+                "Omar": false,
+                "Selim": false,
+                "Rana": false,
+                "Youssef": false
+              },
+              "missing": [],
+              "expectedKnown": false,
+              "present": [
+                "Riverside Run",
+                "240",
+                "41:12",
+                "Nadia"
+              ],
+              "expected": [
+                "Riverside Run",
+                "240",
+                "41:12"
+              ],
+              "missingExpected": []
+            },
+            "forbidden": [],
+            "headings": [],
+            "landmarks": [
+              "main",
+              "header"
+            ],
+            "a11y": {
+              "imgsWithoutAlt": 0,
+              "buttonsWithoutLabel": 0,
+              "inputsWithoutLabel": 0,
+              "svgWithoutTitle": 0,
+              "positiveTabindex": 0,
+              "h1Count": 0,
+              "langTokens": 0
+            }
+          }
+        },
+        "lobby": {
+          "file": "lobby.html",
+          "id": "lobby",
+          "rel": "pages/lobby.html",
+          "collect": {
+            "page": {
+              "title": "Lobby — ManHunt · Street signal",
+              "lang": "en",
+              "dir": "ltr",
+              "theme": "dark",
+              "pageCount": 1,
+              "pageRect": {
+                "w": 390,
+                "h": 844
+              },
+              "scroll": {
+                "w": 390,
+                "h": 844
+              },
+              "viewport": {
+                "w": 390,
+                "h": 844
+              }
+            },
+            "contrast": [
+              {
+                "sel": "div.col > div.row.gap8 > span.data-l",
+                "text": "5 PLAYERS",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 11,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.lobby-dock > div.row.spread > span.credit-line",
+                "text": "RIVERSIDE RUN · ROOM K7M2QX",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              },
+              {
+                "sel": "div.lobby-dock > div.row.spread > span.credit-line",
+                "text": "5 PLAYERS",
+                "ratio": 4.76,
+                "required": 7,
+                "rule": "metadata-7",
+                "color": "rgb(111,130,155)",
+                "bg": "rgb(11,18,32)",
+                "fontSize": 10,
+                "weight": 400,
+                "disabled": false,
+                "note": "computed; verify against screenshot"
+              }
+            ],
+            "smallText": [
+              {
+                "sel": "div.col > div.row.gap8 > span.state",
+                "text": "LOBBY",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.col > div.row.gap8 > span.data-l",
+                "text": "5 PLAYERS",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.row.spread > div.col > span.tape.tape--right",
+                "text": "Invite code",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.row.spread > div.col > span.data",
+                "text": "5 / 5 READY",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "section.gutter > div.row.spread > span.cap",
+                "text": "Tap the code to copy.",
+                "size": 12,
+                "weight": 400,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.teamcol > div.team-head.team-head--prey > span",
+                "text": "PREY",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-head.team-head--prey > span",
+                "text": "2",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > span.kit.kit--prey",
+                "text": "Nadia",
+                "size": 13,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > span.badge",
+                "text": "HOST",
+                "size": 9,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > span.badge",
+                "text": "YOU",
+                "size": 9,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > span.kit.kit--prey",
+                "text": "Rana",
+                "size": 13,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-head.team-head--hunters > span",
+                "text": "HUNTERS",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-head.team-head--hunters > span",
+                "text": "3",
+                "size": 11,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > span.kit.kit--hunters",
+                "text": "Omar",
+                "size": 13,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > span.kit.kit--hunters",
+                "text": "Selim",
+                "size": 13,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > span.kit.kit--hunters",
+                "text": "Youssef",
+                "size": 13,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "text": "Ready",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "section.gutter > div.row > span.cap",
+                "text": "Pick a side. Ready up. The huntmaster starts the hunt.",
+                "size": 12,
+                "weight": 400,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.lobby-dock > div.row.spread > span.data",
+                "text": "All players ready.",
+                "size": 12,
+                "weight": 400,
+                "mono": true,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.lobby-dock > div.row.spread > button.inline",
+                "text": "Hunt rules",
+                "size": 12,
+                "weight": 700,
+                "mono": false,
+                "class": "aux-or-body"
+              },
+              {
+                "sel": "div.lobby-dock > div.row.spread > span.credit-line",
+                "text": "RIVERSIDE RUN · ROOM K7M2QX",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              },
+              {
+                "sel": "div.lobby-dock > div.row.spread > span.credit-line",
+                "text": "5 PLAYERS",
+                "size": 10,
+                "weight": 400,
+                "mono": true,
+                "class": "hard"
+              }
+            ],
+            "targets": [
+              {
+                "sel": "main.page > header.strip > button.icon-btn.icon-btn--bare",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Back",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 16,
+                "left": 24
+              },
+              {
+                "sel": "header.strip > span.gutter-right.row > button.icon-btn.icon-btn--bare",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Hunt history",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 16,
+                "left": 262
+              },
+              {
+                "sel": "header.strip > span.gutter-right.row > button.icon-btn.icon-btn--bare",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Leave room",
+                "w": 48,
+                "h": 48,
+                "ok": true,
+                "top": 16,
+                "left": 318
+              },
+              {
+                "sel": "section.gutter > div.row.spread > button.inline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Share the code",
+                "w": 126,
+                "h": 44,
+                "ok": false,
+                "top": 198,
+                "left": 24
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Ready",
+                "w": 53,
+                "h": 48,
+                "ok": true,
+                "top": 306.5,
+                "left": 313
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Ready",
+                "w": 53,
+                "h": 48,
+                "ok": true,
+                "top": 363,
+                "left": 313
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Ready",
+                "w": 53,
+                "h": 48,
+                "ok": true,
+                "top": 468.5,
+                "left": 313
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Ready",
+                "w": 53,
+                "h": 48,
+                "ok": true,
+                "top": 524.5,
+                "left": 313
+              },
+              {
+                "sel": "div.teamcol > div.team-row > button.side-switch.gutter-right",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Ready",
+                "w": 53,
+                "h": 48,
+                "ok": true,
+                "top": 581,
+                "left": 313
+              },
+              {
+                "sel": "div.lobby-dock > div.row.spread > button.inline",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Hunt rules",
+                "w": 58,
+                "h": 32,
+                "ok": false,
+                "top": 694,
+                "left": 308
+              },
+              {
+                "sel": "main.page > div.lobby-dock > button.btn.btn--primary",
+                "tag": "button",
+                "inlineLink": false,
+                "text": "Begin the hunt",
+                "w": 342,
+                "h": 60,
+                "ok": true,
+                "top": 736,
+                "left": 24
+              }
+            ],
+            "overflow": [
+              {
+                "kind": "tight-box",
+                "sel": "header.strip > div.col > h1.title",
+                "detail": "h 26.0 font 22px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > div.col > div.code-poster.mt8",
+                "detail": "h 60.0 font 58px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.row.spread > div.col > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter > div.row.spread > span.cap",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "section.gutter > div.row > span.cap",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.lobby-dock > div.row.spread > span.data",
+                "detail": "h 17.0 font 12px"
+              },
+              {
+                "kind": "tight-box",
+                "sel": "div.lobby-dock > button.btn.btn--primary > span.btn-label",
+                "detail": "h 16.0 font 16px"
+              }
+            ],
+            "clippedText": [],
+            "borders": [],
+            "fonts": {
+              "used": {
+                "\"Instrument Sans\", \"Segoe UI\", sans-serif": 11,
+                "\"Red Hat Mono\", ui-monospace, \"Courier New\", monospace": 19
+              },
+              "faces": [
+                {
+                  "family": "Big Shoulders",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "Big Shoulders",
+                  "weight": "700",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Instrument Sans",
+                  "weight": "700",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "400",
+                  "status": "loaded"
+                },
+                {
+                  "family": "Red Hat Mono",
+                  "weight": "700",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "400",
+                  "status": "unloaded"
+                },
+                {
+                  "family": "IBM Plex Sans Arabic",
+                  "weight": "700",
+                  "status": "unloaded"
+                }
+              ],
+              "failures": 0,
+              "loaded": 3
+            },
+            "directionality": {
+              "htmlDir": "ltr",
+              "rtlElements": 0,
+              "physical": [
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".block",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".tape",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "18px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "2px",
+                  "selector": ".stamp",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "3px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-right-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "border-left-width",
+                  "value": "1px",
+                  "selector": ".stamp::before",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "12px",
+                  "selector": ".stamp--sm",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "-2px",
+                  "selector": ".stencil::before, .stencil::after",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".kit",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "right",
+                  "value": "24px",
+                  "selector": ".dock",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".input",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".strip",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "10px",
+                  "selector": ".team-head",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "5px",
+                  "selector": ".badge",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".log-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sys-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".section-title",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-row",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".setting-hint",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "14px",
+                  "selector": ".seg .cell",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "2px",
+                  "selector": ".switch",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "30%",
+                  "selector": ".slider .thumb",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".sheet",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-right",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "padding-left",
+                  "value": "24px",
+                  "selector": ".poster-foot",
+                  "sheet": "direction.css"
+                },
+                {
+                  "prop": "left",
+                  "value": "24px",
+                  "selector": ".lobby-dock",
+                  "sheet": "inline"
+                },
+                {
+                  "prop": "right",
+                  "value": "24px",
+                  "selector": ".lobby-dock",
+                  "sheet": "inline"
+                }
+              ],
+              "physicalBySheet": {
+                "direction.css": 48,
+                "inline": 2
+              },
+              "ltrIsolations": 0,
+              "rtlUnisolated": []
+            },
+            "colors": {
+              "cyanFills": 1,
+              "cyanSurfaces": 1,
+              "cyanAccents": 0,
+              "cyanText": 0,
+              "coralText": 0,
+              "violetText": 0,
+              "distinctFills": {
+                "11,18,32": 3,
+                "230,237,247": 1,
+                "255,122,89": 3,
+                "167,155,255": 4,
+                "34,211,238": 1
+              },
+              "cyanSurfaceList": [
+                {
+                  "sel": "main.page > div.lobby-dock > button.btn.btn--primary",
+                  "text": "Begin the hunt",
+                  "area": 20520
+                }
+              ],
+              "coralFills": 3,
+              "violetFills": 4
+            },
+            "seed": {
+              "found": {
+                "240": false,
+                "Riverside Run": true,
+                "K7M2QX": true,
+                "41:12": false,
+                "60:00": false,
+                "Nadia": true,
+                "Omar": true,
+                "Selim": true,
+                "Rana": true,
+                "Youssef": true
+              },
+              "missing": [],
+              "expectedKnown": false,
+              "present": [
+                "Riverside Run",
+                "K7M2QX",
+                "Nadia",
+                "Omar",
+                "Selim",
+                "Rana",
+                "Youssef"
+              ],
+              "expected": [
+                "Riverside Run",
+                "K7M2QX",
+                "Nadia",
+                "Omar",
+                "Selim",
+                "Rana",
+                "Youssef"
+              ],
+              "missingExpected": []
+            },
+            "forbidden": [],
+            "headings": [
+              {
+                "tag": "H1",
+                "text": "Riverside Run"
+              }
+            ],
+            "landmarks": [
+              "main",
+              "header"
+            ],
+            "a11y": {
+              "imgsWithoutAlt": 0,
+              "buttonsWithoutLabel": 0,
+              "inputsWithoutLabel": 0,
+              "svgWithoutTitle": 0,
+              "positiveTabindex": 0,
+              "h1Count": 1,
+              "langTokens": 2
+            }
+          }
+        }
+      },
+      "present": [
+        "auth",
+        "home",
+        "hunt-hunter",
+        "hunt-prey",
+        "lobby"
+      ],
+      "missingCanonical": [
+        "roles",
+        "chat",
+        "result",
+        "history",
+        "settings",
+        "sheet-tag-claim",
+        "sheet-room-settings",
+        "lobby-rtl",
+        "home-light"
+      ]
+    }
+  },
+  "consoleErrors": []
+}

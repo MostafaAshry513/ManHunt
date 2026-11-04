@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .sec-title { padding: 10px 24px 2px; display: flex; align-items: baseline; justify-content: space-between; }
+  .sec-title h2 { font-family: var(--font-ui); font-weight: 700; font-size: 17px; line-height: 22px; color: var(--chalk); }
+  .row { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 24px; }
+  .row > * { flex: none; }
+  .row .k { flex: 1 1 auto; }
+  .row + .row { border-top: 1px solid var(--rule); }
+  .row .v { color: var(--muted); }
+  .seg .cell { height: 40px; padding: 0 10px; font-size: 12px; }
+  .slider { width: 128px; flex: none; }
+  .slider .thumb { left: 34%; }
+  .slider .fill { width: 34%; }
+  .update-card { margin: 4px 24px 0; border: 1px solid var(--rule-strong); padding: 8px 10px; display: flex; align-items: center; gap: 10px; }
+  .update-card .u-title { font-family: var(--font-ui); font-weight: 700; font-size: 14px; line-height: 18px; color: var(--chalk); }
+  .update-card .u-meta { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; color: var(--muted); margin-top: 2px; }
+  .note { padding: 4px 24px 8px; font-family: var(--font-ui); font-size: 12px; line-height: 16px; color: var(--dim); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="strip" style="padding-top:10px;padding-bottom:6px;gap:10px">
+    <button class="icon-btn icon-btn--bare" type="button" aria-label="Back">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M15 4 7 12l8 8"/></svg>
+    </button>
+    <h1 class="title" style="font-size:17px">Settings</h1>
+    <span class="gutter-right data" style="color:var(--muted)">v0.16.1 · ANDROID 8+</span>
+  </header>
+
+  <div class="rule"></div>
+
+  <section>
+    <div class="sec-title"><h2>Appearance</h2><span class="data-l">DARK FIRST</span></div>
+    <div class="row">
+      <span class="k">Theme</span>
+      <div class="seg" style="margin-inline-start:auto"><span class="cell on">Dark</span><span class="cell">Light</span></div>
+    </div>
+    <div class="row">
+      <span class="k">Text size</span>
+      <div class="slider" aria-hidden="true"><div class="track"></div><div class="fill"></div><div class="thumb"></div></div>
+      <span class="v">1.0×</span>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section>
+    <div class="sec-title"><h2>Language</h2></div>
+    <div class="row">
+      <span class="k">App language</span>
+      <div class="seg" style="margin-inline-start:auto"><span class="cell on">English</span><span class="cell ar">العربية</span></div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section>
+    <div class="sec-title"><h2>Permissions</h2></div>
+    <div class="row">
+      <span class="k">Precise location</span>
+      <span class="v" style="margin-inline-start:auto">ALLOWED</span>
+      <button class="inline" style="border:0;min-height:44px;font-size:12px" type="button">Manage</button>
+    </div>
+    <div class="row">
+      <span class="k">Match notifications</span>
+      <span class="v" style="margin-inline-start:auto">NOT ALLOWED</span>
+      <button class="inline" style="border:0;min-height:44px;font-size:12px" type="button">Allow</button>
+    </div>
+    <div class="note">Required while you play as Prey in an active match. Android shows a tracking notice while location is on.</div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section>
+    <div class="sec-title"><h2>Updates</h2><span class="data-l">FREE APK</span></div>
+    <div class="row" style="min-height:26px">
+      <span class="small" style="color:var(--muted)">Installed v0.16.1 · Android 8+</span>
+      <span class="v" style="margin-inline-start:auto">CHECKED 21:04</span>
+    </div>
+    <div class="update-card">
+      <div style="flex:1 1 auto">
+        <div class="u-title">Update available</div>
+        <div class="u-meta">v0.17.0 · 2.3 MB · 4 NOV</div>
+      </div>
+      <button class="btn btn--outline-sm" style="width:auto;padding:0 12px;height:42px" type="button">
+        <span class="btn-label" style="font-size:12px">Download update</span>
+      </button>
+    </div>
+    <div class="note">Updates install over the current app; Android asks once. Not on Google Play.</div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section>
+    <div class="sec-title"><h2>Account</h2></div>
+    <div class="row">
+      <span class="k">Signed in as Nadia</span>
+      <span class="v" style="margin-inline-start:auto">PLAYER</span>
+    </div>
+    <div class="row">
+      <span class="k">Server</span>
+      <span class="v" style="margin-inline-start:auto">TEST DEPLOYMENT</span>
+    </div>
+    <div class="note">To change the server, sign out and edit it on the sign-in screen. Plain HTTP, no availability guarantee.</div>
+    <div style="padding:4px 24px 20px">
+      <button class="btn btn--danger" style="width:100%" type="button"><span class="btn-label">Sign out</span></button>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

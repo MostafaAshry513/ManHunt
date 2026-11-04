@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt — Hunt history</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="_a.css">
+<style>
+  .header .title-block { display: flex; flex-direction: column; gap: 1px; flex: 1; padding-inline-start: 4px; }
+  .header .title-block .title { padding: 0; flex: none; }
+  .header .title-block .hsub { font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .05em; color: var(--a-muted); }
+  .hist-body { padding: 12px 24px 0; overflow: hidden; }
+  .sum { padding: 12px 0 12px; border-bottom: 1px solid var(--a-rule); }
+  .sum-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .sum-result { font-family: var(--a-ui); font-weight: 700; font-size: 21px; line-height: 27px; color: var(--a-violet); }
+  .sum-dur { font-family: var(--a-mono); font-size: 12px; line-height: 16px; letter-spacing: .04em; color: var(--a-ink); }
+  .sum-meta { font-family: var(--a-mono); font-size: 10.5px; line-height: 15px; letter-spacing: .04em; color: var(--a-muted); margin-top: 4px; }
+  .sum-teams { font-family: var(--a-mono); font-size: 10.5px; line-height: 15px; letter-spacing: .03em; color: var(--a-muted); margin-top: 8px; }
+  .sum-teams b { font-weight: 400; color: var(--a-ink); }
+  .group { margin-top: 14px; }
+  .group-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--a-rule); }
+  .hist-row { display: flex; align-items: center; gap: 12px; min-height: 76px; padding: 8px 0; border-bottom: 1px solid var(--a-rule); }
+  .hist-main { flex: 1; min-width: 0; }
+  .hist-sub { white-space: normal; line-height: 15px; }
+  .chev { color: var(--a-muted); flex: none; }
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="header">
+    <button class="icon-btn start" type="button" aria-label="Back">
+      <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="title-block">
+      <div class="title">Hunt history</div>
+      <div class="hsub">Riverside Run · this room</div>
+    </div>
+  </header>
+
+  <div class="hist-body grow" style="padding-bottom:16px">
+    <div class="ca" style="padding-top:2px">Last hunt</div>
+    <div class="sum">
+      <div class="sum-top">
+        <span class="sum-result">Hunters won</span>
+        <span class="sum-dur">18:48</span>
+      </div>
+      <div class="sum-meta">Tonight · 20:33 · both prey tagged</div>
+      <div class="sum-teams">Prey <b>Nadia, Rana</b><br>Hunters <b>Omar, Selim, Youssef</b></div>
+    </div>
+
+    <div class="group">
+      <div class="group-h"><span class="cap">Tonight</span><span class="ca">3 hunts</span></div>
+      <div class="hist-row">
+        <span class="hist-time">20:33</span>
+        <span class="hist-dur">18:48</span>
+        <div class="hist-main">
+          <div class="hist-result"><span class="hist-dot" style="background:var(--a-violet)"></span>Hunters won</div>
+          <div class="hist-sub">Prey: Nadia, Rana · Hunters: Omar, Selim, Youssef</div>
+        </div>
+      </div>
+      <div class="hist-row">
+        <span class="hist-time">19:02</span>
+        <span class="hist-dur">24:08</span>
+        <div class="hist-main">
+          <div class="hist-result"><span class="hist-dot" style="background:var(--a-coral)"></span>Prey won</div>
+          <div class="hist-sub">Prey: Nadia, Rana · Hunters: Omar, Selim, Youssef</div>
+        </div>
+      </div>
+      <div class="hist-row">
+        <span class="hist-time">21:15</span>
+        <span class="hist-dur">—</span>
+        <div class="hist-main">
+          <div class="hist-result" style="color:var(--a-muted)">Hunt cancelled</div>
+          <div class="hist-sub">Stopped by the huntmaster before full time</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-h"><span class="cap">Yesterday</span><span class="ca">2 hunts</span></div>
+      <div class="hist-row">
+        <span class="hist-time">21:40</span>
+        <span class="hist-dur">12:20</span>
+        <div class="hist-main">
+          <div class="hist-result"><span class="hist-dot" style="background:var(--a-violet)"></span>Hunters won</div>
+          <div class="hist-sub">Prey: Nadia, Rana · Hunters: Omar, Selim, Youssef</div>
+        </div>
+      </div>
+      <div class="hist-row">
+        <span class="hist-time">18:09</span>
+        <span class="hist-dur">36:44</span>
+        <div class="hist-main">
+          <div class="hist-result"><span class="hist-dot" style="background:var(--a-coral)"></span>Prey won</div>
+          <div class="hist-sub">Prey: Nadia, Rana · Hunters: Omar, Selim, Youssef</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-h"><span class="cap">2 Nov</span><span class="ca">2 hunts</span></div>
+      <div class="hist-row">
+        <span class="hist-time">20:18</span>
+        <span class="hist-dur">41:02</span>
+        <div class="hist-main">
+          <div class="hist-result"><span class="hist-dot" style="background:var(--a-violet)"></span>Hunters won</div>
+          <div class="hist-sub">Prey: Nadia, Rana · Hunters: Omar, Selim, Youssef</div>
+        </div>
+      </div>
+      <div class="hist-row">
+        <span class="hist-time">19:46</span>
+        <span class="hist-dur">—</span>
+        <div class="hist-main">
+          <div class="hist-result" style="color:var(--a-muted)">Hunt cancelled</div>
+          <div class="hist-sub">Stopped by the huntmaster before full time</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</main>
+</body>
+</html>

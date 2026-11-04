@@ -1,0 +1,22 @@
+{
+  "name": "manhunt-ui-v2-env",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Exact-pixel design render environment for the ManHunt UI/UX redesign v2 (390x844 dp @3x = 1170x2532 px).",
+  "scripts": {
+    "install-browser": "PLAYWRIGHT_BROWSERS_PATH=./.browsers playwright install chromium",
+    "install-deps": "PLAYWRIGHT_BROWSERS_PATH=./.browsers playwright install-deps chromium",
+    "serve": "node serve.mjs",
+    "render": "node render.mjs",
+    "render:sample": "node render.mjs samples/sample.html --out out",
+    "render:all": "node render.mjs --all",
+    "sheets": "node contact-sheet.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.64.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

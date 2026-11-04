@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title>Font check — Arabic + brand faces</title>
+<link rel="stylesheet" href="../canvas.css">
+<style>
+  .page { display: flex; flex-direction: column; gap: 14px; padding: 24px; }
+  .lbl { font-family: "Red Hat Mono"; font-size: 10px; letter-spacing: .1em; direction: ltr; text-align: left; color: #6f829b; text-transform: uppercase; }
+  .ar { font-family: var(--mh-font-arabic); font-weight: 400; font-size: 22px; line-height: 1.4; }
+  .arb { font-family: var(--mh-font-arabic); font-weight: 700; font-size: 34px; line-height: 1.15; }
+  .mixed { font-family: var(--mh-font-ui); font-size: 18px; line-height: 1.45; }
+  .head { font-family: var(--mh-font-display); font-weight: 700; font-size: 72px; line-height: .9; text-transform: uppercase; }
+  .num { font-family: var(--mh-font-mono); font-size: 18px; direction: ltr; text-align: left; }
+  .rule { height: 1px; background: var(--mh-rule); }
+</style>
+</head>
+<body><main class="page">
+  <p class="lbl">arabic body — IBM Plex Sans Arabic 400</p>
+  <p class="ar" lang="ar">اختبئ من أصدقائك. الفريسة تهرب، والصيادون يقتربون.</p>
+  <p class="lbl">arabic bold — IBM Plex Sans Arabic 700</p>
+  <p class="arb" lang="ar">الوقت الكامل — الفريسة</p>
+  <div class="rule"></div>
+  <p class="lbl">brand latin display — Big Shoulders 700</p>
+  <p class="head">Full time</p>
+  <p class="lbl">mixed arabic + latin code (brand faces for LTR runs)</p>
+  <p class="mixed" lang="ar">غرفة <span class="mh-ltr">K7M2QX</span> · <span class="mh-ltr">41:12</span> · 240 m · الصيادون</p>
+  <p class="lbl">mono data — Red Hat Mono 400</p>
+  <p class="num">034.9122 / 056.1071 · 09:48.2</p>
+</main></body></html>

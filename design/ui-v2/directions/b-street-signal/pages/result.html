@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full time — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .result-strip { display: flex; align-items: center; justify-content: space-between; padding: 10px 24px;
+                  border-bottom: 1px solid var(--rule); }
+  .winner-block { position: relative; background: var(--violet); color: var(--paper-ink); padding: 16px 24px 20px; }
+  .winner-word { font-family: var(--font-display); font-weight: 700; font-size: 92px; line-height: 80px; letter-spacing: -0.025em; }
+  .winner-block .stamp { position: absolute; inset-inline-end: 20px; bottom: -14px; color: var(--paper-ink);
+                         background: var(--violet); }
+  .plate-svg { display: block; width: 100%; height: 100%; }
+  .result-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .final-col { flex: 1 1 0; }
+  .final-col .row { height: 30px; display: flex; align-items: center; justify-content: space-between; }
+  .final-name { font-family: var(--font-ui); font-size: 13px; color: var(--chalk); }
+  .final-state { font-family: var(--font-mono); font-size: 9px; letter-spacing: .08em; color: var(--dim); }
+</style>
+</head>
+<body>
+<main class="page" style="padding-bottom:126px">
+
+  <!-- full time strip: state + played duration + honest final count -->
+  <div class="result-strip">
+    <span class="state" style="color:var(--chalk);white-space:nowrap">FULL TIME</span>
+    <div class="col" style="align-items:flex-end;gap:1px">
+      <span class="data" style="color:var(--chalk);white-space:nowrap">18:48 PLAYED</span>
+      <span class="data" style="color:var(--muted);white-space:nowrap">PREY REMAINING 0 / 2</span>
+    </div>
+  </div>
+
+  <!-- the payoff is a poster: one flat team-colour field, one sentence-case winner line -->
+  <section class="winner-block">
+    <div class="winner-word">Hunters<br>win.</div>
+    <div class="row spread" style="margin-top:8px">
+      <span class="data" style="color:rgba(11,18,32,.78);white-space:nowrap">PREY REMAINING 0 / 2</span>
+    </div>
+    <span class="stamp" style="color:#0b1220">Full time</span>
+  </section>
+
+  <!-- the final positions: a drawn field plate, not fake map tiles (labelled in NOTES) -->
+  <div style="position:relative;height:212px;background:var(--field-deep);border-bottom:1px solid var(--rule)">
+    <svg class="plate-svg" viewBox="0 0 390 212" preserveAspectRatio="xMidYMid slice" aria-label="Final positions: the zone and the Prey trails">
+      <rect width="390" height="212" fill="#070d18"/>
+      <g fill="#101827" stroke="#182338" stroke-width="1">
+        <rect x="16" y="18" width="82" height="52"/><rect x="112" y="18" width="96" height="52"/><rect x="222" y="18" width="70" height="52"/><rect x="306" y="18" width="70" height="52"/>
+        <rect x="16" y="92" width="82" height="62"/><rect x="112" y="92" width="96" height="62"/><rect x="222" y="92" width="70" height="62"/><rect x="306" y="92" width="70" height="62"/>
+      </g>
+      <path d="M-10 78 L 400 70" stroke="#223049" stroke-width="8" opacity=".8"/>
+      <circle cx="196" cy="104" r="74" fill="rgba(34,211,238,.06)" stroke="#22d3ee" stroke-width="2"/>
+      <polyline points="238,70 216,84 200,98 184,110 166,120" fill="none" stroke="#ff7a59" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+      <polyline points="142,146 158,134 176,130 194,132" fill="none" stroke="#ff7a59" stroke-width="2" stroke-linecap="round" opacity=".45"/>
+      <circle cx="238" cy="70" r="5" fill="#e6edf7" opacity=".55"/>
+      <circle cx="142" cy="146" r="5" fill="#e6edf7" opacity=".55"/>
+      <circle cx="196" cy="104" r="4.5" fill="#a79bff"/>
+    </svg>
+  </div>
+
+  <!-- final team states: honest data only (tagged / staying in) -->
+  <section class="gutter" style="padding-top:10px">
+    <div class="row" style="gap:20px;align-items:flex-start">
+      <div class="final-col">
+        <div class="team-head team-head--prey" style="height:26px"><span>PREY</span><span>0 / 2</span></div>
+        <div class="row"><span class="final-name">Nadia</span><span class="final-state">TAGGED</span></div>
+        <div class="row"><span class="final-name">Rana</span><span class="final-state">TAGGED</span></div>
+      </div>
+      <div class="final-col">
+        <div class="team-head team-head--hunters" style="height:26px"><span>HUNTERS</span><span>3</span></div>
+        <div class="row"><span class="final-name">Omar</span><span class="final-state">IN PLAY</span></div>
+        <div class="row"><span class="final-name">Selim</span><span class="final-state">IN PLAY</span></div>
+        <div class="row"><span class="final-name">Youssef</span><span class="final-state">IN PLAY</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gutter" style="margin-top:12px">
+    <div class="rule"></div>
+    <div class="row spread" style="min-height:28px">
+      <span class="data-l">STARTED 20:41 · ENDED 21:00</span>
+      <span class="data-l">DURATION 60:00</span>
+    </div>
+  </section>
+
+  <div class="result-dock">
+    <div class="row spread">
+      <button class="inline" style="border:0;min-height:32px;font-size:13px" type="button">View hunt history</button>
+      <button class="inline" style="border:0;min-height:32px;font-size:13px;color:var(--dim)" type="button">Rematch · proposal</button>
+    </div>
+    <button class="btn btn--chalk" type="button"><span class="btn-label">Back to lobby</span></button>
+  </div>
+
+</main>
+</body>
+</html>

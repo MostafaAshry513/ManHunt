@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt — Home</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="_a.css">
+<style>
+  .line-block { padding: 16px 24px 0; }
+  .line-block .d-l { color: var(--a-ink); }
+  .line-block .bs { margin-top: 8px; }
+  .host { padding: 14px 24px 0; }
+  .host-title { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .host .btn { margin-top: 12px; }
+  .join-block { padding: 0 24px; margin-top: 12px; }
+  .join-head { padding-top: 12px; }
+  .join-head .ti { margin-bottom: 10px; }
+  .join .code-cells { margin-bottom: 8px; }
+  .join .btn { margin-top: 10px; }
+  .foot { padding: 10px 24px 18px; margin-top: auto; }
+  .foot .rule-ticks { margin-bottom: 10px; }
+  .foot-row { display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
+  .foot-row .foot-id, .foot-row .bi-id { font-family: var(--a-ui); font-size: 13px; line-height: 18px; color: var(--a-muted); }
+  
+  .foot-ver { display: flex; align-items: center; justify-content: space-between; font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: 0.05em; color: var(--a-muted); padding-top: 4px; }
+  .foot-ver .signout { font-family: var(--a-ui); font-weight: 700; font-size: 12px; letter-spacing: 0; color: var(--a-muted); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- Masthead: identity, local time, settings. No fake hunt clock before a hunt exists. -->
+  <header class="masthead">
+    <div class="lockup">
+      <svg class="mark" viewBox="0 0 108 108" aria-hidden="true"><path d="M74.86,46.41A22.2,22.2 0 1 1 53.23,31.81" fill="none" stroke="#22D3EE" stroke-width="10.4" stroke-linecap="butt"/><circle cx="66.72" cy="33.65" r="8.6" fill="#FF7A59"/></svg>
+      <svg class="wordmark" viewBox="0 0 530 100" height="19" aria-label="MANHUNT"><g fill="currentColor"><path transform="translate(0 0)" d="M0,0L16,0L16,100L0,100ZM60,0L76,0L76,100L60,100ZM7,0L20.5,0L44.75,100L31.25,100ZM55.5,0L69,0L44.75,100L31.25,100Z"/><path transform="translate(86 0)" d="M26.5,0L41.5,0L20,100L0,100ZM26.5,0L41.5,0L68,100L48,100ZM23,63L45,63L45,79L23,79Z"/><path transform="translate(164 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z"/><path transform="translate(242 0)" d="M0,0L16,0L16,100L0,100ZM48,0L64,0L64,100L48,100ZM0,41L64,41L64,57L0,57Z"/><path transform="translate(316 0)" d="M0,0V66A34,34 0 0 0 68,66V0H0ZM16,0V66A18,18 0 0 0 52,66V0H16Z" fill-rule="evenodd"/><path transform="translate(394 0)" d="M0,0L16,0L16,100L0,100ZM52,0L68,0L68,100L52,100ZM7,0L24,0L65,100L48,100Z"/><path transform="translate(472 0)" d="M0,0L58,0L58,16L37,16L37,100L21,100L21,16L0,16Z"/></g></svg>
+    </div>
+    <div class="masthead-right">
+      <span class="masthead-time">20:31</span>
+      <button class="icon-btn" type="button" aria-label="Settings">
+        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M3 6h15M3 12h11M3 18h17"/><path d="M20 4v4M16 10v4M22 16v4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- The drawn field: the brand's one illustration. No text inside it. -->
+  <div class="field-plate" style="height:120px" aria-hidden="true">
+    <svg viewBox="0 0 390 140" preserveAspectRatio="xMidYMid slice">
+      <rect width="390" height="140" fill="#0b1220"/>
+      <g fill="#101827" stroke="#26324b" stroke-width="1">
+        <rect x="14" y="10" width="64" height="24"/><rect x="86" y="10" width="76" height="24"/><rect x="170" y="10" width="52" height="24"/><rect x="230" y="10" width="66" height="24"/><rect x="304" y="10" width="42" height="24"/><rect x="354" y="10" width="40" height="24"/>
+        <rect x="14" y="44" width="64" height="28"/><rect x="86" y="44" width="76" height="28"/><rect x="230" y="44" width="66" height="28"/><rect x="304" y="44" width="42" height="28"/>
+        <rect x="14" y="82" width="64" height="24"/><rect x="86" y="82" width="76" height="24"/><rect x="170" y="82" width="52" height="24"/><rect x="230" y="82" width="66" height="24"/>
+      </g>
+      <g stroke="#223049" stroke-width="3"><path d="M168 0v140M0 38h390M0 77h390M0 114h390M296 0v140"/></g>
+      <path d="M158 100c26-10 34-28 52-34s30-26 46-30" stroke="#FF7A59" stroke-opacity=".58" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="256" cy="36" r="6" fill="#FF7A59"/><circle cx="256" cy="36" r="13" fill="none" stroke="#FF7A59" stroke-opacity=".5" stroke-width="1.5"/>
+      <circle cx="146" cy="104" r="5" fill="#FF7A59" fill-opacity=".45" stroke="#FF7A59" stroke-opacity=".75" stroke-width="1.4" stroke-dasharray="3 3"/>
+      <ellipse cx="234" cy="62" rx="92" ry="58" fill="none" stroke="#22D3EE" stroke-width="1.6" stroke-dasharray="8 7" opacity=".85"/>
+      <circle cx="188" cy="112" r="5" fill="#E6EDF7"/><circle cx="188" cy="112" r="11" fill="none" stroke="#E6EDF7" stroke-opacity=".75" stroke-width="1.4"/>
+      <g stroke="#A79BFF" stroke-width="2" stroke-linecap="butt"><path d="M330 30l7 7-7 7M339 30l7 7-7 7"/><path d="M56 116l7 7-7 7M65 116l7 7-7 7"/></g>
+    </svg>
+  </div>
+
+  <div class="line-block">
+    <div class="d-l">Hide from<br>your friends.</div>
+    <div class="bs">Real-world GPS hide-and-seek.</div>
+  </div>
+
+  <section class="host">
+    <div class="host-title">
+      <span class="ti">Host a hunt</span>
+    </div>
+    <div class="field-label"><span>Hunt name</span></div>
+    <div class="field is-value focus" style="max-width:342px">
+      <span>Riverside Run</span><span class="caret" style="margin-inline-start:1px"></span>
+    </div>
+    <button class="btn primary" type="button">Create the hunt</button>
+  </section>
+
+  <section class="join">
+    <div class="join-block">
+      <div class="rule-ticks"></div>
+      <div class="join-head">
+        <div class="ti">Join a hunt</div>
+        <div class="code-cells" role="group" aria-label="Invite code">
+          <span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span>
+        </div>
+        <div class="helper">Ask the host for the six-character code.</div>
+        <button class="btn secondary is-disabled" type="button" style="margin-top:10px">Join hunt</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="rule-ticks"></div>
+    <div class="foot-row">
+      <span class="inline">Read the roles
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M9 5l7 7-7 7"/></svg>
+      </span>
+      <span class="bi-id">Playing as Nadia</span>
+    </div>
+    <div class="foot-ver">
+      <span>v0.16.1 · free APK · Android 8+</span>
+      <span class="signout">Sign out</span>
+    </div>
+  </footer>
+
+</main>
+</body>
+</html>

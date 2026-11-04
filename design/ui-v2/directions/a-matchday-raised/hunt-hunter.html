@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ManHunt — Live hunt, Hunters</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="_a.css">
+<style>
+  .hunt-board { border-top: 0; }
+  .hunt-board .board-main { padding-top: 0; padding-bottom: 10px; }
+  .hunt-board .clock { font-size: 72px; line-height: 66px; }
+  .clock-side { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; padding-bottom: 4px; }
+  .clock-side .ds { color: var(--a-board-muted); }
+  .map-wrap { flex: 1 1 auto; min-height: 0; }
+  .peek { padding: 9px 24px 9px; }
+  .peek-line1 { font-family: var(--a-ui); font-size: 13px; line-height: 18px; color: var(--a-ink); }
+  .peek-line2 { font-family: var(--a-mono); font-size: 10.5px; line-height: 15px; letter-spacing: .04em; color: var(--a-muted); margin-top: 2px; }
+  .hunt-dock .dock-status { display: flex; justify-content: space-between; font-size: 12px; min-height: 20px; }
+  .hunt-dock .dock-status .inline { min-height: 20px; font-size: 12px; }
+  .hunt-dock { padding: 8px 24px 20px; gap: 6px; }
+  .map-legend { position: absolute; inset-inline-start: 24px; bottom: 16px; display: flex; flex-direction: column; gap: 5px; }
+  .lg { display: flex; align-items: center; gap: 7px; font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .04em; color: #e6edf7; text-shadow: 0 1px 3px #0b1220, 0 1px 1px #0b1220; }
+  .lg .fresh { width: 8px; height: 8px; border-radius: 50%; background: #ff7a59; box-shadow: 0 0 0 3px rgba(255,122,89,.25); }
+  .lg .stale { width: 8px; height: 8px; border-radius: 50%; border: 1.5px dashed #ff7a59; opacity: .75; }
+  .lg .own { width: 8px; height: 8px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,.3); }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- Live Board: state + clock + zone + prey count. -->
+  <section class="board hunt-board">
+    <div class="board-mast">
+      <div class="board-state">
+        <span class="dot-live"></span>
+        <span class="st live">Live</span>
+        <span class="sep-dot">·</span>
+        <span class="room-name">Riverside Run</span>
+      </div>
+      <div class="board-gutter">
+        <div class="glabel">Zone<b>240 m</b></div>
+        <div class="glabel">Prey<b>2 / 2</b></div>
+      </div>
+    </div>
+    <div class="board-main">
+      <div class="clock">41:12</div>
+      <div class="clock-side">
+        <span class="ds">Remaining</span>
+        <span class="ds">Latest reports</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- The field: drawn city blocks (a stand-in for the live OSM tiles), zone, reports, trail. -->
+  <div class="map-wrap" role="img" aria-label="The field. Zone 240 metres. Two reported prey positions, one fresh and one stale. Trail heading east.">
+    <svg viewBox="0 0 390 540" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="390" height="540" fill="#0b1220"/>
+      <g fill="#101827" stroke="#26324b" stroke-width="1">
+        <rect x="0" y="0" width="86" height="52"/><rect x="94" y="0" width="106" height="52"/><rect x="208" y="0" width="78" height="52"/><rect x="294" y="0" width="96" height="52"/>
+        <rect x="0" y="60" width="86" height="64"/><rect x="94" y="60" width="106" height="64"/><rect x="294" y="60" width="96" height="64"/>
+        <rect x="0" y="132" width="86" height="58"/><rect x="94" y="132" width="106" height="58"/><rect x="208" y="132" width="78" height="58"/><rect x="294" y="132" width="96" height="58"/>
+        <rect x="0" y="198" width="86" height="70"/><rect x="94" y="198" width="106" height="70"/><rect x="208" y="198" width="78" height="70"/><rect x="294" y="198" width="96" height="70"/>
+        <rect x="0" y="276" width="86" height="62"/><rect x="94" y="276" width="106" height="62"/><rect x="208" y="276" width="78" height="62"/><rect x="294" y="276" width="96" height="62"/>
+        <rect x="0" y="346" width="86" height="76"/><rect x="94" y="346" width="106" height="76"/><rect x="208" y="346" width="78" height="76"/><rect x="294" y="346" width="96" height="76"/>
+        <rect x="0" y="430" width="86" height="64"/><rect x="94" y="430" width="106" height="64"/><rect x="208" y="430" width="78" height="64"/><rect x="294" y="430" width="96" height="64"/>
+        <rect x="0" y="502" width="86" height="38"/><rect x="94" y="502" width="106" height="38"/><rect x="208" y="502" width="78" height="38"/><rect x="294" y="502" width="96" height="38"/>
+      </g>
+      <!-- streets -->
+      <g stroke="#223049" stroke-width="6"><path d="M90 0v540M204 0v540M290 0v540"/></g>
+      <g stroke="#2f4058" stroke-width="8"><path d="M0 56h390"/><path d="M0 302h390"/></g>
+      <g stroke="#223049" stroke-width="4"><path d="M0 128h390M0 194h390M0 272h390M0 342h390M0 426h390M0 498h390"/></g>
+      <!-- park / water -->
+      <path d="M204 60h78v64h-78z" fill="#0e2a33"/>
+      <path d="M204 60h78v64h-78z" fill="none" stroke="#143846" stroke-width="2"/>
+      <!-- zone ring -->
+      <ellipse cx="206" cy="272" rx="128" ry="150" fill="rgba(34,211,238,.045)" stroke="#22d3ee" stroke-width="2" stroke-dasharray="12 9" opacity=".9"/>
+      <!-- prey trail (latest reports, hunters only) -->
+      <path d="M120 360c20-16 22-44 44-52s26 22 50 6 22-40 34-48" stroke="#ff7a59" stroke-opacity=".55" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <!-- fresh report: Nadia, 12 s ago -->
+      <circle cx="248" cy="266" r="6.5" fill="#ff7a59"/>
+      <circle cx="248" cy="266" r="15" fill="none" stroke="#ff7a59" stroke-opacity=".55" stroke-width="1.6"/>
+      <circle cx="248" cy="266" r="26" fill="none" stroke="#ff7a59" stroke-opacity=".22" stroke-width="1.4"/>
+      <!-- stale report: Rana, 14 min old (dim + dashed + label in legend) -->
+      <circle cx="128" cy="196" r="5.5" fill="#ff7a59" fill-opacity=".35"/>
+      <circle cx="128" cy="196" r="13" fill="none" stroke="#ff7a59" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <!-- own position: Omar, cyan -->
+      <circle cx="196" cy="392" r="6" fill="#22d3ee"/>
+      <circle cx="196" cy="392" r="14" fill="none" stroke="#22d3ee" stroke-opacity=".65" stroke-width="1.8"/>
+      <circle cx="196" cy="392" r="30" fill="none" stroke="#22d3ee" stroke-opacity=".18" stroke-width="1.4"/>
+    </svg>
+
+    <div class="map-controls">
+      <button class="map-btn" type="button" aria-label="Zoom in"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button class="map-btn" type="button" aria-label="Zoom out"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M5 12h14"/></svg></button>
+      <button class="map-btn" type="button" aria-label="Recentre on me"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+    </div>
+
+    <div class="map-legend">
+      <span class="lg"><i class="own"></i>You</span>
+      <span class="lg"><i class="fresh"></i>Report · 12 s</span>
+      <span class="lg"><i class="stale"></i>Stale · 14 min</span>
+    </div>
+  </div>
+
+  <div class="peek">
+    <div class="peek-main">
+      <div class="peek-line1">2 prey still out. Last fresh report 12 s ago.</div>
+      <div class="peek-line2" style="text-transform:none">Zone 240 m · latest reports · © OpenStreetMap contributors</div>
+    </div>
+    <span class="chevr"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M6 15l6-6 6 6"/></svg></span>
+  </div>
+
+  <div class="hunt-dock">
+    <div class="dock-status">
+      <span>Trails on. Hunters see the latest reports.</span>
+      <span class="inline" style="font-weight:400;color:var(--a-muted)">Hide trails</span>
+    </div>
+    <button class="btn primary" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="18.5" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>
+      Tag prey
+    </button>
+  </div>
+</main>
+</body>
+</html>

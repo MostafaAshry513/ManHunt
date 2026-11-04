@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tag claim — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .hunt-strip { border-bottom: 1px solid var(--rule); padding: 9px 24px 8px; }
+  .claim-head { background: var(--coral); color: var(--paper-ink); padding: 12px 24px 14px; position: relative; }
+  .claim-head .word { font-family: var(--font-display); font-weight: 700; font-size: 62px; line-height: 58px; letter-spacing: -0.02em; }
+  .claim-head .stamp { position: absolute; inset-inline-end: 22px; bottom: 12px; color: var(--paper-ink); }
+  .claim-who { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--dim); }
+  .consequence { background: var(--lift); border-inline-start: 3px solid var(--coral); padding: 10px 14px; margin: 0 24px; }
+  .claim-actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding: 16px 24px 24px; }
+  .sheet { padding: 0; height: 72%; }
+  .sheet-body { padding: 0 0 0; overflow: hidden; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- the hunt behind the decision, dimmed -->
+  <header class="hunt-strip">
+    <div class="row spread">
+      <span class="row gap8"><span class="dot"></span><span class="state" style="color:var(--cyan)">LIVE</span></span>
+      <span class="data">ZONE 240 m</span>
+    </div>
+    <div class="clock" style="margin-top:2px">41:12</div>
+  </header>
+  <div class="map flex1">
+    <svg viewBox="0 0 390 600" preserveAspectRatio="xMidYMid slice">
+      <rect width="390" height="600" fill="#0b1220"/>
+      <g fill="#101827" stroke="#182338" stroke-width="1">
+        <rect x="18" y="26" width="96" height="86"/><rect x="132" y="26" width="118" height="86"/><rect x="268" y="26" width="104" height="86"/>
+        <rect x="18" y="132" width="96" height="96"/><rect x="132" y="132" width="118" height="96"/><rect x="268" y="132" width="104" height="96"/>
+        <rect x="18" y="248" width="96" height="104"/><rect x="132" y="248" width="118" height="104"/><rect x="268" y="248" width="104" height="104"/>
+      </g>
+      <path d="M-20 236 L 420 206" stroke="#2f4058" stroke-width="12" opacity=".7"/>
+      <path d="M132 0 L 168 600" stroke="#223049" stroke-width="10" opacity=".8"/>
+      <circle cx="195" cy="292" r="152" fill="rgba(34,211,238,0.055)" stroke="#22d3ee" stroke-width="2.5"/>
+      <circle cx="195" cy="330" r="14" fill="none" stroke="#e6edf7" stroke-width="2"/>
+      <circle cx="195" cy="330" r="8" fill="#ff7a59"/>
+    </svg>
+  </div>
+
+  <div class="mh-scrim"></div>
+
+  <!-- the claim: one decision, consequence stated before the tap -->
+  <section class="sheet">
+    <div style="padding: 14px 24px 0">
+      <span class="tape" style="transform:rotate(-1.5deg)">Tag claim</span>
+    </div>
+    <div class="sheet-grip" style="margin-top:14px"></div>
+
+    <div class="claim-head">
+      <div class="row spread" style="align-items:flex-start">
+        <div class="word">Tag claim</div>
+      </div>
+      <span class="stamp stamp--sm" style="position:absolute;inset-inline-end:22px;bottom:12px;color:#0b1220">Answer</span>
+      <div class="claim-who" style="margin-top:8px;color:rgba(11,18,32,.72)">OMAR · 20:48 · RIVERSIDE RUN</div>
+    </div>
+
+    <div class="sheet-body" style="padding: 16px 24px 0">
+      <h2 class="title" style="font-size:22px;line-height:27px">Omar says he tagged you.</h2>
+      <p class="body muted" style="margin-top:8px;font-size:15px;line-height:22px">Confirm it if it happened. If it didn't, dispute it — the huntmaster decides.</p>
+      <div class="consequence" style="margin:14px 0 0">
+        <span class="small" style="color:var(--chalk)">If you confirm, you're out and spectating. If you dispute, the huntmaster decides.</span>
+      </div>
+    </div>
+
+    <div class="claim-actions">
+      <button class="btn btn--chalk" type="button"><span class="btn-label">Confirm</span></button>
+      <button class="btn btn--outline-sm" type="button"><span class="btn-label">Dispute</span></button>
+      <div class="row" style="justify-content:center;padding-top:2px">
+        <span class="cap" style="font-size:11px;color:var(--dim)">Dismissing keeps the claim waiting.</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live hunt (Hunter) — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .hunt-strip { border-bottom: 1px solid var(--rule); padding: 9px 24px 8px; }
+  .status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 24px; }
+  .dock { gap: 8px; }
+  .map-label { fill: #a7b6cc; font-family: "Red Hat Mono", monospace; font-size: 10px; letter-spacing: .08em; }
+  .map-tag { fill: #0b1220; font-family: "Instrument Sans", sans-serif; font-weight: 700; font-size: 10px; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- LIVE strip: state + clock are the loudest objects, then the map -->
+  <header class="hunt-strip">
+    <div class="row spread">
+      <span class="row gap8">
+        <span class="dot"></span>
+        <span class="state" style="color:var(--cyan)">LIVE</span>
+        <span class="data" style="color:var(--muted)">Riverside Run</span>
+      </span>
+      <div class="col" style="align-items:flex-end;gap:2px">
+        <span class="data">ZONE 240 m</span>
+        <span class="data">PREY 2 / 2</span>
+      </div>
+    </div>
+    <div class="clock" style="margin-top:2px">41:12</div>
+  </header>
+
+  <div class="map flex1">
+    <svg viewBox="0 0 390 600" preserveAspectRatio="xMidYMid slice" aria-label="Map: the hunt zone with reported Prey positions">
+      <rect width="390" height="600" fill="#0b1220"/>
+      <!-- river -->
+      <path d="M-20 500 C 70 470, 150 545, 245 505 S 380 465, 420 500 L 420 620 L -20 620 Z" fill="#0e2a33"/>
+      <path d="M-20 500 C 70 470, 150 545, 245 505 S 380 465, 420 500" fill="none" stroke="#1d4652" stroke-width="1.5"/>
+      <!-- blocks -->
+      <g fill="#101827" stroke="#182338" stroke-width="1">
+        <rect x="18" y="26" width="96" height="86"/><rect x="132" y="26" width="118" height="86"/><rect x="268" y="26" width="104" height="86"/>
+        <rect x="18" y="132" width="96" height="96"/><rect x="132" y="132" width="118" height="96"/><rect x="268" y="132" width="104" height="96"/>
+        <rect x="18" y="248" width="96" height="104"/><rect x="132" y="248" width="118" height="104"/><rect x="268" y="248" width="104" height="104"/>
+        <rect x="18" y="372" width="96" height="88"/><rect x="132" y="372" width="118" height="88"/><rect x="268" y="372" width="104" height="88"/>
+      </g>
+      <!-- main road diagonals (flat) -->
+      <path d="M-20 236 L 420 206" stroke="#2f4058" stroke-width="12" opacity=".7"/>
+      <path d="M-20 236 L 420 206" stroke="#405573" stroke-width="1.5" stroke-dasharray="10 8" opacity=".5"/>
+      <path d="M132 0 L 168 600" stroke="#223049" stroke-width="10" opacity=".8"/>
+      <path d="M268 0 L 240 600" stroke="#223049" stroke-width="10" opacity=".8"/>
+      <!-- the zone: cyan ring, 8% fill, four survey ticks -->
+      <circle cx="195" cy="292" r="152" fill="rgba(34,211,238,0.055)" stroke="#22d3ee" stroke-width="2.5"/>
+      <g stroke="#22d3ee" stroke-width="2.5">
+        <path d="M195 128v10"/><path d="M195 446v10"/><path d="M31 292h10"/><path d="M339 292h10"/>
+      </g>
+      <!-- prey trail (coral, 58%) -->
+      <polyline points="252,238 232,262 208,276 188,300 166,322" fill="none" stroke="#ff7a59" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" opacity=".62"/>
+      <!-- fresh prey report: coral dot + report ring -->
+      <circle cx="252" cy="238" r="26" fill="none" stroke="#ff7a59" stroke-width="1.5" opacity=".35"/>
+      <circle cx="252" cy="238" r="11" fill="none" stroke="#ff7a59" stroke-width="2"/>
+      <circle cx="252" cy="238" r="6" fill="#ff7a59"/>
+      <text x="288" y="232" class="map-label">Nadia · 12 s</text>
+      <!-- stale prey report: dim + dashed ring + age label (shape + text, not colour alone) -->
+      <circle cx="118" cy="392" r="13" fill="none" stroke="#ff7a59" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/>
+      <circle cx="118" cy="392" r="6" fill="#ff7a59" opacity=".55"/>
+      <text x="18" y="384" class="map-label">Rana · stale 14 min</text>
+      <!-- hunters: other hunters violet dots, own position = team colour + chalk ring + YOU -->
+      <circle cx="120" cy="176" r="5.5" fill="#a79bff"/><circle cx="120" cy="176" r="9" fill="none" stroke="#a79bff" stroke-width="1.5" opacity=".7"/>
+      <circle cx="316" cy="318" r="5.5" fill="#a79bff"/><circle cx="316" cy="318" r="9" fill="none" stroke="#a79bff" stroke-width="1.5" opacity=".7"/>
+      <circle cx="168" cy="430" r="8" fill="#a79bff"/>
+      <circle cx="168" cy="430" r="15" fill="none" stroke="#e6edf7" stroke-width="2"/>
+      <g>
+        <rect x="150" y="450" width="36" height="16" fill="#e6edf7"/>
+        <text x="159" y="462" class="map-tag">YOU</text>
+      </g>
+    </svg>
+
+    <div class="map-controls">
+      <button class="icon-btn" type="button" aria-label="Zoom in">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="icon-btn" type="button" aria-label="Zoom out">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M5 12h14"/></svg>
+      </button>
+      <button class="icon-btn" type="button" aria-label="Recentre on me">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" class="stroke">
+          <circle cx="12" cy="12" r="5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+        </svg>
+      </button>
+    </div>
+    <span class="map-credit">© OpenStreetMap contributors</span>
+  </div>
+
+  <!-- status line: honest freshness, derived from the report's receivedAt/stale flag -->
+  <div class="status-row">
+    <span class="small" style="color:var(--chalk)">2 prey still out. Last report 12 s ago.</span>
+    <span class="data-l" style="color:var(--dim)">TRAILS ON</span>
+  </div>
+
+  <div style="height:128px"></div>
+
+  <!-- one action in the thumb zone -->
+  <div class="dock">
+    <div class="row spread">
+      <button class="inline" style="border:0;min-height:32px;font-size:12px" type="button">Hunt details</button>
+      <span class="data-l" style="color:var(--dim)">RIVERSIDE RUN</span>
+    </div>
+    <button class="btn btn--primary" type="button"><span class="btn-label">Tag prey</span></button>
+  </div>
+
+</main>
+</body>
+</html>
