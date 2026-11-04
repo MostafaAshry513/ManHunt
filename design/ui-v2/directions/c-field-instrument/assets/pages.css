@@ -480,3 +480,9 @@ html[dir="rtl"] .lobby .title-row .right .v { white-space: nowrap; }
 .history .summary { padding-bottom: 10px; }
 .history .summary .r .k { width: 112px; flex: 0 0 112px; }
 .result .paper .hand { right: 12px; left: auto; top: 128px; width: 118px; height: 46px; }
+.roles .dock { padding-top: 8px; padding-bottom: 10px; }
+.roles .dock .caption { font-size: 12px; line-height: 16px; margin-top: 6px; }
+.roles .guide-plate { height: 124px; }
+.roles .side { padding-top: 10px; padding-bottom: 10px; }
+.roles .lead { margin-top: 2px; }
+.roles .safety { margin-top: 10px; }

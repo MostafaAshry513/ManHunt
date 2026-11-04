@@ -372,11 +372,24 @@ async function buildGallery(directions, rendered) {
         return `<figure><div class="thumb">${inner}</div><figcaption><b>${esc(p.id)}</b> ${esc(p.title)} <a class="src" href="${esc(srcRel)}">html</a></figcaption></figure>`;
       }).join('');
       const sheet = dirSheets.find((f) => f.startsWith(d.name + '.png'));
+      const notesAbs = path.join(d.dir, 'NOTES.md');
+      const notesLink = existsSync(notesAbs)
+        ? ` · <a href="${esc(path.relative(opts.out, notesAbs).split(path.sep).join('/'))}">NOTES.md</a>`
+        : '';
       return `<section><header><h2>${esc(d.name)}</h2>
-        <span class="meta">${pngs.size}/${CANONICAL_PAGES.length} pages${sheet ? ` · <a href="sheets/${esc(sheet)}">contact sheet</a>` : ''}</span></header>
+        <span class="meta">${pngs.size}/${CANONICAL_PAGES.length} pages${sheet ? ` · <a href="sheets/${esc(sheet)}">contact sheet</a>` : ''}${notesLink}</span></header>
         <div class="grid">${pages}</div></section>`;
     })
     .join('\n');
+
+  const reviewsDir = path.join(WORKSTREAM, 'reviews');
+  const reviewFiles = existsSync(reviewsDir)
+    ? (await readdir(reviewsDir)).filter((f) => /\.(md|json)$/i.test(f)).sort()
+    : [];
+  const reviewsSection = reviewFiles.length
+    ? `<section><header><h2>Reviews</h2><span class="meta">${reviewFiles.length} file(s) · reviews/</span></header>
+        <div class="striplinks">${reviewFiles.map((f) => `<a href="${esc(path.relative(opts.out, path.join(reviewsDir, f)).split(path.sep).join('/'))}">${esc(f)}</a>`).join('')}</div></section>`
+    : '';
 
   return `<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>ManHunt UI/UX v2 — render gallery</title>
@@ -403,15 +416,18 @@ async function buildGallery(directions, rendered) {
   figcaption{font-family:"Red Hat Mono",monospace;font-size:10px;color:#a9b8cc;margin-top:7px;letter-spacing:.03em}
   figcaption b{color:#22D3EE;font-weight:700}
   .src{float:right;color:#6f829b}.src:hover{color:#22D3EE}
+  .striplinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px 24px}
+  .striplinks a{font-family:"Red Hat Mono",monospace;font-size:11px;color:#a9b8cc;border-bottom:1px solid rgba(230,237,247,.12);padding:6px 0}
+  .striplinks a:hover{color:#22D3EE}.striplinks b{color:#22D3EE;font-weight:700}
 </style></head><body>
 <p class="kicker">ManHunt UI/UX v2 · render gallery</p>
 <h1>Design renders</h1>
 <p class="lede">canvas ${CANVAS.width}×${CANVAS.height} dp → ${CANVAS.pxWidth}×${CANVAS.pxHeight} px · generated ${stamp()} by env/contact-sheet.mjs</p>
 <p class="lede">Pages open at full resolution. Direction sheets and the matrix are under <a href="sheets/">out/sheets/</a>; one-row page strips under <a href="strips/">out/strips/</a>.</p>
-${stripsSectionCss}
 ${matrixFile ? `<a class="matrix-link" href="sheets/matrix.png"><img src="sheets/matrix.png" alt="Cross-direction matrix"></a>` : ''}
 ${stripsSection}
 ${dirSections || '<p class="lede">No direction pages yet — run the designers\' render command first.</p>'}
+${reviewsSection}
 </body></html>`;
 }
 

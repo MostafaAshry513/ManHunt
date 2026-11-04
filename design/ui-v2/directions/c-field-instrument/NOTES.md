@@ -1,9 +1,15 @@
 # Direction C — “Field instrument”
 
-**Owner:** designer-c · **Status:** round-1 system notes (draft before first render) · branch `design/ui-v2`
+**Owner:** designer-c · **Status:** round-1 delivered — 14 pages rendered at 1170×2532 + contact sheet · branch `design/ui-v2`
 **Read with:** `briefs/00-workstream.md`, `briefs/01-directions.md`, `briefs/02-evaluation.md`,
-`skills/DESIGN_PLAYBOOK.md`, `skills/PAGE_INVENTORY.md`, `design/redesign/{direction,tokens,audit}.md`,
-`docs/BRAND_BRIEF.md`, `design/brand/strategy/tone-of-voice.md`.
+`skills/DESIGN_PLAYBOOK.md`, `skills/PAGE_INVENTORY.md`, `skills/TOKENS.md`, `skills/COMPONENTS.md`,
+`skills/REVIEW_RUBRIC.md`, `design/redesign/{direction,tokens,audit}.md`,
+`docs/BRAND_BRIEF.md`, `design/brand/strategy/tone-of-voice.md`, `env/README.md`.
+
+**Delivery at a glance:** `directions/c-field-instrument/{auth,roles,home,lobby,hunt-hunter,hunt-prey,chat,result,
+history,settings,sheet-tag-claim,sheet-room-settings,lobby-rtl,home-light}.html` → `out/*.png` (all exactly
+1170×2532) → contact sheet `out/contact-sheet.png` (env tool copy at `env/out/sheets/c-field-instrument.png`).
+All numbers below are real seed values; maps are **original drawn field charts**, not OSM tiles (see §8.r).
 
 ---
 
@@ -621,6 +627,197 @@ No external network assets; only the three bundled OFL faces + original SVG/CSS.
 ---
 
 ## 11. Review response (round 2)
+
+_To be completed after reviewer-visual / reviewer-ux round-1 findings. Each item: reviewer point → decision
+(accept / partial / push back + reason) → what changed / why not._
+
+---
+
+## 12. Round-1 delivery record (what was actually built, 2026-11-04)
+
+### 12.1 File map (as delivered — note the page location change)
+
+The env contract (`env/README.md` §7) requires canonical pages **directly in the direction folder**, not in a
+`pages/` subfolder, so the contact sheet can line directions up by filename. Direction C follows the env
+contract:
+
+```
+design/ui-v2/directions/c-field-instrument/
+  auth.html roles.html home.html lobby.html hunt-hunter.html hunt-prey.html chat.html
+  result.html history.html settings.html sheet-tag-claim.html sheet-room-settings.html
+  lobby-rtl.html home-light.html          ← 14 full-page HTML designs (390×844, no OS chrome)
+  out/<id>.png                            ← 14 renders, exactly 1170×2532 (verified PNG IHDR)
+  out/contact-sheet.png                   ← direction contact sheet (copy of env tool output)
+  NOTES.md                                ← this document
+  assets/field.css                        ← direction token layer + component grammar (loaded after canvas.css)
+  assets/pages.css                        ← page compositions (three-zone shell, charts, sheets)
+  assets/kit.mjs                          ← approved mark/wordmark inlines, FieldMark icon set, chart drawing,
+                                            page shell, shared HTML fragments
+  tools/build.mjs                         ← composes the static pages (deterministic; rerun to rebuild)
+  tools/check.mjs                         ← layout probe: measures band/chart/strip/dock boxes + overflow
+```
+
+Commands (from repo root, per `env/README.md`):
+
+```bash
+node design/ui-v2/env/render.mjs design/ui-v2/directions/c-field-instrument     # 14 PNGs into out/
+node design/ui-v2/env/contact-sheet.mjs --only c-field-instrument              # env/out/sheets/c-field-instrument.png
+node design/ui-v2/directions/c-field-instrument/tools/check.mjs                # layout probe (optional)
+cd design/ui-v2/directions/c-field-instrument && node tools/build.mjs          # regenerate pages/ from kit
+```
+
+Every rendered page reports `1170×2532` from `render.mjs` with **no overflow warnings**. The layout probe
+tracks the three-zone shell: bezel 64 dp / instrument band 108 dp / chart 540 dp / report strip 55 dp / dock
+141 dp (hunt pages sum to 844 exactly); sheets are full-page overlay states with the page behind dimmed.
+
+### 12.2 System decisions confirmed in the build (and small changes from the pre-build draft)
+
+1. **The clock is cyan mono.** The hunt band clock (`41:12`, `18:48`) is Red Hat Mono Bold 44 dp tabular in
+   cyan — this is C's "one hot reading" per game page and the loudest object on the screen. Zone/Prey values
+   stay chalk so only the time is hot; the progress ruler marker is the same cyan.
+2. **The action is a chalk block.** Primary buttons are 64 dp chalk-on-ink (ink-on-chalk in light) with a
+   17 dp label; secondary actions are 56 dp hairline outlines. Cyan is never a button fill. This is the
+   direction's deliberate palette re-weighting: *chalk = what you do, cyan = what is measured*. Fallback if
+   reviewers reject it: add a 2 dp cyan rule on the dock's leading edge without changing the hierarchy.
+3. **The instrument band is always ink** (dark and light), matching the shipped rule for the Board: a physical
+   instrument face does not change colour with the weather. In `home-light` the **bezel follows the theme**
+   (white ground, ink wordmark) and only the **readout band stays ink** — one ink strip, no second identity.
+4. **"Show the error bars" is real in the UI.** Every prey marker carries its age (`Nadia 12 s · ±6 m`,
+   `Rana 14 min · ±22 m`), stale reports are a dashed hollow ring with a `STALE` annotation, the hunter page
+   states `LATEST REPORTS · not live`, the report strip repeats `5 min interval`, and the prey page shows
+   `LAST SENT 12 s` / `NEXT 04:48`. Ages come from `receivedAt`/`recordedAt`; accuracy from `accuracy`.
+5. **The map is an original drawn field chart in the mocks.** Water/park/city grid, zone ring (four scored arcs
+   with gaps), survey centre mark, accuracy rings and markers are original SVG; **no OSM tiles, no invented
+   street/place labels, no fake coordinates**. `© OpenStreetMap contributors` is rendered on every chart because
+   the implemented screen uses OSM tiles; in Compose the same layout uses the existing `MatchMap` (osmdroid).
+6. **The human moments are the paper `FieldNote` + hand-scored marks.** Result: an off-white record card with
+   "Both Prey tagged. That's the run." and a hand-scored mark around the final `Prey 0 / 2`. Tag claim: the
+   decision copy itself ("You're out, and you can follow the rest from the field log. If it didn't happen,
+   dispute it and the Huntmaster decides.") on the same paper object. Both are the only non-instrument
+   materials in the system, rotated −0.6°, with ink text (16.8:1 on the paper) and one vector hand mark.
+7. **The code is the lobby's hot reading.** `K7M2QX` is cyan mono 26 dp with `Send the code` as a first-class
+   48 dp action; the manifest and rules readout sit below it. The lobby also carries a **drawn start chart**
+   (zone ring, centre mark, `PLAY AREA 240 m`) built from `room.settings.zone` — a schematic, not a live map,
+   so no location permission is needed before the hunt (implementation note §8).
+8. **Home reads in one glance.** Bezel (lockup / 21:04 / Settings) → permanent line → **readout band**
+   (`LOCATION ON · GPS ±6 m · HUNT NOT RUNNING`) → `JOIN A HUNT` six-cell code instrument (focused cell state)
+   → `HOST A HUNT` ruled name field + default-rules readout → dock `Create the hunt` + `PLAYING AS OMAR · SIGN OUT`.
+   Host is primary but join is never hidden; the disabled Join has its reason directly above it.
+9. **Arabic proof is genuinely mirrored.** `lobby-rtl` is `<html lang="ar" dir="rtl">`: bezel order, title
+   block, chart legend, code bar, manifest reading order, team rules, rows, rules lines, dock and back glyph all
+   mirror; **K7M2QX and all numerals stay LTR** (isolated), `©` + attribution are wrapped in an LTR isolate,
+   no `·` separators in Arabic, no tracking, Arabic body/UI set in the env-bundled **IBM Plex Sans Arabic**
+   (OFL; the device falls back to system Arabic Naskh). Arabic player names are fictional (نادية، رنا، عمر،
+   سليم، يوسف) while the room name stays Latin and uses the brand display face.
+10. **Settings is one manual, no tabs.** Five ruled sections (Display, Language, Field permissions, Updates,
+    Server, Account) with rocker/stepper/switch instrument controls, text-size preview line, update-available
+    strip (`0.17.0 · 2.1 MB · published 3 Nov` — a seeded `AppUpdate` state), read-only server row and honest
+    plain-HTTP caveat, sign-out in error colour. Everything fits one 844 dp screen at 100 %.
+11. **Tag claim shows the real consequence before the tap**: 90 s answer window (`01:12` remaining, derived
+    from `expiresAt`), `20:58` claim time (real `createdAt`), a paper consequence card, `Confirm the tag`
+    primary + full-size `Dispute` outline + `Confirming ends your hunt. The field log stays open.` The dimmed
+    prey page stays visible behind the sheet.
+12. **Hunt rules sheet is a calibration panel**, not a Material dialog: stepper rows for head start / duration /
+    report interval, Open–Zone rocker, zone radius stepper, zone centre + `Pick on map`, trails switch, tag
+    policy row, shrink row, `Save rules` + `Cancel`. It is ~94 % of the page height because the brief requires
+    all groups visible; implementation may use an internal scroll with the save dock pinned (§8).
+
+### 12.3 Brief → shipped-app deltas and proposals (costs named)
+
+| Item | Page | Delta / proposal | Cost |
+|---|---|---|---|
+| **Rematch** | `result` | Shown as primary with an explicit in-UI mono note: *"Rematch is a proposed action - needs a server restart, not in the current build."* The shipped app has only Back to lobby / View hunt history. | **Small server action** (`POST /api/rooms/{id}/rematch` copying teams/settings, returning lobby state) + client refresh; no engine change. If not adopted, remove the button and the note; Back to lobby remains primary. |
+| **Tag policy** | `sheet-room-settings` | Chosen **baseline (a)**: one read-only row “Tags need the Prey to confirm” + `CONFIRM` + “Server-enforced”. The verified enum is `confirm`/`instant` (server `domain/match.ts`); a full confirm/instant rocker is a valid client-only proposal but not shown so the page does not imply a control that ships without a product decision. | Read-only = **zero** client work. If a control is wanted: client-only settings payload field (server already enforces both values); under `instant` the claim sheet can never appear — document in copy. |
+| **History summary** | `history` | Expanded summary block for the selected match (date, duration, result, prey remaining, team rosters) as a ruled readout. No per-player tag data exists in `MatchHistoryEntry`, so none is shown. | **Small client UI** (selected-row state + summary block); data already present. |
+| **Lobby start chart** | `lobby` | Schematic chart drawn from `room.settings.zone` (centre, radius) before the hunt exists. | **Small client Canvas** (no map/location permission needed). If the team prefers the live map, it costs a lobby location permission prompt — not recommended. |
+| **Prey “next report” countdown** | `hunt-prey` | `NEXT 04:48` derived client-side from `locationIntervalSec` + last `receivedAt`. Flagged: no server change, small client timer state. Fallback if rejected: show only `LAST SENT 12 s`. | Small client. |
+| **Claim “when”** | `sheet-tag-claim` | Claim time `20:58` + answer countdown rendered from `createdAt`/`expiresAt` (real fields; the shipped sheet does not display them). | **Small client** (pure presentation). |
+| **Server edit** | `settings` | Kept read-only, exactly as shipped: “To change it, sign out and edit it on the sign-in screen.” No editable field with no save path. | None. |
+| **Report ages / accuracy** | hunt pages | Ages from `receivedAt`/`recordedAt`, accuracy from `accuracy`; stale from `stale`. No invented freshness. | Small client presentation only. |
+| **Rematch/history ordering** | `result` | Back to lobby dismisses; history opens over the room (shipped flow kept). | None. |
+
+### 12.4 Known weaknesses of the rendered round-1 set (reviewer input welcome)
+
+1. **Cyan presence at thumbnail scale.** C's “one hot reading” is text (clock/code/countdown), not a filled
+   surface; next to A's cyan primary button it may read as less branded. The system is deliberate and
+   documented (§3.1); the cheap fallback is a 2 dp cyan rule on the dock leading edge.
+2. **The hunt map is a drawn chart**, not tiles: it is intentionally honest (no invented streets) but a
+   reviewer comparing against A's real-tile capture should read the chart as the design's *schematics*, not
+   as a missing asset; the implemented screen keeps osmdroid.
+3. **`hunt-prey` has no primary action** (correct by game rules: Prey do not tag). Its dock is a status panel
+   (`SHARING ON`, `NEXT 04:48`) + Field log / Hunt rules actions. This is by design but may be scored as a
+   “no action” page; the alternative (inventing an action) would contradict the rules.
+4. **Dense pages** (settings, hunt rules sheet) are at the edge of the 844 dp budget at 100 %; at 1.5× text
+   the settings page will need the internal scroll region (specified in §8), and the rules sheet already
+   scrolls internally in implementation. Round 2 could reduce one settings row (e.g. “Check for updates”
+   could merge into the Updates section heading) if reviewers see crowding.
+5. **`lobby` start chart is a proposal** — if cut, the lobby loses its map-first identity and would need a
+   second composition (the manifest/code/dock grammar still works without it).
+6. **Arabic type quality** can only be judged for mirroring/geometry here; the env stand-in is IBM Plex Sans
+   Arabic while the app ships system Arabic. All new Arabic strings in the proof (`المضيف`, `أنت`, the rules
+   lines, the “ready” labels) need a native review before implementation — see the `[NEW COPY]` list below.
+7. **The result paper card** is the one non-instrument material; it works in the render and carries the
+   warmth, but reviewers may legitimately ask whether a paper surface belongs in a dark instrument UI. It is
+   the deliberate “one human moment” the brief requires.
+8. **History is seeded fiction** (4 matches, fictional times); only the field/date/value shape is real. The
+   end dates/team lineups are not from a server fixture.
+9. **Even after the fix passes, text in the chart labels is 12 dp**; it meets the auxiliary floor and ≥7:1 but
+   is the smallest text in the system. At 200 % font scale the map labels must grow/abbreviate (Compose rule:
+   labels scale 1:1; marker labels can switch to name-only above 1.25×).
+10. **Motion is specified, not shown** (static pages carry the final frame): the event vocabulary is in §3.7;
+    a motion prototype is not part of this round.
+
+### 12.5 New copy introduced by C (needs tone + Arabic review; not all translated in the pages)
+
+Format: string → where → note. Arabic candidates are suggestions only, not approved translations.
+
+| String | Where | Note |
+|---|---|---|
+| Latest reports · not live | hunt-hunter strip/legend | honest latency statement; existing Arabic has “مواقع الفرائس بحسب آخر البلاغات”. |
+| Own position · no other Prey | hunt-prey page | product rule made visible. `[NEW COPY]` |
+| Report cadence · last sent 12 s · next 04:48 | hunt-prey strip/dock | derived client state; `[NEW COPY]` |
+| No answer in 01:12 · the Huntmaster decides | tag claim sheet | consequence copy; `[NEW COPY]` |
+| Both Prey tagged. That's the run. | result paper note | human line; `[NEW COPY]` |
+| From the first scored circle to the last tag. | result paper note | human line; `[NEW COPY]` |
+| Rematch is a proposed action - needs a server restart, not in the current build. | result dock | **design-note string, remove on implementation** (kept visible so reviewers do not score rematch as shipped). |
+| Everyone's ready. Begin when you are. | lobby dock | `[NEW COPY]` |
+| Default rules · Classic hunt · head start 5 min · 60 min | home | summary of real defaults (`SettingsDto`); `[NEW COPY]` |
+| Update available · 0.17.0 · 2.1 MB · published 3 Nov | settings | seeded `AppUpdate` state; `[NEW COPY]` |
+| Playing as {name} · Sign out | home dock | existing strings recombined. |
+| المضيف / أنت / مستعد · the two Arabic rules lines · Arabic ready labels | lobby-rtl | `[NEW COPY — needs Arabic review]`; the rest reuses `Localization.kt` strings (الردهة، غرفة الانتظار، رمز الدعوة، مشاركة الغرفة، اللاعبون، الفريسة، الصيادون، ابدأ المطاردة، تراجع، مغادرة). |
+
+### 12.6 Round-1 self-test results (the 12-point test from the playbook)
+
+| Test | Result |
+|---|---|
+| Squint test | Pass on hunt/result/home: state + cyan clock + one chalk button are the only high-contrast masses. |
+| Thumb test | Primary buttons at y≈750–820 dp (bottom 40 % is y≥506); secondary actions in the same dock band. |
+| Scoreboard/thumbnail test | The chart + cyan readout + ruled bands are recognisable at 30 %; contact sheet confirms the system reads as one product. |
+| One-cyan test | No filled cyan areas; one hot cyan **reading** per page (clock / code / countdown / dial), as designed. |
+| No-card test | Zero cards; ≤2 surfaces per page (input cell groups / paper / sheet). Grouping is 1 px rules. |
+| Mirror test | `lobby-rtl` rendered; numerals/code/attribution LTR-isolated; no `·` in Arabic; no tracking. |
+| Daylight test | `home-light` uses daylight-chalk tokens, theme-following bezel and an ink readout band; no cream. |
+| Night test | Ground `#0B1220`/`#060B14`; no large white fields except the ~150 dp paper note; text ≥12 dp. |
+| State test | Canonical state per page + at least one designed non-happy state: stale reports, claim countdown, update-available, notifications-off, disabled join with reason, planned modes, load-older. Remaining states specified in §3.10/§8. |
+| Copy test | No exclamation marks, no ALL-CAPS headings (machine labels only), no invented claims/ratings/urgency; OSM attribution present; honest install/server lines. |
+| Build test | Mapping in §8; new components are small Compose primitives; only rematch/tag-policy need named client/server work. |
+| Direction test | Unmistakably the instrument territory, not MATCHDAY board and not a generic dark app; deviations recorded in §1. |
+
+### 12.7 Notes on rendering fidelity (so reviewers judge the right thing)
+
+- Pages are static full-page HTML on the env canvas (390×844) and were rendered at deviceScaleFactor 3;
+  no status bar, nav bar, keyboard, browser chrome or device frame is drawn.
+- Fonts: Big Shoulders / Instrument Sans / Red Hat Mono from `design/brand/motion-kit/assets/fonts/`;
+  Arabic proof uses env-bundled IBM Plex Sans Arabic (`env/fonts/arabic/`, OFL) as the design stand-in for the
+  device Arabic face. No other font is used.
+- The approved mark and wordmark are inlined verbatim from `design/brand/identity/final/lockup/`; the dial on
+  auth adds only original tick/bracket geometry around the approved mark (mark itself unaltered).
+- The pages are composed from `tools/build.mjs`; the generated HTML is deterministic and self-contained apart
+  from the two stylesheets and the repo fonts. No network assets, no stock/AI imagery.
+
+---
+
+## 13. Review response (round 2)
 
 _To be completed after reviewer-visual / reviewer-ux round-1 findings. Each item: reviewer point → decision
 (accept / partial / push back + reason) → what changed / why not._
