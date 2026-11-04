@@ -165,7 +165,7 @@
 .result .paper-wrap { padding: var(--s5) var(--gutter) 0; }
 .result .paper .big { display: flex; align-items: baseline; gap: var(--s4); margin-top: 2px; }
 .result .paper .big .val { font-family: var(--font-mono); font-weight: 700; font-size: 34px; line-height: 38px; color: #0b1220; font-variant-numeric: tabular-nums; }
-.result .paper .big .u { font-family: var(--font-mono); font-size: 12px; line-height: 15px; letter-spacing: .14em; color: #4a5568; }
+.result .paper .big .u { font-family: var(--font-mono); font-size: 12px; line-height: 15px; letter-spacing: .14em; color: #2b3546; }
 .result .paper .hand { right: 22px; top: 46px; }
 .result .manifest-wrap { padding: var(--s5) var(--gutter) 0; }
 .result .manifest .m-row { min-height: 40px; padding: 4px 0; }
@@ -587,3 +587,13 @@ html[dir="rtl"] .legend span { font-size: 12px; }
 /* round 2 cont.: every inline/text action carries a 48 dp hit box */
 .text-action { min-width: 48px; min-height: 48px; justify-content: flex-start; }
 .auth .field .text-action, .claim-sheet .text-action { justify-content: center; }
+
+/* final polish (reviewer-ux round-2 residuals) */
+/* 1. Arabic row names: give the Arabic line box its true height so nothing clips vertically */
+html[dir="rtl"] .manifest .who { font-size: 16px; line-height: 24px; }
+html[dir="rtl"] .manifest .m-row { padding-top: 6px; padding-bottom: 6px; }
+/* 2. Paper-note small metadata: ≥7:1 even at 12 px (was #4A5568 = 6.75:1 on the paper) */
+.paper .paperm .label,
+.paper .paperm .data,
+.paper .big .u,
+.paper .note-foot .data { color: #2b3546; }

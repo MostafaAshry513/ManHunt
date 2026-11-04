@@ -970,6 +970,12 @@ text < 11 sp, interactive nodes < 48 dp, or contrast pairs below the AA/7:1 floo
 
 - Head-start and offline remain notes-only (spec'd, not rendered); the two highest-emotion/highest-risk beats
   (paused, eliminated) now have rendered non-canonical frames. This is the deliberate scope trade recorded above.
+- **Residual-polish follow-up (post-review, non-scoring):** the four remaining ≤12 sp metadata pairs flagged by
+  reviewer-ux were cleared without layout change: home-light Join helper → light dim `#44536A` (7.8:1 on white);
+  "Review tag claim" raised to 13 sp (4.5 floor, coral on lift 6.78:1); result winner-block score and claim meta
+  now use solid ink on the team field (7.82:1 violet / 7.29:1 coral); `lobby-rtl` dock credit line moved to the
+  Arabic face with zero tracking and split on a full stop (no `·`). All 16 pages re-rendered (20:03 UTC);
+  self-audit 0/16; direction sheet regenerated.
 - `lobby` still has three colour surfaces (two team fields + action); the reading order is defensible but not
   as single-beat as A's Board-driven lobby.
 - `history` remains the thinnest page content-wise (honest data is limited); the stubs now carry only real

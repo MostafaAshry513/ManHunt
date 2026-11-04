@@ -562,6 +562,40 @@ tag itself is the essential marker). At 320 dp: proposal tag stays, note hidden;
 (`heightIn`); Board stacks (state + data wrap, clock held at 44 sp); team sheets single-column; scrolling only
 inside documented regions.
 
+
+### 15.7 Round-2 handoff polish (reviewer-ux residuals; recorded, not re-rendered)
+
+reviewer-ux's round-2 audit verified all docket items (0 sub-11sp, 0 genuine sub-48 targets, tracking/unisolation
+0, AA-body 0, heights 844, cap lifted; axes interaction 4 / a11y 4 / feasibility 5). These residuals are S2/S3
+handoff notes — deliberately **not** re-rendered, because the round-2 PNGs are the scored artefact and both
+reviewers' numbers and the owner pack are aligned to them. Each is a one-line implementation fix.
+
+1. **10 metadata pairs still < 7:1 on team tints/plates** (6.49–6.5:1; all readable, none a body pair):
+   avatar initial `N` 12 px, `Host · Ready` 11.5 px (lobby / `lobby-rtl` / rules-sheet roster background),
+   `Sharing position` 11 px (hunt-prey + claim background), claim `Hunters` tag 12 px, `If you confirm` 12 px.
+   **Fix for implementation:** on team tints, either (a) set these labels at ≥13 px so the 4.5:1 large/label
+   floor applies (recommended; they are labels, not metadata), or (b) introduce a lighter team-text token on
+   tints (`coral` #FF9A80 / `violet` #BFB6FF class) while keeping the current tokens for non-text marks. The
+   current renders already store the values; no visual change is needed to the system idea, only the small-text
+   colour/size pass at build time.
+2. **Segmented controls are a non-literal mock:** `.seg.small` is 38 px visually with 48 px `.seg-cell` boxes
+   clipped by `overflow:hidden`; HTML hit-testing clips to 38, so the 48 dp measurement only holds once Compose
+   makes the interactive control 48 dp tall with a 38 px visual inset (or simply 48 px visual). This is a mock
+   technique, not a design exception — do not copy the clipping to Compose.
+3. **Switch semantics:** `role="switch"` in the mock sits on the inner 40×22 track; implementation must put
+   the role/click/selectable semantics on the 48 dp wrapper (or make the whole row a selectable target), with
+   the track as a visual child. State remains ON/OFF word + knob position + border, never fill alone.
+4. **Arabic uppercase inheritance:** 8 Arabic nodes inherit `text-transform: uppercase` from shared label classes
+   (no visual effect on Arabic script). Implementation: `[dir="rtl"] { text-transform: none; }` on those label
+   families to match the "no tracking, no case transforms in Arabic" rule.
+5. **Optional S3:** result team sheet says "In play" for Hunters at full time; the shipped status is a
+   full-time artefact — implementation may show "—" or "Full time" (C/B use "—"). Kept in the round-2 render as
+   honest roster participation; changing it is a copy-only edit.
+
+No further render pass is planned for Direction A round 2. If the owner requests the strict ≥12 px metadata floor
+or the team-tint contrast lift before implementation, both are single-token passes plus a re-render; they are
+logged here rather than silently claimed fixed.
+
 ## 16. Round-2 file set
 
 - 14 canonical pages + **2 extra state frames**: `hunt-paused.html`, `hunt-eliminated.html` (non-canonical;

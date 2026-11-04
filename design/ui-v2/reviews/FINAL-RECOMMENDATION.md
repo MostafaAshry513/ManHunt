@@ -28,7 +28,7 @@ dissent are printed in §8. No taste is delegated to the scores.
 | 6 Accessibility & RTL/i18n (10 %) | **4** | **4** | **4** |
 | 7 Engineering feasibility (15 %) | **5** | **4** | **4** |
 | **Weighted total (/5)** | **4.60** | **4.45** | **4.30** |
-| Round 1 → Round 2 (consolidated) | 3.60 → 4.60 | 3.35 → 4.45 | 3.75 → 4.30 |
+| Round 1 (shared, visual-led) → Round 2 (consolidated) | 3.60 → 4.60 | 3.35 → 4.45 | 3.75 → 4.30 |
 | Caps | round-1 §2.7, **lifted** | round-1 §2.2/2.7, **lifted** | none (asymmetry moot) |
 
 *The consolidated table deliberately differs from both reviewers' independent tables (mine: A 4.30 = B 4.30 >
@@ -76,9 +76,11 @@ Grounded in the brief and rubric, not taste clichés:
 1. **A answers the brief's actual job** — "ship-ready screen design at a fidelity where an engineer could build
    it" for an existing Compose app — with the least new-system risk, the strongest hierarchy engine and the most
    complete page set. Its round-2 fixes closed the only real gaps (cap, a11y debt, light parity, states).
-2. **The A-vs-B call is the owner's taste decision, not a scoring result.** They tie on both independent visual
-   reviews; per-page picks split 7/4 in A's favour only because ceremony/utility pages dominate the count. If the
-   owner wants the product to look markedly different in screenshots and social, **B is the justified choice**.
+2. **The A-vs-B call is the owner's taste decision, not a scoring result.** The A-vs-B gap is 0.15 on the
+   consolidated table and they tie on reviewer-visual's independent table; reviewer-ux's independent table has B
+   ahead by 0.15 — it is a genuine owner taste call in every framing. Per-page picks split 7/4/3 (A/B/C) only
+   because ceremony/utility pages dominate the count; if the owner wants the product to look markedly different in
+   screenshots and social, **B is the justified choice**.
 3. **B's identity should be stolen into A even if A ships**: the tag-claim event, the two-verb dock, kit-tag sender
    grammar, and the documented cyan-operational/chalk-event primary rule (list §3).
 4. **C must not be adopted wholesale**, because its brand reading is the one axis where it scores 3 — but it owns
@@ -170,9 +172,10 @@ NOTES "review response" sections.*
 
 ## 5. Top 5 open questions for the owner
 
-1. **How loud should the product be?** A and B tie on both independent visual reviews (4.30 each; consolidated
-   4.60/4.45) with opposite profiles: A is the polished matchday product with the least risk; B is the
-   street-poster identity that makes ManHunt look like a new game. This is the one genuine taste/strategy call.
+1. **How loud should the product be?** The A-vs-B gap is 0.15 on the consolidated table (4.60/4.45) and they tie
+   on reviewer-visual's independent table (4.30/4.30); reviewer-ux's independent table has B ahead by 0.15
+   (4.15/4.00). Opposite profiles, a genuine taste/strategy call in every framing: A is the polished matchday
+   product with the least risk; B is the street-poster identity that makes ManHunt look like a new game.
 2. **How committed is light theme?** A's daylight-chalk translation is complete; B uses ink colour blocks; C uses
    graph-paper daylight. Which appears in store/social screenshots changes perceived identity more than any
    other single choice.
@@ -213,20 +216,20 @@ designed screenshots.)*
   uncertainty band and is an owner taste call; the A-vs-C question is the live reviewer disagreement.
 - **Small post-scoring deltas:** A corrected its type-floor claim (33 rendered 11 px machine-data nodes; no text
   below 11 px; renders unchanged); B added a second non-canonical state frame (`hunt-hunter-paused`, 20:01 UTC —
-  now 16 renders, docket checks still pass, no score change) after the pack was cut, so the env matrix/strips may
-  not include it; the frame is available in `directions/b-street-signal/out/` as supplementary evidence.
+  now 16 renders, docket checks still pass, no score change). The 20:03 env re-cut includes it: matrix/strips now
+  show 7 labelled state studies; page captures remain 48 (A 16, B 15, C 17).
 
 ---
 
 ## 7. Where to look (owner pack)
 
-- **Judge the spread:** `env/out/sheets/matrix.png` (1858×18868; P01–P14 + 6 labelled EXTRA state rows × A/B/C,
+- **Judge the spread:** `env/out/sheets/matrix.png` (1858×19768; P01–P14 + 7 labelled EXTRA state rows × A/B/C,
   390-px thumbs).
 - **Per direction:** `env/out/sheets/{a-matchday-raised,b-street-signal,c-field-instrument}.png` (2704×6128).
-- **Per page:** `env/out/strips/<page>.png` (20 strips, 1426×1612; canonical 14 + 6 labelled state studies);
-  full pages in `directions/<dir>/out/*.png` (1170×2532; 48 captures in the pack at build — A 16, B 15, C 17;
-  B's second extra `hunt-hunter-paused` was added after the cut and is available separately).
-- **Gallery:** `env/out/index.html` via `node design/ui-v2/env/serve.mjs`.
+- **Per page:** `env/out/strips/<page>.png` (21 strips, 1426×1612; canonical 14 + 7 labelled state studies);
+  full pages in `directions/<dir>/out/*.png` (1170×2532; 48 page captures in the pack — A 16, B 15, C 17; B's
+  `hunt-hunter-paused` appears in the matrix/strips re-cut and is available in its direction `out/`).
+- **Gallery:** `env/out/index.html` (151 links) via `node design/ui-v2/env/serve.mjs`.
 - **Argument:** `reviews/round-1-visual.md` + `round-1-ux.md`; `reviews/round-2-visual.md` + `round-2-ux.md`;
   `reviews/FINAL-RECOMMENDATION.md`; the four scores JSONs; each direction's `NOTES.md` (review-response sections
   record every accept/partial/pushback).
