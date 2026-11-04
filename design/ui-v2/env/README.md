@@ -368,8 +368,8 @@ Outputs (all under `design/ui-v2/env/out/` unless `--out` says otherwise):
 |---|---|---|
 | `pages/<direction>/<page>.png` | fresh 3x page captures used by the sheets | 1170 × 2532 px each |
 | `sheets/<direction>.png` | one direction, all 14 canonical pages, labelled 4-column grid | **2704 × 6128 px** (2× of 1352 × 3064 CSS; printed at build) |
-| `sheets/matrix.png` | pages (rows) × directions (columns) comparison — the owner/judging sheet | **1858 × 13420 px** for 3 directions (2×; width grows per direction, height printed at build) |
-| `strips/<page>.png` | **one row per canonical page**: A / B / C side by side at 390 raster px thumbs (= 1/3 of the 1170 px capture), with direction labels — the reviewer's equal-weight page-by-page pass | **1426 × 1576 px** each for 3 directions (height printed at build) |
+| `sheets/matrix.png` | pages (rows) × directions (columns) comparison — the owner/judging sheet | **1858 × 13468 px** for 3 directions (2×; width grows per direction, height printed at build) |
+| `strips/<page>.png` | **one row per canonical page**: A / B / C side by side at 390 raster px thumbs (= 1/3 of the 1170 px capture), with direction labels — the reviewer's equal-weight page-by-page pass | **1426 × 1612 px** each for 3 directions (height printed at build) |
 | `contact-<direction>.png` | review-pack copy of `sheets/<direction>.png` (task-8 canonical name) | same as the sheet |
 | `matrix-all-directions.png` | review-pack copy of `sheets/matrix.png` (task-8 canonical name) | same as the matrix |
 | `index.html` | clickable gallery over pages, sheets, strips and matrix | — |
@@ -387,7 +387,10 @@ Outputs (all under `design/ui-v2/env/out/` unless `--out` says otherwise):
   reviewer's "scoreboard/thumbnail" read for distinctiveness + hierarchy). Both stay inspectable when
   zoomed; review evidence should quote the PNG sizes above.
 - The gallery is the thing to open for a whole-direction or cross-direction review: it links every
-  full-resolution page PNG, the direction sheets, the per-page strips and the matrix.
+  full-resolution page PNG, the direction sheets, the per-page strips, the matrix, each direction's
+  `NOTES.md`, and every `.md`/`.json` file present in `reviews/` at build time. Re-run
+  `node design/ui-v2/env/contact-sheet.mjs --gallery` (repo root) after new review files land to add
+  them to the gallery — it does not need re-rendering the pages.
 - Strips are built from the same `out/pages/` captures as the sheets, so a page judged on a strip and
   on its direction sheet is the same render. They exist because the full matrix is ~13,400 px tall and
   gets downscaled by image viewers; each strip is small enough to inspect at native size.

@@ -10,7 +10,7 @@
   --lift-2: #16233a;
   --chalk: #e6edf7;
   --muted: #a7b6cc;
-  --dim: #6f829b;
+  --dim: #9aa9bf;
   --rule: rgba(230, 237, 247, 0.16);
   --rule-mid: rgba(230, 237, 247, 0.26);
   --rule-strong: rgba(230, 237, 247, 0.34);
@@ -35,7 +35,7 @@ html[data-theme="light"] {
   --lift-2: #e6ecf5;
   --chalk: #0f172a;
   --muted: #475569;
-  --dim: #64748b;
+  --dim: #44536a;
   --rule: rgba(15, 23, 42, 0.14);
   --rule-mid: rgba(15, 23, 42, 0.22);
   --rule-strong: rgba(15, 23, 42, 0.32);
@@ -232,17 +232,17 @@ html[data-theme="light"] {
 .team-row:last-child { border-bottom: 0; }
 .team-row .who { flex: 1 1 auto; min-width: 0; }
 .team-row .name { font-family: var(--font-ui); font-weight: 700; font-size: 16px; line-height: 20px; color: var(--chalk); }
-.team-row .meta { font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.08em; color: var(--dim); }
+.team-row .meta { font-family: var(--font-mono); font-size: 11px; line-height: 15px; letter-spacing: 0.08em; color: var(--dim); }
 .team-row .state-mark { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono);
   font-size: 10px; letter-spacing: 0.08em; color: var(--muted); }
 .check { color: var(--cyan); flex: none; }
-.badge { font-family: var(--font-mono); font-size: 9px; line-height: 1; letter-spacing: 0.1em;
+.badge { font-family: var(--font-mono); font-size: 11px; line-height: 1; letter-spacing: 0.06em;
          padding: 3px 5px; border: 1px solid var(--rule-strong); color: var(--muted); }
 
 /* ── log ──────────────────────────────────────────────────────────────────── */
 .log { display: flex; flex-direction: column; }
 .log-row { display: flex; gap: 12px; padding: 10px 24px 10px 0; border-bottom: 1px solid var(--rule); }
-.log-time { width: 44px; flex: none; font-family: var(--font-mono); font-size: 10px; line-height: 16px;
+.log-time { width: 44px; flex: none; font-family: var(--font-mono); font-size: 11px; line-height: 16px;
             letter-spacing: 0.06em; color: var(--dim); padding-inline-start: 24px; }
 .log-body { flex: 1 1 auto; min-width: 0; }
 .log-who { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
@@ -254,7 +254,7 @@ html[data-theme="light"] {
 .log-row--own .log-who { justify-content: flex-end; }
 .sys-row { display: flex; align-items: center; gap: 12px; padding: 12px 24px; }
 .sys-row .rule { flex: 1 1 auto; }
-.sys-row .txt { font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.1em;
+.sys-row .txt { font-family: var(--font-mono); font-size: 11px; line-height: 15px; letter-spacing: 0.1em;
                 color: var(--dim); white-space: nowrap; }
 
 /* ── map ──────────────────────────────────────────────────────────────────── */
@@ -263,7 +263,7 @@ html[data-theme="light"] {
 .map-controls { position: absolute; top: 16px; inset-inline-end: 16px; display: flex; flex-direction: column; gap: 8px; }
 .map-controls .icon-btn { background: var(--field); }
 .map-credit { position: absolute; bottom: 8px; inset-inline-start: 24px; font-family: var(--font-mono);
-              font-size: 10px; letter-spacing: 0.04em; color: var(--muted); }
+              font-size: 11px; letter-spacing: 0.04em; color: var(--muted); }
 .map-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; }
 
 /* ── tables / settings manual ─────────────────────────────────────────────── */
@@ -304,11 +304,11 @@ html[data-theme="light"] {
 
 /* ── misc ─────────────────────────────────────────────────────────────────── */
 .pressable { position: relative; }
-.kicker { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; color: var(--dim); }
+.kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; color: var(--dim); }
 .center { display: flex; align-items: center; justify-content: center; }
 .stack-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .poster-foot { display: flex; align-items: center; gap: 14px; padding: 10px 24px 0; }
-.credit-line { font-family: var(--font-mono); font-size: 10px; line-height: 14px; letter-spacing: 0.06em;
+.credit-line { font-family: var(--font-mono); font-size: 11px; line-height: 15px; letter-spacing: 0.06em;
                color: var(--dim); }
 .credit-line b { color: var(--muted); font-weight: 400; }
 svg.stroke { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: butt; stroke-linejoin: miter; }
