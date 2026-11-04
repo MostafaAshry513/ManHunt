@@ -1,18 +1,18 @@
 {
   "title": "ManHunt premium screenshots",
   "shotlist": "design/redesign/screenshot-shotlist.md",
-  "generatedAt": "2026-11-03T05:51:02Z",
+  "generatedAt": "2026-11-04T12:30:00Z",
   "source": "Real Android emulator capture of the ManHunt debug build (no mockups, no compositing)",
   "workflow": {
     "name": "premium-screenshots.yml",
-    "runId": "41584904142",
-    "runUrl": "https://github.com/MostafaAshry513/ManHunt/actions/runs/41584904142",
-    "branch": "classic-dashboard-theme",
-    "commit": "22315fc",
+    "runId": "41829024234",
+    "runUrl": "https://github.com/MostafaAshry513/ManHunt/actions/runs/41829024234",
+    "branch": "master",
+    "commit": "e66f3fa",
     "repo": "MostafaAshry513/ManHunt"
   },
-  "device": "Android emulator, Pixel 6 profile (1080x2400 @ 420 dpi), Android 16 / API 36",
-  "theme": "Dark (Deep Teal night palette) except s15-home-light.png (light) and the RTL set",
+  "device": "Android emulator, Pixel 6 profile (1080x2400 @ 442 dpi, 390 dp phone width), Android 16 / API 36",
+  "theme": "MATCHDAY BOARD dark (Deep Teal night palette) except s15-home-light.png (light) and the RTL set",
   "language": "English; s04-home-rtl.png and s16-lobby-rtl.png are Arabic RTL",
   "statusBar": "REMOVED: 96 px cropped from every delivered frame; top strip re-verified clean (no status-bar pixels).",
   "timings": {
@@ -24,7 +24,7 @@
   "mapTiles": "Live OpenStreetMap raster tiles (copyright OpenStreetMap contributors), Riverside Park, Manhattan; zone centre 40.7995, -73.9735, radius 240 m",
   "game": {
     "name": "Riverside Run",
-    "roomCode": "54ESGG",
+    "roomCode": "R9YLPP",
     "players": [
       {
         "username": "Yasmin",
