@@ -409,13 +409,28 @@ async function buildGallery(directions, rendered) {
     })
     .join('\n');
 
+  const docLink = (abs) => esc(path.relative(opts.out, abs).split(path.sep).join('/'));
   const reviewsDir = path.join(WORKSTREAM, 'reviews');
   const reviewFiles = existsSync(reviewsDir)
     ? (await readdir(reviewsDir)).filter((f) => /\.(md|json)$/i.test(f)).sort()
     : [];
-  const reviewsSection = reviewFiles.length
-    ? `<section><header><h2>Reviews</h2><span class="meta">${reviewFiles.length} file(s) · reviews/</span></header>
-        <div class="striplinks">${reviewFiles.map((f) => `<a href="${esc(path.relative(opts.out, path.join(reviewsDir, f)).split(path.sep).join('/'))}">${esc(f)}</a>`).join('')}</div></section>`
+  const evidenceFiles = existsSync(path.join(reviewsDir, 'evidence'))
+    ? (await readdir(path.join(reviewsDir, 'evidence'))).filter((f) => /\.(md|json|png|txt)$/i.test(f)).sort()
+    : [];
+  const briefFiles = existsSync(path.join(WORKSTREAM, 'briefs'))
+    ? (await readdir(path.join(WORKSTREAM, 'briefs'))).filter((f) => /\.md$/i.test(f)).sort()
+    : [];
+  const skillFiles = existsSync(path.join(WORKSTREAM, 'skills'))
+    ? (await readdir(path.join(WORKSTREAM, 'skills'))).filter((f) => /\.md$/i.test(f)).sort()
+    : [];
+  const docsSection = reviewFiles.length || evidenceFiles.length || briefFiles.length || skillFiles.length
+    ? `<section><header><h2>Workstream docs</h2><span class="meta">briefs · skills · reviews · evidence</span></header>
+        <div class="striplinks">
+          ${reviewFiles.map((f) => `<a href="${docLink(path.join(reviewsDir, f))}"><b>review</b> ${esc(f)}</a>`).join('')}
+          ${evidenceFiles.map((f) => `<a href="${docLink(path.join(reviewsDir, 'evidence', f))}"><b>evidence</b> ${esc(f)}</a>`).join('')}
+          ${briefFiles.map((f) => `<a href="${docLink(path.join(WORKSTREAM, 'briefs', f))}"><b>brief</b> ${esc(f)}</a>`).join('')}
+          ${skillFiles.map((f) => `<a href="${docLink(path.join(WORKSTREAM, 'skills', f))}"><b>skill</b> ${esc(f)}</a>`).join('')}
+        </div></section>`
     : '';
 
   return `<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8">
@@ -454,7 +469,7 @@ async function buildGallery(directions, rendered) {
 ${matrixFile ? `<a class="matrix-link" href="sheets/matrix.png"><img src="sheets/matrix.png" alt="Cross-direction matrix"></a>` : ''}
 ${stripsSection}
 ${dirSections || '<p class="lede">No direction pages yet — run the designers\' render command first.</p>'}
-${reviewsSection}
+${docsSection}
 </body></html>`;
 }
 

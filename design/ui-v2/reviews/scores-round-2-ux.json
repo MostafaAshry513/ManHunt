@@ -1,0 +1,270 @@
+{
+  "reviewer": "reviewer-ux",
+  "round": 2,
+  "reviewedAt": "2026-11-04T20:01:00Z",
+  "rubric": "design/ui-v2/briefs/02-evaluation.md + skills/REVIEW_RUBRIC.md",
+  "method": "re-score changed axes (interaction 5, a11y+RTL 6, feasibility 7) from the final round-2 renders (A 19:57, B 19:57:31, C 19:57:51 UTC) + full 14-page regression; tagged DOM audit (ux-audit --tag round2) and docket-checks; written before reading reviewer-visual's scores JSON.",
+  "weights": {
+    "brand_fit": 0.15,
+    "distinctiveness": 0.15,
+    "hierarchy": 0.15,
+    "consistency": 0.15,
+    "interaction": 0.15,
+    "a11y_rtl": 0.1,
+    "feasibility": 0.15
+  },
+  "directions": {
+    "A": {
+      "name": "Matchday, raised",
+      "weighted_total": 4.0,
+      "caps": [],
+      "cap_lift": [
+        "§2.7 rematch: LIFTED (render shows 'Play again · PROPOSAL' + server-action line)"
+      ],
+      "scores": [
+        {
+          "direction": "A",
+          "axis": "brand_fit",
+          "score": 4,
+          "note": "Secondary read (defer to reviewer-visual)."
+        },
+        {
+          "direction": "A",
+          "axis": "distinctiveness",
+          "score": 3,
+          "note": "Secondary read (defer). Raised-v0.16 silhouette, least ownable."
+        },
+        {
+          "direction": "A",
+          "axis": "hierarchy",
+          "score": 4,
+          "note": "Lobby now one Board object; result dock denser but proposal tag legible; squint passes."
+        },
+        {
+          "direction": "A",
+          "axis": "consistency",
+          "score": 4,
+          "note": "One grammar across 14 + 2 extras; documented hit-wrapper/segmented patterns."
+        },
+        {
+          "direction": "A",
+          "axis": "interaction",
+          "score": 4,
+          "note": "Cap lifted; claim countdown + persistent-banner spec; hidden per-prey list; paused+eliminated rendered; leave documented. Held at 4 (offline/leave/head-start notes-only; dismissed-claim banner not rendered)."
+        },
+        {
+          "direction": "A",
+          "axis": "a11y_rtl",
+          "score": 4,
+          "note": "92->0 sub-11sp; 36->10 metadata pairs <7 (residual team-tint/claim labels); 4->0 genuine sub-48 targets; Arabic tracking 0, unisolated 0; AA-body 0; map+list alternatives. Residuals keep it at 4."
+        },
+        {
+          "direction": "A",
+          "axis": "feasibility",
+          "score": 5,
+          "note": "Fake coords fixed (NYC seed), home-light parity, own-report client state flagged, complete component/token/state mapping, no invented data, no engine work."
+        }
+      ],
+      "residual": [
+        "10 metadata pairs <7:1 on team tints (avatar N, Host·Ready, Sharing position, claim Hunters/If you confirm)",
+        "segmented visual clip 48-in-38 (handoff: 48dp interactive height)",
+        "role=switch on inner 40x22 track (move semantics to 48 wrapper)",
+        "8 Arabic nodes inherit uppercase (no-op; set none under [dir=rtl])",
+        "'IN PLAY' at full time (S3)"
+      ]
+    },
+    "B": {
+      "name": "Street signal",
+      "weighted_total": 4.15,
+      "caps": [],
+      "cap_lift": [
+        "§2.2/§2.7 invented data: LIFTED (ally markers + per-match survival scores removed)"
+      ],
+      "scores": [
+        {
+          "direction": "B",
+          "axis": "brand_fit",
+          "score": 4,
+          "note": "Secondary read (defer)."
+        },
+        {
+          "direction": "B",
+          "axis": "distinctiveness",
+          "score": 5,
+          "note": "Secondary read (defer). Most memorable system."
+        },
+        {
+          "direction": "B",
+          "axis": "hierarchy",
+          "score": 4,
+          "note": "Claim consequence-first; result copy fixed; lobby still stacks colour surfaces."
+        },
+        {
+          "direction": "B",
+          "axis": "consistency",
+          "score": 4,
+          "note": "Sentence-case + primary rule documented; two-register system holds."
+        },
+        {
+          "direction": "B",
+          "axis": "interaction",
+          "score": 4,
+          "note": "Lobby complete (host Ready/Stand down + word-based side selector + blocker); rules zone-centre restored; claim countdown/expiry transition; eliminated frame rendered. Held at 4 (paused/head-start/offline notes-only; leave-confirm not rendered)."
+        },
+        {
+          "direction": "B",
+          "axis": "a11y_rtl",
+          "score": 4,
+          "note": "16->0 genuine sub-48 targets; 17->0 sub-11sp; 7->4 metadata pairs; lobby-rtl numeric runs isolated (0 unisolated); Arabic labels in Arabic face; AA-body 0. Residual: Arabic credit-line mono/0.66px tracking/middot; 4 metadata pairs."
+        },
+        {
+          "direction": "B",
+          "axis": "feasibility",
+          "score": 4,
+          "note": "Cap lifted; no invented data; clean mapping to shipped composables; extras labelled; documented deltas honest."
+        }
+      ],
+      "residual": [
+        "4 metadata pairs <7:1 (home-light helper 4.76, Review tag claim 6.78, result prey-remaining 5.3, claim meta 4.58)",
+        "lobby-rtl dock credit line still Red Hat Mono + 0.66px tracking + middot"
+      ]
+    },
+    "C": {
+      "name": "Field instrument",
+      "weighted_total": 4.45,
+      "caps": [],
+      "cap_lift": [
+        "strict §2.2 asymmetry moot (invented history survival score removed)"
+      ],
+      "scores": [
+        {
+          "direction": "C",
+          "axis": "brand_fit",
+          "score": 4,
+          "note": "Secondary read (defer; reviewer-visual holds 3 on brand-cost)."
+        },
+        {
+          "direction": "C",
+          "axis": "distinctiveness",
+          "score": 5,
+          "note": "Secondary read (defer)."
+        },
+        {
+          "direction": "C",
+          "axis": "hierarchy",
+          "score": 4,
+          "note": "Rematch demoted; Back to lobby only primary; readout hierarchy unchanged."
+        },
+        {
+          "direction": "C",
+          "axis": "consistency",
+          "score": 5,
+          "note": "Accepted reviewer-visual: switch cue is a11y not grammar; system holds across 17 pages."
+        },
+        {
+          "direction": "C",
+          "axis": "interaction",
+          "score": 5,
+          "note": "Only direction with paused + offline + eliminated rendered as labelled extras; complete claim lifecycle; side switch added; rematch demoted; history/result line-up fixed; no dead ends; no invented action."
+        },
+        {
+          "direction": "C",
+          "axis": "a11y_rtl",
+          "score": 4,
+          "note": "12->0 sub-48 targets (steppers 48, switches 52x48 + word cue); 1->0 sub-11sp; RTL unisolated 7->0; tracking 0; Arabic labels Arabic face; AA-body 0. Netted: RTL row fix introduced 5 clipped Arabic names (22px in 20px) -> not 5."
+        },
+        {
+          "direction": "C",
+          "axis": "feasibility",
+          "score": 4,
+          "note": "Invented history datum removed; IP removed; Home permission-only readout; real zone coordinates; extras labelled; physical-direction CSS documented as handoff note."
+        }
+      ],
+      "residual": [
+        "lobby-rtl clips 5 Arabic names vertically (22px in 20px) - regression from RTL fix",
+        "result 'PLAYED OF 60:00' 6.75:1 @12px (<7 metadata rule)"
+      ]
+    }
+  },
+  "docket_checks": {
+    "result": "42/42 PASS (0 FAIL/WARN)",
+    "file": "reviews/evidence/round2-docket-checks.md"
+  },
+  "measured_deltas": {
+    "A": "sub11 92->0, metadata<7 36->10, targets<48 4->0, clips 2->2, unisolated 0->0, invented-data 0",
+    "B": "sub11 17->0, metadata<7 7->4, targets<48 16->0, clips 1->0, unisolated 3->0, invented-data 0",
+    "C": "sub11 1->0, metadata<7 1->1, targets<48 12->0, clips 4->5 (Arabic names, new), unisolated 7->0, invented-data 0"
+  },
+  "page_ux_picks_r2": {
+    "auth": "A",
+    "roles": "A",
+    "home": "B",
+    "lobby": "A",
+    "hunt-hunter": "C",
+    "hunt-prey": "C",
+    "chat": "B",
+    "result": "C",
+    "history": "A",
+    "settings": "A",
+    "sheet-tag-claim": "C",
+    "sheet-room-settings": "A",
+    "lobby-rtl": "A",
+    "home-light": "B"
+  },
+  "reconciliation_proposal": {
+    "status": "CONSOLIDATED (agreed with reviewer-visual 2026-11-04 20:05 UTC)",
+    "method": "Owner-axis joint table: brand/distinctiveness/hierarchy/consistency -> reviewer-visual; interaction/a11y/feasibility -> reviewer-ux; mandatory rubric caps wherever they apply; both independent tables preserved; dissents recorded, never averaged.",
+    "consolidated_totals": {
+      "A": 4.6,
+      "B": 4.45,
+      "C": 4.3
+    },
+    "consolidated_axes": {
+      "brand_fit": {
+        "A": 5,
+        "B": 5,
+        "C": 3
+      },
+      "distinctiveness": {
+        "A": 4,
+        "B": 5,
+        "C": 5
+      },
+      "hierarchy": {
+        "A": 5,
+        "B": 4,
+        "C": 4
+      },
+      "consistency": {
+        "A": 5,
+        "B": 5,
+        "C": 5
+      },
+      "interaction": {
+        "A": 4,
+        "B": 4,
+        "C": 5
+      },
+      "a11y_rtl": {
+        "A": 4,
+        "B": 4,
+        "C": 4
+      },
+      "feasibility": {
+        "A": 5,
+        "B": 4,
+        "C": 4
+      }
+    },
+    "recorded_dissents": [
+      "reviewer-ux secondary reads: A distinctiveness 3 (vs 4), A hierarchy 4 (vs 5), A/B consistency 4 (vs 5), C brand-fit 4 (vs 3).",
+      "reviewer-visual insists A interaction 3 and A feasibility 4 on their own read; reviewer-ux holds 4 and 5 as the axes owners with evidence (cap lifted; all required states rendered or documented per §18; reuse/state/handoff mapping).",
+      "Independent tables: reviewer-visual A=B 4.30 / C 4.15; reviewer-ux A 4.00 / B 4.15 / C 4.45. Strict harsher-wins across all disagreements would give A 3.70 / B 4.00 / C 4.00 (recorded as a sensitivity, not the primary table; it punishes A for the reviewer-ux secondary brand read that is explicitly deferred)."
+    ],
+    "sensitivity": [
+      "Consolidated ranking A 4.60 > B 4.45 > C 4.30; A-vs-B gap 0.15 is inside the method-uncertainty band -> owner taste call (A = finished base / buildability; B = highest identity).",
+      "If C brand-fit were 4 (reviewer-ux dissent), C = 4.45, tying B and 0.15 behind A -- still not a three-way tie on the consolidated method.",
+      "Under reviewer-ux's independent method C ranks first (state-completeness weighs more); stated explicitly in FINAL, not averaged."
+    ]
+  }
+}

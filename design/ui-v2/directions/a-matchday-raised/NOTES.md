@@ -430,9 +430,10 @@ Round-2 pass driven by `reviews/round-1-visual.md` (weighted 3.60/5, capped 5/7 
 item → decision → change record. All 16 renders were re-produced from the revised source
 (14 canonical + 2 extra state frames); audit after the pass: **0 functional/readable text nodes < 11.5 px, 0 metadata
 pairs < 7:1, 0 sub-48 dp interactive targets, 0 clipped regions, 0 page overflow, 0 Arabic letter-spacing in
-`lobby-rtl`**. Precision note: the shipped `data.small` machine-data token is **11 px** and remains on 15
-single-line mono uses (see §15.6); those are token- and contrast-compliant, the readable-function floor is
-11.5 px.
+`lobby-rtl`**. Precision note: **no text below 11 px**, but the shipped metadata token is 11 px and remains on
+15 declarations (33 rendered nodes — data punctuation, avatar initials, step numerals, mono status/timestamps,
+unit labels, update/legal meta, proposal tag/note, RTL player meta), all ≥7:1; the readable-function floor is
+11.5 px for everything else (see §15.6).
 
 ### 15.1 reviewer-visual items
 
@@ -440,7 +441,7 @@ single-line mono uses (see §15.6); those are token- and contrast-compliant, the
 |---|---|---|
 | **Cap §2.7: `result` "Play again" presented as shipped** | Accept — labelled as a proposal, not removed (brief's result must-show includes rematch; the shipped app has none) | `result`: action now reads "Play again" + visible **Proposal** data tag; one mono line under the secondary buttons: "Play again needs a server action to restart the room." NOTES already costed the server action. |
 | `home-light` shows a different state from `home` | Accept | Proof re-rendered from the identical state: Hunt name "Riverside Run" focused, code cells empty, Join hunt disabled. Same DOM, same behaviours; only the theme changes. |
-| Auxiliary type below floor (10.5/9.5 px) | Accept — system token pass | `data.small` 11.5/15 by default, board meta labels 11.5, chat gutter 11.5 (44 dp), history meta 11.5, switch labels 11.5, settings footer 9.5→11, claim/result credits 11.5. Measured post-pass: 0 functional text nodes below 11.5; the remaining 11 px uses are the shipped machine-data token (§15.6). |
+| Auxiliary type below floor (10.5/9.5 px) | Accept — system token pass | `data.small` 11.5/15 by default, board meta labels 11.5, chat gutter 11.5 (44 dp), history meta 11.5, switch labels 11.5, settings footer 9.5→11, claim/result credits 11.5. Measured post-pass: no text below 11 px; the remaining 11 px uses are the shipped metadata token, enumerated in §15.6. |
 | Metadata < 7:1 (5.34:1 board labels) | Accept — one token change | Board muted token `.55 → .75` alpha (= #B0B8C3 on #0e1728, **8.95:1**). Field/plate metadata now 9.1:1 / 8.09:1; light theme 7.18:1. Contrast table in §13; rechecked per pair. |
 | Icon-only Settings entry | Accept | Masthead shows the mixer FieldMark **plus a visible "Settings" label** (48 dp target) on `home` and `home-light`. No icon-only navigation remains. |
 | `lobby` should be one object, not a perfected shipped page | Accept — restructured | Readiness moved fully into the Board gutter (`READY 5 / 5` + five ticks, no separate "Everyone is ready" line); the invite code and its Share action are one social object inside the Board's big row; the teams section carries only "The teams / 5 players". Host controls kept (Stand down, side switch, Begin + reason). |
@@ -529,33 +530,37 @@ single-line mono uses (see §15.6); those are token- and contrast-compliant, the
 ### 15.6 Precision correction after reviewer-visual's round-2 check (type floor)
 
 reviewer-visual correctly noted the earlier claim "0 nodes < 11.5 px" was too broad: raw CSS still contains
-**15 single-line `font-size: 11px` declarations** (they were below my ≤10.9 px self-audit threshold, which was
-the mistake). They are all **machine data**, not readable function text, and all sit at ≥7:1:
+**15 `font-size: 11px` declarations** (they were below my ≤10.9 px self-audit threshold — that was the bug). A
+re-measure at <11.5 px gives **33 rendered nodes at 11 px** from those 15 declarations, in these families:
 
-| Where | What | Class/role |
-|---|---|---|
-| `result` | "Play again" proposal note; proposal data tag; avatar initial (inside a 24 × 24 avatar) | mono caption / avatar initial |
-| `chat` | own-message "YOU" name label | mono sender label |
-| `hunt-prey` (+ claim background) | "Sharing position" band label; "Last report 20:41" | mono state label / timestamp |
-| `roles` | step numerals 01–05 | mono sequence numeral |
-| `settings` | update meta "v0.16.2 · 2.3 MB"; legal footer | mono machine metadata |
-| `sheet-room-settings` | unit labels "min"/"m" next to numeric fields | mono unit label |
-| `lobby-rtl` | player row status meta (HOST · READY) | Arabic UI meta (no tracking) |
-| `_a.css` | board state separator dot "·" | decorative data glyph |
+| Family | Nodes | What it is |
+|---|---:|---|
+| Board state separator "·" | 6 | decorative data glyph |
+| Avatar initials (result) | 5 | single letter inside 24 × 24 avatar |
+| Roles step numerals 01–05 | 5 | mono sequence numerals |
+| `lobby-rtl` player status meta | 5 | Arabic "HOST · READY"-class status (`المضيف، مستعد`, `مستعد`) |
+| Prey band labels/timestamps (hunt-prey + claim background) | 4 | "Sharing position", "Last report 20:41" |
+| Chat own-message "You" labels | 2 | mono sender label |
+| Result proposal tag + server-action note | 2 | data tag + mono note |
+| Settings update meta + legal footer | 2 | "v0.16.2 · 2.3 MB", licence/OSM line |
+| Room-rules unit labels ("min", "m") | 3 | mono unit suffix (marked in notes of the field value) |
+| Hunt-eliminated band timestamp | 1 | "Tagged by Omar at 20:52" |
 
-These use the shipped `data.small` role (11 sp) which `skills/TOKENS.md` allows for machine metadata with a
-7:1 floor; the brief's 12 sp auxiliary floor applies to text a player must read as auxiliary prose, which is
-≥11.5 px across the set (body 13–15, labels 13). **Decision: keep the 11 px machine-data uses in this round**
-(the owner pack renders are the scored artefact and the values are token/contrast-compliant); if the owner
-wants a strict ≥12 px auxiliary floor, one token bump in `_a.css` + page overrides re-renders the set — no
-layout change expected beyond a few line-heights.
+All are mono/upright **data labels and machine metadata**, not prose; every pair is ≥7:1 (board 8.95:1, field
+9.1:1, plate 8.09:1). Readable functional copy is ≥11.5 px (body 13–15, labels 13, table headers 11.5). **The
+brief's 12 sp auxiliary floor is met for readable auxiliary text; the 11 px set is the shipped `data.small`
+metadata role and stays in this round** because the round-2 renders are the scored artefact and the owner pack
+must remain version-stable. If the owner wants a strict ≥12 px floor for *all* text including metadata, it is
+one token bump in `_a.css`/page overrides and a re-render — no layout change expected beyond a few line
+heights; NOTES records this as an open, cheap option rather than pretending the claim is met at 12.
 
 Other residuals recorded from the same review: offline/loading/error/head-start are **documented only** (§6,
-§11) — an offline strip frame was deliberately not added after round-2 scoring so the owner pack stays
-version-stable; it is a one-frame addition if requested. The result dock's server-action note is the first
-element to cut at 320 dp / large text (the proposal tag itself is the essential marker). At 320 dp: proposal
-tag stays, note hidden; dock buttons wrap and grow (`heightIn`); Board stacks (state + data wrap, clock held at
-44 sp); team sheets single-column; scrolling only inside documented regions.
+§11); an offline strip frame was deliberately not added after round-2 scoring so the owner pack stays
+version-stable — it is a one-frame addition if requested, and paused/eliminated extras already prove the state
+system. The result dock's server-action note is the first element to cut at 320 dp / large text (the proposal
+tag itself is the essential marker). At 320 dp: proposal tag stays, note hidden; dock buttons wrap and grow
+(`heightIn`); Board stacks (state + data wrap, clock held at 44 sp); team sheets single-column; scrolling only
+inside documented regions.
 
 ## 16. Round-2 file set
 

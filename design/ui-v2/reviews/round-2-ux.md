@@ -6,7 +6,7 @@ consistency regression-checked) against the **new renders only**. Brand/distinct
 for reviewer-visual, unchanged from round 1.
 **Evidence:** `ux-audit.mjs --tag round2` → `reviews/evidence/ux-audit-round2*.json` (+ round-1 baseline
 `ux-audit-round1-*` for deltas), `docket-checks.mjs` → `round2-docket-checks.{json,md}`, new renders in each
-direction's `out/` (A 16, B 15, C 17 pages; all canonical 1170×2532 + labelled non-canonical extras).
+direction's `out/` (A 16, B 15, C 17 pages; all canonical 1170×2532 + labelled non-canonical extras; A 2, B 2 [hunt-hunter-paused added 20:01, docket re-run PASS], C 3).
 **Independence:** this table was written before reading reviewer-visual's round-2 table; reconciliation follows
 in `FINAL-RECOMMENDATION.md` (task-12). Round-1 table: `scores-round-1-ux.json`.
 
@@ -14,7 +14,7 @@ in `FINAL-RECOMMENDATION.md` (task-12). Round-1 table: `scores-round-1-ux.json`.
 
 | Gate | A | B | C |
 |---|---|---|---|
-| 14 canonical renders, exact 1170×2532, legible; NOTES review response present | ✅ 14+2 extras | ✅ 14+1 extra | ✅ 14+3 extras |
+| 14 canonical renders, exact 1170×2532, legible; NOTES review response present | ✅ 14+2 extras | ✅ 14+2 extras (paused added 20:01; docket PASS) | ✅ 14+3 extras |
 | Seed/data unchanged; no invented data anywhere (scan) | ✅ | ✅ | ✅ |
 | Canonical pages ≤844 (no page scroll) | ✅ | ✅ | ✅ |
 | **§2.7 rematch presented as shipped** | **LIFTED** — render shows "Play again · PROPOSAL" tag + "Play again needs a server action to restart the room." | n/a (already labelled) | n/a (demoted) |

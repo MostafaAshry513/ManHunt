@@ -1,184 +1,10 @@
 {
   "meta": {
     "tool": "reviewer-ux docket-checks",
-    "when": "2026-11-04T20:00:47.307Z",
+    "when": "2026-11-04T20:02:37.727Z",
     "docket": "reviews/round-2-docket.md"
   },
   "directions": {
-    "a-matchday-raised": {
-      "pages": [
-        "auth",
-        "chat",
-        "history",
-        "home-light",
-        "home",
-        "hunt-eliminated",
-        "hunt-hunter",
-        "hunt-paused",
-        "hunt-prey",
-        "lobby-rtl",
-        "lobby",
-        "result",
-        "roles",
-        "settings",
-        "sheet-room-settings",
-        "sheet-tag-claim"
-      ],
-      "extras": [
-        "hunt-eliminated",
-        "hunt-paused"
-      ],
-      "pngDims": {
-        "auth": {
-          "w": 1170,
-          "h": 2532
-        },
-        "chat": {
-          "w": 1170,
-          "h": 2532
-        },
-        "contact-a-matchday-raised": {
-          "w": 2704,
-          "h": 6128
-        },
-        "history": {
-          "w": 1170,
-          "h": 2532
-        },
-        "home-light": {
-          "w": 1170,
-          "h": 2532
-        },
-        "home": {
-          "w": 1170,
-          "h": 2532
-        },
-        "hunt-eliminated": {
-          "w": 1170,
-          "h": 2532
-        },
-        "hunt-hunter": {
-          "w": 1170,
-          "h": 2532
-        },
-        "hunt-paused": {
-          "w": 1170,
-          "h": 2532
-        },
-        "hunt-prey": {
-          "w": 1170,
-          "h": 2532
-        },
-        "lobby-rtl": {
-          "w": 1170,
-          "h": 2532
-        },
-        "lobby": {
-          "w": 1170,
-          "h": 2532
-        },
-        "result": {
-          "w": 1170,
-          "h": 2532
-        },
-        "roles": {
-          "w": 1170,
-          "h": 2532
-        },
-        "settings": {
-          "w": 1170,
-          "h": 2532
-        },
-        "sheet-room-settings": {
-          "w": 1170,
-          "h": 2532
-        },
-        "sheet-tag-claim": {
-          "w": 1170,
-          "h": 2532
-        }
-      },
-      "checks": [
-        {
-          "id": "G1",
-          "desc": "14 canonical HTML + rendered PNG at exactly 1170x2532",
-          "status": "PASS",
-          "evidence": "html missing: none | png missing: none | wrong dims: none | extras: 2"
-        },
-        {
-          "id": "G2",
-          "desc": "NOTES.md has a Review response section",
-          "status": "PASS",
-          "evidence": "notes bytes 52182"
-        },
-        {
-          "id": "G3",
-          "desc": "No dev/fake strings across pages",
-          "status": "PASS",
-          "evidence": "none"
-        },
-        {
-          "id": "G4",
-          "desc": "Result seed honest (18:48 + prey 0/2)",
-          "status": "PASS",
-          "evidence": "FULL TIME Riverside Run PREY 0 / 2 WINNER Hunters 18:48 Played Hunters win. Both prey were tagged before full time. 0 / "
-        },
-        {
-          "id": "G5",
-          "desc": "Canonical pages do not scroll past the 844 canvas",
-          "status": "PASS",
-          "evidence": "all <=846"
-        },
-        {
-          "id": "G6",
-          "desc": "No invented-data patterns (IP / survival scores / OPEN AREA / GPS±)",
-          "status": "PASS",
-          "evidence": "none"
-        },
-        {
-          "id": "A1",
-          "desc": "Cap lift: unshipped rematch clearly labelled as proposal in the render",
-          "status": "PASS",
-          "evidence": "proposal=true | text:Play again PROPOSAL Back to lobby View hunt history Play again needs a server action to restart the room"
-        },
-        {
-          "id": "A2",
-          "desc": "home-light shows the same Home state as home (code cells/input values)",
-          "status": "PASS",
-          "evidence": "code filled dark=1 light=1 | inputs dark=\"\" light=\"\""
-        },
-        {
-          "id": "A3",
-          "desc": "Zone centre honest (no London/fake coords)",
-          "status": "PASS",
-          "evidence": "Zone centre Set on the map · 40.8008, -73.9720 Use my location Shrink over time 120 s · 25 "
-        },
-        {
-          "id": "A4",
-          "desc": "Claim shows answer-in time",
-          "status": "PASS",
-          "evidence": "answer-in=1"
-        },
-        {
-          "id": "A5",
-          "desc": "hunt-hunter has hidden per-prey status text",
-          "status": "PASS",
-          "evidence": " | Nadia: fresh report, 12 seconds ago. Rana: stale report, 14 minutes old. Your position: shown in cyan. Other players "
-        },
-        {
-          "id": "A6",
-          "desc": "Extra paused state frame rendered",
-          "status": "PASS",
-          "evidence": "extras: hunt-eliminated,hunt-paused"
-        },
-        {
-          "id": "A7",
-          "desc": "No clipped history / room-rules bodies",
-          "status": "PASS",
-          "evidence": "history 844 | rules 844"
-        }
-      ]
-    },
     "b-street-signal": {
       "pages": [
         "auth",
@@ -186,6 +12,7 @@
         "history",
         "home-light",
         "home",
+        "hunt-hunter-paused",
         "hunt-hunter",
         "hunt-prey-eliminated",
         "hunt-prey",
@@ -198,6 +25,7 @@
         "sheet-tag-claim"
       ],
       "extras": [
+        "hunt-hunter-paused",
         "hunt-prey-eliminated"
       ],
       "pngDims": {
@@ -222,6 +50,10 @@
           "h": 2532
         },
         "home": {
+          "w": 1170,
+          "h": 2532
+        },
+        "hunt-hunter-paused": {
           "w": 1170,
           "h": 2532
         },
@@ -271,13 +103,13 @@
           "id": "G1",
           "desc": "14 canonical HTML + rendered PNG at exactly 1170x2532",
           "status": "PASS",
-          "evidence": "html missing: none | png missing: none | wrong dims: none | extras: 1"
+          "evidence": "html missing: none | png missing: none | wrong dims: none | extras: 2"
         },
         {
           "id": "G2",
           "desc": "NOTES.md has a Review response section",
           "status": "PASS",
-          "evidence": "notes bytes 80866"
+          "evidence": "notes bytes 81441"
         },
         {
           "id": "G3",
@@ -355,193 +187,7 @@
           "id": "B9",
           "desc": "Extra eliminated/spectating frame rendered",
           "status": "PASS",
-          "evidence": "extras: hunt-prey-eliminated"
-        }
-      ]
-    },
-    "c-field-instrument": {
-      "pages": [
-        "auth",
-        "chat",
-        "history",
-        "home-light",
-        "home",
-        "hunt-hunter",
-        "hunt-prey",
-        "lobby-rtl",
-        "lobby",
-        "result",
-        "roles",
-        "settings",
-        "sheet-room-settings",
-        "sheet-tag-claim",
-        "state-eliminated",
-        "state-offline",
-        "state-paused"
-      ],
-      "extras": [
-        "state-eliminated",
-        "state-offline",
-        "state-paused"
-      ],
-      "pngDims": {
-        "auth": {
-          "w": 1170,
-          "h": 2532
-        },
-        "chat": {
-          "w": 1170,
-          "h": 2532
-        },
-        "contact-sheet": {
-          "w": 2704,
-          "h": 6128
-        },
-        "history": {
-          "w": 1170,
-          "h": 2532
-        },
-        "home-light": {
-          "w": 1170,
-          "h": 2532
-        },
-        "home": {
-          "w": 1170,
-          "h": 2532
-        },
-        "hunt-hunter": {
-          "w": 1170,
-          "h": 2532
-        },
-        "hunt-prey": {
-          "w": 1170,
-          "h": 2532
-        },
-        "lobby-rtl": {
-          "w": 1170,
-          "h": 2532
-        },
-        "lobby": {
-          "w": 1170,
-          "h": 2532
-        },
-        "result": {
-          "w": 1170,
-          "h": 2532
-        },
-        "roles": {
-          "w": 1170,
-          "h": 2532
-        },
-        "settings": {
-          "w": 1170,
-          "h": 2532
-        },
-        "sheet-room-settings": {
-          "w": 1170,
-          "h": 2532
-        },
-        "sheet-tag-claim": {
-          "w": 1170,
-          "h": 2532
-        },
-        "state-eliminated": {
-          "w": 1170,
-          "h": 2532
-        },
-        "state-offline": {
-          "w": 1170,
-          "h": 2532
-        },
-        "state-paused": {
-          "w": 1170,
-          "h": 2532
-        }
-      },
-      "checks": [
-        {
-          "id": "G1",
-          "desc": "14 canonical HTML + rendered PNG at exactly 1170x2532",
-          "status": "PASS",
-          "evidence": "html missing: none | png missing: none | wrong dims: none | extras: 3"
-        },
-        {
-          "id": "G2",
-          "desc": "NOTES.md has a Review response section",
-          "status": "PASS",
-          "evidence": "notes bytes 81346"
-        },
-        {
-          "id": "G3",
-          "desc": "No dev/fake strings across pages",
-          "status": "PASS",
-          "evidence": "none"
-        },
-        {
-          "id": "G4",
-          "desc": "Result seed honest (18:48 + prey 0/2)",
-          "status": "PASS",
-          "evidence": "FULL TIME Riverside Run PLAYED 18:48 PREY 0 / 2 WINNER Hunters Hunters win. Wed 4 Nov · 20:45–21:04 Riverside Run TIME P"
-        },
-        {
-          "id": "G5",
-          "desc": "Canonical pages do not scroll past the 844 canvas",
-          "status": "PASS",
-          "evidence": "all <=846"
-        },
-        {
-          "id": "G6",
-          "desc": "No invented-data patterns (IP / survival scores / OPEN AREA / GPS±)",
-          "status": "PASS",
-          "evidence": "none"
-        },
-        {
-          "id": "C1",
-          "desc": "Rematch demoted; Back to lobby is the primary",
-          "status": "PASS",
-          "evidence": "rematchPrimary=false backPrimary=true primaries=[\"Back to lobby\"]"
-        },
-        {
-          "id": "C2",
-          "desc": "history has no per-match PREY REMAINING",
-          "status": "PASS",
-          "evidence": "preyRemaining=0"
-        },
-        {
-          "id": "C3",
-          "desc": "no real public IP anywhere",
-          "status": "PASS",
-          "evidence": ""
-        },
-        {
-          "id": "C4",
-          "desc": "Home pre-hunt readout has no invented live GPS",
-          "status": "PASS",
-          "evidence": "gps±=false"
-        },
-        {
-          "id": "C5",
-          "desc": "No clipped names/labels in lobby",
-          "status": "PASS",
-          "evidence": "[]"
-        },
-        {
-          "id": "C6",
-          "desc": "Rules/settings steppers + switches >=48 hit boxes",
-          "status": "PASS",
-          "evidence": "[]"
-        },
-        {
-          "id": "C7",
-          "desc": "Three state extras rendered (paused/offline/eliminated)",
-          "status": "PASS",
-          "evidence": "extras: state-eliminated,state-offline,state-paused"
-        },
-        {
-          "id": "C8",
-          "desc": "POV identity consistent (Omar plays; host is Omar)",
-          "status": "PASS",
-          "evidence": "home:[PLAYING AS Omar] lobby:[HOSTED BY OMAR] rtl has Omar=true"
+          "evidence": "extras: hunt-hunter-paused,hunt-prey-eliminated"
         }
       ]
     }
