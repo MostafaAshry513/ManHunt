@@ -23,7 +23,7 @@ in `FINAL-RECOMMENDATION.md`; dissent is preserved there.
 |---|---|---|---|
 | 14/14 canonical pages, exact 1170×2532, no font/render errors | ✅ | ✅ | ✅ |
 | NOTES has thesis / per-page intent / rejected / Compose / weaknesses / states | ✅ | ✅ | ✅ |
-| Same seed "Riverside Run · K7M2QX · 24 m zone · 41:12 · Nadia/Omar/Selim/Rana/Youssef" | ✅ | ✅ | ✅ |
+| Same seed "Riverside Run · K7M2QX · 240 m zone · 41:12 · Nadia/Omar/Selim/Rana/Youssef" | ✅ | ✅ | ✅ |
 | Light + RTL proofs genuinely rendered | ✅ (strong) | ✅ (but see Arabic type) | ✅ (strong) |
 | Contact sheet / env pack current | ✅ | ✅ **pre-review a11y pass** (re-rendered 19:41–19:42 UTC; composition unchanged — audited against current `out/`) | ✅ |
 
@@ -255,8 +255,7 @@ hosts in the premium screenshot set and it is environment-specific data in a des
   System rows are real server English — same i18n gap as A/B.
 - `sheet-room-settings`: switch state is fill-colour only (trails on vs shrink off look like two tints of the
   same square); add knob position/word. "Server-enforced" is 10 px (<11 floor). Zone centre shows an invented
-  place label "Riverside Park" — derive from real lat/lng or leave blank. `Cancel` 16? — audit shows steppers
-  only; fine.
+  place label "Riverside Park" — derive from real lat/lng or leave blank. `Cancel` is not in the sub-48 list (it is ≥48 dp) — fine.
 - `roles`: new data labels "PLANNED"/"PLAYABLE" replace the approved "Coming soon"/"Playable now" family → adds
   translation work; prefer the existing strings (S3 copy governance).
 - `lobby-rtl`: 7 numeric runs are not LTR-isolated (`5 / 5`, `K7M2QX`, `01`–`05`); the render currently holds but
