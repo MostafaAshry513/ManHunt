@@ -30,10 +30,20 @@ import com.manhunt.app.R
 
 /** Bundled OFL faces from the approved brand motion kit (licence texts in res/raw). */
 object BoardFonts {
-    /** Classic dashboard type: platform sans everywhere, with system fallback for all names. */
-    val display = FontFamily.SansSerif
-    val sans = FontFamily.SansSerif
-    val mono = FontFamily.Monospace
+    /** Big Shoulders Display — scoreboard/signage display face. */
+    val display = FontFamily(
+        Font(R.font.big_shoulders_bold, weight = FontWeight.Bold),
+        Font(R.font.big_shoulders_regular, weight = FontWeight.Normal),
+    )
+
+    /** Instrument Sans — all functional UI and body copy. */
+    val sans = FontFamily(
+        Font(R.font.instrument_sans_regular, weight = FontWeight.Normal),
+        Font(R.font.instrument_sans_bold, weight = FontWeight.Bold),
+    )
+
+    /** Red Hat Mono — machine data only (codes, timestamps, coordinates, state words). */
+    val mono = FontFamily(Font(R.font.red_hat_mono_regular, weight = FontWeight.Normal))
 }
 
 /** Fixed brand colours; the theme translates them into semantic roles. */
@@ -119,21 +129,21 @@ object BoardSpace {
 /** Shape tokens (tokens.md §5.1). Pill shapes are banned. */
 object BoardShape {
     /** Plates, buttons, inputs, code cells, sheet top corners, dialogs. */
-    val plate = RoundedCornerShape(16.dp)
+    val plate = RoundedCornerShape(2.dp)
 
     /** Bottom sheet: square shoulders, 2 dp top radius. */
-    val sheet = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+    val sheet = RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp)
 
     /** Kit/ticket tag silhouette; mirrors automatically in RTL. */
-    val tag = RoundedCornerShape(999.dp)
+    val tag = CutCornerShape(topEnd = 8.dp)
 
     /** State word tag: smaller cut. */
-    val stateTag = RoundedCornerShape(999.dp)
+    val stateTag = CutCornerShape(topEnd = 4.dp)
 
     /** Chalk rule / field surfaces. */
     val field = RoundedCornerShape(0.dp)
 
-    val codeCell = RoundedCornerShape(12.dp)
+    val codeCell = RoundedCornerShape(2.dp)
 }
 
 /** Stable metadata sizes (tokens.md §4.1/: §7). */

@@ -250,13 +250,13 @@ private val ArabicTypography = Typography(
     labelSmall = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 12.sp, lineHeight = 18.sp),
 )
 
-/** Classic dashboard radii: soft cards, visible rounded plates, no matchday sharp corners. */
+/** MATCHDAY BOARD radii: 2 dp plates; pills and 20–28 dp card radii are banned. */
 private val ManHuntShapes = Shapes(
-    extraSmall = RoundedCornerShape(8.dp),
-    small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(16.dp),
-    large = RoundedCornerShape(20.dp),
-    extraLarge = RoundedCornerShape(28.dp),
+    extraSmall = RoundedCornerShape(2.dp),
+    small = RoundedCornerShape(2.dp),
+    medium = RoundedCornerShape(2.dp),
+    large = RoundedCornerShape(2.dp),
+    extraLarge = RoundedCornerShape(2.dp),
 )
 
 @Composable

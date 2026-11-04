@@ -239,13 +239,13 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
         Box(
             Modifier
                 .size(32.dp)
-                .background(color.copy(alpha = 0.16f), RoundedCornerShape(2.dp))
-                .border(1.dp, color, RoundedCornerShape(2.dp)),
+                .background(color.copy(alpha = 0.16f), BoardShape.plate)
+                .border(1.dp, color, BoardShape.plate),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 initial,
-                style = ManHuntType.label().copy(fontFamily = FontFamily.SansSerif),
+                style = ManHuntType.label(),
                 color = color,
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
@@ -255,12 +255,7 @@ private fun TeamRow(member: MemberDto, me: MemberDto?, team: String) {
         Column(Modifier.weight(1f)) {
             Text(
                 displayName,
-                style = ManHuntType.title().copy(
-                    fontFamily = FontFamily.SansSerif,
-                    fontSize = 17.sp,
-                    lineHeight = 21.sp,
-                    fontWeight = FontWeight.SemiBold,
-                ),
+                style = ManHuntType.title(),
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
