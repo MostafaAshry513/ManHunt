@@ -6,7 +6,7 @@ consistency regression-checked) against the **new renders only**. Brand/distinct
 for reviewer-visual, unchanged from round 1.
 **Evidence:** `ux-audit.mjs --tag round2` → `reviews/evidence/ux-audit-round2*.json` (+ round-1 baseline
 `ux-audit-round1-*` for deltas), `docket-checks.mjs` → `round2-docket-checks.{json,md}`, new renders in each
-direction's `out/` (A 16, B 15, C 17 pages; all canonical 1170×2532 + labelled non-canonical extras; A 2, B 2 [hunt-hunter-paused added 20:01, docket re-run PASS], C 3).
+direction's `out/` (A 16, B 15, C 17 pages; all canonical 1170×2532 + labelled non-canonical extras; final pack is 49 captures — A 16 (2 extras), B 16 (2 extras incl. `hunt-hunter-paused`, docket PASS), C 17 (3 extras)).
 **Independence:** this table was written before reading reviewer-visual's round-2 table; reconciliation follows
 in `FINAL-RECOMMENDATION.md` (task-12). Round-1 table: `scores-round-1-ux.json`.
 
@@ -67,8 +67,9 @@ claim event unchanged, 14/14 legible.
 
 ## 3. Direction C — "Field instrument"
 
-**Round-1 weighted 3.90 → round-2 weighted 4.45.** The cleanest state system in the pack; one small RTL clipping
-regression introduced by its own fix (netted in axis 6).
+**Round-1 weighted 3.90 → round-2 weighted 4.55 (final-render update).** The cleanest state system in the pack; its
+only two residuals (RTL Arabic name line-box, paper-note metadata contrast) were closed in its 20:04 re-render and
+re-audited clean, so a11y moves to 5 on the latest render (Lead-requested; rubric §7 scores the latest render).
 
 | Axis | R1 | R2 | Why (new render evidence) |
 |---|---:|---:|---|
@@ -77,11 +78,10 @@ regression introduced by its own fix (netted in axis 6).
 | Hierarchy | 4 | 4 | rematch demoted (secondary + "needs a server restart; not in the current build"), Back to lobby is the only primary; readout hierarchy unchanged |
 | Consistency | 4 | 5 | accepted reviewer-visual's argument: switch cue is an a11y/state issue, not grammar; system holds across 17 pages (3 extras inherit it) |
 | **Interaction & flow** | **4** | **5** | rematch demoted; "Change side" added; history ↔ result line-up fixed; **paused + offline + eliminated all rendered** as labelled extras; claim lifecycle unchanged (best in pack); no dead ends |
-| **Accessibility & RTL/i18n** | **3** | **4** | **12→0** sub-48 targets (steppers 48×48, switches 52×48 + ON/OFF word); sub-11 sp 1→0; RTL unisolated 7→0; tracking 0; Arabic labels all in the Arabic face; AA-body 0. Netted: the RTL row fix **introduced vertical clipping of Arabic names** (5 names, 22 px in 20 px, §4) — new defect, so not 5 |
+| **Accessibility & RTL/i18n** | **3** | **5** (final-render update) | **12→0** sub-48 targets (steppers 48×48, switches 52×48 + ON/OFF word); sub-11 sp 1→0; RTL unisolated 7→0; tracking 0; Arabic labels all in the Arabic face; AA-body 0; **both residuals closed on the final render** — Arabic name line-box now 24/24 (no clip) and paper-note metadata 11.07:1; visible per-prey report list is the map text alternative. Audit of the polished 17-page set: 0 across every a11y measure |
 | **Engineering feasibility** | **3** | **4** | invented per-match survival score removed; real IP removed; Home permission-only readout (no live GPS); real zone coordinates; strict-§2.2 asymmetry moot; extras labelled non-canonical; mock's physical-direction CSS documented as a handoff note (Compose start/end) |
 
-**Measured delta:** sub-11 sp 1→0 · metadata<7 1→1 · targets<48 12→0 · clipped 4→5 (all RTL Arabic names, new) ·
-RTL-unisolated 7→0 · tracking 0 · forbidden 0 · page-scroll 0. **Regression check:** readout hierarchy, claim
+**Measured delta:** sub-11 sp 1→0 · metadata<7 1→1→**0 on the final render** · targets<48 12→0 · clipped 4→5→**0 on the final render** (all RTL Arabic names fixed) · RTL-unisolated 7→0 · tracking 0 · forbidden 0 · page-scroll 0. **Regression check:** readout hierarchy, claim
 countdown, paper note, result winner/time ruler unchanged; zero-cyan reweight documented; no invented data.
 
 ## 4. Residual polish items (not cap-level; recommend implementation notes or a quick fix if a render cycle remains)
@@ -104,10 +104,11 @@ countdown, paper note, result winner/time ruler unchanged; zero-cyan reweight do
 - `lobby-rtl` dock credit line `مطاردة النهر · الغرفة` is still Red Hat Mono, 0.66 px tracking and contains `·`
   — move to the Arabic face, zero tracking, split on a full stop/newline.
 
-**C (5 clipped Arabic names + 1 metadata pair):**
-- `lobby-rtl` manifest rows clip all five Arabic names vertically (22 px content in 20 px box: نادية، رنا، عمر،
-  سليم، يوسف) — add 2–3 px line-height / row height for Arabic; this is a regression from the RTL fix.
-- Result `PLAYED OF 60:00` 6.75:1 @12 px on the paper note (just under the 7:1 metadata rule; AA-body is fine).
+**C (both residuals CLEARED on the final render — no handoff item):**
+- `lobby-rtl` Arabic names: line-box now 24 px (was 22-in-20); DOM check `scrollHeight == clientHeight == 24` for all
+  five names; PNG byte-identical (glyphs already painted) — robustness/line-box correctness, no visible change.
+- Result paper-note 12 px metadata `#2B3546` = **11.07:1** on #F2F3EE (was 6.75:1); applied to match-record label/
+  date/footer; only `result`+`sheet-tag-claim` changed. Audit of the polished 17-page set: 0 across all measures.
 
 ## 5. Round-2 table (my independent scores)
 
@@ -120,17 +121,25 @@ countdown, paper note, result winner/time ruler unchanged; zero-cyan reweight do
 | Interaction & flow UX | 15 % | 4 | 4 | 5 |
 | Accessibility & RTL/i18n | 10 % | 4 | 4 | 4 |
 | Engineering feasibility | 15 % | 5 | 4 | 4 |
-| **Weighted total** | | **4.00** | **4.15** | **4.45** |
+| **Weighted total** | | **4.00** | **4.15** | **4.55** (final-render update; 4.45 at review capture) |
 | Caps active | | none (lifted) | none (lifted) | none (asymmetry moot) |
 
-**Read:** C is first on my table (state-completeness + honesty + clean feasibility), B second (voice + now-complete
-flows, residual type polish), A third by my weights — but **A is the ranking's most sensitive number**: its
+**Read (post-pack update):** C is first on my table (**4.55** after its final-render a11y update), B second (4.15;
+voice + complete flows, one a11y caveat: map per-prey text alternative still absent), A third by my weights (4.00) —
+but **A is the ranking's most sensitive number**: its
 distinctiveness is a secondary read, and if reviewer-visual scores A 4 there (rather than my 3) A ties B at 4.15.
 A remains the most buildable and tied for cleanest a11y; the final recommendation should present the A-vs-B order
 as a trade-off (buildability/completeness vs memorability/voice) rather than a settled score, per the docket's
 "within 0.10 → say so" rule. C leads by >0.25 on both tables and is the safest "ship the system" recommendation.
 
 ## 6. Limitations
+
+**Post-pack update (Lead-requested, 20:10 UTC):** C a11y 4→5 after its two residual items closed on the final
+renders (re-audited clean: 0 across every a11y measure); C weighted 4.45→4.55. B's post-scoring 20:03:42 polish
+closed its residual metadata + Arabic credit-line items (audit 0/16 below floors) but **B a11y stays 4** — it still
+has no per-prey map text alternative (aria summary only, UI_AUDIT UI-03). A unchanged. Consolidated update by
+reviewer-visual: A 4.60 / B 4.45 / **C 4.40**; ranking unchanged, B–C gap 0.05. No other axis changed.
+
 DOM measurements are computed from CSS (not device pixels); hit-area maths uses element boxes intersected with
 clipping ancestors (an approximation of native hit-testing); 320 dp/200 % results are indicative, not contract
 failures; extras are state evidence, not new screens; brand/distinctiveness are secondary reads deferred to

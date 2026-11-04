@@ -932,3 +932,20 @@ the polish: 0 sub-12 rendered text, 0 sub-48 targets, 0 clipping, canvas exact.
    score that the contract cannot know.
 8. **Result paper note** is the single non-instrument material — deliberate human moment; owner may still
    prefer it quieter.
+
+### 13.6 Final review closure (post-pack, no render changes)
+
+reviewer-ux re-audited the polished 17-page set on the frozen owner pack and lifted Direction C's
+accessibility axis to **5**: 0 AA fails, 0 metadata <7:1, 0 sub-11 sp, 0 sub-48 dp targets, 0 clipped nodes
+(all five Arabic names now `scrollHeight == clientHeight == 24`), 0 RTL-unisolated runs, Arabic face on 31/31
+nodes with 0 tracking, paper-note metadata 11.07:1 — plus the visible per-prey report list as the map text
+alternative. reviewer-visual's final table: **A 4.60 · B 4.45 · C 4.40** (C up 0.10; reviewer-ux's independent
+table still has C first at 4.55). The recorded brand trade-off (field-instrument reading; zero-filled-cyan) is
+not a defect and remains an owner decision — no further system changes were made after the frozen pack.
+
+**Handoff rule worth carrying into implementation (from the RTL fix):** Arabic display/UI rows need **+4–6 px
+line-height over the Latin value at the same size**, and the Arabic row box must be tall enough for the actual
+line box, not the Latin one. In this direction a 16 px Arabic name with a 20 px Latin line box measured 22 px
+of content in a 20 px box (vertical clip risk); `line-height: 24 px` gives `scrollHeight == clientHeight` and
+survives longer names/diacritics/1.35× text. Apply to manifest/roster rows, chit names, dock labels and any
+mixed Arabic/Latin row; never letter-space Arabic.

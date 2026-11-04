@@ -131,10 +131,11 @@
     },
     "C": {
       "name": "Field instrument",
-      "weighted_total": 4.45,
+      "weighted_total": 4.55,
       "caps": [],
       "cap_lift": [
-        "strict §2.2 asymmetry moot (invented history survival score removed)"
+        "strict §2.2 asymmetry moot (invented history survival score removed)",
+        "a11y updated 4->5 on the final polished render (Lead-requested; both residuals closed)"
       ],
       "scores": [
         {
@@ -170,8 +171,8 @@
         {
           "direction": "C",
           "axis": "a11y_rtl",
-          "score": 4,
-          "note": "12->0 sub-48 targets (steppers 48, switches 52x48 + word cue); 1->0 sub-11sp; RTL unisolated 7->0; tracking 0; Arabic labels Arabic face; AA-body 0. Netted: RTL row fix introduced 5 clipped Arabic names (22px in 20px) -> not 5."
+          "score": 5,
+          "note": "Final-render update: 12->0 sub-48 targets (steppers 48, switches 52x48 + word cue); 1->0 sub-11sp; RTL unisolated 7->0; tracking 0; Arabic labels Arabic face; AA-body 0; Arabic name line-box fixed (24/24, no clip); paper-note metadata 11.07:1; visible per-prey report list = map text alternative. Audit of polished 17-page set: 0 across all a11y measures."
         },
         {
           "direction": "C",
@@ -180,10 +181,7 @@
           "note": "Invented history datum removed; IP removed; Home permission-only readout; real zone coordinates; extras labelled; physical-direction CSS documented as handoff note."
         }
       ],
-      "residual": [
-        "lobby-rtl clips 5 Arabic names vertically (22px in 20px) - regression from RTL fix",
-        "result 'PLAYED OF 60:00' 6.75:1 @12px (<7 metadata rule)"
-      ]
+      "residual": []
     }
   },
   "docket_checks": {
@@ -212,12 +210,12 @@
     "home-light": "B"
   },
   "reconciliation_proposal": {
-    "status": "CONSOLIDATED (agreed with reviewer-visual 2026-11-04 20:05 UTC)",
+    "status": "CONSOLIDATED + post-pack C a11y update (Lead-requested); reviewer-visual patching FINAL",
     "method": "Owner-axis joint table: brand/distinctiveness/hierarchy/consistency -> reviewer-visual; interaction/a11y/feasibility -> reviewer-ux; mandatory rubric caps wherever they apply; both independent tables preserved; dissents recorded, never averaged.",
     "consolidated_totals": {
       "A": 4.6,
       "B": 4.45,
-      "C": 4.3
+      "C": 4.4
     },
     "consolidated_axes": {
       "brand_fit": {
@@ -248,7 +246,7 @@
       "a11y_rtl": {
         "A": 4,
         "B": 4,
-        "C": 4
+        "C": 5
       },
       "feasibility": {
         "A": 5,
@@ -259,12 +257,12 @@
     "recorded_dissents": [
       "reviewer-ux secondary reads: A distinctiveness 3 (vs 4), A hierarchy 4 (vs 5), A/B consistency 4 (vs 5), C brand-fit 4 (vs 3).",
       "reviewer-visual insists A interaction 3 and A feasibility 4 on their own read; reviewer-ux holds 4 and 5 as the axes owners with evidence (cap lifted; all required states rendered or documented per §18; reuse/state/handoff mapping).",
-      "Independent tables: reviewer-visual A=B 4.30 / C 4.15; reviewer-ux A 4.00 / B 4.15 / C 4.45. Strict harsher-wins across all disagreements would give A 3.70 / B 4.00 / C 4.00 (recorded as a sensitivity, not the primary table; it punishes A for the reviewer-ux secondary brand read that is explicitly deferred)."
+      "Independent tables: reviewer-visual A=B 4.30 / C 4.15; reviewer-ux A 4.00 / B 4.15 / C 4.55. Strict harsher-wins across all disagreements would give A 3.70 / B 4.00 / C 4.00 (sensitivity only; it punishes A for the reviewer-ux secondary brand read that is explicitly deferred)."
     ],
     "sensitivity": [
-      "Consolidated ranking A 4.60 > B 4.45 > C 4.30; A-vs-B gap 0.15 is inside the method-uncertainty band -> owner taste call (A = finished base / buildability; B = highest identity).",
-      "If C brand-fit were 4 (reviewer-ux dissent), C = 4.45, tying B and 0.15 behind A -- still not a three-way tie on the consolidated method.",
-      "Under reviewer-ux's independent method C ranks first (state-completeness weighs more); stated explicitly in FINAL, not averaged."
+      "Consolidated ranking A 4.60 > B 4.45 > C 4.40; A-vs-B 0.15, B-vs-C 0.05, A-vs-C 0.20 - A-vs-{B,C} is the owner taste call; C is now effectively level with B.",
+      "If C brand-fit were 4 (reviewer-ux dissent), C = 4.55 - 0.05 behind A, 0.10 ahead of B (no longer 'ties B').",
+      "Post-pack update (Lead-requested, 20:10 UTC): C a11y 4->5 after its two residual items closed on the final renders; no other axis changes. B's post-scoring polish closed its residual metadata/Arabic items but B a11y stays 4 (no per-prey map text alternative)."
     ]
   }
 }

@@ -7,8 +7,9 @@ taste through scores.
 **Reads:** `briefs/*.md`, `skills/*.md`, round-1 and round-2 reviews (`round-1-visual.md`, `round-1-ux.md`,
 `round-2-visual.md`, `round-2-ux.md`), all four score JSONs, final renders in `directions/<dir>/out/` (final
 captures: A 19:56:53, B 19:57:33, C 19:57:55 UTC), and the owner pack in `env/out/` (per-direction sheets
-2704×6128, matrix 1858×18868 incl. 6 state-study rows, 20 comparison strips 1426×1612, 48 page captures
-1170×2532, gallery `env/out/index.html`, 123 links).
+2704×6128, matrix 1858×19768 incl. 7 state-study rows, 21 comparison strips 1426×1612, 49 page captures
+1170×2532 (A 16, B 16, C 17 — all hash-matched to the designers' final `out/`; frozen pack commit 88ac519),
+gallery `env/out/index.html`, 155 links).
 **Method:** rendered pages first (`skills/REVIEW_RUBRIC.md`); both reviewers scored independently; caps applied
 before averaging and every round-1 cap re-verified on round-2 renders; **consolidated table uses the agreed
 ownership split (reviewer-visual leads axes 1–4, reviewer-ux leads axes 5–7)**; both independent tables and every
@@ -25,19 +26,20 @@ dissent are printed in §8. No taste is delegated to the scores.
 | 3 Hierarchy & clarity (15 %) | **5** | **4** | **4** |
 | 4 System consistency (15 %) | **5** | **5** | **5** |
 | 5 Interaction & flow UX (15 %) | **4** | **4** | **5** |
-| 6 Accessibility & RTL/i18n (10 %) | **4** | **4** | **4** |
+| 6 Accessibility & RTL/i18n (10 %) | **4** | **4** | **5** |
 | 7 Engineering feasibility (15 %) | **5** | **4** | **4** |
-| **Weighted total (/5)** | **4.60** | **4.45** | **4.30** |
-| Round 1 (shared, visual-led) → Round 2 (consolidated) | 3.60 → 4.60 | 3.35 → 4.45 | 3.75 → 4.30 |
+| **Weighted total (/5)** | **4.60** | **4.45** | **4.40** |
+| Round 1 (shared, visual-led) → Round 2 (consolidated) | 3.60 → 4.60 | 3.35 → 4.45 | 3.75 → 4.40 |
 | Caps | round-1 §2.7, **lifted** | round-1 §2.2/2.7, **lifted** | none (asymmetry moot) |
 
 *The consolidated table deliberately differs from both reviewers' independent tables (mine: A 4.30 = B 4.30 >
-C 4.15; reviewer-ux: C 4.45 > B 4.15 > A 4.00) because it takes each lead reviewer's score on their axes rather
+C 4.15; reviewer-ux: C 4.55 > B 4.15 > A 4.00) because it takes each lead reviewer's score on their axes rather
 than averaging — it is the agreed method's output, not a consensus that either independent ranking is wrong. All
 three tables and the dissent are in §8. **Method sensitivity:** under a strict harsher-wins rule across every
 disagreement the totals would be A 3.70 / B 4.00 / C 4.00 (sensitivity only — it penalises A for reviewer-ux's
 explicitly deferred secondary brand read); under reviewer-ux's independent method C is first. If C's brand-fit is
-read as 4 (reviewer-ux dissent), C = 4.45, tying B and still 0.15 behind A — **not** a three-way tie.*
+read as 4 (reviewer-ux dissent), C = 4.55 — 0.05 behind A and 0.10 ahead of B (no longer a tie with B, and
+still not a three-way tie).*
 
 **One-line verdicts**
 - **A — "Matchday, raised": 4.60 — the finished, lowest-risk system.** Unmistakably ManHunt, the strongest
@@ -46,10 +48,11 @@ read as 4 (reviewer-ux dissent), C = 4.45, tying B and still 0.15 behind A — *
 - **B — "Street signal": 4.45 — the identity play.** The most memorable language in the pack and the best event
   moments; equal on the visual axes, slightly behind on build/cost risk and hierarchy calm. Ship this if the
   product should look like a new game, not a finished one.
-- **C — "Field instrument": 4.30 — the best-designed system, the riskiest brand.** The most original idea, the
-  best hunt and claim screens, the only direction that is genuinely state-complete — held back by a field-device
-  reading that is the recorded territory trade-off. Do not ship whole unless you want that identity; mine it
-  heavily either way.
+- **C — "Field instrument": 4.40 — the best-designed system, the riskiest brand.** The most original idea, the
+  best hunt and claim screens, the only direction that is genuinely state-complete and the cleanest on measured
+  accessibility (interaction 5, a11y 5) — held back by a field-device reading that is the recorded territory
+  trade-off. C is now 0.05 behind B: the A-vs-{B,C} trade-off is unchanged. Do not ship whole unless you want that
+  identity; mine it heavily either way.
 
 **Cap history:** A's round-1 third place came from one unlabelled "Play again" row (§2.7); B's from invented map
 and history data (§2.2/2.7). Both were fixed in round 2 and verified on the renders: A now shows "Play again ·
@@ -87,11 +90,12 @@ Grounded in the brief and rubric, not taste clichés:
    the two best screens (`hunt-hunter`, `sheet-tag-claim`) and the state-frame discipline. Those are mandatory
    steals for either winner.
 5. **If the owner prefers C's instrument identity**, C becomes a legitimate first choice — with a brand score of 4
-   (reviewer-ux's independent read) C = 4.45, tying B and 0.15 behind A — but that must be an explicit identity
+   (reviewer-ux's independent read) C = 4.55, 0.05 behind A and 0.10 ahead of B — but that must be an explicit identity
    decision, and the fallback (2 dp cyan rule on dock primaries) plus a native-Arabic pass would be conditions of
-   shipping it. **Reviewer-ux dissents on the ordering:** on their independent table C is first (4.45 vs B 4.15,
+   shipping it. **Reviewer-ux dissents on the ordering:** on their independent table C is first (4.55 vs B 4.15,
    A 4.00) because state-completeness and brand-independent usability carry more weight in axes 5–7; the
-   consolidated table is the agreed method's output, not a consensus that C is worse.
+   consolidated table is the agreed method's output, not a consensus that C is worse. On the consolidated table
+   C 4.40 is now effectively level with B (0.05) — the A-vs-{B,C} trade-off is unchanged.
 
 **In one line:** *A to ship (B if you want the louder product; they tie on identity/execution trade-offs), with
 B's event/identity treatment and C's hunt/claim honesty and state frames lifted into the final design.*
@@ -155,10 +159,11 @@ NOTES "review response" sections.*
   tints at 6.5:1 and a few claim-band pairs 5.9–6.5:1 (raise token/lighten tint), `.seg.small` 38 px visual inside
   a clipped 48 px cell (make the Compose control 48 dp interactive regardless of visual inset), `role="switch"` on
   the inner track (put semantics on the 48 dp wrapper), 8 Arabic nodes inherit `text-transform: uppercase` (set
-  `none` under RTL). B — 4 residual metadata pairs 4.6–6.8:1 (home-light helper, Review tag claim, result
-  prey-remaining, claim meta) and one Arabic credit line still mono/letter-spaced with a `·`. C — RTL row fix
-  introduced vertical clipping of 5 Arabic names in `lobby-rtl` (add 2–3 px line-height for Arabic) and the paper
-  note's `PLAYED OF 60:00` is 6.75:1 at 12 px.
+  `none` under RTL). **B** — residuals **cleared** in the post-scoring 20:03:42 polish (4 metadata pairs + Arabic
+  credit line fixed; audit 0/16 below floors, Arabic 31/31 in the Arabic face at 0 tracking); one a11y caveat
+  remains and keeps B at a11y 4: **no per-prey map text alternative** (aria summary only — the UI_AUDIT UI-03 gap
+  that A and C closed). **C** — residuals **cleared** in the 20:04 re-render (Arabic name line-box 24/24;
+  paper-note metadata now 11.07:1), which is why C's a11y moved to 5.
 - **Non-negotiable keeps (reviewer-ux):** whatever direction ships, keep a **visible per-prey report list as the
   map's text alternative** (closes UI_AUDIT UI-03 — the one audit finding that blocks a user group) and the claim
   sheet's **`expiresAt` countdown + "no answer → the huntmaster decides" transition** (cheapest way a real claim
@@ -214,10 +219,14 @@ designed screenshots.)*
 - **Method sensitivity:** the consolidated ordering is not robust to the method — reviewer-ux's independent method
   puts C first; strict harsher-wins gives A 3.70 / B 4.00 / C 4.00. The A-vs-B gap (0.15) is inside the
   uncertainty band and is an owner taste call; the A-vs-C question is the live reviewer disagreement.
-- **Small post-scoring deltas:** A corrected its type-floor claim (33 rendered 11 px machine-data nodes; no text
-  below 11 px; renders unchanged); B added a second non-canonical state frame (`hunt-hunter-paused`, 20:01 UTC —
-  now 16 renders, docket checks still pass, no score change). The 20:03 env re-cut includes it: matrix/strips now
-  show 7 labelled state studies; page captures remain 48 (A 16, B 15, C 17).
+- **Post-scoring deltas (Lead-requested; ranking unchanged):** A corrected its type-floor claim (33 rendered
+  11 px machine-data nodes; no text below 11 px; renders unchanged). B added a second non-canonical state frame
+  (`hunt-hunter-paused`, 20:01) and a 20:03:42 polish that cleared its residual metadata/Arabic-type items (a11y
+  stays 4 — no per-prey map text alternative). C's 20:04 re-render cleared both its residuals (Arabic line-box
+  24/24, paper-note metadata 11.07:1); on those final renders reviewer-ux moved **C a11y 4→5** (Lead-requested
+  update, 20:10) → **consolidated C = 4.40**, reviewer-ux independent C = 4.55. The frozen pack (49 page captures —
+  A 16, B 16, C 17; matrix/strips include all 7 labelled state studies) is hash-matched to the final direction
+  `out/` for all three.
 
 ---
 
@@ -227,9 +236,9 @@ designed screenshots.)*
   390-px thumbs).
 - **Per direction:** `env/out/sheets/{a-matchday-raised,b-street-signal,c-field-instrument}.png` (2704×6128).
 - **Per page:** `env/out/strips/<page>.png` (21 strips, 1426×1612; canonical 14 + 7 labelled state studies);
-  full pages in `directions/<dir>/out/*.png` (1170×2532; 48 page captures in the pack — A 16, B 15, C 17; B's
-  `hunt-hunter-paused` appears in the matrix/strips re-cut and is available in its direction `out/`).
-- **Gallery:** `env/out/index.html` (151 links) via `node design/ui-v2/env/serve.mjs`.
+  full pages in `directions/<dir>/out/*.png` (1170×2532; 49 page captures in the frozen pack — A 16, B 16, C 17,
+  including B's `hunt-hunter-paused`; all committed hashes match the designers' final `out/`).
+- **Gallery:** `env/out/index.html` (155 links, 0 broken) via `node design/ui-v2/env/serve.mjs`.
 - **Argument:** `reviews/round-1-visual.md` + `round-1-ux.md`; `reviews/round-2-visual.md` + `round-2-ux.md`;
   `reviews/FINAL-RECOMMENDATION.md`; the four scores JSONs; each direction's `NOTES.md` (review-response sections
   record every accept/partial/pushback).
@@ -247,8 +256,8 @@ to settle on round-2 renders (now moot — the invented history datum was remove
 | Table | A | B | C | Ranking |
 |---|---:|---:|---:|---|
 | reviewer-visual (independent, `scores-round-2-visual.json`) | 4.30 | 4.30 | 4.15 | A = B > C |
-| reviewer-ux (independent, `scores-round-2-ux.json`) | 4.00 | 4.15 | 4.45 | C > B > A |
-| **Consolidated (this file, agreed ownership split)** | **4.60** | **4.45** | **4.30** | **A > B > C** |
+| reviewer-ux (independent, `scores-round-2-ux.json`) | 4.00 | 4.15 | 4.55 | C > B > A |
+| **Consolidated (this file, agreed ownership split)** | **4.60** | **4.45** | **4.40** | **A > B > C** |
 
 **Consolidated method (agreed 20:05 UTC):** axes 1–4 = reviewer-visual's lead scores, axes 5–7 = reviewer-ux's
 lead scores; mandatory caps wherever they apply; both independent tables preserved; dissents recorded, never
@@ -256,15 +265,21 @@ averaged. **Reviewer-ux co-signs the consolidated table as the agreed method out
 ordering** — on their independent table C is first because state-completeness and brand-independent usability
 carry more weight in axes 5–7.
 
+**Lead-requested post-pack update 20:10:** C a11y **4→5** after its two residual items closed on the final
+renders (Arabic name line-box 24/24; paper-note metadata 11.07:1) → consolidated **C 4.40**, reviewer-ux independent
+**C 4.55**. Ranking unchanged (A 4.60 > B 4.45 > C 4.40); B's post-scoring polish also cleared its residuals, but
+B a11y stays 4 because it still has no per-prey map text alternative (UI_AUDIT UI-03). No other axis changes.
+
 **Agreements:** all round-1 caps lifted on rendered evidence; C is the most state-complete system (interaction 5)
-and the best hunt/claim source; A is the most buildable and cleanest a11y; B is the most memorable; no invented
-data remains in any canonical page; the field-instrument brand reading is the decisive C trade-off.
+and the cleanest on measured accessibility (5), and the best hunt/claim source; A is the most buildable and strong
+on a11y; B is the most memorable; no invented data remains in any canonical page; the field-instrument brand
+reading is the decisive C trade-off.
 
 **Dissent recorded (not averaged):**
 - **Reviewer-ux ranks C first and calls it the safest "ship the system" recommendation.** Their case: state
   completeness + honesty + clean feasibility outweigh the brand reading (which they defer on). I keep C's brand
   at 3 (field-device reading is a product-identity risk for a friends game) and therefore C third in the
-  consolidated table. If the owner likes the instrument identity, C's effective total is 4.45 and the decision
+  consolidated table. If the owner likes the instrument identity, C's effective total is 4.55 and the decision
   changes — that is an owner question, not a hidden average.
 - **Reviewer-ux scores A's hierarchy 4 / consistency 4 / distinctiveness 3 / brand 4 (secondary reads); I score
   5/5/4/5.** Their lower reads stem from the denser result dock, the new hit-area idioms and "raised v0.16" as
@@ -273,7 +288,8 @@ data remains in any canonical page; the field-instrument brand reading is the de
   printed here).
 - **Reviewer-ux scores B's consistency 4 / brand 4 (secondary); I score 5/5** — sentence-case pass, documented
   primary rule and complete lobby close my round-1 objections.
-- **A11y/feasibility** are agreed (A5/B4/C4 feasibility, 4/4/4 a11y), with residual polish items in §4.
+- **A11y/feasibility** are agreed (A5/B4/C4 feasibility; a11y 4/4/5 after the Lead-requested C update), with
+  residual handoff items in §4 and B's per-prey map text-alternative caveat recorded.
 - **A residual type note:** A's 33 rendered 11 px nodes are machine-data at ≥7:1 (tokens-compliant); the brief's
   auxiliary floor is 12 sp, so a strict-12 bump remains an open one-token option — recorded, not scored.
 - **B's late paused frame** (20:01, non-canonical) is outside the scored 14; it strengthens B's state evidence if
