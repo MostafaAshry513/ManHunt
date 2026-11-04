@@ -299,7 +299,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .scale .end { position: absolute; top: 0; width: 2px; height: 12px; background: var(--dim); right: 0; }
 .scale .lbl {
   position: absolute; top: 14px;
-  font-family: var(--font-mono); font-size: 10px; line-height: 12px;
+  font-family: var(--font-mono); font-size: 12px; line-height: 14px;
   letter-spacing: 0.06em; color: var(--dim);
 }
 .scale .lbl.start { left: 0; }
@@ -405,7 +405,7 @@ html[data-theme="light"] .btn-primary { background: #0f172a; color: #e6edf7; }
   min-width: 18px; height: 18px; padding: 0 5px;
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--cyan); color: var(--on-cyan);
-  font-family: var(--font-mono); font-size: 11px; line-height: 1;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1;
 }
 .action-row { display: flex; align-items: center; gap: var(--s6); }
 
@@ -598,7 +598,7 @@ html[data-theme="light"] .rocker .opt.on { background: #0f172a; color: #e6edf7; 
 .report-strip .rep .dot.stale { border: 1px dashed var(--coral); background: transparent; }
 .report-strip .rep .name { font-family: var(--font-ui); font-weight: 700; font-size: var(--caption); line-height: 18px; color: var(--chalk); }
 .report-strip .rep .age { font-family: var(--font-mono); font-size: 12px; line-height: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.report-strip .rep .state { font-family: var(--font-mono); font-size: 11px; line-height: 15px; letter-spacing: 0.10em; color: var(--error); }
+.report-strip .rep .state { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: 0.10em; color: var(--error); }
 .report-strip .rep .state.warn { color: var(--muted); }
 .report-strip .attr-line { margin-top: 4px; display: flex; }
 .report-strip .attr-line .attr { font-family: var(--font-mono); font-size: 12px; line-height: 15px; color: var(--dim); }

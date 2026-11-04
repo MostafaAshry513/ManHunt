@@ -9,7 +9,7 @@
   font-size: 12px; line-height: 15px; letter-spacing: .02em; color: var(--chalk); white-space: nowrap; }
 .maplabel .l1 b { font-weight: 700; }
 .maplabel .l1 i { font-style: normal; color: var(--dim); }
-.maplabel .l2 { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .10em;
+.maplabel .l2 { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em;
   text-transform: uppercase; color: var(--error); }
 .maplabel .sw { width: 7px; height: 7px; flex: 0 0 7px; }
 .maplabel .sw-fresh { background: var(--coral); }
@@ -148,7 +148,7 @@
 .chat .row-msg .time { width: 44px; flex: 0 0 44px; font-family: var(--font-mono); font-size: 12px; line-height: 18px; color: var(--dim); font-variant-numeric: tabular-nums; }
 .chat .row-msg .body-col { flex: 1; min-width: 0; }
 .chat .row-msg .sender { display: flex; align-items: center; gap: var(--s3); font-family: var(--font-ui); font-weight: 700; font-size: 13px; line-height: 18px; }
-.chat .row-msg .sender .team { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .10em; color: var(--dim); }
+.chat .row-msg .sender .team { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; color: var(--dim); }
 .chat .row-msg .msg { margin-top: 1px; font-family: var(--font-ui); font-size: 15px; line-height: 22px; color: var(--chalk); }
 .chat .dock .composer { display: flex; align-items: center; gap: var(--s4); }
 .chat .dock .composer .box { flex: 1; display: flex; align-items: center; min-height: 56px; padding: 0 var(--s5);
@@ -169,9 +169,9 @@
 .result .paper .hand { right: 22px; top: 46px; }
 .result .manifest-wrap { padding: var(--s5) var(--gutter) 0; }
 .result .manifest .m-row { min-height: 40px; padding: 4px 0; }
-.result .manifest .m-row .tagged { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .10em; color: var(--muted); }
+.result .manifest .m-row .tagged { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; color: var(--muted); }
 .result .dock .action-row { justify-content: space-between; margin-top: 6px; }
-.result .dock .proposal { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .04em; color: var(--dim); margin-top: 2px; }
+.result .dock .proposal { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .04em; color: var(--dim); margin-top: 2px; }
 
 /* ── HISTORY — logbook ─────────────────────────────────────────────────────── */
 .history .content { padding: var(--s4) var(--gutter) 0; }
@@ -192,7 +192,7 @@
 .history .summary { padding: var(--s4) var(--gutter) var(--s5); border-bottom: 1px solid var(--hairline-strong);
   background: var(--plate); }
 .history .summary .r { display: flex; align-items: baseline; gap: var(--s4); min-height: 34px; }
-.history .summary .r .k { width: 96px; flex: 0 0 96px; font-family: var(--font-mono); font-size: 11px; line-height: 15px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.history .summary .r .k { width: 96px; flex: 0 0 96px; font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
 .history .summary .r .v { font-family: var(--font-mono); font-size: 13px; line-height: 18px; color: var(--chalk); font-variant-numeric: tabular-nums; }
 .history .summary .r .v.win { color: var(--violet); }
 
@@ -204,7 +204,7 @@
 .settings .row { display: flex; align-items: center; gap: var(--s4); min-height: 52px;
   border-bottom: 1px solid var(--hairline); }
 .settings .row .k { flex: 1; min-width: 0; font-family: var(--font-ui); font-size: 15px; line-height: 20px; color: var(--chalk); }
-.settings .row .k .h { display: block; font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .10em; text-transform: uppercase; color: var(--dim); margin-top: 1px; }
+.settings .row .k .h { display: block; font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; text-transform: uppercase; color: var(--dim); margin-top: 1px; }
 .settings .row .ctrl { flex: 0 0 auto; }
 .settings .row .val { font-family: var(--font-mono); font-size: 13px; line-height: 18px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .settings .row .act { flex: 0 0 auto; }
@@ -217,7 +217,7 @@
 .settings .row .switch.on::after { left: 25px; }
 .settings .preview { display: flex; align-items: center; gap: var(--s4); padding: 8px 0 10px; border-bottom: 1px solid var(--hairline); }
 .settings .preview .sample { flex: 1; font-family: var(--font-ui); font-size: 15px; line-height: 22px; color: var(--muted); }
-.settings .preview .tag { font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .10em; color: var(--dim); }
+.settings .preview .tag { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; color: var(--dim); }
 .settings .upd { display: flex; align-items: center; gap: var(--s4); min-height: 52px; padding: 6px 0;
   border-bottom: 1px solid var(--hairline); }
 .settings .upd .txt .t { font-family: var(--font-ui); font-weight: 700; font-size: 15px; line-height: 20px; color: var(--chalk); }
@@ -246,7 +246,7 @@
 .rules-sheet .grp { margin-top: var(--s3); }
 .rules-sheet .row { display: flex; align-items: center; gap: var(--s4); min-height: 48px; border-bottom: 1px solid var(--hairline); }
 .rules-sheet .row .k { flex: 1; min-width: 0; font-family: var(--font-ui); font-size: 14px; line-height: 19px; color: var(--chalk); }
-.rules-sheet .row .k .h { display: block; font-family: var(--font-mono); font-size: 11px; line-height: 14px; letter-spacing: .10em; text-transform: uppercase; color: var(--dim); }
+.rules-sheet .row .k .h { display: block; font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; text-transform: uppercase; color: var(--dim); }
 .rules-sheet .row .val { font-family: var(--font-mono); font-size: 13px; line-height: 18px; color: var(--muted); text-align: right; }
 .rules-sheet .row .rocker { width: 170px; height: 40px; }
 .rules-sheet .row .rocker .opt { font-size: 12px; }
@@ -408,7 +408,7 @@ html[dir="rtl"] .section-head .line { order: 2; }
 .rules-sheet .section-head { padding: 6px 0 2px; }
 .rules-sheet .row { min-height: 43px; }
 .rules-sheet .row .k { font-size: 14px; }
-.rules-sheet .row .k .h { font-size: 10px; }
+.rules-sheet .row .k .h { font-size: 12px; }
 .rules-sheet .row .val { white-space: nowrap; }
 .rules-sheet .row .text-action { white-space: nowrap; }
 .rules-sheet .sheet-dock { padding-top: 10px; padding-bottom: 12px; }

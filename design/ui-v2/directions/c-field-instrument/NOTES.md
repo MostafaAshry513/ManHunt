@@ -887,7 +887,16 @@ ellipsizes without overlapping the tags or leaving the row.
 | `You were tagged. You are spectating this match. You can still chat, but you cannot tag or share new positions.` | state-eliminated | existing app string (verbatim, translated) |
 | `Change side`/`اختر جانبك`, `مستعد` etc. | lobby-rtl | existing strings; no middot separators |
 
-### 13.4 Known weaknesses after round 2 (and what remains for the owner/final task)
+### 13.4 Post-review hygiene (verified after the pack was captured)
+
+reviewer-visual's residual "3 CSS declarations at 10–11 px" is closed by source hygiene only: every remaining
+base declaration below 12 px in `assets/pages.css` / `assets/field.css` was raised to 12 px (they were already
+superseded by later round-2 rules, so the rendered output could not change). Re-rendered all 17 pages and
+byte-compared SHA-256 against the captured pack: **all 18 PNGs (17 pages + contact sheet) are byte-identical**,
+so the design-env pack and both reviewers' re-scores remain valid — no re-capture needed. CSS/runtime audit
+still reports 0 rendered text nodes < 12 px.
+
+### 13.5 Known weaknesses after round 2 (and what remains for the owner/final task)
 
 1. **Zero filled-cyan** remains a deliberate, documented reweighting (owner decision if C is chosen: is the
    one hot action chalk or cyan?). Brand-fit cost is acknowledged; reviewer-ux accepted it as a system note.

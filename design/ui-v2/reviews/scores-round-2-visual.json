@@ -1,0 +1,231 @@
+{
+  "reviewer": "reviewer-visual",
+  "round": 2,
+  "reviewedAt": "2026-11-04T20:05:00Z",
+  "rubric": "design/ui-v2/skills/REVIEW_RUBRIC.md",
+  "baseline": "v0.16 MATCHDAY Board",
+  "renderCaptures": {
+    "A": "19:57 UTC (14 canonical + 2 extras)",
+    "B": "19:57:31 UTC (14 canonical + 1 extra)",
+    "C": "19:57:51 UTC (14 canonical + 3 extras)",
+    "envPack": "19:59 UTC sheets/matrix 2704x6128 / 1858x13468"
+  },
+  "method": "re-score changed axes only from new renders + full 14-page regression; caps re-verified on rendered evidence; notes used only to locate claims; independent of reviewer-ux round-2 table",
+  "weights": {
+    "brand_fit": 0.15,
+    "distinctiveness": 0.15,
+    "hierarchy": 0.15,
+    "consistency": 0.15,
+    "interaction": 0.15,
+    "a11y_rtl": 0.1,
+    "feasibility": 0.15
+  },
+  "scores": [
+    {
+      "direction": "A",
+      "axis": "brand_fit",
+      "score": 5,
+      "note": "Label-styled Settings (mark+label), light-proof parity, claim expiry, lobby Board now carries code+readiness+share as one object; all brand rules honoured and system finished. Round-1: 4."
+    },
+    {
+      "direction": "A",
+      "axis": "distinctiveness",
+      "score": 4,
+      "note": "Raised shipped silhouette with ownable moves; no new language vs B/C. Unchanged."
+    },
+    {
+      "direction": "A",
+      "axis": "hierarchy",
+      "score": 5,
+      "note": "Squint passes; proposal tag secondary; one primary per page. Unchanged."
+    },
+    {
+      "direction": "A",
+      "axis": "consistency",
+      "score": 5,
+      "note": "One grammar across 14 pages + extras; deviations documented. Unchanged."
+    },
+    {
+      "direction": "A",
+      "axis": "interaction",
+      "score": 3,
+      "note": "CAP LIFTED: 'Play again \u00b7 PROPOSAL' + server-action note satisfy \u00a72.7; Back to lobby primary. Claim expiry/paused/eliminated rendered. Not 4: offline/loading/error/head-start notes-only."
+    },
+    {
+      "direction": "A",
+      "axis": "a11y_rtl",
+      "score": 4,
+      "note": "Metadata 7:1 fixed (board-muted 8.95:1); sub-11 nodes raised to 11/11.5 (tokens-compliant; strictly 14x11px declarations below brief 12sp aux - note); 48dp hit wrappers; Arabic tracking fixed; true RTL/light proofs."
+    },
+    {
+      "direction": "A",
+      "axis": "feasibility",
+      "score": 4,
+      "note": "CAP LIFTED: rematch labelled with costed server action; MatchBoard/Sheet/ScorePage/TeamSheet/CodePlate reuse; no engine work; rendered state extras reduce state risk."
+    },
+    {
+      "direction": "B",
+      "axis": "brand_fit",
+      "score": 5,
+      "note": "Own-rule ALL-CAPS fixed (true state/data labels/code only), primary-treatment rule documented (cyan operational/chalk event), all brand rules honoured; poster identity preserved. Round-1: 4."
+    },
+    {
+      "direction": "B",
+      "axis": "distinctiveness",
+      "score": 5,
+      "note": "Most ownable language: giant two-verb poster, coral/violet team fields, violet winner + FULL TIME stamp, kit-tag names. Unchanged."
+    },
+    {
+      "direction": "B",
+      "axis": "hierarchy",
+      "score": 4,
+      "note": "Big object + dock action land; lobby still stacks three colour surfaces; result stacks before action. Unchanged."
+    },
+    {
+      "direction": "B",
+      "axis": "consistency",
+      "score": 5,
+      "note": "Consistency dock cleared: sentence case, documented primary variants, settings fits; two-register system documented. Round-1: 4."
+    },
+    {
+      "direction": "B",
+      "axis": "interaction",
+      "score": 3,
+      "note": "CAP LIFTED: invented ally markers and per-match survival scores removed; lobby now complete (side selector, Stand down, Begin+blocker). Not 4: paused/offline/head-start notes-only (eliminated extra only)."
+    },
+    {
+      "direction": "B",
+      "axis": "a11y_rtl",
+      "score": 4,
+      "note": "16 sub-48 controls fixed; roles AA pair removed with counters; Arabic face/0 tracking/LTR isolates; settings <=844; pre-review pass kept. Round-1: 2."
+    },
+    {
+      "direction": "B",
+      "axis": "feasibility",
+      "score": 4,
+      "note": "CAP LIFTED: no invented data; lobby controls documented deviation; tagPolicy confirm|instant verified client-only; rematch flagged; offline small client work. Round-1: 2."
+    },
+    {
+      "direction": "C",
+      "axis": "brand_fit",
+      "score": 3,
+      "note": "Visual identity unchanged: instrument reading is still more field-device than friends' game at page level; zero-cyan reweight documented (owner question), warm moments on result/claim. Unchanged."
+    },
+    {
+      "direction": "C",
+      "axis": "distinctiveness",
+      "score": 5,
+      "note": "'Show the error bars' + cyan readout + paper note; most original content-driven system. Unchanged."
+    },
+    {
+      "direction": "C",
+      "axis": "hierarchy",
+      "score": 4,
+      "note": "Rematch demoted behind Back to lobby fixes result; utility density + deliberate join-first home remain."
+    },
+    {
+      "direction": "C",
+      "axis": "consistency",
+      "score": 5,
+      "note": "Best-documented grammar across 14 pages + 3 state extras; light/RTL inherit it. Unchanged."
+    },
+    {
+      "direction": "C",
+      "axis": "interaction",
+      "score": 4,
+      "note": "3->4: rematch demoted (honest result flow), identity/history/timeline fixed, paused/offline/eliminated rendered extras, claim countdown verified; no dead ends."
+    },
+    {
+      "direction": "C",
+      "axis": "a11y_rtl",
+      "score": 4,
+      "note": "12px floor claimed, >=48dp steppers/switches with ON/OFF word cue, numeric isolates + Arabic face/0 tracking fixed; true proofs. 3 residual 10-11px CSS declarations to confirm unused in DOM audit. Round-1: 3."
+    },
+    {
+      "direction": "C",
+      "axis": "feasibility",
+      "score": 4,
+      "note": "3->4: invented history survival line removed (MatchHistoryEntry fields only), home permission-only, neutral server label, claim expiry verified; remaining costs client-only."
+    }
+  ],
+  "directions": {
+    "A": {
+      "weighted_total": 4.3,
+      "round1": 3.6,
+      "caps": [],
+      "caps_lifted": [
+        "\u00a72.7 rematch presented as shipped (now labelled proposal + server-action note)"
+      ],
+      "residual": [
+        "14x 11px declarations vs '0 nodes <11.5px' NOTES claim (tokens-compliant, below brief 12sp aux floor)",
+        "offline/loading/error/head-start notes-only",
+        "result dock denser at 320dp/large text"
+      ]
+    },
+    "B": {
+      "weighted_total": 4.3,
+      "round1": 3.35,
+      "caps": [],
+      "caps_lifted": [
+        "\u00a72.2/2.7 invented data (ally markers + per-match survival scores removed)"
+      ],
+      "residual": [
+        "paused/offline/head-start notes-only (eliminated extra only)",
+        "dock side-switch deviation documented",
+        "poster register remains riskiest under stress but rule-clean"
+      ]
+    },
+    "C": {
+      "weighted_total": 4.15,
+      "round1": 3.75,
+      "caps": [],
+      "residual": [
+        "brand-fit trade-off (field-instrument reading, zero-cyan reweight) is an owner question",
+        "3 residual 10-11px CSS declarations to confirm unused in DOM audit",
+        "join-before-host deliberate; physical-direction CSS mock-only (Compose start/end)"
+      ]
+    }
+  },
+  "ranking_round2": [
+    "A = B (4.30)",
+    "C (4.15)"
+  ],
+  "perPageBestVisual": {
+    "auth": "A",
+    "roles": "B",
+    "home": "A",
+    "lobby": "A",
+    "hunt-hunter": "C",
+    "hunt-prey": "C",
+    "chat": "B",
+    "result": "B",
+    "history": "A",
+    "settings": "A",
+    "sheet-tag-claim": "C",
+    "sheet-room-settings": "A",
+    "lobby-rtl": "A",
+    "home-light": "B"
+  },
+  "perPageBestVisual_counts": {
+    "A": 7,
+    "B": 4,
+    "C": 3
+  },
+  "perPageUxDissent": {
+    "roles": "A (re-read completeness)",
+    "home": "B (docked two-verb reach)",
+    "result": "A (action hierarchy) - B remains best visual event"
+  },
+  "stealableIdeas": [
+    "A: Board as the one object carrying the match's one number (code->clock->duration) incl. lobby readiness+code+share",
+    "B: tag claim as event with dismissal-safe persistent strip and cyan-operational/chalk-event primary rule",
+    "C: 'show the error bars' honesty model + verified claim countdown + paper match-record"
+  ],
+  "reconciliation_status": "my round-2 table written before reviewer-ux round-2 table; open points: A-vs-B tie ranking argument, C brand-fit 3-vs-possible-4, C interaction 4 because only direction with all stress states rendered, A/B a11y 4 pending DOM audit confirmation of residual 11px nodes",
+  "limitations": [
+    "not every page re-read at full size; changed pages + cap-critical pages at full size, all 14 at sheet/thumbnail + grep/audit",
+    "beyond-390dp (320dp/200%) still spec-level",
+    "no motion tested",
+    "brand-fit scores remain taste-adjacent; owner decides"
+  ]
+}

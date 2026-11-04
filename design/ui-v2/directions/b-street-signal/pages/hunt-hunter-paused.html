@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live hunt (Hunter, paused) — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .hunt-strip { border-bottom: 1px solid var(--rule); padding: 9px 24px 8px; }
+  .pause-block { background: var(--lift); border-top: 2px solid var(--rule-strong); padding: 10px 24px 12px; }
+  .pause-block .line { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 32px; letter-spacing: -0.01em; }
+  .dock { gap: 8px; }
+  .btn--paused { height: 60px; background: var(--lift-2); color: var(--muted); border: 1.5px solid var(--rule-strong); }
+  .map-shade { position: absolute; inset: 0; background: rgba(7,13,24,.35); pointer-events: none; }
+  .map-label { fill: #a7b6cc; font-family: "Red Hat Mono", monospace; font-size: 11px; letter-spacing: .06em; }
+  .map-tag { fill: #0b1220; font-family: "Instrument Sans", sans-serif; font-weight: 700; font-size: 11px; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- PAUSED: the clock is frozen and the state word is unmistakable; Tag is not available -->
+  <header class="hunt-strip">
+    <div class="row spread">
+      <span class="row gap8">
+        <span class="dot dot--muted"></span>
+        <span class="state" style="color:var(--muted)">PAUSED</span>
+        <span class="data" style="color:var(--muted)">Riverside Run</span>
+      </span>
+      <div class="col" style="align-items:flex-end;gap:2px">
+        <span class="data">ZONE 240 m</span>
+        <span class="data">PREY 2 / 2</span>
+      </div>
+    </div>
+    <div class="clock" style="margin-top:2px;color:var(--muted)">41:12</div>
+  </header>
+
+  <div class="map flex1">
+    <svg viewBox="0 0 390 560" preserveAspectRatio="xMidYMid slice" aria-label="Map: the hunt is paused. Prey reports are frozen at their last known positions.">
+      <rect width="390" height="560" fill="#0b1220"/>
+      <g fill="#101827" stroke="#182338" stroke-width="1">
+        <rect x="18" y="22" width="96" height="82"/><rect x="132" y="22" width="118" height="82"/><rect x="268" y="22" width="104" height="82"/>
+        <rect x="18" y="122" width="96" height="92"/><rect x="132" y="122" width="118" height="92"/><rect x="268" y="122" width="104" height="92"/>
+        <rect x="18" y="232" width="96" height="98"/><rect x="132" y="232" width="118" height="98"/><rect x="268" y="232" width="104" height="98"/>
+        <rect x="18" y="348" width="96" height="84"/><rect x="132" y="348" width="118" height="84"/><rect x="268" y="348" width="104" height="84"/>
+      </g>
+      <path d="M-20 222 L 420 196" stroke="#2f4058" stroke-width="12" opacity=".7"/>
+      <path d="M132 0 L 168 560" stroke="#223049" stroke-width="10" opacity=".8"/>
+      <circle cx="195" cy="270" r="146" fill="rgba(34,211,238,0.05)" stroke="#22d3ee" stroke-width="2.5" opacity=".7"/>
+      <circle cx="252" cy="226" r="11" fill="none" stroke="#ff7a59" stroke-width="2" opacity=".7"/>
+      <circle cx="252" cy="226" r="6" fill="#ff7a59" opacity=".7"/>
+      <text x="268" y="200" class="map-label">Nadia · frozen</text>
+      <circle cx="118" cy="376" r="13" fill="none" stroke="#ff7a59" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/>
+      <circle cx="118" cy="376" r="6" fill="#ff7a59" opacity=".55"/>
+      <text x="34" y="352" class="map-label">Rana · stale 14 min</text>
+      <circle cx="168" cy="420" r="8" fill="#a79bff"/>
+      <circle cx="168" cy="420" r="15" fill="none" stroke="#e6edf7" stroke-width="2"/>
+      <g><rect x="150" y="440" width="36" height="16" fill="#e6edf7"/><text x="159" y="452" class="map-tag">YOU</text></g>
+    </svg>
+    <div class="map-shade"></div>
+    <span class="map-credit">© OpenStreetMap contributors</span>
+  </div>
+
+  <!-- the pause is stated once, plainly, with the clock called out as stopped -->
+  <section class="pause-block">
+    <div class="line">The hunt is paused.</div>
+    <p class="small" style="margin-top:4px;color:var(--muted)">The clock is stopped. Tagging is off until the huntmaster resumes.</p>
+  </section>
+
+  <div style="height:142px"></div>
+
+  <div class="dock">
+    <div class="row spread">
+      <button class="inline" style="min-height:48px;font-size:12px" type="button">Hunt details</button>
+      <span class="data-l" style="color:var(--dim)">Stopped by the huntmaster</span>
+    </div>
+    <button class="btn btn--paused" type="button" disabled aria-disabled="true">
+      <span class="btn-label" style="opacity:.38">Tag prey</span>
+    </button>
+  </div>
+
+</main>
+</body>
+</html>

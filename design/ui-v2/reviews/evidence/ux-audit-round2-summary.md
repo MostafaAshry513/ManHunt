@@ -1,6 +1,6 @@
 # UX audit digest (reviewer-ux measurement tool)
 
-Generated 2026-11-04T19:57:53.884Z · canvas 390x844 @3x · stress=true
+Generated 2026-11-04T19:59:32.501Z · canvas 390x844 @3x · stress=true
 
 Read as: hard-text = <11 px text nodes; aux-or-body = 11–13.9 px (11–12 machine metadata is allowed, body role is not);
 clipped = text clipped by an overflow-hidden ancestor or nowrap overflow; out-of-canvas = real content outside 390×844;
@@ -13,7 +13,7 @@ Pages present: 16/14. Missing canonical: none
 
 | page | AA fails | meta<7 | contrast(disabled) | hard<11 | aux 11–13.9 | targets<48 | clipped | out-of-canvas | page-scroll | font errors | cyan surfaces | phys dir props | seed-missing | forbidden | rtl-uniso |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| auth | 0 | 0 | 0 | 0 | 10 | 0 | 0 | 0 | 0 | 0 | 1 | 44 | — | 1 | 0 |
+| auth | 0 | 0 | 0 | 0 | 10 | 0 | 0 | 0 | 0 | 0 | 1 | 44 | — | 0 | 0 |
   - auth CSS techniques: boxShadow:4, textShadow:1, clipPath:5
 | chat | 0 | 0 | 0 | 0 | 21 | 0 | 0 | 0 | 0 | 0 | 0 | 42 | — | 0 | 0 |
   - chat CSS techniques: boxShadow:4, textShadow:1, clipPath:5
@@ -40,9 +40,9 @@ Pages present: 16/14. Missing canonical: none
   - result CSS techniques: boxShadow:4, textShadow:2, clipPath:5
 | roles | 0 | 0 | 0 | 0 | 25 | 0 | 0 | 0 | 0 | 0 | 1 | 46 | — | 0 | 0 |
   - roles CSS techniques: boxShadow:4, textShadow:1, clipPath:5
-| settings | 0 | 0 | 0 | 0 | 26 | 0 | 2 | 0 | 0 | 0 | 1 | 44 | — | 1 | 0 |
+| settings | 0 | 0 | 0 | 0 | 26 | 0 | 2 | 0 | 0 | 0 | 1 | 44 | — | 0 | 0 |
   - settings CSS techniques: boxShadow:4, textShadow:1, clipPath:5
-| sheet-room-settings | 0 | 2 | 0 | 0 | 50 | 2 | 0 | 0 | 0 | 0 | 2 | 50 | — | 0 | 0 |
+| sheet-room-settings | 0 | 2 | 0 | 0 | 50 | 0 | 0 | 0 | 0 | 0 | 2 | 50 | — | 0 | 0 |
   - sheet-room-settings CSS techniques: boxShadow:4, textShadow:1, clipPath:5
 | sheet-tag-claim | 0 | 3 | 0 | 0 | 22 | 0 | 0 | 0 | 0 | 0 | 1 | 48 | — | 0 | 0 |
   - sheet-tag-claim CSS techniques: boxShadow:5, textShadow:2, clipPath:5
@@ -73,7 +73,7 @@ Pages present: 15/14. Missing canonical: none
 
 | page | AA fails | meta<7 | contrast(disabled) | hard<11 | aux 11–13.9 | targets<48 | clipped | out-of-canvas | page-scroll | font errors | cyan surfaces | phys dir props | seed-missing | forbidden | rtl-uniso |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| auth | 0 | 0 | 0 | 0 | 9 | 0 | 0 | 0 | 0 | 0 | 1 | 46 | — | 1 | 0 |
+| auth | 0 | 0 | 0 | 0 | 9 | 0 | 0 | 0 | 0 | 0 | 1 | 46 | — | 0 | 0 |
   - auth CSS techniques: clipPath:2
 | chat | 0 | 0 | 0 | 0 | 24 | 0 | 0 | 0 | 0 | 0 | 1 | 56 | — | 0 | 0 |
   - chat CSS techniques: boxShadow:2, clipPath:2
@@ -91,14 +91,14 @@ Pages present: 15/14. Missing canonical: none
   - hunt-prey-eliminated CSS techniques: clipPath:2
 | lobby | 0 | 0 | 0 | 0 | 29 | 0 | 0 | 0 | 0 | 0 | 1 | 48 | — | 0 | 0 |
   - lobby CSS techniques: clipPath:2
-| lobby-rtl | 0 | 0 | 0 | 0 | 34 | 0 | 0 | 0 | 0 | 0 | 1 | 48 | — | 0 | 3 |
+| lobby-rtl | 0 | 0 | 0 | 0 | 34 | 0 | 0 | 0 | 0 | 0 | 1 | 48 | — | 0 | 0 |
   - lobby-rtl CSS techniques: clipPath:2
   - lobby-rtl Arabic nodes 31; latin-display-face 1; tracking 1; uppercase 0; fonts {"\"IBM Plex Sans Arabic\", \"Noto Sans Arabic\", sans-serif":30,"\"Red Hat Mono\", ui-monospace, \"Courier New\", monospace":1}
 | result | 0 | 1 | 0 | 0 | 19 | 0 | 0 | 0 | 0 | 0 | 0 | 52 | — | 0 | 0 |
   - result CSS techniques: clipPath:2
 | roles | 0 | 0 | 0 | 0 | 23 | 0 | 0 | 0 | 0 | 0 | 1 | 52 | — | 0 | 0 |
   - roles CSS techniques: clipPath:2
-| settings | 0 | 0 | 0 | 0 | 14 | 0 | 0 | 0 | 0 | 0 | 0 | 59 | — | 2 | 0 |
+| settings | 0 | 0 | 0 | 0 | 14 | 0 | 0 | 0 | 0 | 0 | 0 | 59 | — | 0 | 0 |
   - settings CSS techniques: clipPath:2
 | sheet-room-settings | 0 | 0 | 0 | 0 | 29 | 0 | 0 | 0 | 0 | 0 | 1 | 60 | — | 0 | 0 |
   - sheet-room-settings CSS techniques: clipPath:2
@@ -130,7 +130,7 @@ Pages present: 17/14. Missing canonical: none
 
 | page | AA fails | meta<7 | contrast(disabled) | hard<11 | aux 11–13.9 | targets<48 | clipped | out-of-canvas | page-scroll | font errors | cyan surfaces | phys dir props | seed-missing | forbidden | rtl-uniso |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| auth | 0 | 0 | 0 | 0 | 12 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 3 | 0 |
+| auth | 0 | 0 | 0 | 0 | 12 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - auth CSS techniques: animation:1
 | chat | 0 | 0 | 0 | 0 | 33 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - chat CSS techniques: animation:1
@@ -146,14 +146,14 @@ Pages present: 17/14. Missing canonical: none
   - hunt-prey CSS techniques: animation:1
 | lobby | 0 | 0 | 0 | 0 | 25 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - lobby CSS techniques: animation:1
-| lobby-rtl | 0 | 0 | 0 | 0 | 26 | 0 | 5 | 0 | 0 | 0 | 0 | 74 | — | 0 | 4 |
+| lobby-rtl | 0 | 0 | 0 | 0 | 26 | 0 | 5 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - lobby-rtl CSS techniques: animation:1
   - lobby-rtl Arabic nodes 25; latin-display-face 0; tracking 0; uppercase 0; fonts {"\"IBM Plex Sans Arabic\", \"Noto Sans Arabic\", \"Segoe UI\", sans-serif":25}
 | result | 0 | 1 | 0 | 0 | 31 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - result CSS techniques: animation:1
 | roles | 0 | 0 | 0 | 0 | 14 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - roles CSS techniques: animation:1
-| settings | 0 | 0 | 0 | 0 | 30 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 3 | 0 |
+| settings | 0 | 0 | 0 | 0 | 30 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - settings CSS techniques: animation:1
 | sheet-room-settings | 0 | 0 | 0 | 0 | 50 | 0 | 0 | 0 | 0 | 0 | 0 | 74 | — | 0 | 0 |
   - sheet-room-settings CSS techniques: animation:1

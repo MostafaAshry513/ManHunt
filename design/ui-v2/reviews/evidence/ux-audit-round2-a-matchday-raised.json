@@ -1,7 +1,7 @@
 {
   "meta": {
     "tool": "reviewer-ux ux-audit",
-    "when": "2026-11-04T19:57:53.884Z",
+    "when": "2026-11-04T19:59:32.501Z",
     "canvas": "390x844 @3x",
     "stress": true,
     "dirs": [
@@ -129,6 +129,9 @@
                 "text": "Sign in",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 613,
                 "left": 24
@@ -534,12 +537,7 @@
               "expected": [],
               "missingExpected": []
             },
-            "forbidden": [
-              {
-                "token": "hosted test server",
-                "context": "in New here? Create an account Game server · hosted test server Change server v0.16.1 · free APK · A"
-              }
-            ],
+            "forbidden": [],
             "headings": [
               {
                 "tag": "H1",
@@ -1119,6 +1117,9 @@
                 "text": "Back",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 0
@@ -1130,6 +1131,9 @@
                 "text": "Share the code",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 282
@@ -1141,6 +1145,9 @@
                 "text": "Hunt history",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 330
@@ -1152,6 +1159,9 @@
                 "text": "Send message",
                 "w": 52,
                 "h": 52,
+                "effW": 52,
+                "effH": 52,
+                "wrapper48": false,
                 "ok": true,
                 "top": 772,
                 "left": 314
@@ -2160,6 +2170,9 @@
                 "text": "Back",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 3.5,
                 "left": 0
@@ -3278,6 +3291,9 @@
                 "text": "Settings",
                 "w": 85,
                 "h": 48,
+                "effW": 85,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 3.5,
                 "left": 287
@@ -3289,6 +3305,9 @@
                 "text": "Create the hunt",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 463,
                 "left": 24
@@ -3300,6 +3319,9 @@
                 "text": "Join hunt",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 664,
                 "left": 24
@@ -4270,6 +4292,9 @@
                 "text": "Settings",
                 "w": 85,
                 "h": 48,
+                "effW": 85,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 3.5,
                 "left": 287
@@ -4281,6 +4306,9 @@
                 "text": "Create the hunt",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 463,
                 "left": 24
@@ -4292,6 +4320,9 @@
                 "text": "Join hunt",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 664,
                 "left": 24
@@ -5288,6 +5319,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 190,
                 "left": 326
@@ -5299,6 +5333,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 246,
                 "left": 326
@@ -5310,6 +5347,9 @@
                 "text": "Recentre on me",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 302,
                 "left": 326
@@ -5321,6 +5361,9 @@
                 "text": "Open chat",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 774,
                 "left": 24
@@ -6226,6 +6269,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 147,
                 "left": 326
@@ -6237,6 +6283,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 203,
                 "left": 326
@@ -6248,6 +6297,9 @@
                 "text": "Recentre on me",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 259,
                 "left": 326
@@ -6259,6 +6311,9 @@
                 "text": "Tag prey",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 768,
                 "left": 24
@@ -7178,6 +7233,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 209,
                 "left": 326
@@ -7189,6 +7247,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 265,
                 "left": 326
@@ -7200,6 +7261,9 @@
                 "text": "Recentre on me",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 321,
                 "left": 326
@@ -7211,6 +7275,9 @@
                 "text": "Tag prey",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 768,
                 "left": 24
@@ -8116,6 +8183,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 126,
                 "left": 326
@@ -8127,6 +8197,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 182,
                 "left": 326
@@ -8138,6 +8211,9 @@
                 "text": "Recentre on me",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 238,
                 "left": 326
@@ -9156,6 +9232,9 @@
                 "text": "Leave the room",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 0
@@ -9167,6 +9246,9 @@
                 "text": "Share the code",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 282
@@ -9178,6 +9260,9 @@
                 "text": "Hunt history",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 330
@@ -9189,6 +9274,9 @@
                 "text": "Begin the hunt",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 768,
                 "left": 24
@@ -10281,6 +10369,9 @@
                 "text": "مغادرة الغرفة",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 342
@@ -10292,6 +10383,9 @@
                 "text": "مشاركة الرمز",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 60
@@ -10303,6 +10397,9 @@
                 "text": "سجل المطاردات",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 12
@@ -10314,6 +10411,9 @@
                 "text": "ابدأ المطاردة",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 768,
                 "left": 24
@@ -11562,6 +11662,9 @@
                 "text": "Back to lobby",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 619,
                 "left": 24
@@ -11573,6 +11676,9 @@
                 "text": "View hunt history",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 681,
                 "left": 24
@@ -12819,6 +12925,9 @@
                 "text": "Back",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 3.5,
                 "left": 0
@@ -12830,6 +12939,9 @@
                 "text": "Let's play",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 766,
                 "left": 24
@@ -14002,6 +14114,9 @@
                 "text": "Back",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 3.5,
                 "left": 0
@@ -14013,6 +14128,9 @@
                 "text": "Download update",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 502,
                 "left": 24
@@ -14024,6 +14142,9 @@
                 "text": "Sign out",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 716,
                 "left": 24
@@ -14533,12 +14654,7 @@
               "expected": [],
               "missingExpected": []
             },
-            "forbidden": [
-              {
-                "token": "hosted test server",
-                "context": "s Nadia Server Change on the sign-in screen. hosted test server Cache 0 B Clear cache Sign out ManHu"
-              }
-            ],
+            "forbidden": [],
             "headings": [],
             "landmarks": [
               "main",
@@ -15473,6 +15589,9 @@
                 "text": "Leave the room",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 0
@@ -15484,6 +15603,9 @@
                 "text": "Share the code",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 282
@@ -15495,6 +15617,9 @@
                 "text": "Hunt history",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 1.5,
                 "left": 330
@@ -15506,6 +15631,9 @@
                 "text": "Begin the hunt",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 768,
                 "left": 24
@@ -15517,6 +15645,9 @@
                 "text": "Close",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 83,
                 "left": 328
@@ -15528,7 +15659,10 @@
                 "text": "",
                 "w": 40,
                 "h": 22,
-                "ok": false,
+                "effW": 40,
+                "effH": 22,
+                "wrapper48": true,
+                "ok": true,
                 "top": 527,
                 "left": 276
               },
@@ -15539,7 +15673,10 @@
                 "text": "",
                 "w": 40,
                 "h": 22,
-                "ok": false,
+                "effW": 40,
+                "effH": 22,
+                "wrapper48": true,
+                "ok": true,
                 "top": 616,
                 "left": 233
               },
@@ -15550,6 +15687,9 @@
                 "text": "Save rules",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": true,
                 "ok": true,
                 "top": 710,
                 "left": 24
@@ -15561,6 +15701,9 @@
                 "text": "Cancel",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 776,
                 "left": 24
@@ -16864,6 +17007,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 126,
                 "left": 326
@@ -16875,6 +17021,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 182,
                 "left": 326
@@ -16886,6 +17035,9 @@
                 "text": "Recentre on me",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 238,
                 "left": 326
@@ -16897,6 +17049,9 @@
                 "text": "Dismiss",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 387,
                 "left": 328
@@ -16908,6 +17063,9 @@
                 "text": "Confirm tag",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": true,
                 "ok": true,
                 "top": 708,
                 "left": 24
@@ -16919,6 +17077,9 @@
                 "text": "Dispute",
                 "w": 342,
                 "h": 48,
+                "effW": 342,
+                "effH": 48,
+                "wrapper48": true,
                 "ok": true,
                 "top": 774,
                 "left": 24

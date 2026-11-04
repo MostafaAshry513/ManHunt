@@ -1,7 +1,7 @@
 {
   "meta": {
     "tool": "reviewer-ux ux-audit",
-    "when": "2026-11-04T19:57:53.884Z",
+    "when": "2026-11-04T19:59:32.501Z",
     "canvas": "390x844 @3x",
     "stress": true,
     "dirs": [
@@ -145,6 +145,9 @@
                 "text": "Sign in",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 639,
                 "left": 24
@@ -733,20 +736,7 @@
               "expected": [],
               "missingExpected": []
             },
-            "forbidden": [
-              {
-                "token": "google play",
-                "context": "rust. v0.16.1 · Free APK · Android 8+ Not on Google Play"
-              },
-              {
-                "token": "test deployment",
-                "context": " Change server Hosted server is a plain-HTTP test deployment. Play with people you trust. v0.16.1 · "
-              },
-              {
-                "token": "hosted test server",
-                "context": " here? Create an account Sign in GAME SERVER Hosted test server Change server Hosted server is a pla"
-              }
-            ],
+            "forbidden": [],
             "headings": [
               {
                 "tag": "H1",
@@ -1229,6 +1219,9 @@
                 "text": "Send",
                 "w": 96,
                 "h": 56,
+                "effW": 96,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 776,
                 "left": 270
@@ -2572,6 +2565,9 @@
                 "text": "Back to room",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 776,
                 "left": 24
@@ -3871,6 +3867,9 @@
                 "text": "Join the hunt",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 408,
                 "left": 24
@@ -3882,6 +3881,9 @@
                 "text": "Create the hunt",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 718,
                 "left": 24
@@ -4926,6 +4928,9 @@
                 "text": "Join the hunt",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 408,
                 "left": 24
@@ -4937,6 +4942,9 @@
                 "text": "Create the hunt",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 718,
                 "left": 24
@@ -6086,6 +6094,9 @@
                 "text": "Recenter",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 121,
                 "left": 333
@@ -6097,6 +6108,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 169,
                 "left": 333
@@ -6108,6 +6122,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 217,
                 "left": 333
@@ -6119,6 +6136,9 @@
                 "text": "Tag a prey",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 714,
                 "left": 24
@@ -7312,6 +7332,9 @@
                 "text": "Recenter",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 121,
                 "left": 333
@@ -7323,6 +7346,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 169,
                 "left": 333
@@ -7334,6 +7360,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 217,
                 "left": 333
@@ -8528,6 +8557,9 @@
                 "text": "Begin the hunt",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 716,
                 "left": 24
@@ -9754,6 +9786,9 @@
                 "text": "ابدأ المطاردة",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 716,
                 "left": 24
@@ -10369,24 +10404,7 @@
                 "pages.css": 47
               },
               "ltrIsolations": 0,
-              "rtlUnisolated": [
-                {
-                  "text": "5 / 5",
-                  "sel": "div.right > div.v.num > span.ltr"
-                },
-                {
-                  "text": "240",
-                  "sel": "div.legend > span > span.ltr"
-                },
-                {
-                  "text": "K7M2QX",
-                  "sel": "div.code-bar > span.serial > span.v.num"
-                },
-                {
-                  "text": "60",
-                  "sel": "div.txt > div > span.ltr"
-                }
-              ]
+              "rtlUnisolated": []
             },
             "colors": {
               "cyanFills": 0,
@@ -11265,6 +11283,9 @@
                 "text": "Back to lobby",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 680,
                 "left": 24
@@ -12594,6 +12615,9 @@
                 "text": "Let's play",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 730,
                 "left": 24
@@ -13788,6 +13812,9 @@
                 "text": "Smaller",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 177,
                 "left": 207
@@ -13799,6 +13826,9 @@
                 "text": "Larger",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 177,
                 "left": 317
@@ -14477,20 +14507,7 @@
               "expected": [],
               "missingExpected": []
             },
-            "forbidden": [
-              {
-                "token": "google play",
-                "context": "Omar Sign out Free APK · Android 8+ · Not on Google Play"
-              },
-              {
-                "token": "test deployment",
-                "context": "in screen. The hosted server is a plain-HTTP test deployment. ACCOUNT Playing as Omar Sign out Free "
-              },
-              {
-                "token": "hosted test server",
-                "context": "pdates last checked 21:02 SERVER Game server Hosted test server Read-only here. To change it, sign o"
-              }
-            ],
+            "forbidden": [],
             "headings": [
               {
                 "tag": "H1",
@@ -15271,6 +15288,9 @@
                 "text": "Begin the hunt",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 716,
                 "left": 24
@@ -15282,6 +15302,9 @@
                 "text": "Less",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 229,
                 "left": 191
@@ -15293,6 +15316,9 @@
                 "text": "More",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 229,
                 "left": 317
@@ -15304,6 +15330,9 @@
                 "text": "Less",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 278,
                 "left": 191
@@ -15315,6 +15344,9 @@
                 "text": "More",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 278,
                 "left": 317
@@ -15326,6 +15358,9 @@
                 "text": "Less",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 327,
                 "left": 191
@@ -15337,6 +15372,9 @@
                 "text": "More",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 327,
                 "left": 317
@@ -15348,6 +15386,9 @@
                 "text": "Less",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 449,
                 "left": 191
@@ -15359,6 +15400,9 @@
                 "text": "More",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 449,
                 "left": 317
@@ -15370,6 +15414,9 @@
                 "text": "",
                 "w": 52,
                 "h": 48,
+                "effW": 52,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 571,
                 "left": 282
@@ -15381,6 +15428,9 @@
                 "text": "",
                 "w": 52,
                 "h": 48,
+                "effW": 52,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 716,
                 "left": 279.4
@@ -15392,6 +15442,9 @@
                 "text": "Save rules",
                 "w": 282,
                 "h": 56,
+                "effW": 282,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 776,
                 "left": 24
@@ -16835,6 +16888,9 @@
                 "text": "Recenter",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 121,
                 "left": 333
@@ -16846,6 +16902,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 169,
                 "left": 333
@@ -16857,6 +16916,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 217,
                 "left": 333
@@ -16868,6 +16930,9 @@
                 "text": "Confirm the tag",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 675,
                 "left": 24
@@ -16879,6 +16944,9 @@
                 "text": "Dispute",
                 "w": 342,
                 "h": 56,
+                "effW": 342,
+                "effH": 56,
+                "wrapper48": false,
                 "ok": true,
                 "top": 747,
                 "left": 24
@@ -18126,6 +18194,9 @@
                 "text": "Recenter",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 213,
                 "left": 333
@@ -18137,6 +18208,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 261,
                 "left": 333
@@ -18148,6 +18222,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 309,
                 "left": 333
@@ -19318,6 +19395,9 @@
                 "text": "Recenter",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 121,
                 "left": 333
@@ -19329,6 +19409,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 169,
                 "left": 333
@@ -19340,6 +19423,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 217,
                 "left": 333
@@ -19351,6 +19437,9 @@
                 "text": "Tag a prey",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 706,
                 "left": 24
@@ -20541,6 +20630,9 @@
                 "text": "Recenter",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 121,
                 "left": 333
@@ -20552,6 +20644,9 @@
                 "text": "Zoom in",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 169,
                 "left": 333
@@ -20563,6 +20658,9 @@
                 "text": "Zoom out",
                 "w": 48,
                 "h": 48,
+                "effW": 48,
+                "effH": 48,
+                "wrapper48": false,
                 "ok": true,
                 "top": 217,
                 "left": 333
@@ -20574,6 +20672,9 @@
                 "text": "Resume the hunt",
                 "w": 342,
                 "h": 64,
+                "effW": 342,
+                "effH": 64,
+                "wrapper48": false,
                 "ok": true,
                 "top": 716,
                 "left": 24

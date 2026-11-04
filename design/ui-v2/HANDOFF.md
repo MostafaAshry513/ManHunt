@@ -1,5 +1,15 @@
 # UI/UX redesign v2 — handoff brief
 
+> **UPDATE 2026-11-04 20:05 UTC — round 2 complete; final recommendation filed.**
+> - All three directions are revised, re-rendered and reviewed twice (rounds 1 and 2). Final reconciled scores:
+>   **A 4.30 · B 4.30 · C 4.15** (no caps remain). Full argument + per-page picks + implementation read + owner
+>   questions: **`reviews/FINAL-RECOMMENDATION.md`**. All round-2 capture pack artifacts are in `env/out/`
+>   (48 captures at 1170×2532, sheets 2704×6128, matrix 1858×18868, strips 1426×1612, gallery `index.html`).
+> - **Next step is an owner decision, not more design work**: pick the product direction (A or B — they tie;
+>   C is the best source of hunt/claim design and should be mined for steals), then implementation.
+> - The five owner questions are listed in `FINAL-RECOMMENDATION.md` §5. This handoff is current as of the
+>   round-2 finish; the sections below describe the workstream as originally handed over and remain accurate.
+
 **Status:** round 1 complete (3 full directions × 14 pages), not yet reviewed, no app code changed.
 **Handed over from:** a DeepSeek Harness chat session that ran the workstream with an agent team.
 **Handed over to:** the dsh-superagent deployment for ManHunt (`MostafaAshry513/ManHunt`).

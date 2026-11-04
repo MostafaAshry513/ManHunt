@@ -13,9 +13,12 @@ applied to all mono metadata (`data-l`, credits, log time, badges, stub meta, ma
 Roles side rules prose was raised from 12.5 to 13 sp (skills' readable-text floor). Body copy is 16/24; no text
 rendered below 11 sp. All 14 pages re-rendered after the pass; contact sheet refreshed by the env tool.
 
-**Round-2 delivery (2026-11-04):** 14 canonical pages + 1 non-canonical state frame
-(`hunt-prey-eliminated`) re-rendered after reviewer feedback; `out/` + direction sheet refreshed; response
-section §19 records every decision and the audit result. Contact sheet path unchanged.
+**Round-2 delivery (2026-11-04):** 14 canonical pages re-rendered after reviewer feedback; `out/` + direction
+sheet refreshed; response section §19 records every decision and the audit result. Contact sheet path unchanged.
+**Non-canonical state frames (extra evidence, not part of the scored 14):** `hunt-prey-eliminated.html`
+(tagged/spectating beat) and `hunt-hunter-paused.html` (frozen clock, Tag unavailable, host-resume copy) —
+rendered at 1170x2532 into `out/`; labelled `EXTRA` in the env matrix. Canonical capture set: 19:57:31 UTC;
+paused extra: 20:01 UTC.
 
 **Round-1 delivery (2026-11-04):** `pages/` 14 HTML pages on the env canvas + `direction.css` (direction system:
 poster blocks, tape/stamp/stencil gestures, dock, strips, kit tags, sheets) · `out/` 14 PNGs + contact sheet ·
@@ -594,8 +597,8 @@ marks, no invented claims, no fake numbers, no dev strings. OSM credit wherever 
 | Error | auth inline field helper + error styling (§10.1) | error strips per action (server, save, send, tag) |
 | Offline / reconnecting | no clean render (kept renders canonical) | reconnect strip + disabled-action rules on lobby/hunt/chat |
 | Permission | settings permission rows (Allowed / Not allowed) | hunt-prey GPS states, notification permission |
-| Paused | — | hunt strip variant: `PAUSED` + stopped clock + host resume |
-| Eliminated | claim strip on `hunt-prey`; claim sheet | eliminated/spectating strip + dim map + copy |
+| Paused | **rendered** as non-canonical `hunt-hunter-paused` (frozen clock, Tag disabled, "The hunt is paused." + host-resume copy) | hunt strip variant spec in §10.5 |
+| Eliminated | **rendered** as non-canonical `hunt-prey-eliminated` ("You were tagged." + spectating copy + cross-ticked own marker); claim strip on canonical `hunt-prey` | claim sheet + persistent strip |
 | Head start | — | hunt strip variant: `HEAD START` + no Tag + countdown copy |
 | Stale data | hunt-hunter stale prey marker + "Last report 12 s ago" | age rules + last-update strips |
 | Update available | settings `Update available: v0.17.0` row | download progress/failure/install blocked |
@@ -938,7 +941,7 @@ text < 11 sp, interactive nodes < 48 dp, or contrast pairs below the AA/7:1 floo
 | `settings` overflows canvas by 12 px (both) | **Accept** | Page tightened (section spacing, one-line notes); self-audit reports page height ≤ 844. |
 | Claim sheet: loudest line generic; no time/expiry (both) | **Accept** | Consequence-first: coral field now reads **"Omar tagged you."** at display scale, then **"Answer in 01:12 · no answer → the huntmaster decides"** from `pendingTag.expiresAt` vs `RoomState.serverNow` (not device clock), then **"Confirming means you're out."**, body, consequence block, Confirm/Dispute, and "Dismissing keeps the claim waiting." Implementation notes below. |
 | `sheet-room-settings` omits zone-centre / Use my location / Pick on map / lat-lng (ux S1) | **Accept** | Restored: Play area Open/Zone, Zone radius 240 m, **Zone centre + 51.5007, -0.1246 + Pick on map**, **Use my location**, Shrink over time (off), Hunters can see trails (on), tag policy Confirm|Instant, Save/Cancel. The map picker is the shipped **full-screen zone-picker page**, not a map inside the sheet, so tap-to-place cannot fight the sheet scroll; "zone centre not set" is a reachable validation state (copy specified). |
-| Paused / head-start / offline second frames (both, S2) | **Partial** | Kept as fully specified states (rubric §18 permits notes) rather than expanding the canonical set; copy/layout for each is in §11 and §10.5–10.6. Added **one non-canonical state frame**, `hunt-prey-eliminated.html` (reviewer-ux requested), showing the tagged/spectating beat: board continues, own marker cross-ticked, "You were tagged.", spectating copy, chat open. It does not replace any canonical page. |
+| Paused / head-start / offline second frames (both, S2) | **Partial → upgraded** | Kept paused/head-start/offline out of the canonical 14 (contract is 14), but added **two non-canonical state frames**: `hunt-prey-eliminated.html` (tagged/spectating beat, reviewer-ux requested) and `hunt-hunter-paused.html` (frozen clock, Tag unavailable, host-resume copy, reviewer-visual suggested). Both are labelled extra evidence and do not replace a canonical page; head-start/offline remain fully specified in §11. |
 | Chat system events are server-composed English in Arabic (shared, ux) | **Pushback / accepted as note** | Not a B-specific defect; it needs server-side localised system strings. Recorded as a small server/i18n cost in §14. No fake Arabic introduced in the mock. |
 | `lobby` has three loud colour surfaces (visual) | **Partial** | Kept the two team fields (the teams are the page's subject) and the one action; document the rule (team colours are data, not chrome). Header height/scale slightly reduced so the code + Begin read first. |
 
@@ -965,8 +968,8 @@ text < 11 sp, interactive nodes < 48 dp, or contrast pairs below the AA/7:1 floo
 
 ### 19.4 Known weaknesses after round 2
 
-- The two register-specific first frames aside, paused/head-start/offline remain notes-only (spec'd, not
-  rendered) — the deliberate scope trade recorded above.
+- Head-start and offline remain notes-only (spec'd, not rendered); the two highest-emotion/highest-risk beats
+  (paused, eliminated) now have rendered non-canonical frames. This is the deliberate scope trade recorded above.
 - `lobby` still has three colour surfaces (two team fields + action); the reading order is defensible but not
   as single-beat as A's Board-driven lobby.
 - `history` remains the thinnest page content-wise (honest data is limited); the stubs now carry only real

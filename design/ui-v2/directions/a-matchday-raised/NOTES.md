@@ -428,8 +428,11 @@ in §14; Arabic needs the env stand-in only for the proof (shipped app uses syst
 Round-2 pass driven by `reviews/round-1-visual.md` (weighted 3.60/5, capped 5/7 by the unlabelled rematch) and
 `reviews/round-1-ux.md` (3.75/5). Both reviewer message threads are logged in the review files; this is the
 item → decision → change record. All 16 renders were re-produced from the revised source
-(14 canonical + 2 extra state frames); audit after the pass: **0 text nodes < 11.5 px, 0 metadata pairs < 7:1,
-0 sub-48 dp interactive targets, 0 clipped regions, 0 page overflow, 0 Arabic letter-spacing in `lobby-rtl`**.
+(14 canonical + 2 extra state frames); audit after the pass: **0 functional/readable text nodes < 11.5 px, 0 metadata
+pairs < 7:1, 0 sub-48 dp interactive targets, 0 clipped regions, 0 page overflow, 0 Arabic letter-spacing in
+`lobby-rtl`**. Precision note: the shipped `data.small` machine-data token is **11 px** and remains on 15
+single-line mono uses (see §15.6); those are token- and contrast-compliant, the readable-function floor is
+11.5 px.
 
 ### 15.1 reviewer-visual items
 
@@ -437,7 +440,7 @@ item → decision → change record. All 16 renders were re-produced from the re
 |---|---|---|
 | **Cap §2.7: `result` "Play again" presented as shipped** | Accept — labelled as a proposal, not removed (brief's result must-show includes rematch; the shipped app has none) | `result`: action now reads "Play again" + visible **Proposal** data tag; one mono line under the secondary buttons: "Play again needs a server action to restart the room." NOTES already costed the server action. |
 | `home-light` shows a different state from `home` | Accept | Proof re-rendered from the identical state: Hunt name "Riverside Run" focused, code cells empty, Join hunt disabled. Same DOM, same behaviours; only the theme changes. |
-| Auxiliary type below floor (10.5/9.5 px) | Accept — system token pass | `data.small` 11.5/15, board meta labels 11.5, chat gutter 11.5 (44 dp), history meta 11.5, switch labels 11.5, settings footer 9.5→11, claim/result credits 11.5. Measured post-pass: 0 nodes below 11.5 px on all 16 pages. |
+| Auxiliary type below floor (10.5/9.5 px) | Accept — system token pass | `data.small` 11.5/15 by default, board meta labels 11.5, chat gutter 11.5 (44 dp), history meta 11.5, switch labels 11.5, settings footer 9.5→11, claim/result credits 11.5. Measured post-pass: 0 functional text nodes below 11.5; the remaining 11 px uses are the shipped machine-data token (§15.6). |
 | Metadata < 7:1 (5.34:1 board labels) | Accept — one token change | Board muted token `.55 → .75` alpha (= #B0B8C3 on #0e1728, **8.95:1**). Field/plate metadata now 9.1:1 / 8.09:1; light theme 7.18:1. Contrast table in §13; rechecked per pair. |
 | Icon-only Settings entry | Accept | Masthead shows the mixer FieldMark **plus a visible "Settings" label** (48 dp target) on `home` and `home-light`. No icon-only navigation remains. |
 | `lobby` should be one object, not a perfected shipped page | Accept — restructured | Readiness moved fully into the Board gutter (`READY 5 / 5` + five ticks, no separate "Everyone is ready" line); the invite code and its Share action are one social object inside the Board's big row; the teams section carries only "The teams / 5 players". Host controls kept (Stand down, side switch, Begin + reason). |
@@ -450,7 +453,7 @@ item → decision → change record. All 16 renders were re-produced from the re
 
 | Item | Decision | What changed |
 |---|---|---|
-| 92 nodes below 11 px | Accept | See 15.1 — 0 remaining. `data.small` token raised system-wide; all one-off 10–10.5 px page rules updated. |
+| 92 nodes below 11 px | Accept | See 15.1 — 0 remaining. `data.small` token raised to 11.5 systematically; the page-specific 10–10.5 px rules were updated; 15 intentional 11 px mono machine-data uses remain (listed in §15.6). |
 | 36 metadata pairs at 5.34:1 | Accept | Board-muted alpha raise (8.95:1) + size pass. Re-measured all pairs (field 9.1:1, plate 8.09:1, credit 10.88:1, light 7.18:1). |
 | Sub-48 dp targets: View hunt history 44, Sign out 44, rules switches 40×22 | Accept | Secondary/destructive buttons now ≥48 (page overrides removed); both switches get a 48×48 hit wrapper (visual stays 40×22, ON/OFF word visible); inline text actions get 48 high hit boxes via padding (visual unchanged); segmented cells get 48 layout height (38 visual, clipped); board share action 48. Post-audit: 0 interactive targets <48. |
 | Fake London zone centre | Accept | Room-rules shows the seed centre as `Set on the map · 40.8008, -73.9720` (Riverside Park, Manhattan; no invented place label). "Zone centre not set" remains the documented shipped fallback. |
@@ -466,7 +469,8 @@ item → decision → change record. All 16 renders were re-produced from the re
 | History clip / rules clip | Accept | Both fixed; audit now shows 0 clipped regions and page heights 844. |
 
 ### 15.3 Changes that also affect the rest of the system
-- **Type floor is now a system rule:** nothing readable below 11.5 px; mono metadata is 11.5 with tighter
+- **Type floor is now a system rule:** no functional/readable text below 11.5 px; mono machine metadata is 11.5
+  except the shipped `data.small` 11 px token (15 uses, list in §15.6) with
   tracking; Big Shoulders numerals untouched (display scale is the point).
 - **Metadata token split:** `--a-board-muted` is now a readable 8.95:1 on ink; page-level "quiet" text on
   field/plate is ≥7.18:1. Do not lower it without re-running the contrast table.
@@ -506,7 +510,7 @@ item → decision → change record. All 16 renders were re-produced from the re
     text heights. Add to implementation acceptance tests.
 
 ### 15.5 Compose/implementation notes added in round 2
-- Metadata tokens: `data.small` 11.5/15, `state` 11.5, board-muted `chalk @75%` (never below 7:1); the
+- Metadata tokens: `data.small` 11.5/15 (a few 11 px machine-data uses remain, §15.6), `state` 11.5, board-muted `chalk @75%` (never below 7:1); the
   shipped `BoardTheme` muteds must be re-checked because the current `#A7B6CC` on `board` is 5.34:1.
 - Hit targets: `heightIn(min = 48.dp)` on all text actions; switch rows as `selectable` 48 dp with the visual
   track 40×22 inside; segmented choices 48 dp tall (visual can inset).
@@ -520,6 +524,38 @@ item → decision → change record. All 16 renders were re-produced from the re
 - Type scaling: body 1:1, display/board half-rate capped 1.25; at 200 % the Board stacks, team sheets
   single-column, dock buttons grow; page scrolls allowed only in the documented regions (chat log, long lists).
 
+
+
+### 15.6 Precision correction after reviewer-visual's round-2 check (type floor)
+
+reviewer-visual correctly noted the earlier claim "0 nodes < 11.5 px" was too broad: raw CSS still contains
+**15 single-line `font-size: 11px` declarations** (they were below my ≤10.9 px self-audit threshold, which was
+the mistake). They are all **machine data**, not readable function text, and all sit at ≥7:1:
+
+| Where | What | Class/role |
+|---|---|---|
+| `result` | "Play again" proposal note; proposal data tag; avatar initial (inside a 24 × 24 avatar) | mono caption / avatar initial |
+| `chat` | own-message "YOU" name label | mono sender label |
+| `hunt-prey` (+ claim background) | "Sharing position" band label; "Last report 20:41" | mono state label / timestamp |
+| `roles` | step numerals 01–05 | mono sequence numeral |
+| `settings` | update meta "v0.16.2 · 2.3 MB"; legal footer | mono machine metadata |
+| `sheet-room-settings` | unit labels "min"/"m" next to numeric fields | mono unit label |
+| `lobby-rtl` | player row status meta (HOST · READY) | Arabic UI meta (no tracking) |
+| `_a.css` | board state separator dot "·" | decorative data glyph |
+
+These use the shipped `data.small` role (11 sp) which `skills/TOKENS.md` allows for machine metadata with a
+7:1 floor; the brief's 12 sp auxiliary floor applies to text a player must read as auxiliary prose, which is
+≥11.5 px across the set (body 13–15, labels 13). **Decision: keep the 11 px machine-data uses in this round**
+(the owner pack renders are the scored artefact and the values are token/contrast-compliant); if the owner
+wants a strict ≥12 px auxiliary floor, one token bump in `_a.css` + page overrides re-renders the set — no
+layout change expected beyond a few line-heights.
+
+Other residuals recorded from the same review: offline/loading/error/head-start are **documented only** (§6,
+§11) — an offline strip frame was deliberately not added after round-2 scoring so the owner pack stays
+version-stable; it is a one-frame addition if requested. The result dock's server-action note is the first
+element to cut at 320 dp / large text (the proposal tag itself is the essential marker). At 320 dp: proposal
+tag stays, note hidden; dock buttons wrap and grow (`heightIn`); Board stacks (state + data wrap, clock held at
+44 sp); team sheets single-column; scrolling only inside documented regions.
 
 ## 16. Round-2 file set
 

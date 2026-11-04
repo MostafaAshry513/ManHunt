@@ -50,6 +50,16 @@
   "contrast": []
  },
  {
+  "page": "hunt-hunter-paused",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
   "page": "hunt-hunter",
   "overflow": {
    "w": 390,
