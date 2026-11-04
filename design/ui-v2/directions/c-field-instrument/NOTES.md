@@ -1,6 +1,6 @@
 # Direction C — “Field instrument”
 
-**Owner:** designer-c · **Status:** round-1 delivered — 14 pages rendered at 1170×2532 + contact sheet · branch `design/ui-v2`
+**Owner:** designer-c · **Status:** round-2 delivered — 14 canonical pages + 3 state studies rendered at 1170×2532, contact sheet rebuilt · branch `design/ui-v2`
 **Read with:** `briefs/00-workstream.md`, `briefs/01-directions.md`, `briefs/02-evaluation.md`,
 `skills/DESIGN_PLAYBOOK.md`, `skills/PAGE_INVENTORY.md`, `skills/TOKENS.md`, `skills/COMPONENTS.md`,
 `skills/REVIEW_RUBRIC.md`, `design/redesign/{direction,tokens,audit}.md`,
@@ -325,7 +325,7 @@ Format: **gesture** — composition — data — states shown — key decisions.
    glance, and it is real data (permission/accuracy/room) rather than decoration.
 4. **`lobby` — “Briefing plate.”** The room is briefed before the hunt: a zone chart, the code as a serial
    number, and the manifest of who is here.
-   *Composition:* bezel (back, lockup small, mark) → ink room header: state `LOBBY` + room name
+   *Composition:* bezel (back, lockup small, mark) → ink room header: state `LOBBY` + room name (host = **Omar**, HOST · YOU)
    `display.m` + `5 / 5 READY` → **start chart** (240 dp: drawn zone ring, centre survey mark, scale
    `240 m`, `CLASSIC HUNT` readout) → the code row (`CODE K7M2QX` mono 26 + `Send the code` 48 dp action) →
    `TEAM MANIFEST` rule + Prey/Hunters columns (2 Up: chit + 2 dp team rule + count, 56 dp rows with `HOST`
@@ -393,8 +393,8 @@ Format: **gesture** — composition — data — states shown — key decisions.
    labels + rows (start time mono 64 dp gutter, room name, winner chit, duration `18:48`) → selected row
    expanded into a ruled summary block (date, duration, winner, team rosters — only real fields; no invented
    tags/score) → dock: back/inline.
-   *Data:* 3 fictional-but-consistent entries (2 completed, 1 cancelled), same room; all fields from
-   `MatchHistoryEntry`.
+   *Data:* 4 fictional-but-consistent entries (3 completed, 1 cancelled) including the just-played Wed 4 Nov
+   match; all fields from `MatchHistoryEntry` only (no per-match prey-remaining).
    *States:* populated + one summary (canonical); loading skeleton bars (no shimmer); error strip with retry
    (never masquerade as empty); empty.
    *Decisions:* the expanded summary is a ruled readout block, not a card; rows use the same time gutter as
@@ -456,13 +456,13 @@ Format: **gesture** — composition — data — states shown — key decisions.
 |---|---|
 | Room / hunt | **Riverside Run** |
 | Invite code | **K7M2QX** (LTR isolate everywhere) |
-| Players (5 = 3 Hunters / 2 Prey) | **Prey:** Nadia (host/huntmaster), Rana. **Hunters:** Omar, Selim, Youssef. |
+| Players (5 = 3 Hunters / 2 Prey) | **Hunters:** Omar (**host/huntmaster**, device identity on home/lobby/hunt-hunter/settings), Selim, Youssef. **Prey:** Nadia, Rana (Nadia receives the canonical tag claim — prey-side view). |
 | Rules | Classic · head start 5 min · duration 60 min · report interval 5 min · trails on · zone mode, 240 m radius, centre Riverside Park · shrink off · tag policy confirm |
 | Live state | phase `hunting` (LIVE), **41:12 remaining** = 18:48 played of 60:00; 2/2 prey alive at the moment of the hunt pages |
 | Reports | Nadia: fresh, **12 s** old, accuracy **±6 m**, trail 5 points; Rana: **stale, 14 min**, ±22 m, no trail (drawn per the app's stale rule, not as a live track) |
 | Finish | **Hunters win**, both Prey tagged at **18:48 played**, prey remaining **0 / 2** (the tag happens right at the 41:12 mark, so hunt and result pages are consistent) |
 | Field log | 20:45–20:52, 6 entries (system + Nadia/Omar/Selim/Rana), no test chatter |
-| Local time (bezel) | `21:04` |
+| Local time (bezel) | `21:04` · result date `Wed 4 Nov 2026` (weekday-correct, matches history) |
 | Version/footer | `v0.16.1 · Free APK · Android 8+ · Not on Google Play`; server row `74.208.99.178` only in Auth/Settings; test-deployment caveat where a URL is given |
 
 Status-bar/browser-chrome/dev strings never rendered; no fake counts/ratings/urgency; every number above is
@@ -604,32 +604,38 @@ implementation cost vs a plain ruled lobby? (d) tag-policy row as read-only vs a
 
 ---
 
-## 10. Files, build and render
+## 10. Files, build and render (current)
 
 ```
 design/ui-v2/directions/c-field-instrument/
-  NOTES.md                 this file
-  assets/field.css         C's tokens + component CSS (link from every page)
-  assets/kit.mjs           shared HTML partials (lockup, mark, icons, chart, shell) used by tools/build.mjs
-  tools/build.mjs          composes the static pages from partials -> pages/*.html
-  pages/<id>.html          14 full-page HTML designs (static, env canvas 390x844)
-  out/<id>.png             rendered 1170x2532 PNGs (env/render.mjs)
-  out/contact-sheet.png    direction contact sheet (env/contact-sheet.mjs)
-  wip/style-tile.html      voice/type/component tile (not a page; pinned at the start)
+  <id>.html                                14 canonical pages + 3 state studies, directly in the direction folder
+                                           (env/README.md §7 — no pages/ subfolder)
+  out/<id>.png                             17 renders at exactly 1170×2532 (verified PNG IHDR)
+  out/contact-sheet.png                    direction contact sheet (2704×6128; env tool copy too)
+  NOTES.md                                  this document
+  assets/field.css                         C token layer + component grammar (loaded after canvas.css)
+  assets/pages.css                         page compositions + round-2 review fixes + RTL overrides
+  assets/kit.mjs                           approved mark/wordmark inlines, original FieldMark icons,
+                                           original drawn field charts, page shell, shared fragments
+  tools/build.mjs                          deterministic page build (rerun after edits)
+  tools/check.mjs                          layout probe (three-zone shell boxes + overflow)
+  tools/audit.mjs                          round-2 mechanical audit (text floor / targets / clipping / canvas)
 ```
 
-Render:
-`cd design/ui-v2/env && node render.mjs directions/c-field-instrument/pages` → writes `out/`.
-Contact sheet: `node contact-sheet.mjs directions/c-field-instrument` (exact CLI per `env/README.md`).
-Pages link `/design/ui-v2/env/canvas.css` for the canvas contract, then `../assets/field.css` for C's system.
-No external network assets; only the three bundled OFL faces + original SVG/CSS.
+Commands (from repo root, per `env/README.md`): `node design/ui-v2/env/render.mjs design/ui-v2/directions/c-field-instrument`
+→ 17 PNGs into `out/`; `node design/ui-v2/env/contact-sheet.mjs --only c-field-instrument` → the labelled
+17-page sheet. Rebuild pages after kit/CSS edits with
+`cd design/ui-v2/directions/c-field-instrument && node tools/build.mjs`. Pages link
+`/design/ui-v2/env/canvas.css` then the two direction stylesheets. No external network assets; only the three
+bundled OFL faces + the env-bundled IBM Plex Sans Arabic for the RTL proof + original SVG/CSS.
 
 ---
 
 ## 11. Review response (round 2)
 
-_To be completed after reviewer-visual / reviewer-ux round-1 findings. Each item: reviewer point → decision
-(accept / partial / push back + reason) → what changed / why not._
+_See **§13 — Round-2 review response** below: every reviewer-ux and reviewer-visual finding is logged as
+item → decision (accept / partial / pushback) → what changed in the renders, plus the new-copy list and
+post-round-2 known weaknesses._
 
 ---
 
@@ -645,8 +651,10 @@ contract:
 design/ui-v2/directions/c-field-instrument/
   auth.html roles.html home.html lobby.html hunt-hunter.html hunt-prey.html chat.html
   result.html history.html settings.html sheet-tag-claim.html sheet-room-settings.html
-  lobby-rtl.html home-light.html          ← 14 full-page HTML designs (390×844, no OS chrome)
-  out/<id>.png                            ← 14 renders, exactly 1170×2532 (verified PNG IHDR)
+  lobby-rtl.html home-light.html          ← 14 canonical full-page HTML designs (390×844, no OS chrome)
+  state-paused.html state-offline.html state-eliminated.html
+                                          ← 3 non-canonical state studies (round-2 extras; appended by the env sheet)
+  out/<id>.png                            ← 17 renders, exactly 1170×2532 (verified PNG IHDR)
   out/contact-sheet.png                   ← direction contact sheet (copy of env tool output)
   NOTES.md                                ← this document
   assets/field.css                        ← direction token layer + component grammar (loaded after canvas.css)
@@ -661,8 +669,9 @@ Commands (from repo root, per `env/README.md`):
 
 ```bash
 node design/ui-v2/env/render.mjs design/ui-v2/directions/c-field-instrument     # 14 PNGs into out/
-node design/ui-v2/env/contact-sheet.mjs --only c-field-instrument              # env/out/sheets/c-field-instrument.png
+node design/ui-v2/env/contact-sheet.mjs --only c-field-instrument              # env/out/sheets/c-field-instrument.png (2704×6128, 14 canonical + 3 extras)
 node design/ui-v2/directions/c-field-instrument/tools/check.mjs                # layout probe (optional)
+node design/ui-v2/directions/c-field-instrument/tools/audit.mjs                # round-2 mechanical audit (floor/targets/clipping)
 cd design/ui-v2/directions/c-field-instrument && node tools/build.mjs          # regenerate pages/ from kit
 ```
 
@@ -817,7 +826,83 @@ Format: string → where → note. Arabic candidates are suggestions only, not a
 
 ---
 
-## 13. Review response (round 2)
+## 13. Round-2 review response (reviewer-ux + reviewer-visual, 2026-11-04)
 
-_To be completed after reviewer-visual / reviewer-ux round-1 findings. Each item: reviewer point → decision
-(accept / partial / push back + reason) → what changed / why not._
+**Round-1 → round-2 result:** all round-1 findings were read, decisions recorded below, and every accepted
+item is fixed in the renders. Direction C's canonical pages were re-rendered at 19:57 UTC (all exactly
+1170×2532); three rendered state studies were added (non-canonical extras). Mechanical audit
+(`tools/audit.mjs`, all 17 pages): **0 text nodes below 12 px, 0 interactive targets below 48 dp, 0 clipped
+text nodes, every page 390×844 with bottom = 844**, and a 24-character username test shows the lobby manifest
+ellipsizes without overlapping the tags or leaving the row.
+
+### 13.1 reviewer-ux — decisions and changes (item → decision → change)
+
+| # | Finding (severity) | Decision | What changed in the renders |
+|---|---|---|---|
+| U1 | Touch targets: rules-sheet steppers 44×38 (×10), settings steppers 48×42, switches 48×28 (S1) | **Accept** | Steppers are 48×48 hit boxes (visual scale kept); settings/rules steppers and rockers ≥48 tall; switches are 52×48 hit boxes (30 px visual track inside); all inline/text actions now carry a 48×48 minimum. Audit now 0 sub-48 targets. |
+| U2 | Switches convey state by fill colour only (S2) | **Accept** | Each switch has a mono ON/OFF word cue beside the track (trails = ON, shrink = OFF); colour is no longer the only signal. |
+| U3 | History invented datum "PREY REMAINING 2 / 2" not in `MatchHistoryEntry` (S1) | **Accept** | Removed. The expanded summary now uses only date window, duration, winner, `prey[]`, `hunters[]` — all real contract fields. |
+| U4 | Home readout "GPS ±6 m" implies a location fix Home does not request (S2) | **Accept** | Home's band is permission-only now: `LOCATION Allowed · HUNT Not running` (both checkable without a location fix; no "reading you before you start" implication). No new client location work is needed; NOTES no longer implies it. |
+| U5 | Real public IP `74.208.99.178` on auth/settings (S2) | **Accept** | Replaced with the neutral label `Hosted test server` on both pages; the honest plain-HTTP test-deployment caveat remains (auth adds "Play with people you trust."). |
+| U6 | Lobby "Nadia" clipped (42×20 in 39×20), 24-char names break; no side switch (S2) | **Accept** | Decorative 01–05 indices removed; name column is `flex:1; min-width:0; nowrap; ellipsis` (24-char test passes, no overlap); `Change side` (اختر جانبك) added as a 48 dp dock action next to Stand down / Leave. |
+| U7 | Result: unshipped Rematch is the primary action (S2) | **Accept** | **Back to lobby** is the single chalk primary; Rematch is a secondary row with a `PROPOSAL` tag + the "needs a server restart, not in the current build" note. |
+| U8 | Chat header says "newest first" while the log runs oldest→newest (S2) | **Accept** | Says `oldest first` (load-older row sits at the top, as before). |
+| U9 | RTL: 7 unisolated numeric runs; Arabic labels in mono/tracked faces; `·` in Arabic (S2) | **Accept** | Every numeric run is LTR-isolated (`5 / 5`, `240`, chit counts, rules-line numbers, section meta; 01–05 removed); Arabic labels moved to IBM Plex Sans Arabic with 0 tracking (serial label, chit names, manifest names/tags, legend, rules lines, buttons, dock actions, title unit); the Arabic host tag is two labels, not a middot. Also recorded: the static mock uses physical-direction CSS, but Compose maps to start/end natively and the RTL overrides are a mock-only cost (NOTES §8 feasibility). |
+| U10 | Rules-sheet "Server-enforced" at 10 px; zone centre shows invented place label (S2) | **Accept** | All remaining 10–11 px labels raised to 12 px (audit 0 sub-12). Zone centre now shows the real readout `40.79950, -73.97350` from the zone settings plus `Pick on map`; the "not set" validation state remains the empty state (documented in §8). |
+| U11 | Roles "PLANNED/PLAYABLE" replace approved copy family (S3) | **Accept** | Planned modes use `Coming soon` (existing translated string); Classic uses `Playable today` (new copy, flagged below). |
+| U12 | Claim countdown duplicated (header + expiry) | **Accept** | Header meta is `20:58 · from Omar`; the countdown lives once, in the "No answer in 01:12 · the Huntmaster decides" row. |
+| U13 | Notes-only paused/offline/eliminated states (cross-direction risk) | **Accept** | Three rendered studies added: `state-paused` (PAUSED band, frozen clock, exact "The hunt is paused. The clock is stopped." + Resume), `state-offline` (offline strip + retained ages + disabled Tag with reason + Retry), `state-eliminated` (tagged strip, Sharing Off, spectating dock, field log open). They are non-canonical extras, appended by the env sheet and named `state-*`. |
+| U14 | Derived "next report" countdown + own accuracy | **Partial/accept** | Kept the derived countdown; NOTES labels it client-derived with the `LAST SENT` fallback. Own accuracy is real phone data and is shown as `±8 m` on the prey self marker. |
+| U15 | Home join-before-host order | **Partial (accepted by reviewer)** | Kept both verbs in join→host order (returning-player fast path); host block strengthened with the default-rules readout and Create is the dock's only chalk block. NOTES states the deliberate priority; reviewer-ux will judge on squint at re-score. |
+| U16 | Zero filled-cyan surfaces | **Pushback (accepted by reviewer-ux; recorded dissent)** | Documented reweighting: cyan = measurement (clock/code/zone/countdown/focus), chalk block = action, primary actions are high-contrast and unambiguous. Reviewer-ux accepted it as an owner/system question rather than a UX defect; the fallback 2 dp cyan dock rule remains documented. |
+| U17 | Physical-direction CSS (~70 props/page) | **Partial (documented)** | Mock-only implementation choice; Compose uses start/end and the mock's RTL overrides are targeted. Listed in §8 as an implementation/RTL-robustness cost, not silently ignored. |
+
+### 13.2 reviewer-visual — decisions and changes (item → decision → change)
+
+| # | Finding | Decision | What changed |
+|---|---|---|---|
+| V1 | Identity contradiction: home/settings say "Omar", lobby says "Nadia HOST · YOU" (S1) | **Accept** | Omar is host/huntmaster everywhere: lobby + lobby-rtl hosted by Omar (Omar HOST · YOU, Hunters), home/home-light/settings "Playing as Omar", hunt-hunter is Omar's view. The tag claim stays Nadia receiving Omar's claim (prey-side view, consistent). |
+| V2 | Result makes unshipped Rematch the primary (S1) | **Accept** | Same fix as U7 — Back to lobby primary, Rematch labelled proposal row, note kept. |
+| V3 | History timeline wrong/incomplete: row 21:41 vs detail 20:41; just-played result missing | **Accept** | Row time is the start (20:41 etc.), group meta is the end; the just-played Wed 4 Nov match is first in the list; weekdays are 2026-correct (Wed 4 Nov / Sun 1 Nov / Sat 31 Oct / Fri 30 Oct); result date now matches (`Wed 4 Nov · 20:45–21:04`). |
+| V4 | 10–11 px labels, <48 controls, "Server-enforced" 10 px | **Accept** | Covered by U1/U10: 12 px floor everywhere (includes the Roles guide-plate SVG text), 48 dp controls/switches. |
+| V5 | 01–05 roster numbering reads as banned decorative numbering | **Accept** | Removed from lobby, lobby-rtl and result manifests. |
+| V6 | Home pre-hunt GPS band / real IP / drawn map label | **Accept** | Covered by U4, U5, U10 (Home permission-only; neutral server label; real coordinates instead of place name). |
+| V7 | `lobby-rtl` unisolated runs + tracking | **Accept** | Covered by U9. |
+| V8 | Three rendered state frames (cross-direction risk #1) | **Accept** | Covered by U13. |
+| V9 | Zero filled cyan / drawn charts / one-human-moment | **Pushback accepted** | Documentation stands: zero-filled-cyan is the direction's core reweight; drawn charts are honest stand-ins (no OSM tiles/labels); the paper FieldNote remains the deliberate human moment. |
+| V10 | Home join-before-host | **Partial (accepted)** | Same as U15. |
+
+### 13.3 New/changed copy in round 2 (needs tone + Arabic review)
+
+| String | Where | Note |
+|---|---|---|
+| `Playable today` | roles | replaces "PLAYABLE"; `[NEW COPY]` (planned modes use the existing `Coming soon`) |
+| `Coming soon` | roles planned modes | existing app string (translated) |
+| `Change side` | lobby dock | new English copy; Arabic uses the existing **اختر جانبك** (from "Choose your side") |
+| `Hosted test server` | auth + settings | neutral server label replacing the real IP |
+| `Hosted server is a plain-HTTP test deployment. Play with people you trust.` | auth | honest test-deployment + trust line (approved-claims family) |
+| `Rematch needs a server restart; not in the current build.` | result | **design-note string** kept visible so rematch is not read as shipped; remove on implementation |
+| `The hunt is paused. The clock is stopped.` | state-paused | existing app string (translated) |
+| `Offline · reconnecting` / `last update 12 s ago` / `Retry now` | state-offline | new state vocabulary; `[NEW COPY]` |
+| `You were tagged. You are spectating this match. You can still chat, but you cannot tag or share new positions.` | state-eliminated | existing app string (verbatim, translated) |
+| `Change side`/`اختر جانبك`, `مستعد` etc. | lobby-rtl | existing strings; no middot separators |
+
+### 13.4 Known weaknesses after round 2 (and what remains for the owner/final task)
+
+1. **Zero filled-cyan** remains a deliberate, documented reweighting (owner decision if C is chosen: is the
+   one hot action chalk or cyan?). Brand-fit cost is acknowledged; reviewer-ux accepted it as a system note.
+2. **Home hierarchy** is join→host by design (returning-player fast path) with host as the only chalk primary;
+   reviewer-visual/UX will judge the squint at re-score — the swap is one build change if asked.
+3. **Rules sheet** now sits as a 748 px auto-height sheet; the dimmed lobby title is partially visible behind
+   the top edge (deliberate context, same language as the claim sheet). If a reviewer reads it as clutter, the
+   fix is `height: 780px` (full-height sheet) at the cost of a small internal gap.
+4. **States beyond the three studies** (loading/error frames, chat empty/send-failed, history empty/error,
+   claim busy/error/disputed-huntmaster) remain notes-only; adding 10+ frames would dilute the canonical set.
+5. **Drawn chart vs OSM tiles** — honest stand-in, no invented street/place labels, attribution present; the
+   implementation keeps osmdroid.
+6. **Arabic type quality** is env-IBM-Plex only; new Arabic strings need a native review before implementation
+   (`[NEW COPY]` list).
+7. **History** is seeded fiction (4 matches) but every field is from `MatchHistoryEntry`; no per-match survival
+   score that the contract cannot know.
+8. **Result paper note** is the single non-instrument material — deliberate human moment; owner may still
+   prefer it quieter.

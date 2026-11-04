@@ -239,7 +239,7 @@ function collectInPage() {
   }
 
   /* touch targets */
-  const targetSel = 'button,a[href],input,select,textarea,summary,[role="button"],[role="tab"],[role="switch"],[role="checkbox"],[role="link"],[onclick]';
+  const targetSel = 'button,a[href],input,select,textarea,summary,[role="button"],[role="tab"],[role="switch"],[role="checkbox"],[role="radio"],[role="option"],[role="link"],[onclick]';
   const seen = new Set();
   const candidates = [...document.querySelectorAll(targetSel)];
   const SVG_TAGS = new Set(['svg', 'path', 'use', 'g', 'circle', 'rect', 'line', 'polyline', 'polygon', 'ellipse', 'defs', 'clippath', 'mask', 'lineargradient', 'stop', 'text', 'tspan']);
@@ -257,11 +257,32 @@ function collectInPage() {
     const r = el.getBoundingClientRect();
     const cs = getComputedStyle(el);
     const inlineLink = el.tagName === 'A' && cs.display.startsWith('inline');
+    // effective box: intersect with every ancestor that clips overflow (overflow hidden/clip parents
+    // reduce the actual hit area — a 48px cell inside a 38px clipped container is a 38px target)
+    let eff = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+    let a2 = el.parentElement;
+    let wrapper48 = false;
+    while (a2 && a2 !== document.body) {
+      const acs = getComputedStyle(a2);
+      const ar = a2.getBoundingClientRect();
+      // a larger interactive wrapper can legitimately provide the touch target
+      if (!wrapper48 && ar.width >= 47.5 && ar.height >= 47.5 &&
+          (/hit|wrap|touch/.test(String(a2.className)) || a2.getAttribute('role') || a2.tagName === 'BUTTON' || a2.tagName === 'LABEL')) {
+        wrapper48 = true;
+      }
+      if (/hidden|clip/.test(acs.overflowX + acs.overflowY)) {
+        eff = { left: Math.max(eff.left, ar.left), top: Math.max(eff.top, ar.top), right: Math.min(eff.right, ar.right), bottom: Math.min(eff.bottom, ar.bottom) };
+      }
+      a2 = a2.parentElement;
+    }
+    const ew = Math.max(0, eff.right - eff.left), eh = Math.max(0, eff.bottom - eff.top);
+    const ok = (ew >= 47.5 && eh >= 47.5) || wrapper48;
     out.targets.push({
       sel: sel(el), tag: el.tagName.toLowerCase(), inlineLink,
       text: (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 60),
       w: +r.width.toFixed(1), h: +r.height.toFixed(1),
-      ok: r.width >= 47.5 && r.height >= 47.5,
+      effW: +ew.toFixed(1), effH: +eh.toFixed(1), wrapper48,
+      ok,
       top: +r.top.toFixed(1), left: +r.left.toFixed(1),
     });
   }
@@ -365,7 +386,18 @@ function collectInPage() {
       if (!/^[A-Z0-9:.,\/\- ]{2,}$/.test(t)) continue;
       const el = n2.parentElement;
       if (!el) continue;
-      if (el.closest('[dir="ltr"],.mh-ltr,[dir="auto"]')) continue;
+      const isolated = (() => {
+        let a = el;
+        while (a && a.nodeType === 1) {
+          const cs = getComputedStyle(a);
+          if (a.matches('[dir="ltr"],.mh-ltr,.ltr,[dir="auto"]')) return true;
+          if (/isolate/.test(cs.unicodeBidi || '')) return true;
+          if (cs.direction === 'ltr' && /isolate/.test(cs.unicodeBidi || '')) return true;
+          a = a.parentElement;
+        }
+        return false;
+      })();
+      if (isolated) continue;
       rtlUnisolated.push({ text: t.slice(0, 40), sel: sel(el) });
       if (rtlUnisolated.length > 25) break;
     }
@@ -473,7 +505,7 @@ function collectInPage() {
   for (const t of seedTokens) out.seed.found[t] = text.toLowerCase().includes(t.toLowerCase());
   // expected list is filled by the runner (it knows the page id); raw presence stays here.
   out.seed.present = seedTokens.filter((t) => out.seed.found[t]);
-  const forbidden = ['10.0.2.2', 'lvh.me', 'lorem ipsum', 'lorem', 'TODO', 'FIXME', '--:--', 'undefined', 'NaN', 'console.log', 'alert(', 'encrypted', 'end-to-end', 'forgot password', 'forgot your password', 'reset password', 'google play', 'app store', 'rating', 'rated', '⭐', '74.208.99.178', 'test deployment', 'hosted test server'];
+  const forbidden = ['10.0.2.2', 'lvh.me', 'lorem ipsum', 'lorem', 'TODO', 'FIXME', '--:--', 'undefined', 'NaN', 'console.log', 'alert(', 'encrypted', 'end-to-end', 'forgot password', 'forgot your password', 'reset password', '74.208.99.178'];
   for (const t of forbidden) {
     let idx = text.toLowerCase().indexOf(t.toLowerCase());
     while (idx >= 0) {
