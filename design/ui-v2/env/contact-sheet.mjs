@@ -63,7 +63,14 @@ for (let i = 0; i < argv.length; i++) {
     process.exit(2);
   }
 }
-if (!opts.phases.size) for (const p of ['pages', 'sheet', 'matrix', 'strips', 'gallery']) opts.phases.add(p);
+if (!opts.phases.size) {
+  // A filtered run refreshes that direction's captures + sheet only. Cross-direction
+  // artifacts (matrix / strips / gallery) always need every direction, so they are
+  // never rebuilt implicitly from a filtered set.
+  for (const p of ['pages', 'sheet']) opts.phases.add(p);
+  if (!opts.only.length) for (const p of ['matrix', 'strips', 'gallery']) opts.phases.add(p);
+  else console.log('[sheets] --only refreshes that direction\'s pages + sheet only; matrix/strips/gallery always use all directions (run without --only to refresh them)');
+}
 const sheetDir = path.join(opts.out, 'sheets');
 const srcDir = path.join(opts.out, '_src');
 const pagesDir = path.join(opts.out, 'pages');
@@ -82,12 +89,12 @@ function commonRoot(paths) {
   return parts[0].slice(0, i).join(path.sep) || path.sep;
 }
 
-async function discoverDirections(root) {
+async function discoverDirections(root, { ignoreOnly = false } = {}) {
   if (!existsSync(root)) return [];
   const out = [];
   for (const e of (await readdir(root, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
     if (!e.isDirectory() || e.name.startsWith('.')) continue;
-    if (opts.only.length && !opts.only.includes(e.name)) continue;
+    if (!ignoreOnly && opts.only.length && !opts.only.includes(e.name)) continue;
     const dir = path.join(root, e.name);
     // Direction pages may live in <direction>/ or <direction>/pages/.
     const layout = await readDirectionPages(dir);
@@ -436,7 +443,10 @@ const t0 = Date.now();
 const serverRoot = commonRoot([REPO, opts.out]);
 if (serverRoot !== REPO && !opts.quiet) console.log(`[sheets] serving sheets from ${serverRoot} (output is outside the repo)`);
 const directions = await discoverDirections(opts.dirs);
-console.log(`[sheets] directions root ${opts.dirs} — ${directions.length} direction(s), ${directions.reduce((n, d) => n + d.pages.length, 0)} page(s)`);
+// Cross-direction artifacts are always built from every direction on disk, even on a
+// filtered --only run, so the matrix/strips can never silently become single-column.
+const allDirections = opts.only.length ? await discoverDirections(opts.dirs, { ignoreOnly: true }) : directions;
+console.log(`[sheets] directions root ${opts.dirs} — ${directions.length} direction(s) selected, ${allDirections.length} in pack, ${allDirections.reduce((n, d) => n + d.pages.length, 0)} page(s)`);
 if (!directions.length && (opts.phases.has('pages') || opts.phases.has('sheet') || opts.phases.has('matrix'))) {
   console.log('[sheets] no direction pages found — nothing to capture yet');
 }
@@ -461,28 +471,28 @@ if (opts.phases.has('sheet') && directions.length) {
   }
 }
 
-if (opts.phases.has('matrix') && directions.length >= 1) {
-  for (const d of directions) {
+if (opts.phases.has('matrix') && allDirections.length >= 1) {
+  for (const d of allDirections) {
     if (!rendered.has(d.name)) rendered.set(d.name, new Map());
     for (const p of d.pages) {
       const png = path.join(pagesDir, d.name, p.id + '.png');
       if (await mtime(png)) rendered.get(d.name).set(p.id, png);
     }
   }
-  const res = await buildMatrix(directions, rendered, serverRoot);
+  const res = await buildMatrix(allDirections, rendered, serverRoot);
   await copyFile(res.file, path.join(opts.out, 'matrix-all-directions.png'));
   console.log(`[matrix] out/sheets/matrix.png + out/matrix-all-directions.png  ${res.width}x${res.height}`);
 }
 
-if (opts.phases.has('strips') && directions.length) {
-  for (const d of directions) {
+if (opts.phases.has('strips') && allDirections.length) {
+  for (const d of allDirections) {
     if (!rendered.has(d.name)) rendered.set(d.name, new Map());
     for (const p of d.pages) {
       const png = path.join(pagesDir, d.name, p.id + '.png');
       if (await mtime(png)) rendered.get(d.name).set(p.id, png);
     }
   }
-  const strips = await buildStrips(directions, rendered);
+  const strips = await buildStrips(allDirections, rendered);
   if (strips.length) {
     const first = strips[0];
     console.log(`[strips] out/strips/<page>.png — ${strips.length} strips, ${first.width}x${first.height} each`);
@@ -490,7 +500,7 @@ if (opts.phases.has('strips') && directions.length) {
 }
 
 if (opts.phases.has('gallery')) {
-  for (const d of directions) {
+  for (const d of allDirections) {
     if (!rendered.has(d.name)) rendered.set(d.name, new Map());
     for (const p of d.pages) {
       const png = path.join(pagesDir, d.name, p.id + '.png');
@@ -498,7 +508,7 @@ if (opts.phases.has('gallery')) {
     }
   }
   await mkdir(opts.out, { recursive: true });
-  await writeFile(path.join(opts.out, 'index.html'), await buildGallery(directions, rendered));
+  await writeFile(path.join(opts.out, 'index.html'), await buildGallery(allDirections, rendered));
   console.log(`[gallery] out/index.html`);
 }
 console.log(`[sheets] done in ${((Date.now() - t0) / 1000).toFixed(1)}s`);

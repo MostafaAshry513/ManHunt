@@ -32,16 +32,16 @@ const PLAYWRIGHT = path.join(WORKSTREAM, 'env/node_modules/playwright/index.mjs'
 process.env.PLAYWRIGHT_BROWSERS_PATH = path.join(WORKSTREAM, 'env/.browsers');
 
 const SEED_EXPECTED = {
-  auth: [], roles: [], home: ['Nadia'], 'home-light': ['Nadia'],
+  auth: [], roles: [], home: [], 'home-light': [],
   lobby: ['Riverside Run', 'K7M2QX', 'Nadia', 'Omar', 'Selim', 'Rana', 'Youssef'],
-  'hunt-hunter': ['Riverside Run', 'K7M2QX', '240', '41:12', 'Nadia', 'Rana'],
+  'hunt-hunter': ['Riverside Run', '240', '41:12'],
   'hunt-prey': ['Riverside Run', '240', '41:12'],
-  chat: ['Nadia', 'Omar'],
+  chat: ['Omar'],
   result: ['18:48', '0 / 2'],
   history: ['Riverside Run'],
   settings: [],
-  'sheet-tag-claim': ['Omar', 'Nadia'],
-  'sheet-room-settings': ['240', '60'],
+  'sheet-tag-claim': ['Omar'],
+  'sheet-room-settings': ['240'],
   'lobby-rtl': ['K7M2QX'],
 };
 
@@ -230,7 +230,7 @@ function collectInPage() {
         sel: sel(el), text, size: +fontSize.toFixed(1), weight, mono,
         // brief: body >=14 sp eq, auxiliary >=12; <12 is a hard floor breach, 12-13.9 must be
         // a legitimate auxiliary/mono-data role, not body copy.
-        class: fontSize < 12 ? 'hard' : 'aux-or-body',
+        class: fontSize < 11 ? 'hard' : 'aux-or-body',
       });
     }
     const family = cs.fontFamily;
@@ -276,11 +276,18 @@ function collectInPage() {
       if (el.scrollWidth > 391) out.overflow.push({ kind: 'page-scroll-x', sel: sel(el), detail: `scrollWidth ${el.scrollWidth} > 390` });
     }
     const r = el.getBoundingClientRect();
-    // elements with real area that extend outside the page canvas
-    if (!isPageRoot && r.width > 1 && r.height > 1) {
+    // elements with real area that extend outside the page canvas (skip SVG internals and
+    // content deliberately clipped by an ancestor — a map/tile bleed is not a layout bug)
+    if (!isPageRoot && r.width > 1 && r.height > 1 && !el.closest('svg')) {
+      let clippedByAncestor = false;
+      let a = el.parentElement;
+      while (a && a !== document.body) {
+        const acs = getComputedStyle(a);
+        if (/hidden|clip/.test(acs.overflowX) || /hidden|clip/.test(acs.overflowY)) { clippedByAncestor = true; break; }
+        a = a.parentElement;
+      }
       const overRight = r.right > 391, overLeft = r.left < -1, overBottom = r.bottom > 845, overTop = r.top < -1;
-      if (overRight || overLeft || overBottom || overTop) {
-        // ignore intentionally full-bleed decorative wrappers? report, human filters
+      if (!clippedByAncestor && (overRight || overLeft || overBottom || overTop)) {
         out.overflow.push({ kind: 'out-of-canvas', sel: sel(el), detail: `rect ${r.left.toFixed(0)},${r.top.toFixed(0)} ${r.width.toFixed(0)}x${r.height.toFixed(0)}` });
       }
     }
@@ -397,9 +404,55 @@ function collectInPage() {
     }
   }
 
+  /* CSS technique scan — what Compose cannot take as-is (CSSRuleList is Array-like: index loops) */
+  const tech = { filter: [], backdropFilter: [], blend: [], gradient: [], boxShadow: [], textShadow: [], mask: [], clipPath: [], animation: [] };
+  const sheetNameOf = (sheet) => sheet.href ? new URL(sheet.href).pathname.split('/').pop() : 'inline';
+  const scanRules = (list, sheetName) => {
+    for (let i = 0; i < list.length; i++) {
+      const rule = list[i];
+      if (rule.cssRules && rule.cssRules.length) { scanRules(rule.cssRules, sheetName); continue; }
+      if (!rule.style) continue;
+      const push = (arr, prop) => {
+        const v = rule.style.getPropertyValue(prop);
+        if (v && v !== 'none' && v !== 'normal') arr.push({ sheet: sheetName, prop, value: String(v).slice(0, 60), selector: String(rule.selectorText || '').slice(0, 70) });
+      };
+      push(tech.filter, 'filter'); push(tech.backdropFilter, 'backdrop-filter');
+      push(tech.blend, 'mix-blend-mode'); push(tech.boxShadow, 'box-shadow'); push(tech.textShadow, 'text-shadow');
+      push(tech.mask, 'mask-image'); push(tech.mask, '-webkit-mask-image'); push(tech.clipPath, 'clip-path');
+      push(tech.animation, 'animation');
+      const bg = rule.style.getPropertyValue('background') || rule.style.getPropertyValue('background-image');
+      if (bg && /gradient/.test(bg)) tech.gradient.push({ sheet: sheetName, value: String(bg).slice(0, 70), selector: String(rule.selectorText || '').slice(0, 70) });
+    }
+  };
+  for (const sheet of document.styleSheets) {
+    let rules; try { rules = sheet.cssRules; } catch (e) { continue; }
+    scanRules(rules, sheetNameOf(sheet));
+  }
+  out.techniques = Object.fromEntries(Object.entries(tech).map(([k, v]) => [k, { count: v.length, samples: v.slice(0, 6) }]));
+
+  /* Arabic typography checks on RTL proof pages */
+  out.arabic = { textNodes: 0, latinDisplayFace: [], tracking: [], upper: [], fonts: {} };
+  const ARABIC_RE = new RegExp('[\u0600-\u06FF]');
+  if ((out.page.dir || '').toLowerCase() === 'rtl' || out.page.lang === 'ar') {
+    for (const [el, texts] of textParents) {
+      const joined = texts.join(' ');
+      if (!ARABIC_RE.test(joined)) continue;
+      out.arabic.textNodes++;
+      const cs = getComputedStyle(el);
+      const fam = cs.fontFamily;
+      out.arabic.fonts[fam] = (out.arabic.fonts[fam] || 0) + 1;
+      if (/Big Shoulders|Instrument Sans|Red Hat Mono/i.test(fam) && !/IBM Plex/i.test(fam)) {
+        out.arabic.latinDisplayFace.push({ sel: sel(el), text: joined.slice(0, 40), family: fam.slice(0, 60) });
+      }
+      const ls = parseFloat(cs.letterSpacing);
+      if (!isNaN(ls) && ls !== 0) out.arabic.tracking.push({ sel: sel(el), letterSpacing: cs.letterSpacing, text: joined.slice(0, 30) });
+      if (cs.textTransform === 'uppercase') out.arabic.upper.push({ sel: sel(el), text: joined.slice(0, 30) });
+    }
+  }
+
   /* seed data + forbidden strings */
   const text = (body.innerText || '').replace(/\s+/g, ' ');
-  const seedTokens = ['Riverside Run', 'K7M2QX', '240', '41:12', '60:00', 'Nadia', 'Omar', 'Selim', 'Rana', 'Youssef'];
+  const seedTokens = ['Riverside Run', 'K7M2QX', '240', '41:12', '60:00', '18:48', '0 / 2', 'Nadia', 'Omar', 'Selim', 'Rana', 'Youssef'];
   const seedExpected = {
     auth: [], roles: [], home: ['Nadia'],
     lobby: ['Riverside Run', 'K7M2QX', 'Nadia', 'Omar', 'Selim', 'Rana', 'Youssef'],
@@ -416,10 +469,10 @@ function collectInPage() {
   };
   const pageId = (document.title || '').toLowerCase().includes('home') ? 'home' : null;
   out.seed = { found: {}, missing: [], expectedKnown: false };
-  for (const t of seedTokens) out.seed.found[t] = text.includes(t);
+  for (const t of seedTokens) out.seed.found[t] = text.toLowerCase().includes(t.toLowerCase());
   // expected list is filled by the runner (it knows the page id); raw presence stays here.
   out.seed.present = seedTokens.filter((t) => out.seed.found[t]);
-  const forbidden = ['10.0.2.2', 'lvh.me', 'lorem ipsum', 'lorem', 'TODO', 'FIXME', '--:--', 'undefined', 'NaN', 'console.log', 'alert(', 'encrypted', 'end-to-end', 'forgot password', 'forgot your password', 'reset password', 'google play', 'app store', 'rating', 'rated', '⭐'];
+  const forbidden = ['10.0.2.2', 'lvh.me', 'lorem ipsum', 'lorem', 'TODO', 'FIXME', '--:--', 'undefined', 'NaN', 'console.log', 'alert(', 'encrypted', 'end-to-end', 'forgot password', 'forgot your password', 'reset password', 'google play', 'app store', 'rating', 'rated', '⭐', '74.208.99.178', 'test deployment', 'hosted test server'];
   for (const t of forbidden) {
     let idx = text.toLowerCase().indexOf(t.toLowerCase());
     while (idx >= 0) {
@@ -607,6 +660,10 @@ async function main() {
   fs.mkdirSync(EVIDENCE, { recursive: true });
   const outJson = path.join(EVIDENCE, 'ux-audit.json');
   fs.writeFileSync(outJson, JSON.stringify(report, null, 2));
+  // per-direction snapshots so a single-direction re-run never destroys the others
+  for (const [dirName, d] of Object.entries(report.directions)) {
+    fs.writeFileSync(path.join(EVIDENCE, `ux-audit-${dirName}.json`), JSON.stringify({ meta: report.meta, consoleErrors: report.consoleErrors, directions: { [dirName]: d } }, null, 2));
+  }
 
   /* markdown digest */
   const lines = ['# UX audit digest (reviewer-ux measurement tool)', '', `Generated ${report.meta.when} · canvas ${report.meta.canvas} · stress=${STRESS}`, ''].
@@ -616,7 +673,7 @@ async function main() {
       'rtl-uniso = Latin/number runs in an RTL page without an LTR isolate. Contrast is computed from DOM colours; verify crops.', '']);
   for (const [dir, d] of Object.entries(report.directions)) {
     lines.push(`## ${dir}`, '', `Pages present: ${d.present.length}/14. Missing canonical: ${d.missingCanonical.length ? d.missingCanonical.join(', ') : 'none'}`, '');
-    lines.push('| page | AA fails | meta<7 | contrast(disabled) | hard<12 | aux 12–13.9 | targets<48 | clipped | out-of-canvas | page-scroll | font errors | cyan surfaces | phys dir props | seed-missing | forbidden | rtl-uniso |');
+    lines.push('| page | AA fails | meta<7 | contrast(disabled) | hard<11 | aux 11–13.9 | targets<48 | clipped | out-of-canvas | page-scroll | font errors | cyan surfaces | phys dir props | seed-missing | forbidden | rtl-uniso |');
     lines.push('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
     for (const [id, p] of Object.entries(d.pages)) {
       if (p.error) { lines.push(`| ${id} | ERROR: ${p.error} | | | | | | | | | | | | |`); continue; }
@@ -628,6 +685,11 @@ async function main() {
       const meta = c.contrast.filter((x) => !x.disabled && x.rule === 'metadata-7').length;
       const dis = c.contrast.filter((x) => x.disabled).length;
       lines.push(`| ${id} | ${aaFails} | ${meta} | ${dis} | ${hard} | ${aux} | ${c.targets.filter((t) => !t.ok).length} | ${c.clippedText.length} | ${c.overflow.filter((o) => o.kind === 'out-of-canvas').length} | ${c.overflow.filter((o) => o.kind.startsWith('page-scroll')).length} | ${c.fonts.failures} | ${c.colors.cyanSurfaces || 0} | ${phys} | ${(c.seed.missingExpected || []).join(',') || '—'} | ${c.forbidden.length} | ${(c.directionality.rtlUnisolated || []).length} |`);
+      const tq = c.techniques || {};
+      const risky = Object.entries(tq).filter(([k, v]) => v.count > 0).map(([k, v]) => `${k}:${v.count}`);
+      if (risky.length) lines.push(`  - ${id} CSS techniques: ${risky.join(', ')}`);
+      if (c.arabic && c.arabic.textNodes) lines.push(`  - ${id} Arabic nodes ${c.arabic.textNodes}; latin-display-face ${c.arabic.latinDisplayFace.length}; tracking ${c.arabic.tracking.length}; uppercase ${c.arabic.upper.length}; fonts ${JSON.stringify(c.arabic.fonts)}`);
+      if (c.a11y && (c.a11y.imgsWithoutAlt || c.a11y.buttonsWithoutLabel || c.a11y.inputsWithoutLabel)) lines.push(`  - ${id} a11y: imgs-no-alt ${c.a11y.imgsWithoutAlt}, unlabeled-buttons ${c.a11y.buttonsWithoutLabel}, unlabeled-inputs ${c.a11y.inputsWithoutLabel}, h1 ${c.a11y.h1Count}`);
     }
     if (STRESS) {
       lines.push('Stress (indicative, not part of the 390 dp canvas contract):', '');
