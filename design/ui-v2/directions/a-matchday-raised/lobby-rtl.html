@@ -14,8 +14,7 @@
   .lobby-board { border-top: 0; }
   .board-code { font-size: 44px; line-height: 48px; }
   .board-main { padding-bottom: 10px; }
-  .share-col { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; padding-bottom: 6px; }
-  .board-bottom { display: flex; align-items: center; justify-content: space-between; padding: 0 24px 10px; }
+    .board-bottom { display: flex; align-items: center; justify-content: space-between; padding: 0 24px 10px; }
   .board-teamline { padding: 0; }
   .lobby-body { padding: 14px 24px 0; overflow: hidden; }
   .sheets { margin-top: 2px; }
@@ -56,24 +55,24 @@
         <span class="sep-dot">·</span>
         <span class="room-name mh-ltr">Riverside Run</span>
       </div>
-      <div class="board-gutter"><div class="glabel arabic-h">مستعد<b class="mh-ltr">5 / 5</b></div></div>
+      <div class="board-gutter">
+        <div class="glabel arabic-h">مستعد<b class="mh-ltr">5 / 5</b></div>
+        <div class="ready-ticks" aria-label="خمسة من خمسة مستعدون"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
     </div>
     <div class="board-main">
       <div>
         <div class="board-code-label arabic-h">رمز الدعوة</div>
         <div class="board-code mh-ltr">K7M2QX</div>
       </div>
-      <div class="share-col">
-        <span class="board-share arabic-h">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="18" cy="18" r="2.2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
-          مشاركة الرمز
-        </span>
-        <div class="ready-ticks" aria-label="خمسة من خمسة مستعدون"><i></i><i></i><i></i><i></i><i></i></div>
-      </div>
+      <span class="board-share arabic-h">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><circle cx="6" cy="12" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="18" cy="18" r="2.2"/><path d="M8 11l8-4M8 13l8 4"/></svg>
+        مشاركة الرمز
+      </span>
     </div>
     <div class="board-bottom">
       <div class="board-teamline arabic-h">الفريسة <b class="mh-ltr">2</b><span style="color:var(--a-board-muted)"> </span>الصيادون <b class="mh-ltr">3</b></div>
-      <div class="board-teamline arabic-h">بلاغ كل 5 دقائق</div>
+      <div class="board-teamline arabic-h">بلاغ كل <span class="mh-ltr">5</span> دقائق</div>
     </div>
   </section>
 
@@ -83,7 +82,7 @@
   </div>
 
   <div class="lobby-body grow">
-    <div class="sec-head" style="padding-bottom:6px"><span class="ti arabic-h">الفِرق</span><span class="cap arabic-h">الجميع مستعد</span></div>
+    <div class="sec-head" style="padding-bottom:6px"><span class="ti arabic-h">الفِرق</span><span class="ca arabic-h">5 لاعبين</span></div>
 
     <div class="sheets">
       <section class="tsheet">
@@ -139,8 +138,8 @@
     <div class="rule-sum">
       <div class="rule-ticks"></div>
       <div class="row">
-        <span class="da arabic-h">المدة 60 دقيقة. البلاغات كل 5 دقائق. المنطقة 240 م. المسارات مفعّلة.</span>
-        <span class="inline arabic-h">قواعد المطاردة</span>
+        <span class="da arabic-h">المدة <span class="mh-ltr">60</span> دقيقة. البلاغات كل <span class="mh-ltr">5</span> دقائق. المنطقة <span class="mh-ltr">240</span> م. المسارات مفعّلة.</span>
+        <span class="inline arabic-h hit48">قواعد المطاردة</span>
       </div>
     </div>
   </div>
@@ -148,7 +147,7 @@
   <div class="dock dock-lobby">
     <div class="dock-status">
       <span class="arabic-h">الجميع مستعد. المطاردة جاهزة للبدء.</span>
-      <span class="inline arabic-h">تراجع</span>
+      <span class="inline arabic-h hit48">تراجع</span>
     </div>
     <button class="btn primary arabic-h" type="button" style="font-size:14px">ابدأ المطاردة</button>
   </div>

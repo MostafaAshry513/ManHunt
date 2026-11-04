@@ -11,10 +11,14 @@
   .claim-sheet { top: auto; bottom: 0; max-height: 58%; padding: 8px 24px 22px; }
   .claim-title { font-family: var(--a-disp); font-weight: 700; font-size: 42px; line-height: 40px; letter-spacing: -.008em; color: var(--a-ink); }
   .claim-meta { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-  .claim-meta .tag-team { height: 24px; font-size: 12px; }
+  .claim-meta .tag-team { height: 28px; font-size: 12px; }
   .claim-note { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--a-rule); }
   .claim-note .bs { margin-top: 2px; }
   .claim-body { margin-top: 10px; }
+  .claim-expiry { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--a-rule); }
+  .claim-expiry .da { display: block; font-size: 12.5px; line-height: 16px; }
+  .claim-expiry .bs { display: block; margin-top: 2px; }
+  .claim-expiry .da { font-size: 12px; }
 
   .hunt-board { border-top: 0; }
   .hunt-board .board-main { padding-top: 0; padding-bottom: 10px; }
@@ -24,7 +28,7 @@
   .map-wrap { flex: 1 1 auto; min-height: 0; }
   .peek { padding: 9px 24px 9px; }
   .peek-line1 { font-family: var(--a-ui); font-size: 13px; line-height: 18px; color: var(--a-ink); }
-  .peek-line2 { font-family: var(--a-mono); font-size: 10.5px; line-height: 15px; letter-spacing: .04em; color: var(--a-muted); margin-top: 2px; }
+  .peek-line2 { font-family: var(--a-mono); font-size: 11.5px; line-height: 15px; letter-spacing: .03em; color: var(--a-muted); margin-top: 2px; }
   .prey-band { flex: none; border-top: 3px solid var(--a-coral); background: var(--a-plate); padding: 12px 24px 18px; }
   .prey-band .band-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
   .prey-band .cap { color: var(--a-coral); }
@@ -32,7 +36,7 @@
   .prey-band .last { font-family: var(--a-mono); font-size: 11px; line-height: 15px; letter-spacing: .04em; color: var(--a-muted); margin-top: 5px; }
   .prey-band .bs { margin-top: 4px; }
   .map-legend { position: absolute; inset-inline-start: 24px; bottom: 16px; display: flex; flex-direction: column; gap: 5px; }
-  .lg { display: flex; align-items: center; gap: 7px; font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .04em; color: #e6edf7; text-shadow: 0 1px 3px #0b1220, 0 1px 1px #0b1220; }
+  .lg { display: flex; align-items: center; gap: 7px; font-family: var(--a-mono); font-size: 11.5px; line-height: 15px; letter-spacing: .03em; color: #e6edf7; text-shadow: 0 1px 3px #0b1220, 0 1px 1px #0b1220; }
   .lg .own { width: 8px; height: 8px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,.3); }
   .lg .zone { width: 8px; height: 8px; border-radius: 50%; border: 1.5px dashed #22d3ee; }
 </style>
@@ -128,6 +132,10 @@
       <span class="da" style="color:var(--a-muted)">Tag claim · raised at 20:52</span>
     </div>
     <p class="bs claim-body">Confirm the tag if it happened. If you dispute it, the huntmaster decides.</p>
+    <div class="claim-expiry">
+      <span class="da" style="color:var(--a-ink);display:block;font-size:12.5px;line-height:16px">Answer in 01:12</span>
+      <span class="bs" style="display:block;margin-top:2px">No answer → the huntmaster decides.</span>
+    </div>
     <div class="claim-note">
       <span class="ca" style="color:var(--a-coral);margin-bottom:2px;display:block">If you confirm</span>
       <div class="bs" style="color:var(--a-ink)">Your hunt ends. You'll spectate the rest of it.</div>

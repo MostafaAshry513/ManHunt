@@ -2,7 +2,7 @@
 
 Generated 2026-11-04T19:47:45.830Z · canvas 390x844 @3x · stress=true
 
-Read as: hard-text = <12 px text nodes; aux-or-body = 12–13.9 px (aux role is allowed, body role is not);
+Read as: hard-text = <11 px text nodes; aux-or-body = 11–13.9 px (11–12 machine metadata is allowed, body role is not);
 clipped = text clipped by an overflow-hidden ancestor or nowrap overflow; out-of-canvas = real content outside 390×844;
 cyan surfaces = cyan fills with area ≥ 600 px² (one-cyan-surface rule); seed-missing = expected seed tokens absent;
 rtl-uniso = Latin/number runs in an RTL page without an LTR isolate. Contrast is computed from DOM colours; verify crops.

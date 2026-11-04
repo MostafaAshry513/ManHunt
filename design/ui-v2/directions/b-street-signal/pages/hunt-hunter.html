@@ -11,7 +11,7 @@
   .status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 24px; }
   .dock { gap: 8px; }
   .map-label { fill: #a7b6cc; font-family: "Red Hat Mono", monospace; font-size: 11px; letter-spacing: .06em; }
-  .map-tag { fill: #0b1220; font-family: "Instrument Sans", sans-serif; font-weight: 700; font-size: 10px; }
+  .map-tag { fill: #0b1220; font-family: "Instrument Sans", sans-serif; font-weight: 700; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -68,9 +68,9 @@
       <circle cx="118" cy="392" r="13" fill="none" stroke="#ff7a59" stroke-width="1.5" stroke-dasharray="4 4" opacity=".7"/>
       <circle cx="118" cy="392" r="6" fill="#ff7a59" opacity=".55"/>
       <text x="34" y="368" class="map-label">Rana · stale 14 min</text>
-      <!-- hunters: other hunters violet dots, own position = team colour + chalk ring + YOU -->
-      <circle cx="120" cy="176" r="5.5" fill="#a79bff"/><circle cx="120" cy="176" r="9" fill="none" stroke="#a79bff" stroke-width="1.5" opacity=".7"/>
-      <circle cx="316" cy="318" r="5.5" fill="#a79bff"/><circle cx="316" cy="318" r="9" fill="none" stroke="#a79bff" stroke-width="1.5" opacity=".7"/>
+      <!-- own position only: team colour + chalk ring + YOU (no ally positions: LatestLocations is prey-only) -->
+      
+      
       <circle cx="168" cy="430" r="8" fill="#a79bff"/>
       <circle cx="168" cy="430" r="15" fill="none" stroke="#e6edf7" stroke-width="2"/>
       <g>
@@ -93,12 +93,13 @@
       </button>
     </div>
     <span class="map-credit">© OpenStreetMap contributors</span>
+    <span class="map-note data-l" style="position:absolute;bottom:24px;inset-inline-start:24px;background:var(--field);padding:2px 6px;color:var(--muted)">Latest reports · not a live track</span>
   </div>
 
   <!-- status line: honest freshness, derived from the report's receivedAt/stale flag -->
   <div class="status-row">
     <span class="small" style="color:var(--chalk)">2 prey still out. Last report 12 s ago.</span>
-    <span class="data-l" style="color:var(--dim)">TRAILS ON</span>
+    <span class="data-l" style="color:var(--dim)">Trails on</span>
   </div>
 
   <div style="height:128px"></div>
@@ -106,8 +107,8 @@
   <!-- one action in the thumb zone -->
   <div class="dock">
     <div class="row spread">
-      <button class="inline" style="border:0;min-height:32px;font-size:12px" type="button">Hunt details</button>
-      <span class="data-l" style="color:var(--dim)">RIVERSIDE RUN</span>
+      <button class="inline" style="min-height:48px;font-size:12px" type="button">Hunt details</button>
+      <span class="data-l" style="color:var(--dim)">Riverside Run</span>
     </div>
     <button class="btn btn--primary" type="button"><span class="btn-label">Tag prey</span></button>
   </div>

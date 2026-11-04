@@ -486,3 +486,104 @@ html[dir="rtl"] .lobby .title-row .right .v { white-space: nowrap; }
 .roles .side { padding-top: 10px; padding-bottom: 10px; }
 .roles .lead { margin-top: 2px; }
 .roles .safety { margin-top: 10px; }
+
+/* ============================================================================
+   ROUND 2 — reviewer-ux / reviewer-visual fixes
+   ========================================================================== */
+
+/* text floors: no rendered text below 12 px */
+.scale .lbl { font-size: 12px; line-height: 14px; }
+.text-action .badge { font-size: 12px; min-width: 20px; height: 20px; padding: 0 5px; }
+.report-strip .rep .state { font-size: 12px; line-height: 16px; }
+.maplabel .l2 { font-size: 12px; line-height: 15px; }
+.chat .row-msg .sender .team { font-size: 12px; line-height: 16px; }
+.result .manifest .m-row .tagged { font-size: 12px; line-height: 16px; }
+.result .dock .proposal,
+.hunt .dock .proposal { font-size: 12px; line-height: 16px; }
+.history .summary .r .k { font-size: 12px; line-height: 16px; }
+.settings .row .k .h { font-size: 12px; line-height: 16px; }
+.settings .preview .tag { font-size: 12px; line-height: 16px; }
+.rules-sheet .row .k .h { font-size: 12px; line-height: 16px; }
+
+/* 48 dp hit boxes on the pre-hunt controls */
+.rules-sheet .row { min-height: 48px; }
+.rules-sheet .stepper { height: 48px; }
+.rules-sheet .stepper button { width: 48px; height: 48px; }
+.rules-sheet .stepper .val { height: 46px; min-width: 78px; }
+.rules-sheet .row .rocker { height: 48px; }
+.settings .row .stepper { height: 48px; }
+.settings .row .stepper button { width: 48px; height: 48px; }
+.settings .row .stepper .val { height: 46px; }
+.settings .row .rocker { height: 48px; }
+
+/* switches: 48 dp hit box + word cue, never fill-colour only */
+.switch { width: 52px; height: 48px; border: 0; background: transparent; position: relative; flex: 0 0 52px; display: inline-block; }
+.switch::before { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 30px; border: 1px solid var(--hairline-strong); border-radius: 2px; }
+.switch::after { content: ""; position: absolute; top: 12px; left: 3px; width: 22px; height: 24px; background: var(--dim); }
+.switch.on::after { left: 27px; background: var(--chalk); }
+.switch-ctrl { display: inline-flex; align-items: center; gap: 10px; }
+.switch-word { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; text-transform: uppercase; color: var(--dim); min-width: 22px; }
+.switch.on + .switch-word { color: var(--chalk); }
+
+/* manifest: ellipsis-safe names (24-char usernames) and no decorative numbering */
+.manifest .who { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.manifest .tags { flex: 0 0 auto; }
+.manifest .m-row { gap: 8px; }
+.lobby .dock-actions { justify-content: space-between; gap: 8px; }
+.lobby .dock-actions .text-action { font-size: 13px; line-height: 18px; }
+
+/* result: the shipped action is primary; Rematch is a labelled proposal row */
+.result .proposal-tag { font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; color: var(--dim); }
+.result .dock .proposal { margin-top: 2px; max-width: 340px; }
+
+/* auth: neutral server disclosure + honest test-deployment line */
+.auth .server-note { margin: 4px 0 2px; max-width: 342px; font-size: 12px; line-height: 17px; }
+.auth .server-row .v { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 700; color: var(--chalk); }
+
+/* rules sheet: real coordinate readout */
+.rules-sheet .row .val.num { font-size: 12px; }
+
+/* rendered state studies (non-canonical extras) */
+.state-paused .chart { flex: 0 0 553px; height: 553px; }
+.state-offline .chart { flex: 0 0 534px; height: 534px; }
+.state-eliminated .chart { flex: 0 0 503px; height: 503px; }
+.state-offline .offline { position: absolute; top: 108px; left: 0; right: 0; z-index: 5; min-height: 44px; }
+.state-offline .dock { padding-top: 8px; padding-bottom: 8px; }
+.state-eliminated .tagged-strip { min-height: 92px; height: 92px; align-items: center; }
+.state-eliminated .dock { padding-top: 10px; padding-bottom: 10px; }
+.tagged-strip .msg { font-size: 13px; line-height: 18px; color: var(--chalk); }
+.tagged-strip .msg .mono { display: inline-block; font-family: var(--font-mono); font-size: 12px; line-height: 16px; letter-spacing: .10em; color: var(--dim); margin-bottom: 2px; }
+
+/* RTL hard pass: Arabic labels in the Arabic face, no tracking; numeric runs isolated */
+html[dir="rtl"] .serial .k, html[dir="rtl"] .chit .name, html[dir="rtl"] .manifest .who,
+html[dir="rtl"] .manifest .tags .data, html[dir="rtl"] .lobby .rules-line .txt,
+html[dir="rtl"] .legend .k, html[dir="rtl"] .legend span,
+html[dir="rtl"] .btn-primary, html[dir="rtl"] .btn-secondary, html[dir="rtl"] .text-action,
+html[dir="rtl"] .lobby .title-row .right .v .u, html[dir="rtl"] .dock .status,
+html[dir="rtl"] .rules-line .txt, html[dir="rtl"] .mode-row .name {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+  text-transform: none;
+}
+html[dir="rtl"] .btn-primary { font-size: 18px; line-height: 24px; }
+html[dir="rtl"] .text-action { font-size: 14px; line-height: 20px; }
+html[dir="rtl"] .manifest .tags .data { font-size: 12px; line-height: 18px; }
+html[dir="rtl"] .manifest .who { font-size: 16px; }
+html[dir="rtl"] .lobby .rules-line .txt { font-size: 13px; line-height: 21px; }
+html[dir="rtl"] .lobby .title-row .right .v .u { font-size: 12px; }
+html[dir="rtl"] .chit .name { font-size: 13px; }
+html[dir="rtl"] .legend span { font-size: 12px; }
+
+/* round 2 cont. */
+.prey-hunt .dock .share-block .next .v.spec { font-size: 17px; line-height: 22px; }
+.offline { display: flex; align-items: center; gap: 8px; }
+.offline .t { flex: 0 0 auto; }
+.offline .r { margin-left: auto; color: var(--dim); letter-spacing: .02em; }
+.state-offline .legend { top: 58px; }
+.guide-plate svg text { font-size: 12px; }
+.rules-sheet { height: auto; max-height: 94%; }
+.rules-sheet .sheet-body { flex: 0 1 auto; overflow: hidden; }
+
+/* round 2 cont.: every inline/text action carries a 48 dp hit box */
+.text-action { min-width: 48px; min-height: 48px; justify-content: flex-start; }
+.auth .field .text-action, .claim-sheet .text-action { justify-content: center; }

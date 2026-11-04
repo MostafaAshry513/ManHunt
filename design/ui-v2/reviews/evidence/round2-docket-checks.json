@@ -1,0 +1,189 @@
+{
+  "meta": {
+    "tool": "reviewer-ux docket-checks",
+    "when": "2026-11-04T19:58:25.094Z",
+    "docket": "reviews/round-2-docket.md"
+  },
+  "directions": {
+    "b-street-signal": {
+      "pages": [
+        "auth",
+        "chat",
+        "history",
+        "home-light",
+        "home",
+        "hunt-hunter",
+        "hunt-prey-eliminated",
+        "hunt-prey",
+        "lobby-rtl",
+        "lobby",
+        "result",
+        "roles",
+        "settings",
+        "sheet-room-settings",
+        "sheet-tag-claim"
+      ],
+      "extras": [
+        "hunt-prey-eliminated"
+      ],
+      "pngDims": {
+        "auth": {
+          "w": 1170,
+          "h": 2532
+        },
+        "chat": {
+          "w": 1170,
+          "h": 2532
+        },
+        "contact-b-street-signal": {
+          "w": 2704,
+          "h": 6128
+        },
+        "history": {
+          "w": 1170,
+          "h": 2532
+        },
+        "home-light": {
+          "w": 1170,
+          "h": 2532
+        },
+        "home": {
+          "w": 1170,
+          "h": 2532
+        },
+        "hunt-hunter": {
+          "w": 1170,
+          "h": 2532
+        },
+        "hunt-prey-eliminated": {
+          "w": 1170,
+          "h": 2532
+        },
+        "hunt-prey": {
+          "w": 1170,
+          "h": 2532
+        },
+        "lobby-rtl": {
+          "w": 1170,
+          "h": 2532
+        },
+        "lobby": {
+          "w": 1170,
+          "h": 2532
+        },
+        "result": {
+          "w": 1170,
+          "h": 2532
+        },
+        "roles": {
+          "w": 1170,
+          "h": 2532
+        },
+        "settings": {
+          "w": 1170,
+          "h": 2532
+        },
+        "sheet-room-settings": {
+          "w": 1170,
+          "h": 2532
+        },
+        "sheet-tag-claim": {
+          "w": 1170,
+          "h": 2532
+        }
+      },
+      "checks": [
+        {
+          "id": "G1",
+          "desc": "14 canonical HTML + rendered PNG at exactly 1170x2532",
+          "status": "PASS",
+          "evidence": "html missing: none | png missing: none | wrong dims: none | extras: 1"
+        },
+        {
+          "id": "G2",
+          "desc": "NOTES.md has a Review response section",
+          "status": "PASS",
+          "evidence": "notes bytes 80866"
+        },
+        {
+          "id": "G3",
+          "desc": "No dev/fake strings across pages",
+          "status": "PASS",
+          "evidence": "none"
+        },
+        {
+          "id": "G4",
+          "desc": "Result seed honest (18:48 + prey 0/2)",
+          "status": "PASS",
+          "evidence": "FULL TIME 18:48 played Prey remaining 0 / 2 Hunters win. Prey remaining 0 / 2 Full time PREY 0 / 2 Nadia Tagged Rana Tag"
+        },
+        {
+          "id": "G5",
+          "desc": "Canonical pages do not scroll past the 844 canvas",
+          "status": "PASS",
+          "evidence": "all <=846"
+        },
+        {
+          "id": "G6",
+          "desc": "No invented-data patterns (IP / survival scores / OPEN AREA / GPS±)",
+          "status": "PASS",
+          "evidence": "none"
+        },
+        {
+          "id": "B1",
+          "desc": "hunt-hunter has no invented ally markers (violet only = own YOU)",
+          "status": "PASS",
+          "evidence": "violet map shapes=1 all=1"
+        },
+        {
+          "id": "B2",
+          "desc": "history has no per-match survival scores",
+          "status": "PASS",
+          "evidence": ""
+        },
+        {
+          "id": "B3",
+          "desc": "Lobby has host Ready/Stand down + side switch",
+          "status": "PASS",
+          "evidence": "standDown=true sideSwitch=true"
+        },
+        {
+          "id": "B4",
+          "desc": "Room-rules sheet has zone-centre / map-picker / use-my-location",
+          "status": "PASS",
+          "evidence": "zoneCentre=true"
+        },
+        {
+          "id": "B5",
+          "desc": "roles has no live-looking 2/3 counters",
+          "status": "PASS",
+          "evidence": "[]"
+        },
+        {
+          "id": "B6",
+          "desc": "hunt-prey gutter no OPEN AREA contradiction",
+          "status": "PASS",
+          "evidence": "openArea=false"
+        },
+        {
+          "id": "B7",
+          "desc": "Claim: consequence-first + answer-in time",
+          "status": "PASS",
+          "evidence": "answerIn=1 taggedYou=true"
+        },
+        {
+          "id": "B8",
+          "desc": "settings fits the canvas",
+          "status": "PASS",
+          "evidence": "pageScrollHeight=844"
+        },
+        {
+          "id": "B9",
+          "desc": "Extra eliminated/spectating frame rendered",
+          "status": "PASS",
+          "evidence": "extras: hunt-prey-eliminated"
+        }
+      ]
+    }
+  }
+}

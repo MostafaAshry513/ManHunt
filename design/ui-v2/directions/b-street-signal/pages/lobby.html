@@ -7,17 +7,17 @@
 <link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
 <link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
 <style>
-  .code-poster { font-family: var(--font-mono); font-size: 58px; line-height: 60px; letter-spacing: .05em;
-                 font-variant-numeric: tabular-nums; color: var(--chalk); }
-  .lobby-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
-  .side-switch { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 10px;
-                 letter-spacing: .06em; color: var(--dim); min-height: 32px; }
+  .code-poster { font-family: var(--font-mono); font-size: 54px; line-height: 56px; letter-spacing: .05em;
+                 font-variant-numeric: tabular-nums; color: var(--chalk); direction: ltr; unicode-bidi: isolate; }
+  .lobby-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .side-seg .cell { min-height: 48px; height: 48px; }
+  .team-row { height: 48px; }
 </style>
 </head>
 <body>
-<main class="page" style="padding-bottom:170px">
+<main class="page" style="padding-bottom:244px">
 
-  <header class="strip" style="padding-top:16px;gap:10px">
+  <header class="strip" style="padding-top:12px;padding-bottom:4px;gap:10px">
     <button class="icon-btn icon-btn--bare" type="button" aria-label="Back">
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M15 4 7 12l8 8"/></svg>
     </button>
@@ -25,7 +25,7 @@
       <h1 class="title">Riverside Run</h1>
       <div class="row gap8">
         <span class="state" style="color:var(--muted)">LOBBY</span>
-        <span class="data-l">5 PLAYERS</span>
+        <span class="data-l">5 players</span>
       </div>
     </div>
     <span class="gutter-right row gap8">
@@ -43,7 +43,7 @@
   </header>
 
   <!-- the code is the social object: pencil-on-poster scale, LTR, tap to copy -->
-  <section class="gutter" style="margin-top:6px">
+  <section class="gutter" style="margin-top:2px">
     <div class="row spread" style="align-items:flex-end">
       <div class="col">
         <span class="tape tape--right" style="align-self:flex-start">Invite code</span>
@@ -53,14 +53,12 @@
         </svg>
       </div>
       <div class="col" style="align-items:flex-end;gap:4px">
-        <span class="data" style="color:var(--chalk)">5 / 5 READY</span>
-        <span class="tally" aria-hidden="true">
-          <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><s class="on"></s>
-        </span>
+        <span class="data" style="color:var(--chalk);white-space:nowrap">5 / 5 ready</span>
+        <span class="tally" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><s class="on"></s></span>
       </div>
     </div>
-    <div class="row spread" style="margin-top:10px;min-height:44px">
-      <button class="inline" style="border:0;min-height:44px" type="button">
+    <div class="row spread" style="margin-top:6px;min-height:48px">
+      <button class="inline" style="min-height:48px" type="button">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" class="stroke">
           <path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M4 14v5h16v-5"/>
         </svg>
@@ -70,69 +68,75 @@
     </div>
   </section>
 
-  <div class="rule" style="margin:10px 24px 0"></div>
+  <div class="rule" style="margin:6px 24px 0"></div>
 
   <!-- the room as a team sheet: two flat team columns, kit-tag names -->
-  <section class="gutter" style="margin-top:16px">
+  <section class="gutter" style="margin-top:10px">
     <div class="teamcol">
-      <div class="team-head team-head--prey"><span>PREY</span><span>2</span></div>
+      <div class="team-head team-head--prey" style="height:30px"><span>PREY</span><span>2</span></div>
       <div class="team-row">
         <span class="kit kit--prey">Nadia</span>
         <span class="badge">HOST</span><span class="badge">YOU</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="gutter-right state" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px">
           Ready
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
       <div class="team-row">
         <span class="kit kit--prey">Rana</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="gutter-right state" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px">
           Ready
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
     </div>
 
-    <div class="teamcol" style="margin-top:16px">
-      <div class="team-head team-head--hunters"><span>HUNTERS</span><span>3</span></div>
+    <div class="teamcol" style="margin-top:10px">
+      <div class="team-head team-head--hunters" style="height:30px"><span>HUNTERS</span><span>3</span></div>
       <div class="team-row">
         <span class="kit kit--hunters">Omar</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="gutter-right state" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px">
           Ready
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
       <div class="team-row">
         <span class="kit kit--hunters">Selim</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="gutter-right state" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px">
           Ready
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
       <div class="team-row">
         <span class="kit kit--hunters">Youssef</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="gutter-right state" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px">
           Ready
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
-    </div>
-    <div class="row" style="margin-top:10px">
-      <span class="cap">Pick a side. Ready up. The huntmaster starts the hunt.</span>
     </div>
   </section>
 
-  <!-- host's begin action sits at the thumb, with its status line attached -->
+  <!-- the host is a player too: side switch + ready control + begin action all live in the dock -->
   <div class="lobby-dock">
-    <div class="rule"></div>
-    <div class="row spread" style="margin-top:2px">
+    <div class="row spread" style="gap:10px">
+      <div class="col" style="gap:2px">
+        <span class="data-l">Your side</span>
+        <div class="seg side-seg" style="gap:6px">
+          <span class="cell on" aria-checked="true" role="radio">Prey</span>
+          <span class="cell" role="radio" aria-checked="false">Hunters</span>
+        </div>
+      </div>
+      <button class="inline" style="min-height:48px;font-size:13px" type="button">Stand down</button>
+    </div>
+    <div class="row spread">
       <span class="data" style="color:var(--muted)">All players ready.</span>
-      <button class="inline" style="border:0;min-height:32px;font-size:12px" type="button">Hunt rules</button>
+      <button class="inline" style="min-height:48px;font-size:13px" type="button">Hunt rules</button>
     </div>
     <button class="btn btn--primary" type="button"><span class="btn-label">Begin the hunt</span></button>
     <div class="row spread">
-      <span class="credit-line">RIVERSIDE RUN · ROOM K7M2QX</span>
-      <span class="credit-line">5 PLAYERS</span>
+      <span class="credit-line">Riverside Run · room K7M2QX</span>
+      <span class="credit-line">5 players</span>
     </div>
   </div>
 

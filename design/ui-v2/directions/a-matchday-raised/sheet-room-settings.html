@@ -7,20 +7,21 @@
 <link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
 <link rel="stylesheet" href="_a.css">
 <style>
-  .rules-sheet { top: 84px; bottom: 0; max-height: none; padding: 8px 24px 20px; display: flex; flex-direction: column; }
+  .rules-sheet { top: 72px; bottom: 0; max-height: none; padding: 8px 24px 20px; display: flex; flex-direction: column; }
   .rules-title { font-family: var(--a-disp); font-weight: 700; font-size: 42px; line-height: 40px; letter-spacing: -.008em; color: var(--a-ink); }
   .rules-sheet .sheet-lead { margin-top: 6px; }
   .rules-body { flex: 1 1 auto; min-height: 0; overflow: hidden; margin-top: 8px; }
-  .rules-sheet .section { margin-top: 8px; }
+  .rules-sheet .section { margin-top: 7px; }
   .rules-sheet .section-h { padding-bottom: 4px; }
-  .rules-sheet .row { min-height: 40px; padding: 4px 0; }
+  .rules-sheet .row { min-height: 40px; padding: 3px 0; }
   .rule-field { width: 62px; height: 34px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--a-raised); border: 1px solid var(--a-rule-strong); border-radius: 2px; font-family: var(--a-mono); font-size: 13px; color: var(--a-ink); }
   .rule-unit { font-family: var(--a-mono); font-size: 11px; line-height: 14px; color: var(--a-muted); width: 34px; flex: none; padding-inline-start: 6px; }
   .sw { width: 40px; height: 22px; flex: none; border: 1px solid var(--a-rule-strong); border-radius: 2px; position: relative; }
   .sw i { position: absolute; top: 3px; inset-inline-start: 3px; width: 14px; height: 14px; background: var(--a-muted); display: block; }
   .sw.on { border-color: var(--a-cyan); }
-  .sw.on i { background: var(--a-chalk, var(--a-ink)); inset-inline-start: 21px; }
-  .sw-label { font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--a-muted); width: 30px; text-align: end; flex: none; }
+  .sw.on i { background: var(--a-ink); inset-inline-start: 21px; }
+  .sw-hit { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; min-height: 48px; margin-inline-start: 2px; }
+  .sw-label { font-family: var(--a-mono); font-size: 11.5px; line-height: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--a-muted); width: 34px; text-align: end; flex: none; }
   .tag-policy { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0 6px; border-bottom: 1px solid var(--a-rule); }
 
   .toolbar { flex: none; height: 52px; display: flex; align-items: center; justify-content: space-between; padding-inline: 12px; border-bottom: 1px solid var(--a-rule); }
@@ -155,7 +156,7 @@
       <div class="rule-ticks"></div>
       <div class="row">
         <span class="da">60 min <b>·</b> reports every 5 min <b>·</b> zone 240 m <b>·</b> trails on</span>
-        <span class="inline">Hunt rules</span>
+        <span class="inline hit48">Hunt rules</span>
       </div>
     </div>
   </div>
@@ -163,7 +164,7 @@
   <div class="dock dock-lobby">
     <div class="dock-status">
       <span>Everyone's ready. The hunt is yours to start.</span>
-      <span class="inline">Stand down</span>
+      <span class="inline hit48">Stand down</span>
     </div>
     <button class="btn primary" type="button">Begin the hunt</button>
   </div>
@@ -191,18 +192,15 @@
           <div class="seg-cell on">Zone</div>
         </div>
         <div class="row"><span class="row-label">Zone radius</span><span class="rule-field">240</span><span class="rule-unit">m</span></div>
-        <div class="row"><div class="p-main"><div class="row-label">Zone centre</div><div class="row-sub">East gate · 51.5007, -0.1246</div></div><span class="inline">Use my location</span></div>
-        <div class="row"><div class="p-main"><div class="row-label">Shrink over time</div><div class="row-sub">120 s · 25 m per step</div></div><span class="sw" role="switch" aria-checked="false"><i></i></span><span class="sw-label">Off</span></div>
+        <div class="row"><div class="p-main"><div class="row-label">Zone centre</div><div class="row-sub">Set on the map · 40.8008, -73.9720</div></div><span class="inline">Use my location</span></div>
+        <div class="row"><div class="p-main"><div class="row-label">Shrink over time</div><div class="row-sub">120 s · 25 m per step</div></div><span class="sw-hit"><span class="sw" role="switch" aria-checked="false"><i></i></span></span><span class="sw-label">Off</span></div>
       </section>
 
       <section class="section">
         <div class="section-h"><span class="ti">Visibility</span></div>
-        <div class="row"><span class="row-label">Hunters can see trails</span><span class="sw on" role="switch" aria-checked="true"><i></i></span><span class="sw-label" style="color:var(--a-ink)">On</span></div>
+        <div class="row"><span class="row-label">Hunters can see trails</span><span class="sw-hit"><span class="sw on" role="switch" aria-checked="true"><i></i></span></span><span class="sw-label" style="color:var(--a-ink)">On</span></div>
         <div class="tag-policy">
-          <div class="p-main">
-            <div class="row-label">Tags need the prey to confirm</div>
-            <div class="row-sub">Enforced by the server.</div>
-          </div>
+          <span class="row-label">Tags need the prey to confirm</span>
           <span class="ca">Server-enforced</span>
         </div>
       </section>

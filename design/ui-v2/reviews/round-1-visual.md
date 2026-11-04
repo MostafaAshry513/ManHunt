@@ -25,7 +25,7 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 
 ---
 
-## 1. Scores (round 1, independent)
+## 1. Scores (round 1, independent, then reconciled where reviewer-ux evidence changed my read)
 
 | Axis (weight) | A — Matchday, raised | B — Street signal | C — Field instrument |
 |---|---:|---:|---:|
@@ -33,20 +33,23 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 | 2 Distinctiveness / memory (15 %) | **4** | **5** | **5** |
 | 3 Hierarchy & clarity (15 %) | **5** | **4** | **4** |
 | 4 System consistency (15 %) | **5** | **4** | **5** |
-| 5 Interaction & flow UX (15 %) | **2** ⛔cap | **3** | **3** |
-| 6 Accessibility & RTL/i18n (10 %) | **3** | **3** | **4** |
-| 7 Engineering feasibility (15 %) | **2** ⛔cap | **4** | **4** |
-| **Weighted total (/5)** | **3.60** | **3.90** | **4.00** |
+| 5 Interaction & flow UX (15 %) | **2** ⛔cap | **2** ⛔cap | **3** |
+| 6 Accessibility & RTL/i18n (10 %) | **3** | **2** | **3** |
+| 7 Engineering feasibility (15 %) | **2** ⛔cap | **2** ⛔cap | **3** |
+| **Weighted total (/5)** | **3.60** | **3.35** | **3.75** |
+
+*Reconciliation after reviewer-ux's independent table (19:52): accepted their measured evidence on B a11y (2: 16 sub-48 dp controls, `roles` counters at 3.92:1, Arabic mono/tracking), B invented-data cap (2/2), B lobby control gap, C a11y (3: 10 steppers <48 dp on room-rules, colour-only switches) and C feasibility (3: invented `PREY REMAINING` in history, Home GPS band, real IP). Kept my A cap (see below; reviewer-ux did not cap A — recorded dissent) and my C interaction 3 (they score 4; dissent). Full reconciliation: §8.*
 
 **Caps applied (rubric §2, mandatory before averaging):**
-- **A — cap 7 ("rematch presented as shipped") → axes 5 and 7 capped at 2.** `result.png` shows a plain inline **"Play again"** row with no proposal marking; the app has no rematch (PAGE_INVENTORY §20.1). NOTES flags it, but the render is scored, and the owner would read it as available. **One-line fix** (label it, or remove it) lifts the cap; projected uncapped A = **4.05** (axes 5/7 at 3/4) — i.e. the cap, not the system, is what puts A third.
-- No caps applied to B or C. Judgment calls recorded rather than silently applied: B's mono all-caps labels are not headings (see §2B), B's "DURATION 60:00" and history empty-copy are content bugs (named, not caps), B's extra violet map dots are an unshipped-data finding (named under feasibility, not a §2 enumerated cap), C's rematch **is** labelled as a proposal in-render (no cap, but it is the primary action — a flow defect).
+- **A — cap 7 ("rematch presented as shipped") → axes 5 and 7 capped at 2.** `result.png` shows a plain inline **"Play again"** row with no proposal marking; the app has no rematch (PAGE_INVENTORY §20.1). NOTES flags it, but the render is scored, and the owner would read it as available. **One label fixes it.** Projected uncapped A = **4.05** (axes 5/7 at 3/4) — the cap, not the system, is what keeps A out of first place.
+- **B — caps 2.2/2.7 ("fake content / contradicts the contract") → axes 5 and 7 capped at 2.** `hunt-hunter` renders two violet "other hunter" markers (no hunter positions exist in the data contract/server) and `history` invents per-match `PREY 0/2 · 2/2` (`MatchHistoryEntry` carries no preyAlive/preyTotal). Projected uncapped B = **3.80** (interaction 3, feasibility 4).
+- **C — cap not applied, dissent recorded.** C's `history` expanded summary also invents `PREY REMAINING 2/2` (same `MatchHistoryEntry` gap): a strict reading of §2.2 would cap C's axes 5/7 at 2 as well. reviewer-ux scored C feasibility 3 without a cap because the item is a single datum on a secondary page (vs B's feature-implication + systemic rows). I accept 3 for the shared table, record the asymmetry here, and will revisit consistency in task-12; if strict, C would be 3.45.
+- **Not capped, explicitly:** A's occluded second cyan *surface* in `sheet-room-settings` is a DOM/occlusion artifact (the sheet fully covers the lobby `Begin the hunt`); B's ALL-CAPS mono labels are data/stencil labels (not §2.6 headings; still a consistency fix); B's "Not on Google Play"/test-deployment copy and C's server-IP line are honesty/design-hygiene questions, not dev strings; C's zero filled cyan surface is a documented deliberate reweight (scored on axis 1, not capped).
 
-**Two feasibility claims verified against the shipped server (read-only, independent):**
-- `tagPolicy` enum is real and server-enforced: `confirm | instant` (`server/src/domain/match.ts:39`, `server/src/rooms.ts:442/types.ts:30`). B's costed Confirm/Instant control is genuinely client-only work; C's read-only "Tags need the Prey to confirm" row is honest. `skills/PAGE_INVENTORY.md` §20.2 ("enum not documented") is out of date on the server side — worth correcting in skills.
-- An expired tag claim becomes a **dispute** the huntmaster decides (`server/src/rooms.ts:58–70, 337, 368–383`), so C's "NO ANSWER IN 01:12 · the Huntmaster decides" countdown copy is **accurate**, not invented. Credit to C; A/B do not render the expiry.
-
----
+**Feasibility verification (independent, read-only server check):**
+- `tagPolicy` enum is real and server-enforced: `confirm | instant` (`server/src/domain/match.ts:39`, `server/src/rooms.ts:442`, `types.ts:30`). B's costed Confirm/Instant control is genuinely client-only work; C's read-only "Tags need the Prey to confirm" row is honest. `skills/PAGE_INVENTORY.md` §20.2 ("enum not documented") is stale on the server side — a skills fix for the Lead.
+- An expired tag claim becomes a **dispute** the huntmaster decides (`server/src/rooms.ts:58–70, 337, 368–383`), so C's "NO ANSWER IN 01:12 · the Huntmaster decides" countdown copy is **accurate**. Credit to C; A/B do not render the expiry, and A's claim "raised at 20:52" omits the 90 s window.
+- `MatchHistoryEntry` (Models.kt:226) carries only id/startedAt/endedAt/winner/cancelled/durationSec/prey/hunters — no preyAlive/preyTotal. This is the evidence behind the B/C history findings.
 
 ## 2. Direction A — "Matchday, raised"
 
@@ -59,7 +62,7 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 | Hierarchy & clarity | **5** | `home`, `lobby`, `hunt-hunter`, `result`, `sheet-tag-claim` | Squint test passes: one cyan primary, clock/code/winner is the loudest object, everything else ranks below, dense pages stay calm. `hunt-hunter` board 41:12 is the first read; `lobby` code is the hero; `result` winner at 84. |
 | System consistency | **5** | all 14 + proofs | One grammar: Board variants (masthead/lobby/live/full-time), rules, plates only for interaction, docks, sheets. Deviations (Board code, 90 % rules sheet, 68/52 clock) are documented in NOTES §13. Light/RTL inherit the system. |
 | Interaction & flow UX | **2** ⛔ | `result` | Capped by §2.7 (above). Otherwise: claim is a successful decision surface, disabled actions carry reasons, update-available/permission/cancelled states rendered. Non-happy states offline/loading/error/paused/eliminated are notes-only (see §2A gaps). |
-| Accessibility & RTL/i18n | **3** | `lobby-rtl`, `home-light`, all pages | AA holds (audit: 0 AA fails) and the RTL proof is genuine (mirroring, Arabic face, LTR-isolated code/numerals, no bidi flips). But the auxiliary floor is broken systemically — 10.5 px mono labels across board/meta/who/when (31 CSS declarations; audit `hard<12` 4–18/page) — below the brief's ≥12 sp auxiliary rule, and metadata <7:1 on 8 pages (audit). Light proof is a genuine translation but not parity (below). |
+| Accessibility & RTL/i18n | **3** | `lobby-rtl`, `home-light`, all pages | AA text pairs pass and the RTL proof is the strongest mirror (Arabic face, LTR code/numerals, mirrored rules/rows/dock). Debt accepted from reviewer-ux measurement: **92 sub-11 sp nodes** (10.5 sp `data.small` on board gutters/chat gutter/history meta, 9.5 sp settings footer), **36 metadata pairs at 5.34:1** (`#A7B6CC` under 12 sp on ink — needs ≥7:1), 4 sub-48 dp controls (rules switches 40×22), Arabic letter-spacing contradicts the direction's own "no tracking" rule. Light proof is a real translation but a different state (below). |
 | Engineering feasibility | **2** ⛔ | NOTES §9/§14 | Capped by §2.7. The underlying mapping is excellent (Board→MatchBoard, rules→ChalkRule, etc., no engine work; rematch/tag-policy/history-summary/offline costed) — this would be a 4–5 if the rematch row were labelled. |
 
 **Top 3 strengths**
@@ -95,9 +98,9 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 | Distinctiveness / memory | **5** | all 14 at 30 %; `result`, `roles`, `home` | One glance from memory: giant "Host"/"Join", the coral/violet roles split, the violet winner block with the FULL TIME stamp, kit-tag names. Every page contributes; references (street print, ticket stubs, stamps) are digested into a repeatable grammar, not stickers. |
 | Hierarchy & clarity | **4** | `home`, `lobby`, `hunt-hunter`, `result` | Eye lands correctly on the big object + dock action; clock dominance and claim hierarchy are strong. Held from 5: `lobby` runs three loud colour surfaces (code, Prey banner, Hunters banner, cyan ready ticks) so the reading order takes a beat; `result` stacks the winner block + map + teams before the action. |
 | System consistency | **4** | all 14 + proofs | The two-register system is real and documented; dock/sheet/tag/row grammar recurs; light/RTL inherit it. One grammar explains ~90 % of pixels. Docked by: ALL-CAPS labels that B's own NOTES §12.6 bans ("FIRST RUN · HOW IT WORKS", "5 STEPS", "CLASSIC IS PLAYABLE", "LOAD OLDER MESSAGES", "NEWEST FIRST", "DARK FIRST"); two primary treatments (cyan operational vs chalk event) that are defensible but undocumented as a rule; `settings` 1 px page overflow. |
-| Interaction & flow UX | **3** | `sheet-tag-claim`, `hunt-prey`, `history`, `settings` | The claim is the best *event* treatment in the set and the persistent claim strip is the right stress pattern; update/permission/planned-mode/disabled states are rendered. Gaps: offline/loading/error/paused/head-start/eliminated are notes-only; `history` renders empty-state copy under a populated list and shows `PREY 2 / 2` on a cancelled match; `result` footer mislabels the time limit. |
-| Accessibility & RTL/i18n | **3** | B a11y pass; audit | Pre-review pass verified: `--dim` #9AA9BF = 7.85:1, `.side p` 13 px, 0 AA fails across 14 pages. Residual gaps: many `hard<12` mono nodes (audit 12–23/page on chat/lobby/history/result), 10 px labels still in history meta/tape/lobby switch (and one 8 px decorative), 3 unisolated Latin/number runs in `lobby-rtl`, 1 px page-scroll on settings. Colour is never sole cue; targets mostly 48. |
-| Engineering feasibility | **4** | NOTES §14–15 | No engine work claimed and the mapping is credible (blocks, tape rotation via graphicsLayer, stencil via overpaint, MatchMap chrome only); tag-policy `confirm|instant` verified real (client-only); rematch correctly flagged as proposal; offline small client work. One unshipped-data issue: `hunt-hunter` draws **two extra violet hunter/ally markers** (source comment: "hunters: other hunters violet dots") that are not in the data contract (`LatestLocations` = prey only) and are not noted in NOTES §10.5 — see fix. |
+| Interaction & flow UX | **2** ⛔ | `lobby`, `hunt-hunter`, `history`, `result` | **Capped by §2.2/2.7 (invented data).** Independently: the claim is the best *event* treatment in the set and the persistent claim strip is the right stress pattern. But B's canonical **lobby cannot run a hunt** — no host Ready/Stand down, no side switch (reviewer-ux S1; confirmed against PAGE_INVENTORY lobby) — and room-rules omits zone-centre/map-picker controls; `history` paints empty-state copy under a populated list; `result` mislabels duration. Non-happy states are notes-only. |
+| Accessibility & RTL/i18n | **2** | B a11y pass; reviewer-ux measurements | Pre-review pass verified (`--dim` #9AA9BF = 7.85:1, `.side p` 13 px, metadata <7:1 pairs 46→7). Still below the bar I scored: **16 sub-48 dp controls across 10 pages** (e.g. "Review tag claim" 97×32, "View hunt history" 109×32, "Rematch" 116×32, "Play Classic instead" 113×28), `roles` counters **12 px at 3.92:1 (AA fail)**, 3 unisolated numeric runs in `lobby-rtl`, Arabic labels set in mono/letterspaced, settings overflows canvas by 12 px. |
+| Engineering feasibility | **2** ⛔ | NOTES §14–15 | **Capped 2.2/2.7.** Otherwise credible (tape = `graphicsLayer`, stencil = overpaint, MatchMap chrome only; tag policy `confirm|instant` verified real client-only; rematch correctly flagged; offline small client work). The cap's evidence: two invented violet "other hunter" markers (no hunter positions in contract) + invented per-match `PREY 0/2`/`2/2` in `history` (`MatchHistoryEntry` has no preyAlive/preyTotal). Both are one-render fixes. |
 
 **Top 3 strengths**
 1. **A real two-register system** that solves the territory's own biggest risk: ceremony pages shout, operational pages go calm — and the hunt page still puts the clock + one thumb action first.
@@ -105,11 +108,9 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 3. **Ownable, repeatable physical grammar**: kit-tag names, tape labels, stamp, marker underline and the constant dock give the whole set one identity without extra illustration — the most pitch-deck/social-ready direction.
 
 **Top 3 problems (each → one concrete fix)**
-1. **`hunt-hunter` shows other hunters' positions** (two violet rings outside the "You" marker) — the app cannot know ally positions; it implies a teammate-tracking feature that does not exist and is not costed in NOTES. → Remove the two ally markers (keep own team-colour + chalk ring + YOU, and the coral prey markers); if the owner ever wants ally visibility, add it to NOTES as a data/API delta with a cost.
-2. **`history` content contradictions**: the populated list ends with "Hunts appear here once they finish." (empty-state copy) and the cancelled row shows `PREY 2 / 2`. → Delete the empty line from the populated frame (keep it only in the empty state) and omit prey-remaining on cancelled matches (score unknown/not final).
-3. **`result` footer mislabels duration**: "STARTED 20:41 · ENDED 21:00 · DURATION 60:00" while the strip says "18:48 PLAYED". → Change to "LIMIT 60:00" (or "18:48 played of 60:00") so both numbers mean what they say.
-   *Also fix (cheap, own-rule consistency):* sentence-case the ALL-CAPS action/eyebrow labels listed above and note the cyan-vs-chalk primary rule in NOTES; raise residual 10 px history/tape labels to the stated 11 sp floor.
-
+1. **Invented data on the two trust surfaces (cap 2.2/2.7).** `hunt-hunter` draws two violet "other hunter" markers (no hunter positions exist in the contract/server; it implies teammate tracking) and `history` invents per-match `PREY 0/2 · 2/2` (`MatchHistoryEntry` carries no preyAlive/preyTotal). → Delete the two ally markers (keep own team-colour + chalk ring + YOU, coral prey markers) and drop the per-match prey-remaining from history (or add a costed server-field proposal in NOTES). One render fixes both and lifts the cap (projection 3.80).
+2. **The canonical lobby cannot perform its real job.** No "Ready to hunt / Stand down" for the host (a host is a player; Begin is blocked until everyone is ready) and no side-switch action — the shipped `LobbyDock`/`TeamSheet` both exist. → Add the inline ready control and the team-tag side switch to the dock/columns; `lobby` then matches A/C's completeness.
+3. **`history` and `result` content contradictions.** Populated history ends with "Hunts appear here once they finish." and shows `PREY 2/2` on a cancelled match; `result` reads "DURATION 60:00" beside "18:48 PLAYED"/20:41–21:00. → Delete the empty line from the populated frame, omit prey-remaining on cancelled, label the limit "LIMIT 60:00" (or "18:48 played of 60:00"). Also: sentence-case the ALL-CAPS action/eyebrow labels that B's own NOTES bans, and fix the 16 hit areas + `roles` counter contrast.
 **Worst 3 pages:** `history` (copy contradictions) · `hunt-hunter` (unshipped ally data) · `result` (duration label). `settings`' 1 px overflow is cosmetic but should be corrected for the canvas contract.
 **Page gaps vs PAGE_INVENTORY §18:** rendered — claim sheet + persistent claim strip, stale reports, update-available, permission allowed/not-allowed, planned modes, disabled join. Notes-only: offline/reconnecting, loading/error, paused, head start, eliminated/spectating, history empty/loading/error, chat empty/send-failed, tag-claim busy/error.
 **Caps:** none. Explicitly not capped: mono ALL-CAPS labels (not headings; still a consistency finding above), invented ally markers (named feasibility finding; §2 does not enumerate it), honest "Not on Google Play"/TEST DEPLOYMENT copy (required honesty, a false positive in the audit's forbidden heuristic).
@@ -131,9 +132,9 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 | Distinctiveness / memory | **5** | all 14 at 30 %; `hunt-hunter`, `result`, `sheet-tag-claim` | The most original *idea* in the set and it is content-driven, not costume: error bars/ages/accuracy around a real game truth; cyan readout band; paper note. One-glance memory test passes ("dark field chart, cyan time readout, paper note"). Every page contributes; the memory test could only belong to this product. |
 | Hierarchy & clarity | **4** | `hunt-hunter`, `result`, `settings`, `home` | Game pages pass (clock → map → dock action; claim decision clear; result winner clear). Held from 5: utility pages are dense readout stacks where the eye needs a beat; `home` has three loud objects (brand line, black status band, join/host blocks) before the dock, and it puts Join before Host; `result` makes the unshipped Rematch the largest object; some data repeated (NEXT REPORT in dock and cadence row; answer countdown in claim header and footer). |
 | System consistency | **5** | all 14 + proofs; NOTES §3 | Best-documented grammar in the set: bezel, readout band, rule labels + survey ticks, manifest, chit, stepper/rocker, dock, paper note. A table of components would explain every page; proofs inherit it; deviations recorded. (Identity/timeline bugs are content, not grammar.) |
-| Interaction & flow UX | **3** | `result`, `home`, `history`, `sheet-tag-claim` | Strong decision surfaces (claim countdown + "what confirming means" + no-answer consequence, verified accurate against server expiry→dispute) and good state coverage rendered (stale+ages, permissions, update, planned modes, disabled join reason, load older). Gaps: offline/loading/error/paused/head-start/eliminated are notes-only; `result` makes the **unshipped Rematch the primary action** while "Back to lobby" is a text action (even labelled, the primary is unavailable — swap); `history` has a wrong row start time and omits the just-played match; identity contradiction (below). |
-| Accessibility & RTL/i18n | **4** | audit; proofs | Best text floors (audit `hard<12` 0–6/page; body 15/data 13/labels 12; 0 AA fails) and a genuine RTL proof. Docked from 5: `sheet-room-settings` has **10 targets <48 dp** (steppers/switch rows), `lobby` 2, `settings` 2; `lobby-rtl` has 7 unisolated Latin/number runs (code/numbers visually correct, but fragile), and the mock uses ~70 physical-direction CSS properties per page (no logical start/end) — a real implementation/RTL-robustness cost even though the render mirrors correctly. |
-| Engineering feasibility | **4** | NOTES §8/§12.3; server check | Meticulous mapping and costed deltas; no engine work; claim countdown verified accurate (server expiry→dispute); tag policy honest read-only; rematch costed. Deltas to watch: lobby chart (canvas, no location permission — good), home status band claims "GPS ±6 m / Location On" **before a hunt** (app does not acquire location on Home; permission is requested at play) → either drop it or note the client/permission change; `result` rematch prominence implies availability; "74.208.99.178" is shown as the server address (confirm this is the real intended public test server, or use an honest placeholder). |
+| Interaction & flow UX | **3** | `result`, `home`, `history`, `sheet-tag-claim` | Strong decision surfaces (claim countdown + "what confirming means" + no-answer consequence, verified accurate against server expiry→dispute) and broad state coverage (stale+ages, permissions, update, planned modes, disabled join reason, load older; add the host ready/team-switch completeness check). Gaps: offline/loading/error/paused/head-start/eliminated notes-only; `result` makes the **unshipped Rematch the primary action** while "Back to lobby" is a text action; `history` wrong row time/omits the just-played match; identity contradiction. *reviewer-ux scores this 4; dissent recorded — I keep 3 until Rematch is demoted.* |
+| Accessibility & RTL/i18n | **3** | audit; proofs | Best text floors (audit `hard<12` 0–6/page; body 15/data 13/labels 12; 0 AA fails) and a genuine RTL proof. Held at 3 by measured target/proof debt: **10 room-rules steppers 44×38 + 2 settings steppers 48×42 + 2 switches 48×28 (<48 dp)**; switches signal state by fill colour alone; 7 unisolated numeric runs and Arabic labels in mono/letterspaced in `lobby-rtl`; ~70 physical-direction props/page is a fragile RTL implementation. |
+| Engineering feasibility | **3** | NOTES §8/§12.3; server check | Meticulous mapping/costed deltas and claim expiry verified (no engine work; tag policy honest read-only). Held at 3 by one invented datum (`history` `PREY REMAINING 2/2` — `MatchHistoryEntry` has no preyAlive/preyTotal; strict §2.2 would cap, §8), plus Home's `GPS ±6 m / Location On` pre-hunt readout (no shipped client source) and the real public IP `74.208.99.178` in auth/settings (owner rejected infra hosts in premium captures). All cheap fixes. |
 
 **Top 3 strengths**
 1. **"Show the error bars"** — report ages, accuracy rings, fresh/stale shapes and "not a live track" make the hunt HUD honest and genuinely original; the most content-driven idea in the round.
@@ -142,10 +143,8 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 
 **Top 3 problems (each → one concrete fix)**
 1. **Identity contradiction:** `home`/`home-light`/`settings` say "Playing as Omar", while `lobby`/`lobby-rtl` show Nadia as HOST · YOU and the huntmaster. One session must have one identity. → Make the user Nadia everywhere (fewest page changes; matches host/huntmaster) or set the lobby host to Omar and mark Omar HOST · YOU.
-2. **`result` makes the unshipped Rematch the primary action** (largest chalk block) with Back to lobby as a text action. Even with the visible proposal note, the page's strongest affordance cannot be used. → Swap: Back to lobby primary (chalk block), Rematch as a labelled secondary/proposal row; keep the note.
-3. **`history` timeline is wrong/incomplete:** the Sat row reads start 21:41 while its own detail says 20:41–21:41, and the just-played match from `result` (Sat 4 Nov, 18:48) does not appear in the list (latest is Sat 1 Nov). → Correct the row start time (20:41) and include/align the current finished match, or restate the result date to match history.
-   *Also fix (cheap):* reduce room-rules <48 dp controls to 10 → 0; raise the 10 px chart labels if design allows (floor is close); review the home pre-hunt GPS band; drop the 01–05 numbering if reviewers/owner read it as decoration.
-
+2. **`result` makes the unshipped Rematch the primary action** (largest chalk block) with Back to lobby as a text action. Even labelled, the page's strongest affordance cannot be used. → Swap: Back to lobby primary (chalk block), Rematch as a labelled secondary/proposal row; keep the caveat. (Pure hierarchy fix; the claim countdown/expiry copy is verified accurate and stays.)
+3. **`history` shows an invented score and wrong timeline:** per-match `PREY REMAINING 2/2` is not in `MatchHistoryEntry` (invented datum; reviewer-ux S1), the Sat row reads start 21:41 while its detail says 20:41–21:41, and the just-played match from `result` (Sat 4 Nov, 18:48) is absent. → Drop the survival line (or add a costed server-field proposal), correct the row time, include/align the current match. Also fix in the same pass: 10 room-rules steppers <48 dp + colour-only switch states; `lobby` clipped "Nadia"; Home pre-hunt GPS band (flag or reduce to permission state); real IP → honest server label; Arabic tracking/isolates on the proof.
 **Worst 3 pages:** `result` (rematch prominence) · `home` (identity + pre-hunt status band) · `history` (timeline/time). `sheet-room-settings` is the densest sheet with the most target violations — it survives at full size but needs the target pass.
 **Page gaps vs PAGE_INVENTORY §18:** rendered — claim + countdown + auto-resolve live, stale reports with ages/accuracy, update-available, permission allowed/off, planned modes, disabled join reason, load-older, notifications off. Notes-only: offline/reconnecting, loading/error, paused, head start, eliminated/spectating, chat empty/send-failed, history loading/error.
 **Caps:** none. Not capped: zero filled cyan surfaces (deliberate documented reweight — a brand-fit cost scored on axis 1, not a cap); the server IP/honest test-deployment copy (needs an owner answer, not a §2 violation); home GPS band (feasibility finding).
@@ -157,73 +156,86 @@ No **delivery** failures. One tooling incident was found and fixed during captur
 
 ---
 
-## 5. Per-page best picks (round 1)
+## 5. Per-page best picks (round 1) — best *visual* version; UX-angle differences noted
 
-| Page | Best direction | Why / what to steal |
-|---|---|---|
-| `auth` | **A** | Quiet form + field plate + brand line, server demoted to a footer row — the most credible first contact; steal B's bottom-docked single action clarity. |
-| `roles` | **B** | "Two teams. One block. One clock." with the coral/violet side blocks is the best explanation of the game as a poster; steal A's field-guide plate for the Classic/planned-mode page. |
-| `home` | **A** | Two verbs are genuinely different objects (named host flow vs 6-cell code), brand line carries the page, one cyan CTA; steal B's bottom-docked two-verb button pair for reach. |
-| `lobby` | **A** | Code as the Board's hero + two-column team sheet + Begin dock with reason — the most complete room at a glance; steal C's concise rules summary line and B's code-underliner. |
-| `hunt-hunter` | **C** | Clock dominance + honest reports (ages/accuracy, "not live") + Tag in the dock; steal B's fresh-report ring and "YOU" label treatment, A's two-band clock scale. |
-| `hunt-prey` | **C** | Own position only + report cadence ("last sent / next") is the most honest Prey screen; steal B's persistent claim strip and "keep moving" human line. |
-| `chat` | **B** | Best field-log identity: kit-tag senders, system rules, own-message tab, real composer; fix its caps label; steal C's "Room record · 9 entries" header line. |
-| `result` | **B** | The strongest *event* (violet winner field + FULL TIME stamp) with honest prey-remaining; steal A's action dock hierarchy and fix B's duration label. |
-| `history` | **A** | Complete, scannable, honest (summary uses real fields; cancelled rows handled); steal C's expanded match-summary block layout. |
-| `settings` | **A** | Ruled manual with every required state (update-available, permissions, read-only server) and the clearest hierarchy; steal C's section ticks + "Daylight" theme label. |
-| `sheet-tag-claim` | **A** | Consequence-first display title, who/when data, clean two-decision surface — most usable under stress; steal C's countdown (verified behaviour) and B's dismiss copy. |
-| `sheet-room-settings` | **A** | Complete ruled rules sheet (timing/zone/trails/tag policy, honest server-enforced row); steal C's stepper grammar and fix A's mismatched zone coordinates. |
-| `lobby-rtl` | **A** | Genuine Arabic recomposition, LTR-isolated code/numerals, clean mirror; steal B's Arabic kit-tag name treatment. |
-| `home-light` | **B** | The most confident light translation (ink Host block stays ink, parity of state, contrast holds); steal C's daylight graph-paper ground as an option. |
+| Page | Best visual | Why / what to steal | UX-angle note (reviewer-ux) |
+|---|---|---|---|
+| `auth` | **A** | Quiet form + field plate + brand line, server honestly demoted to a footer row; most credible first contact. | A ✓ |
+| `roles` | **B** | "Two teams. One block. One clock." with coral/violet side blocks is the best explanation of the game as a poster; steal A's field-guide plate for re-read. | **A** (B's live-looking "2/3" counters fail contrast 3.92:1 and misread as room data) |
+| `home` | **A** | Two verbs are different objects (named host flow vs 6-cell code), brand line carries the page, one cyan CTA. | **B** (docked two-verb pair = honest state + reach; A placeholders read oddly; C invents pre-hunt GPS) |
+| `lobby` | **A** | Code as the Board's hero + two-column team sheet + host controls (ready/stand-down, side switch) + Begin dock with blocker; the only complete lobby. | A ✓ |
+| `hunt-hunter` | **C** | Clock dominance + honest reports (ages/accuracy, "not live") + Tag in the dock; the best hunter screen. | C ✓ |
+| `hunt-prey` | **C** | Own position only + honest report cadence ("last sent / next") + no other Prey; best Prey screen. | C ✓ |
+| `chat` | **B** | Best field-log identity: kit-tag senders, system rules, own-message tab, load-older, draft-safe composer. | B ✓ |
+| `result` | **B** | The strongest *event* (violet winner field + FULL TIME stamp) with honest prey-remaining; steal A's action hierarchy + C's paper match-record/time ruler. | **A** (honest dock, no unshipped primary; B's stamp energy worth stealing into A) |
+| `history` | **A** | Complete, scannable, only direction that shows no survival score it cannot know; grouped list + last-hunt summary. | A ✓ |
+| `settings` | **A** | Ruled manual with every required state (update-available, permissions, read-only server); clearest hierarchy. Steal C's section ticks + "Daylight" label, B's update card. | A ✓ |
+| `sheet-tag-claim` | **C** | Best claim moment: who/when + real countdown from `expiresAt` (verified: expiry→huntmaster dispute) + consequence panel + paper note. Steal A's consequence-as-display-title. | C ✓ |
+| `sheet-room-settings` | **A** | Complete ruled rules sheet (timing/zone/centre/trails/tag policy + honest server-enforced row). Steal C's stepper grammar; fix A's fake zone coordinates. | A ✓ |
+| `lobby-rtl` | **A** | Best genuine mirror: Arabic face, LTR-isolated code/numerals, mirrored rules/rows/dock; fix Arabic tracking in round 2. | A ✓ |
+| `home-light` | **B** | Most confident daylight translation: same state as its dark Home, ink Host block stays ink, contrast holds. | B ✓ |
 
-*Best-visual ≠ best-usable:* `result` is B's visually but A's is easier to act on; `hunt-prey` is C's visually but B's claim-strip handling is the better stress pattern; `roles` is B's visually but A's field-guide is more informative at a re-read.
-**Count:** A 8 pages · B 4 · C 2. A's per-page dominance is real — the cap, not the system, is what keeps A from leading the table.
+**Count:** A 7 · B 3 · C 3 (visual). A's per-page dominance is real; the single-line rematch cap, not the system, is what keeps A out of first place in the weighted table. Where best-visual ≠ best-usable the final recommendation will state both.
 
 ---
 
 ## 6. Three stealable ideas (across directions)
 
 1. **A's two-band Board with "the match's one number" per variant** (lobby code → live clock → full-time duration). It turns the whole app into one recognisable object and makes the lobby's social object the hero. Highest-leverage steal for whichever direction ships.
-2. **B's tag claim as an event, not a form** — full-bleed consequence banner + two stacked decisions + "Dismissing keeps the claim waiting." Take the emotional treatment; keep the honest copy.
-3. **C's "show the error bars" honesty model** — every position carries age + accuracy, fresh/stale differ by shape+word, "latest reports, not a live track". This is the most product-specific idea in the round and belongs in the winning hunt HUD regardless of the system chosen.
+2. **B's tag claim as an event with a dismissal-safe strip** — full-bleed consequence banner + two stacked decisions + "Dismissing keeps the claim waiting." Take the emotional treatment; keep the honest copy.
+3. **C's "show the error bars" honesty model + claim countdown** — every position carries age + accuracy, fresh/stale differ by shape+word, "latest reports, not a live track"; the claim shows the real 90 s `expiresAt` countdown and the no-answer consequence (verified server behaviour). This is the most product-specific idea in the round and belongs in the winning hunt/claim surfaces.
 
 ---
 
 ## 7. Cross-direction risks (fix in round 2 regardless of winner)
 
-1. **State completeness is notes-only where the brief asks for rendered states.** None of the three renders offline/reconnecting, loading/error, paused or eliminated frames; those are the states that prove the system is real. Round 2 should add at least one rendered strip/frame per direction (offline strip on hunt; paused board; eliminated/spectating prey) — cheap and high-value for the owner pack.
-2. **Auxiliary type below the brief floor is systemic** (A worst at 10.5 px, B 10 px, C 10–11 px residual). The contract says body ≥14 sp / auxiliary ≥12 sp; round 2 should raise metadata mono to ≥11.5–12 px and reflow, or the a11y claim fails in implementation review.
-3. **Unshipped behaviour presented as available** is the set's common honesty failure mode: A's unlabelled "Play again" (capped), C's Rematch-as-primary (labelled but dominant), B's ally markers (unflagged data). Every one is cheap to fix; the pattern matters more than any single page because the brief is explicit about not implying features.
+1. **Unshipped/invented data is the set's common integrity failure.** A: unlabelled "Play again"; B: invented ally markers + per-match survival scores; C: per-match "prey remaining". All three are one-render fixes, all three are capped or flagged, and the pattern matters more than any single page because the brief is explicit about not implying features the app cannot deliver. Round 2 must show zero invented data in the renders.
+2. **State completeness is notes-only where the brief asks for rendered states.** None of the three renders offline/reconnecting, loading/error, paused or eliminated frames; those are the states that prove the system is real. All three designers have now committed to rendering extras (A: `hunt-paused`; C: paused/offline/eliminated; B pending) — verify they appear on the sheets.
+3. **Auxiliary type + targets below the brief floors are systemic (A worst, B next).** A 92 sub-11 sp nodes / 36 metadata pairs at 5.34:1 / 4 sub-48 controls; B 16 sub-48 controls + a real AA fail at 3.92:1; C 10 steppers + colour-only switches. Round 2 must show the type/target pass in the renders, not just NOTES.
 
 ---
 
 ## 8. Reconciliation with reviewer-ux
 
-**Status at filing:** my table above is independent (written before reviewer-ux's `scores-round-1` numbers existed). Their measurement layer (`reviews/evidence/ux-audit.json` + summary, 19:45) was consumed as evidence. Reconciliation will run axis-by-axis when both tables exist; dissents recorded here, never averaged.
-**Evidence disagreements I already expect to record:**
-1. **A `sheet-room-settings` "2 cyan surfaces"** — audit counts the lobby `Begin the hunt` button behind the fully-covering sheet (occlusion artifact). My visual read: one cyan surface (`Save rules`). No §2.6 cap from me; if reviewer-ux's DOM result is upheld, it is still a false-positive class (background occluded) and belongs in the audit-tool notes.
-2. **"Forbidden" tokens** — "Not on Google Play" and the honest "hosted test server / plain-HTTP test deployment" lines are required honesty (brief/voice docs), not dev strings; C's `74.208.99.178` needs an owner answer (real public test server or placeholder), not a cap.
-3. **B page-scroll (1 px) on `settings`** — cosmetic contract miss, not a state/flow failure; I score it as a delivery note. B's claim-sheet `out-of-canvas` nodes are decorative bleed with nothing clipped (audit `clipped = 0`).
-4. **B all-caps labels** — I judge them data/stencil labels (not §2.6 "ALL-CAPS headings"), so no cap; still a consistency/copy fix. If reviewer-ux reads them as headings, the reconciliation paragraph will say so.
-**Split to confirm with reviewer-ux:** I own axes 1–4 (and the page picks); their depth on 5–7 overrides my provisional numbers where evidence differs. `result` best-visual (B) vs best-usable (A) will be stated both ways in the final recommendation.
+**Their table (19:52):** A 3.75 · B 3.50 · C 3.90. **My table after accepting their measured evidence:** A 3.60 (capped) · B 3.35 (capped) · C 3.75. **Both reviewers independently agree the round-1 ranking is C > A > B**, and both agree the gaps are small and fixable; the ordering must be re-established from round-2 renders.
+
+**Accepted from reviewer-ux (evidence was stronger than my read):**
+- **B cap 2.2/2.7 → axes 5/7 = 2** (invented hunter positions + `history` per-match survival scores; data-contract proof checked in `Models.kt:226`).
+- **B a11y 3 → 2** (16 sub-48 dp controls; `roles` counters 12 px / 3.92:1 AA fail; Arabic labels mono/letterspaced).
+- **B lobby S1** (no host Ready/Stand down, no side switch) — confirmed against PAGE_INVENTORY lobby and B's render; added to B's problem list.
+- **A a11y 3 confirmed** (92 sub-11 sp nodes, 36 metadata pairs 5.34:1, 4 sub-48 controls, Arabic tracking).
+- **C a11y 4 → 3** (10 room-rules steppers <48 dp, colour-only switches) and **C feasibility 4 → 3** (invented history "prey remaining", pre-hunt GPS band, real IP).
+- Shared findings: chat system events are server-English in all three; Arabic typography debt is universal (tracking/mono); leave/end confirm is undocumented; only C renders the map text-alternative list.
+
+**My dissents (recorded, not averaged):**
+1. **A cap.** reviewer-ux treats A's "Play again" as a quiet flagged proposal and does not cap; I score the render, where it has no proposal marking, so I keep the §2.7 cap on axes 5/7 and show the one-label fix + 4.05 projection. A's NOTES and the new round-2 render ("Proposal" tag) will lift it.
+2. **C interaction 3 vs their 4.** Rematch — unshipped — is still the largest affordance on `result`; until demoted I keep 3.
+3. **C feasibility asymmetry.** The same §2.2 class that capped B (invented per-match data) also applies to C's `PREY REMAINING 2/2`, but reviewer-ux scores 3 on severity. I accept 3 for the shared round-1 table, record the asymmetry, and will settle it in task-12: either strict caps for both (C would be 3.45) or the severity read for both.
+4. **C consistency 5 vs their 4** — their switch-state issue is an a11y/state-cue problem, not a grammar break; C's grammar is the most complete in the set.
+5. Secondary-read differences (B hierarchy, A distinctiveness) defer to me per the agreed split.
+
+**File collision (scores JSON).** Both reviewers wrote `reviews/scores-round-1.json`. Current filesystem state: canonical file holds **my** (reviewer-visual) table; `reviews/scores-round-1-ux.json` also holds a copy of mine — reviewer-ux's table was lost in the rename race (their weighted totals survive in `round-1-ux.md` and their message). Resolution: I save my table as `reviews/scores-round-1-visual.json`; reviewer-ux rewrites their table to `reviews/scores-round-1-ux.json`; **no numbers are overwritten in prose** and task-12 merges both. The canonical filename is not rewritten again until the merge.
 
 ---
 
 ## 9. Designer dialogue log
 
-*Independence gate:* per agreement with reviewer-ux, findings/impressions are shared with designers only after both `scores-round-1.json` files exist. Messages sent + replies will be appended here (item → designer response → accept/partial/pushback → round-2 effect).
+*Independence gate opened once both reviewers' tables existed (19:52–19:55). Messages below are the round-1 hand-off; designers' replies are logged with their round-2 commitments.*
 
-| # | Date | Target | Message (headline) | Reply | Effect |
+| # | Date/time (UTC) | Target | Message (headline) | Reply | Effect on round 2 |
 |---|---|---|---|---|---|
-| — | — | — | to be appended after the gate | — | — |
+| 1 | 19:55 | designer-a | Cap diagnosis: label/remove "Play again"; home-light parity; type floor + metadata contrast + 48 dp; icon-only Settings; hunt-prey label; map text alternative; coordinate fix. | Accepted: proposal tag + server-note line; home-light re-render from identical state; `data.small` 10.5→11.5 + muted alpha .75; labelled Settings; in-map own-position label; map text alternatives; London coords fixed. Partial pushback: "hosted test server" stays as deliberate no-IP honesty; A's advance is scale/craft by territory (accepted). Adds `hunt-paused` extra frame. | Re-score axes 5/7 from new render; re-check type floor/targets; verify parity + paused frame. |
+| 2 | 19:55 | designer-b | Three highest-severity: invented ally markers + invented history scores (cap); lobby missing host Ready/Stand down + side switch (S1); history/duration contradictions, roles counter contrast, 16 hit areas, Arabic type/isolation. | *Awaiting reply (round-2 task-10)* | Remove invented data; complete the lobby controls; fix history/duration; type/target pass. Cap lifts when the renders show it. |
+| 3 | 19:56 | designer-c | Identity (Omar vs Nadia); Rematch-as-primary swap; history invented survival line + wrong row time/missing current match; 10 steppers + colour-only switches; Home pre-hunt GPS band; real IP; Arabic tracking/isolates; clipped Nadia; chat "newest first". | Accepted: Omar=host everywhere; Back to lobby primary / Rematch labelled secondary; history timeline + just-played match + drop survival line; 12 px floor; ≥48 dp steppers/switches with word cue; remove 01–05 indices; permission-only Home status; neutral server label. Pushback accepted: zero-filled-cyan reweight stays documented; drawn charts stay honest stand-ins. Adds paused/offline/eliminated extras. | Re-score from new `out/`; check identity/lobby/history fixes, target pass, rematch hierarchy, Arabic proof. |
 
 ---
 
 ## 10. Honest limitations of this review
 
-- **Not every page was viewed at full 1170×2532.** All 42 renders were judged at contact-sheet/30 % scale; full-size reads covered ~8–9 pages per direction (the four core pages + proofs + claims + settings + selected problem pages); the remainder were verified via visible-text extraction, CSS/audit measurements and the sheet. Page-level picks for `roles`/`chat`/`history`/`room-settings` lean on medium-size + text evidence, not a full-size aesthetic read.
-- **B was judged after a mid-review a11y pass** (state changed at 19:41–19:42). Comparison to A/C is on the pre-pass→post-pass current state only; one earlier B snapshot existed during capture, not used.
-- **Both reviewers are design-literate, not the owner.** Brand-fit and distinctiveness scores are rubric-anchored but finally taste-adjacent; the owner's call may legitimately weight the "poster" or "instrument" reading differently. That is why §6 has both rankings and the per-page picks.
-- **Scripted HTML mocks, not Compose builds.** Feasibility is read from the pages + NOTES + server-code spot checks; no prototype interaction/motion was tested, and font-scale/320 dp behaviour is spec-level (reviewer-ux's stress audit is indicative, not a build).
-- **A11y numbers are reviewer-ux's DOM audit + my spot checks**, not a device screen-reader run; contrast is computed from DOM colours (the A cyan-surface false positive shows the class of risk).
-- **One inherent bias to name:** A's per-page dominance + the cheap cap fix could make me undervalue B/C's originality; I have kept the weighted table honest, shown the cap-lifted projection for A, and will require round 2 to re-score from renders before any final ranking.
+- **Not every page was viewed at full 1170×2532.** All 42 renders were judged at contact-sheet/30 % scale; full-size reads covered ~8–9 pages per direction (core pages + proofs + claims + settings + problem pages); the rest verified via visible-text extraction, CSS and audit measurements. Page picks for `roles`/`chat`/`history`/`room-settings` lean on medium-size + text evidence.
+- **B was judged after a mid-review a11y pass** (19:41–19:42); comparison is against the current renders only.
+- **Both reviewers are design-literate, not the owner.** Brand-fit/distinctiveness scores are rubric-anchored but finally taste-adjacent; the owner's call may legitimately weight the "poster" or "instrument" reading differently — hence the per-page picks and both rankings.
+- **Scripted HTML mocks, not Compose builds.** Feasibility is read from pages + NOTES + spot checks of `Models.kt`/server code; no motion/scale prototype was tested, and 320 dp/200 % behaviour is spec-level (reviewer-ux's stress audit is indicative, not a build).
+- **A11y values are reviewer-ux's DOM audit + my spot checks**, not a device screen-reader run; computed contrast has a known artifact class (A's cyan-surface false positive).
+- **Reconciliation is round-1 only.** The shared table merges in task-12 after round-2 renders; cap-lift projections here are informative, not scores.
+- **Bias named:** A's per-page dominance plus a cheap cap fix could make me undervalue B/C originality; I keep the weighted table honest, show A's cap-lifted projection, and require round-2 re-scoring from renders before any final ranking.

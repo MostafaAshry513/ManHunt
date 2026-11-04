@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live hunt (Prey, tagged) — ManHunt · Street signal</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
+<style>
+  .hunt-strip { border-bottom: 1px solid var(--rule); padding: 9px 24px 8px; }
+  .tagged-block { background: var(--lift); border-top: 2px solid var(--chalk); padding: 14px 24px 16px; }
+  .tagged-block .line { font-family: var(--font-display); font-weight: 700; font-size: 40px; line-height: 38px; letter-spacing: -0.015em; }
+  .spectate-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .map-tag { fill: #0b1220; font-family: "Instrument Sans", sans-serif; font-weight: 700; font-size: 10px; }
+</style>
+</head>
+<body>
+<main class="page" style="padding-bottom:132px">
+
+  <!-- the board continues: a tagged Prey is a spectator, not an error state -->
+  <header class="hunt-strip">
+    <div class="row spread">
+      <span class="row gap8">
+        <span class="dot"></span>
+        <span class="state" style="color:var(--cyan)">LIVE</span>
+        <span class="data" style="color:var(--muted)">Riverside Run</span>
+      </span>
+      <span class="data">ZONE 240 m</span>
+    </div>
+    <div class="clock" style="margin-top:2px">41:12</div>
+  </header>
+
+  <div class="map flex1">
+    <svg viewBox="0 0 390 520" preserveAspectRatio="xMidYMid slice" aria-label="Map: your last position inside the hunt zone; you are spectating">
+      <rect width="390" height="520" fill="#0b1220"/>
+      <g fill="#101827" stroke="#182338" stroke-width="1">
+        <rect x="18" y="20" width="96" height="80"/><rect x="132" y="20" width="118" height="80"/><rect x="268" y="20" width="104" height="80"/>
+        <rect x="18" y="118" width="96" height="90"/><rect x="132" y="118" width="118" height="90"/><rect x="268" y="118" width="104" height="90"/>
+        <rect x="18" y="226" width="96" height="96"/><rect x="132" y="226" width="118" height="96"/><rect x="268" y="226" width="104" height="96"/>
+        <rect x="18" y="340" width="96" height="80"/><rect x="132" y="340" width="118" height="80"/><rect x="268" y="340" width="104" height="80"/>
+      </g>
+      <path d="M-20 214 L 420 188" stroke="#2f4058" stroke-width="12" opacity=".7"/>
+      <path d="M132 0 L 168 520" stroke="#223049" stroke-width="10" opacity=".8"/>
+      <circle cx="195" cy="262" r="146" fill="rgba(34,211,238,0.05)" stroke="#22d3ee" stroke-width="2.5"/>
+      <!-- own last known position: dimmed, cross-ticked, not a team colour any more -->
+      <circle cx="195" cy="300" r="14" fill="none" stroke="#e6edf7" stroke-width="2" opacity=".55"/>
+      <circle cx="195" cy="300" r="7" fill="#e6edf7" opacity=".35"/>
+      <path d="M188 293l14 14M202 293l-14 14" stroke="#e6edf7" stroke-width="2" opacity=".8"/>
+      <text x="24" y="500" style="fill:#9aa9bf;font-family:'Red Hat Mono',monospace;font-size:11px;letter-spacing:.03em">© OpenStreetMap contributors</text>
+    </svg>
+    <span class="map-credit" style="display:none"></span>
+  </div>
+
+  <!-- the emotional beat: stated in words, no red flash, no alarm -->
+  <section class="tagged-block">
+    <div class="line">You were tagged.</div>
+    <p class="small" style="margin-top:6px;color:var(--muted)">You are spectating this match. You can still chat, but you cannot tag or share new positions.</p>
+  </section>
+
+  <div class="spectate-dock">
+    <div class="row spread">
+      <span class="data" style="color:var(--muted)">SPECTATING · HUNT LIVE</span>
+      <button class="inline" style="min-height:48px;font-size:13px" type="button">Open field log</button>
+    </div>
+    <div class="rule"></div>
+    <span class="cap">The hunt continues. You'll see the full time result with everyone.</span>
+  </div>
+
+</main>
+</body>
+</html>

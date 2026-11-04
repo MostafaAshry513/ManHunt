@@ -1,217 +1,86 @@
 {
-  "reviewer": "reviewer-visual",
+  "reviewer": "reviewer-ux",
   "round": 1,
-  "reviewedAt": "2026-11-04T19:50:00Z",
-  "rubric": "design/ui-v2/skills/REVIEW_RUBRIC.md",
-  "canvas": "390x844 dp / 1170x2532 px",
-  "baseline": "v0.16 MATCHDAY Board (docs/screenshots/premium) - 'finish and push' bar",
-  "renderSet": {
-    "A": "directions/a-matchday-raised/out (14/14)",
-    "B": "directions/b-street-signal/out (14/14, current post-a11y-pass renders)",
-    "C": "directions/c-field-instrument/out (14/14)"
-  },
-  "method": "rendered pages first (sheets + 30% thumbnails + full-size core pages); NOTES read after page pass for claims/honesty only; rubric \u00a72 caps applied before averaging",
-  "weights": {
-    "brand_fit": 0.15,
-    "distinctiveness": 0.15,
-    "hierarchy": 0.15,
-    "consistency": 0.15,
-    "interaction": 0.15,
-    "a11y_rtl": 0.1,
-    "feasibility": 0.15
-  },
-  "scores": [
-    {
-      "direction": "A",
-      "axis": "brand_fit",
-      "score": 4,
-      "note": "Board/team/code grammar is structure; brand line and palette roles correct; no card regressions. Not 5: icon-only Settings entry breaks the no-unlabelled-nav rule; code-as-Board is the only genuine identity advance vs v0.16."
-    },
-    {
-      "direction": "A",
-      "axis": "distinctiveness",
-      "score": 4,
-      "note": "Memorable scoreboard+code silhouette and ownable moves (Board code, claim at display scale, manual settings) across all 14 at 30%; derivative of shipped MATCHDAY by design, less new than B/C."
-    },
-    {
-      "direction": "A",
-      "axis": "hierarchy",
-      "score": 5,
-      "note": "Squint test passes on home/lobby/hunt/result/settings: one cyan primary, clock/code/winner first read, dense pages calm, dock actions in thumb zone."
-    },
-    {
-      "direction": "A",
-      "axis": "consistency",
-      "score": 5,
-      "note": "One grammar across 14 pages + proofs: Board variants, chalk rules, plates-only-for-interaction, docks, sheets; deviations documented in NOTES \u00a713; light/RTL inherit the system."
-    },
-    {
-      "direction": "A",
-      "axis": "interaction",
-      "score": 2,
-      "note": "CAPPED by rubric \u00a72.7: result renders an unlabelled 'Play again' row though rematch is not shipped. Otherwise claim decision surface and disabled-action reasons are strong; offline/loading/error/paused/eliminated notes-only."
-    },
-    {
-      "direction": "A",
-      "axis": "a11y_rtl",
-      "score": 3,
-      "note": "AA 0 fails and genuine RTL/light proofs, but auxiliary type is systemically below the 12 sp floor (10.5 px mono on board/lobby/claim; 31 declarations) and metadata <7:1 on 8 pages (ux-audit); icon-only Settings entry."
-    },
-    {
-      "direction": "A",
-      "axis": "feasibility",
-      "score": 2,
-      "note": "CAPPED by rubric \u00a72.7 (see interaction). Underlying mapping is strong (MatchBoard/ChalkRule/CodePlate/ScorePage reuse, no engine work); rematch/tag-policy/history-summary/offline costed, but rematch is implied as shipped in the render."
-    },
-    {
-      "direction": "B",
-      "axis": "brand_fit",
-      "score": 4,
-      "note": "Unmistakably ManHunt and an identity advance (poster voice, kit-tag grammar, claim/result events). Contained rule tension: own-rule ALL-CAPS labels, cyan-vs-chalk primary variants; honest required copy flagged as 'forbidden' by the audit is a false positive."
-    },
-    {
-      "direction": "B",
-      "axis": "distinctiveness",
-      "score": 5,
-      "note": "One glance from memory: giant Host/Join, coral/violet roles split, violet winner block + FULL TIME stamp, kit-tag names; every page contributes; references digested into a repeatable system, not stickers."
-    },
-    {
-      "direction": "B",
-      "axis": "hierarchy",
-      "score": 4,
-      "note": "Big object + dock action land correctly on home/lobby/hunt/result; held from 5: lobby stacks three loud colour surfaces before the reading order settles; result stacks winner block+map+teams before the action."
-    },
-    {
-      "direction": "B",
-      "axis": "consistency",
-      "score": 4,
-      "note": "Two-register system (Poster/Placard) is real, documented and recurs; ~90% explained by one grammar. Docked by ALL-CAPS labels its own NOTES \u00a712.6 bans (FIRST RUN/LOAD OLDER/NEWEST FIRST/DARK FIRST/5 STEPS/CLASSIC IS PLAYABLE), undocumented cyan-vs-chalk primary rule, settings 1px page overflow."
-    },
-    {
-      "direction": "B",
-      "axis": "interaction",
-      "score": 3,
-      "note": "Claim-as-event + persistent claim strip are the best stress pattern in the set; update/permission/planned/disabled states rendered. Gaps: offline/loading/error/paused/head-start/eliminated notes-only; history paints empty-state copy under a populated list and PREY 2/2 on a cancelled match; result mislabels duration."
-    },
-    {
-      "direction": "B",
-      "axis": "a11y_rtl",
-      "score": 3,
-      "note": "Pre-review pass verified (--dim #9AA9BF 7.85:1, roles prose 13px, 0 AA fails). Residual: many hard<12 mono nodes (12-23/page on chat/lobby/history/result), 10px labels in history/tape/lobby switch, 3 unisolated runs in lobby-rtl, 1px settings page-scroll."
-    },
-    {
-      "direction": "B",
-      "axis": "feasibility",
-      "score": 4,
-      "note": "No engine work; credible Compose mapping (graphicsLayer tape, overpaint stencil, MatchMap chrome only); tagPolicy confirm|instant verified real client-only work; rematch correctly flagged. One unshipped-data finding: hunt-hunter draws two extra violet ally markers not in the data contract and not noted."
-    },
-    {
-      "direction": "C",
-      "axis": "brand_fit",
-      "score": 3,
-      "note": "Palette roles, mark and ManHunt semantics are correct and the system is distinctive, but at page level it reads more field-device than friends' game on home/lobby/hunt (the reading the brand previously flagged for this territory); warm moments land only on result/claim. Breaks two shipped rules deliberately: no filled cyan primary, 01-05 numbering."
-    },
-    {
-      "direction": "C",
-      "axis": "distinctiveness",
-      "score": 5,
-      "note": "Most original content-driven idea in the set ('show the error bars'): ages/accuracy/fresh-vs-stale, cyan readout band, paper field note. One-glance memory test passes; only this product could own it."
-    },
-    {
-      "direction": "C",
-      "axis": "hierarchy",
-      "score": 4,
-      "note": "Game pages pass (clock->map->dock action; claim decision clear; result winner clear). Held from 5: utility pages are dense readout stacks; home has brand line + black status band + join/host before the dock and joins before hosting; result makes unshipped Rematch the largest object; some datum duplication (NEXT REPORT)."
-    },
-    {
-      "direction": "C",
-      "axis": "consistency",
-      "score": 5,
-      "note": "Best-documented grammar (bezel, readout band, rule labels+ticks, manifest, chit, dock, paper note) across 14 pages + proofs; a component table would explain every page; light/RTL inherit it."
-    },
-    {
-      "direction": "C",
-      "axis": "interaction",
-      "score": 3,
-      "note": "Claim countdown + consequence panel + no-answer rule are verified accurate against server expiry->dispute, and state rendering is broad (stale/ages, permissions, update, planned, disabled join, load older). Gaps: offline/loading/error/paused/head-start/eliminated notes-only; unshipped Rematch is the primary action; history timeline bugs; identity contradiction."
-    },
-    {
-      "direction": "C",
-      "axis": "a11y_rtl",
-      "score": 4,
-      "note": "Best text floors (0-6 hard<12/page, body 15/data 13/label 12, 0 AA fails) and genuine RTL/light proofs. Docked from 5: room-settings has 10 targets <48dp (lobby 2, settings 2); 7 unisolated runs in lobby-rtl; ~70 physical-direction CSS props/page = fragile RTL implementation."
-    },
-    {
-      "direction": "C",
-      "axis": "feasibility",
-      "score": 4,
-      "note": "Meticulous costed mapping, no engine work; claim expiry/countdown verified accurate; tag policy honest read-only; rematch/offline/client-state costed. Open: home pre-hunt 'GPS \u00b16m/Location On' band has no client source; '74.208.99.178' needs owner confirmation as real public test server or placeholder."
-    }
-  ],
+  "rubric": "design/ui-v2/briefs/02-evaluation.md + skills/REVIEW_RUBRIC.md",
+  "baseline": "v0.16 MATCHDAY Board (docs/screenshots/premium)",
+  "method": "cold C->A->B page pass on env/out/pages/*.png (42/42 @1170x2532) + read-only Playwright DOM/measurement audit; scores written before reading reviewer-visual's table.",
+  "weights": { "brand_fit": 0.15, "distinctiveness": 0.15, "hierarchy": 0.15, "consistency": 0.15, "interaction": 0.15, "a11y_rtl": 0.10, "feasibility": 0.15 },
   "directions": {
     "A": {
-      "weighted_total": 3.6,
-      "caps": [
-        {
-          "rule": "\u00a72.7 rematch presented as shipped",
-          "page": "result",
-          "detail": "inline 'Play again' row has no proposal marking; app has no rematch",
-          "axes_capped": [
-            "interaction",
-            "feasibility"
-          ],
-          "lift_if_fixed": "interaction 3, feasibility 4 -> weighted 4.05"
-        }
-      ],
-      "uncapped_projection": 4.05
+      "name": "Matchday, raised",
+      "weighted_total": 3.75,
+      "caps": [],
+      "scores": [
+        { "direction": "A", "axis": "brand_fit", "score": 4, "note": "Secondary read (reviewer-visual leads). Board/team-sheet/code grammar is unmistakably ManHunt; defer the brand call." },
+        { "direction": "A", "axis": "distinctiveness", "score": 3, "note": "Secondary read. 'Raised' v0.16 but the silhouette is the shipped one; least ownable of the three. Defer." },
+        { "direction": "A", "axis": "hierarchy", "score": 4, "note": "Clock 68 + one cyan action; eye lands correctly on all pages; settings is the one page where the eye works." },
+        { "direction": "A", "axis": "consistency", "score": 4, "note": "One grammar across 14 pages; deviations documented; blemishes: 40x22 switches and home-light proof showing a different state." },
+        { "direction": "A", "axis": "interaction", "score": 4, "note": "Most complete host flow (Stand down, side switch, Begin + blocker), claim re-entry documented; gaps: claim expiry absent, leave/back-confirm undocumented." },
+        { "direction": "A", "axis": "a11y_rtl", "score": 3, "note": "AA text passes and lobby-rtl is the strongest mirror; but 92 nodes <11sp, 36 metadata pairs <7:1 (5.34:1 board labels), 4 controls <48dp, Arabic letter-spacing contradicts own rule; map has honest aria-label summary." },
+        { "direction": "A", "axis": "feasibility", "score": 4, "note": "Reuses shipped composables/data, no engine work; flags: fake London coordinates in rules sheet, home-light state mismatch, prey last/next-report needs unflagged client state; drawn stand-ins flagged." }
+      ]
     },
     "B": {
-      "weighted_total": 3.9,
-      "caps": []
+      "name": "Street signal",
+      "weighted_total": 3.5,
+      "caps": [{ "axis": "feasibility", "score_cap": 2, "reason": "Rubric §2.2/§2.7: invented live data — other-hunter markers on hunt-hunter and per-match PREY n/2 scores in history; neither exists in the contract." }],
+      "scores": [
+        { "direction": "B", "axis": "brand_fit", "score": 4, "note": "Secondary read. Street-print ManHunt, unmistakable, no generic-app tells; defer." },
+        { "direction": "B", "axis": "distinctiveness", "score": 5, "note": "Secondary read. Most ownable at thumbnail: coral/violet team blocks, taped code, stamped full time." },
+        { "direction": "B", "axis": "hierarchy", "score": 4, "note": "One big object per page; calm register under stress; claim sheet's loudest element is the generic 'Tag claim' (S2)." },
+        { "direction": "B", "axis": "consistency", "score": 4, "note": "Two-register system holds across 14 pages; roles counters break its own contrast pattern (3.92:1 at 12px)." },
+        { "direction": "B", "axis": "interaction", "score": 3, "note": "Best field log and claim-dismissal UX, but canonical lobby has no host Ready/Stand down (S1) and no side-switch; rules sheet omits zone-centre (documented trim); no claim expiry." },
+        { "direction": "B", "axis": "a11y_rtl", "score": 2, "note": "Pre-review a11y pass fixed metadata (46->7 pairs <7:1) and floors (83->17 nodes <11sp); 16 controls <48dp incl. 32dp persistent-claim action, 12px roles counters at 3.92:1, lobby-rtl mono/tracking Arabic + 3 unisolated numeric runs." },
+        { "direction": "B", "axis": "feasibility", "score": 2, "note": "Capped: hunt-hunter invents two violet other-hunter markers (no hunter positions in contract) and history invents per-match PREY 0/2 / 2/2 (MatchHistoryEntry has no preyAlive/preyTotal). Rest maps cleanly; documented deltas honest." }
+      ]
     },
     "C": {
-      "weighted_total": 4.0,
-      "caps": []
+      "name": "Field instrument",
+      "weighted_total": 3.9,
+      "caps": [],
+      "scores": [
+        { "direction": "C", "axis": "brand_fit", "score": 4, "note": "Secondary read. Field instrument for ManHunt: calibration-dial mark, paper note moments, cyan-as-measurement; defer on coldness risk." },
+        { "direction": "C", "axis": "distinctiveness", "score": 5, "note": "Secondary read. Most ownable system; chart + cyan reading + ruled bands identifiable at thumbnail; paper match record is a memory hook." },
+        { "direction": "C", "axis": "hierarchy", "score": 4, "note": "Mono 46 clock is the loudest reading; dock always one chalk block; rematch outranks back-to-lobby on result (S2)." },
+        { "direction": "C", "axis": "consistency", "score": 4, "note": "One instrument grammar with a single documented warm exception (paper FieldNote); switch state cues are the weak spot (fill-colour only)." },
+        { "direction": "C", "axis": "interaction", "score": 4, "note": "Complete where it matters (zone centre + Pick on map, stand down, leave, save/cancel), best claim lifecycle; gaps: no team-side switch in lobby, rematch primary for unshipped action, chat 'newest first' label." },
+        { "direction": "C", "axis": "a11y_rtl", "score": 3, "note": "Best floors (1 node <11sp), metadata mostly >=7:1, visible prey-report text alternative (UI-03 satisfied), Arabic display face; but 12 controls <48dp (10 rules steppers 44x38), colour-only switch state, Arabic mono/tracking, 7 unisolated runs, 'Nadia' clipped." },
+        { "direction": "C", "axis": "feasibility", "score": 3, "note": "No CSS effects beyond caret blink, full data mapping; one invented datum: history per-match 'PREY REMAINING 2/2' (S1); Home GPS readout new client state unflagged (S2); real public IP in auth/settings (S2); zone-centre place label invented (S3)." }
+      ]
     }
   },
-  "ranking_round1": [
-    "C (4.00)",
-    "B (3.90)",
-    "A (3.60; capped - 4.05 projected uncapped)"
-  ],
-  "perPageBest": {
-    "auth": "A",
-    "roles": "B",
-    "home": "A",
-    "lobby": "A",
-    "hunt-hunter": "C",
-    "hunt-prey": "C",
-    "chat": "B",
-    "result": "B",
-    "history": "A",
-    "settings": "A",
-    "sheet-tag-claim": "A",
-    "sheet-room-settings": "A",
-    "lobby-rtl": "A",
-    "home-light": "B"
+  "page_ux_picks": {
+    "auth": "A", "roles": "A", "home": "B", "lobby": "A", "hunt-hunter": "C", "hunt-prey": "C",
+    "chat": "B", "result": "A", "history": "A", "settings": "A", "sheet-tag-claim": "C",
+    "sheet-room-settings": "A", "lobby-rtl": "A", "home-light": "B"
   },
-  "stealableIdeas": [
-    "A: two-band Board with the match's one number per variant (code/clock/duration)",
-    "B: tag claim as full-bleed event with consequence-first copy and dismiss-safe strip",
-    "C: 'show the error bars' honesty model (age+accuracy, fresh/stale by shape+word, 'latest reports, not live')"
-  ],
-  "independence": "written before reading reviewer-ux round-1 table; ux-audit measurement evidence consumed; reconciliation pending",
-  "reconciliation_notes": [
-    "A sheet-room-settings 2 cyan surfaces = occlusion artifact (background lobby dock covered by sheet) - no cap",
-    "'Not on Google Play'/TEST DEPLOYMENT flagged forbidden = required honesty copy, not dev strings",
-    "B settings 1px page-scroll = cosmetic contract miss",
-    "B ALL-CAPS labels judged data/stencil labels not headings - no cap, still a fix"
-  ],
-  "limitations": [
-    "not every page viewed at full size; all 42 at sheet/30%, ~8-9/direction at full size + text/CSS/audit verification",
-    "B judged after mid-review a11y pass; A/C unchanged",
-    "scripted HTML mocks, no Compose build or motion prototype",
-    "a11y values from reviewer-ux DOM audit + spot checks, not device screen-reader",
-    "one inherent bias named: A's per-page dominance vs B/C originality - cap-lift projection shown for fairness"
-  ]
+  "cross_direction": {
+    "worst_risks": [
+      "B hunt-hunter invents other-hunter positions (data-contract/privacy-adjacent lie on the core screen)",
+      "B lobby host cannot ready/unready or switch side; B rules sheet rendered without zone-centre; C lobby lacks side switch — core room flows incomplete",
+      "All three: sub-48dp hit areas and sub-11sp micro-text on controls used one-handed at night (A worst on type, B worst on targets, C worst on stepper targets)"
+    ],
+    "cheapest_wins": [
+      "One token pass: >=11sp floor and >=7:1 metadata contrast (A 92 sub-11sp + 36 low-contrast pairs; B/C 10px labels)",
+      "48dp hit boxes on every inline action via padding/heightIn (A 4, B 16, C 12 controls; no visual change)",
+      "Claim lifecycle: 'Answer in mm:ss' from expiresAt (A/B), persistent dismissed-claim banner frame, consequence-as-title (B)"
+    ]
+  },
+  "reconciliation_round1": {
+    "reviewer_visual_totals": { "A": 3.6, "B": 3.35, "C": 3.75 },
+    "agreed_ranking": ["C", "A", "B"],
+    "agreed_scores": ["B feasibility cap §2.2/§2.7", "B a11y 2", "B lobby interaction S1", "A a11y 3", "C a11y 3", "C feasibility 3"],
+    "my_round1_kept": ["A/B/C per-axis scores above are my independent read; shared table uses the harsher value where we disagree"],
+    "dissents_recorded": [
+      "A cap: reviewer-visual caps axes 5/7 at 2 because the render shows an unlabelled 'Play again' (§2.7); I accept the cap for the shared round-1 table (render is the evidence) — my interaction/feasibility 4s stand as the post-fix projection, and designer-a is adding the proposal marking.",
+      "C interaction 4 vs reviewer-visual 3: I read the rendered caveat ('needs a server restart, not in the current build') as disclosure, so §2.7 'rematch presented as shipped' does not apply to C; designer-c is demoting Rematch anyway — re-score decides.",
+      "C consistency 4 vs reviewer-visual 5: accepted theirs (the switch cue is an a11y/state issue, not a grammar inconsistency) — will use 5 in the reconciled table.",
+      "C feasibility asymmetry: reviewer-visual notes strict §2.2 would cap C too. My position: C's single invented history datum is a secondary-page S1, not the live-map fake content that drove B's cap, and it is being removed; if the Lead wants a mechanical §2.2 rule, C caps at 2 and the ranking narrows to A/C depending on A's fix. Settle in task-12 with the round-2 renders."
+    ],
+    "best_visual_ne_best_usable_rows": [
+      { "page": "roles", "best_visual": "B", "best_usable": "A", "why": "B's coral/violet side blocks are the best poster explanation, but its '2/3' counters read as live room data and fail contrast at 3.92:1 on an explanation page; A's field-guide + 5-step numbered flow + 'Play Classic instead' escape is the usable first-run. Steal B's side-block composition for A's explanation." },
+      { "page": "home", "best_visual": "A", "best_usable": "B", "why": "A's two-verbs-as-objects is the more confident visual, but its empty code-cell dashes and mid-page action hierarchy are weaker at reach; B's docked two-verb pair is honest, thumb-reachable and state-true (C invents pre-hunt GPS). Steal A's named-host-field treatment into B's dock composition." },
+      { "page": "result", "best_visual": "B", "best_usable": "A", "why": "B's violet winner field + FULL TIME stamp is the strongest event in the pack, but its 'DURATION 60:00'/'IN PLAY' copy and (round-1) unlabelled Rematch muddy an honest outcome; A's dock keeps Back to lobby + history only and states prey remaining 0/2. Steal B's stamp/winner-field energy into A's honest action hierarchy." }
+    ]
+  }
 }

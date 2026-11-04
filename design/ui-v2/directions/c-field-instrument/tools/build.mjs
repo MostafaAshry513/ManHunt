@@ -42,20 +42,24 @@ const huntBand = (mode = 'hunter') => band({
 });
 
 /* full-bleed chart with markers + overlays */
-function huntChart(mode = 'hunter') {
-  const zone = { x: 214, y: 268, r: 126 };
-  const nadia = { x: 296, y: 196, age: '12 s', accuracyM: 6, label: 'Nadia' };
-  const rana = { x: 150, y: 372, age: '14 min', accuracyM: 22, stale: true, label: 'Rana' };
-  const trail = [[338, 146], [324, 170], [310, 186], [296, 196]];
+function huntChart(mode = 'hunter', H = 540) {
+  const k = H / 540;
+  const sy = (v) => Math.round(v * k);
+  const zone = { x: 214, y: sy(268), r: 126 };
+  const nadia = { x: 296, y: sy(196), age: '12 s', accuracyM: 6, label: 'Nadia' };
+  const rana = { x: 150, y: sy(372), age: '14 min', accuracyM: 22, stale: true, label: 'Rana' };
+  const trail = [[338, sy(146)], [324, sy(170)], [310, sy(186)], [296, sy(196)]];
   const prey = mode === 'hunter' ? [nadia, rana] : [];
-  const svg = chart({ w: 390, h: 540, zone, prey, self: { x: mode === 'hunter' ? 206 : 186, y: mode === 'hunter' ? 300 : 330 }, trail: mode === 'hunter' ? trail : [] });
+  const selfX = mode === 'hunter' ? 206 : 186;
+  const selfY = sy(mode === 'hunter' ? 300 : 330);
+  const svg = chart({ w: 390, h: H, zone, prey, self: { x: selfX, y: selfY }, trail: mode === 'hunter' ? trail : [] });
   const labels = [];
   if (mode === 'hunter') {
     labels.push(mapLabel(nadia.x, nadia.y, { variant: 'fresh', name: 'Nadia', age: '12 s · ±6 m' }));
     labels.push(mapLabel(rana.x, rana.y, { variant: 'stale', name: 'Rana', age: '14 min · ±22 m', extra: 'STALE', align: 'top' }));
-    labels.push(mapLabel(206, 300, { variant: 'self', name: 'You', age: 'hunter', align: 'left' }));
+    labels.push(mapLabel(selfX, selfY, { variant: 'self', name: 'You', age: 'hunter', align: 'left' }));
   } else {
-    labels.push(mapLabel(186, 330, { variant: 'self', name: 'You', age: 'prey', align: 'left' }));
+    labels.push(mapLabel(selfX, selfY, { variant: 'self', name: 'You', age: 'prey', align: 'left' }));
   }
   return `<div class="chart">
     ${svg}
@@ -153,9 +157,10 @@ const authPage = () => page({ title: 'Sign in', body: `<div class="auth">
     <div class="dock">
       <button class="btn-primary">Sign in</button>
       <div class="server-row">
-        <span class="k">Game server</span><span class="v num">74.208.99.178</span>
+        <span class="k">Game server</span><span class="v">Hosted test server</span>
         <span class="act"><span class="text-action muted">Change server</span></span>
       </div>
+      <p class="caption server-note">Hosted server is a plain-HTTP test deployment. Play with people you trust.</p>
       <div class="foot"><span class="footer-note num">v0.16.1 · Free APK · Android 8+</span><span class="footer-note num">Not on Google Play</span></div>
     </div>
   </div>
@@ -188,9 +193,9 @@ function guidePlate() {
     <g stroke="#A79BFF" stroke-width="2" fill="none" stroke-linecap="butt">
       <polyline points="268,44 280,60 268,76"/><polyline points="280,44 292,60 280,76"/><polyline points="292,44 304,60 292,76"/>
     </g>
-    <text x="80" y="140" fill="rgba(230,237,247,.55)" font-family="Red Hat Mono, monospace" font-size="11" letter-spacing="1">ZONE 240 m</text>
-    <text x="274" y="30" fill="rgba(167,155,255,.85)" font-family="Red Hat Mono, monospace" font-size="11" letter-spacing="1">HUNTERS</text>
-    <text x="${preyX + 18}" y="${preyY - 6}" fill="rgba(255,122,89,.9)" font-family="Red Hat Mono, monospace" font-size="11" letter-spacing="1">PREY</text>
+    <text x="80" y="140" fill="rgba(230,237,247,.55)" font-family="Red Hat Mono, monospace" font-size="12" letter-spacing="1">ZONE 240 m</text>
+    <text x="274" y="30" fill="rgba(167,155,255,.85)" font-family="Red Hat Mono, monospace" font-size="12" letter-spacing="1">HUNTERS</text>
+    <text x="${preyX + 18}" y="${preyY - 6}" fill="rgba(255,122,89,.9)" font-family="Red Hat Mono, monospace" font-size="12" letter-spacing="1">PREY</text>
   </svg>
 </div>`;
 }
@@ -215,9 +220,9 @@ const rolesPage = () => page({ title: 'Roles', body: `<div class="roles">
       </div>
       ${sectionHead('Modes')}
       <div class="modes">
-        <div class="mode-row"><div><div class="name">Classic hunt</div><div class="tagline">Two teams. One block. One clock.</div></div><span class="state on">Playable</span></div>
-        <div class="mode-row off"><div><div class="name">Single Prey</div><div class="tagline">One Prey, no backup. Planned.</div></div><span class="state off">Planned</span></div>
-        <div class="mode-row off"><div><div class="name">Shrinking Zone</div><div class="tagline">The walls close in. Planned.</div></div><span class="state off">Planned</span></div>
+        <div class="mode-row"><div><div class="name">Classic hunt</div><div class="tagline">Two teams. One block. One clock.</div></div><span class="state on">Playable today</span></div>
+        <div class="mode-row off"><div><div class="name">Single Prey</div><div class="tagline">One Prey, no backup.</div></div><span class="state off">Coming soon</span></div>
+        <div class="mode-row off"><div><div class="name">Shrinking Zone</div><div class="tagline">The walls close in.</div></div><span class="state off">Coming soon</span></div>
       </div>
       <p class="safety">ManHunt is a game, not a safety service. Play with people you trust.</p>
     </div>
@@ -236,8 +241,7 @@ function homeContent({ light = false } = {}) {
       <h1 class="display-l line">Hide from<br>your friends.</h1>
       <div class="band status-band">
         <div class="inner"><div class="readout-strip">
-          <div class="rd"><span class="k">Location</span><span class="v"><span class="dot"></span>On</span></div>
-          <div class="rd"><span class="k">GPS</span><span class="v">±6<span class="u">m</span></span></div>
+          <div class="rd"><span class="k">Location</span><span class="v"><span class="dot"></span>Allowed</span></div>
           <div class="rd"><span class="k">Hunt</span><span class="v">Not running</span></div>
         </div></div>
       </div>
@@ -305,23 +309,23 @@ function lobbyBody({ rtl = false } = {}) {
   const T = rtl ? {
     title: 'Riverside Run',
     state: 'غرفة الانتظار',
-    host: 'حكم المطاردة: نادية',
+    host: 'حكم المطاردة: عمر',
     mode: 'المطاردة الكلاسيكية',
     playArea: 'منطقة اللعب', zone: '240 م',
     code: 'رمز الدعوة', share: 'مشاركة الغرفة',
     players: 'اللاعبون', ready: 'مستعد',
-    rules1: 'المدة 60 دقيقة. مهلة الفرائس 5 دقائق.',
-    rules2: 'البلاغات كل 5 دقائق. المسارات مفعّلة.',
+    rules1: 'المدة <span class="ltr">60</span> دقيقة. مهلة الفرائس <span class="ltr">5</span> دقائق.',
+    rules2: 'البلاغات كل <span class="ltr">5</span> دقائق. المسارات مفعّلة.',
     edit: 'قواعد المطاردة',
     begin: 'ابدأ المطاردة',
-    stand: 'تراجع', leave: 'مغادرة',
+    stand: 'تراجع', leave: 'مغادرة', side: 'اختر جانبك',
     hostTag: 'المضيف', youTag: 'أنت', readyTag: 'مستعد',
   } : {
-    title: 'Riverside Run', state: 'Lobby', host: 'HOSTED BY NADIA', mode: 'CLASSIC HUNT',
+    title: 'Riverside Run', state: 'Lobby', host: 'HOSTED BY OMAR', mode: 'CLASSIC HUNT',
     playArea: 'PLAY AREA', zone: '240 m', code: 'INVITE CODE', share: 'Send the code',
     players: 'Team manifest', ready: 'READY', rules1: '60 min. Head start 5 min.',
     rules2: 'Reports every 5 min. Trails on.', edit: 'Edit rules', begin: 'Begin the hunt',
-    stand: 'Stand down', leave: 'Leave room', hostTag: 'HOST', youTag: 'YOU', readyTag: 'READY',
+    stand: 'Stand down', leave: 'Leave room', side: 'Change side', hostTag: 'HOST', youTag: 'YOU', readyTag: 'READY',
   };
   return `<div class="layer">
     ${rtl
@@ -343,7 +347,7 @@ function lobbyBody({ rtl = false } = {}) {
       <div class="chart-plate">
         ${chart({ w: 390, h: 208, zone: { x: 250, y: 104, r: 86 }, prey: [], self: null, showPrey: false, seed: 12 })}
         <div class="edge-ticks top"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="legend" ${rtl ? 'style="right:8px;left:auto"' : ''}><span class="k">${T.playArea}</span><span>${T.zone}</span></div>
+        <div class="legend" ${rtl ? 'style="right:8px;left:auto"' : ''}><span class="k">${T.playArea}</span><span>${rtl ? `<span class="ltr">240</span> م` : T.zone}</span></div>
         <div class="north">${compassSvg()}<span class="n">N</span></div>
         <div class="attr ltr">© OpenStreetMap contributors</div>
       </div>
@@ -352,16 +356,16 @@ function lobbyBody({ rtl = false } = {}) {
         <span class="act"><span class="text-action">${icon('share', 18)} ${T.share}</span></span>
       </div>
       <div class="manifest-wrap">
-        ${sectionHead(T.players, `5 / 5 ${T.ready}`)}
+        ${sectionHead(T.players, rtl ? '\u20665 / 5\u2069' : `5 / 5 ${T.ready}`)}
         <div class="manifest">
           <div class="col">${chit('prey', rtl ? 'الفريسة' : 'Prey', 2)}<div style="background:rgba(255,122,89,.55);height:2px;margin-top:6px"></div>
-            <div class="m-row"><span class="idx num">01</span><span class="who">${rtl ? 'نادية' : 'Nadia'}</span><span class="tags"><span class="data">${T.hostTag} · ${T.youTag}</span><span class="check">${icon('check', 18)}</span></span></div>
-            <div class="m-row"><span class="idx num">02</span><span class="who">${rtl ? 'رنا' : 'Rana'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
+            <div class="m-row"><span class="who">${rtl ? 'نادية' : 'Nadia'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
+            <div class="m-row"><span class="who">${rtl ? 'رنا' : 'Rana'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
           </div>
           <div class="col">${chit('hunters', rtl ? 'الصيادون' : 'Hunters', 3)}<div style="background:rgba(167,155,255,.55);height:2px;margin-top:6px"></div>
-            <div class="m-row"><span class="idx num">03</span><span class="who">${rtl ? 'عمر' : 'Omar'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
-            <div class="m-row"><span class="idx num">04</span><span class="who">${rtl ? 'سليم' : 'Selim'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
-            <div class="m-row"><span class="idx num">05</span><span class="who">${rtl ? 'يوسف' : 'Youssef'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
+            <div class="m-row"><span class="who">${rtl ? 'عمر' : 'Omar'}</span><span class="tags">${rtl ? `<span class="data">${T.hostTag}</span><span class="data">${T.youTag}</span>` : `<span class="data">${T.hostTag} · ${T.youTag}</span>`}<span class="check">${icon('check', 18)}</span></span></div>
+            <div class="m-row"><span class="who">${rtl ? 'سليم' : 'Selim'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
+            <div class="m-row"><span class="who">${rtl ? 'يوسف' : 'Youssef'}</span><span class="tags"><span class="check">${icon('check', 18)}</span></span></div>
           </div>
         </div>
       </div>
@@ -373,8 +377,9 @@ function lobbyBody({ rtl = false } = {}) {
     <div class="dock">
       ${rtl ? '' : `<div class="status caption">Everyone's ready. Begin when you are.</div>`}
       <button class="btn-primary">${T.begin}</button>
-      <div class="action-row" style="margin-top:4px;justify-content:space-between">
+      <div class="action-row dock-actions" style="margin-top:4px">
         <span class="text-action muted">${icon('check', 18)} ${T.stand}</span>
+        <span class="text-action muted">${T.side}</span>
         <span class="text-action muted">${T.leave}</span>
       </div>
     </div>
@@ -424,7 +429,7 @@ const chatPage = () => page({ title: 'Field log', body: `<div class="chat">
     <div class="content">
       <div class="log-meta"><span class="label">Room record</span><span class="data num">20:45–20:52 · 9 entries</span></div>
       <div class="log">
-        <div class="load-older"><span class="text-action muted">${icon('history', 18)} Load older messages</span><span class="data num" style="margin-left:auto">newest first</span></div>
+        <div class="load-older"><span class="text-action muted">${icon('history', 18)} Load older messages</span><span class="data num" style="margin-left:auto">oldest first</span></div>
         ${chatRows.map((row) => row[0] === 'sys'
           ? `<div class="row-sys"><span class="idx num">${row[1]}</span><span class="txt"><b>${row[2]}</b> ${esc(row[3])}</span></div>`
           : `<div class="row-msg"><span class="time num">${row[1]}</span><div class="body-col"><div class="sender" style="color:${row[3] === 'prey' ? 'var(--coral)' : 'var(--violet)'}">${esc(row[2])}<span class="team">${row[3] === 'prey' ? 'PREY' : 'HUNTERS'}</span></div><div class="msg">${esc(row[4])}</div></div></div>`).join('')}
@@ -473,7 +478,7 @@ const resultPage = () => page({ title: 'Full time', body: `<div class="result">
     <div class="content">
       <div class="winner-block">
         <h1 class="display-xl">Hunters win.</h1>
-        <div class="meta"><span class="mono-data num">Sat 4 Nov · 20:45–21:04</span><span class="mono-data num" style="margin-left:auto">Riverside Run</span></div>
+        <div class="meta"><span class="mono-data num">Wed 4 Nov · 20:45–21:04</span><span class="mono-data num" style="margin-left:auto">Riverside Run</span></div>
       </div>
       <div class="time-block">
         ${sectionHead('Time played')}
@@ -481,7 +486,7 @@ const resultPage = () => page({ title: 'Full time', body: `<div class="result">
       </div>
       <div class="paper-wrap">
         <div class="paper">
-          <div class="paperm"><span class="label">Match record</span><span class="data num">SAT 4 NOV</span></div>
+          <div class="paperm"><span class="label">Match record</span><span class="data num">WED 4 NOV</span></div>
           <div class="line">Both Prey tagged. That's the run.</div>
           <div class="sub">From the first scored circle to the last tag.</div>
           <div class="big"><span class="val num">18:48</span><span class="u">PLAYED OF 60:00</span></div>
@@ -493,71 +498,65 @@ const resultPage = () => page({ title: 'Full time', body: `<div class="result">
         ${sectionHead('Final manifest', '5 players')}
         <div class="manifest">
           <div class="col">${chit('prey', 'Prey', 2)}<div style="height:2px;background:rgba(255,122,89,.55);margin-top:6px"></div>
-            <div class="m-row"><span class="idx num">01</span><span class="who">Nadia</span><span class="tags"><span class="tagged">TAGGED</span></span></div>
-            <div class="m-row"><span class="idx num">02</span><span class="who">Rana</span><span class="tags"><span class="tagged">TAGGED</span></span></div>
+            <div class="m-row"><span class="who">Nadia</span><span class="tags"><span class="tagged">TAGGED</span></span></div>
+            <div class="m-row"><span class="who">Rana</span><span class="tags"><span class="tagged">TAGGED</span></span></div>
           </div>
           <div class="col">${chit('hunters', 'Hunters', 3)}<div style="height:2px;background:rgba(167,155,255,.55);margin-top:6px"></div>
-            <div class="m-row"><span class="idx num">03</span><span class="who">Omar</span><span class="tags"></span></div>
-            <div class="m-row"><span class="idx num">04</span><span class="who">Selim</span><span class="tags"></span></div>
-            <div class="m-row"><span class="idx num">05</span><span class="who">Youssef</span><span class="tags"></span></div>
+            <div class="m-row"><span class="who">Omar</span><span class="tags"></span></div>
+            <div class="m-row"><span class="who">Selim</span><span class="tags"></span></div>
+            <div class="m-row"><span class="who">Youssef</span><span class="tags"></span></div>
           </div>
         </div>
       </div>
     </div>
     <div class="dock">
-      <button class="btn-primary">Rematch</button>
-      <p class="proposal">Rematch is a proposed action - needs a server restart, not in the current build.</p>
-      <div class="action-row" style="margin-top:2px">
-        <span class="text-action">Back to lobby</span>
+      <button class="btn-primary">Back to lobby</button>
+      <div class="action-row" style="margin-top:6px;justify-content:space-between">
+        <span class="text-action">Rematch <span class="proposal-tag">PROPOSAL</span></span>
         <span class="text-action muted">${icon('history', 18)} View hunt history</span>
       </div>
+      <p class="proposal">Rematch needs a server restart; not in the current build.</p>
     </div>
   </div>
 </div>` });
 
 /* ── HISTORY ───────────────────────────────────────────────────────────────── */
-const historyRows = [
-  ['21:41', 'Riverside Run', 'Prey won · 2 / 2 remaining', 'Prey won', '60:00', 'winprey'],
-  ['21:30', 'Riverside Run', 'Hunters won · 0 / 2 remaining', 'Hunters won', '18:48', 'winhunters'],
-  ['21:06', 'Riverside Run', 'Cancelled before the end', 'Cancelled', '8:12', 'cancelled'],
-];
 const historyPage = () => page({ title: 'Past hunts', body: `<div class="history">
   ${groundDark}
   <div class="layer">
     ${bezel({ back: true, title: 'Hunt history', room: 'RIVERSIDE RUN' })}
     <div class="content">
       <div class="hist-head"><h1 class="display-l">Past hunts.</h1><span class="mono-data num">4 hunts · this room</span></div>
-      <div class="group-date"><span class="label">Sat 1 Nov</span><span class="line"></span><span class="meta">21:41</span></div>
+      <div class="group-date"><span class="label">Wed 4 Nov</span><span class="line"></span><span class="meta">21:04</span></div>
       <div class="h-row sel">
-        <span class="time num">21:41</span>
+        <span class="time num">20:45</span>
         <div class="what"><div class="name">Riverside Run</div><div class="sub">Prey: Nadia, Rana</div></div>
-        <div class="res"><div class="word" style="color:var(--coral)">Prey won</div><div class="dur num">60:00</div></div>
+        <div class="res"><div class="word" style="color:var(--violet)">Hunters won</div><div class="dur num">18:48</div></div>
       </div>
       <div class="summary">
-        <div class="r"><span class="k">Date</span><span class="v num">Sat 1 Nov · 20:41–21:41</span></div>
-        <div class="r"><span class="k">Duration</span><span class="v num">60:00 played</span></div>
-        <div class="r"><span class="k">Result</span><span class="v" style="color:var(--coral)">Prey won</span></div>
-        <div class="r"><span class="k">Prey remaining</span><span class="v num">2 / 2</span></div>
+        <div class="r"><span class="k">Date</span><span class="v num">4 Nov · 20:45–21:04</span></div>
+        <div class="r"><span class="k">Duration</span><span class="v num">18:48 played</span></div>
+        <div class="r"><span class="k">Result</span><span class="v" style="color:var(--violet)">Hunters won</span></div>
         <div class="r"><span class="k">Prey</span><span class="v">Nadia, Rana</span></div>
         <div class="r"><span class="k">Hunters</span><span class="v">Omar, Selim, Youssef</span></div>
       </div>
-      <div class="group-date"><span class="label">Fri 31 Oct</span><span class="line"></span><span class="meta">21:30</span></div>
+      <div class="group-date"><span class="label">Sun 1 Nov</span><span class="line"></span><span class="meta">21:41</span></div>
+      <div class="h-row">
+        <span class="time num">20:41</span>
+        <div class="what"><div class="name">Riverside Run</div><div class="sub">Prey: Nadia, Rana</div></div>
+        <div class="res"><div class="word" style="color:var(--coral)">Prey won</div><div class="dur num">60:00</div></div>
+      </div>
+      <div class="group-date"><span class="label">Sat 31 Oct</span><span class="line"></span><span class="meta">21:30</span></div>
       <div class="h-row">
         <span class="time num">21:12</span>
         <div class="what"><div class="name">Riverside Run</div><div class="sub">Prey: Nadia, Rana</div></div>
         <div class="res"><div class="word" style="color:var(--violet)">Hunters won</div><div class="dur num">18:48</div></div>
       </div>
-      <div class="group-date"><span class="label">Thu 30 Oct</span><span class="line"></span><span class="meta">21:06</span></div>
+      <div class="group-date"><span class="label">Fri 30 Oct</span><span class="line"></span><span class="meta">21:06</span></div>
       <div class="h-row">
         <span class="time num">20:58</span>
         <div class="what"><div class="name">Riverside Run</div><div class="sub">Ended by the Huntmaster</div></div>
         <div class="res"><div class="word" style="color:var(--muted)">Cancelled</div><div class="dur num">8:12</div></div>
-      </div>
-      <div class="group-date"><span class="label">Wed 29 Oct</span><span class="line"></span><span class="meta">21:12</span></div>
-      <div class="h-row">
-        <span class="time num">20:12</span>
-        <div class="what"><div class="name">Riverside Run</div><div class="sub">Prey: Nadia, Rana</div></div>
-        <div class="res"><div class="word" style="color:var(--coral)">Prey won</div><div class="dur num">60:00</div></div>
       </div>
     </div>
     <div class="dock"><button class="btn-primary" style="height:56px">Back to room</button></div>
@@ -584,7 +583,7 @@ const settingsPage = () => page({ title: 'Settings', body: `<div class="settings
       <div class="upd"><div class="txt"><div class="t">Update available · 0.17.0</div><div class="s num">2.1 MB · published 3 Nov</div></div><span class="act"><span class="text-action">Download</span></span></div>
       <div class="row"><span class="k">Check for updates</span><span class="val num">last checked 21:02</span></div>
       ${sectionHead('Server')}
-      <div class="row"><span class="k">Game server</span><span class="val num">74.208.99.178</span></div>
+      <div class="row"><span class="k">Game server</span><span class="val">Hosted test server</span></div>
       <p class="caption" style="margin-top:5px">Read-only here. To change it, sign out and edit it on the sign-in screen. The hosted server is a plain-HTTP test deployment.</p>
       ${sectionHead('Account')}
       <div class="row"><span class="k">Playing as Omar</span><span class="act"><span class="text-action" style="color:var(--error)">Sign out</span></span></div>
@@ -606,7 +605,7 @@ const claimSheetPage = () => page({ title: 'Tag claim sheet', body: `<div class=
   <section class="sheet claim-sheet">
     <div class="grab"></div>
     <div class="sheet-head">
-      <div class="meta"><span class="label">Tag claim</span><span class="data num">20:58 · answer in 01:12</span></div>
+      <div class="meta"><span class="label">Tag claim</span><span class="data num">20:58 · from Omar</span></div>
       <div class="sheet-title display-m">Omar says he<br>tagged you.</div>
     </div>
     <div class="sheet-body">
@@ -649,18 +648,78 @@ const rulesSheetPage = () => page({ title: 'Hunt rules sheet', body: `<div class
       ${sectionHead('Play area')}
       <div class="row"><span class="k">Mode</span><span class="ctrl"><span class="rocker"><span class="opt">Open</span><span class="opt on">${icon('check', 14)} Zone</span></span></span></div>
       ${ruleRow('Zone radius', ruleStep(240, 'm'))}
-      <div class="row"><span class="k">Zone centre</span><span class="val">Riverside Park</span><span class="act"><span class="text-action muted">Pick on map</span></span></div>
+      <div class="row"><span class="k">Zone centre</span><span class="val num">40.79950, -73.97350</span><span class="act"><span class="text-action muted">Pick on map</span></span></div>
       ${sectionHead('Trails')}
-      <div class="row"><span class="k">Hunters can see trails</span><span class="ctrl"><span class="switch on" role="switch" aria-checked="true"></span></span></div>
+      <div class="row"><span class="k">Hunters can see trails</span><span class="ctrl switch-ctrl"><span class="switch on" role="switch" aria-checked="true"></span><span class="switch-word">On</span></span></div>
       ${sectionHead('Tag policy')}
       <div class="row"><span class="k">Tags need the Prey to confirm<span class="h">Server-enforced</span></span><span class="val">CONFIRM</span></div>
       ${sectionHead('Zone shrink')}
-      <div class="row"><span class="k">Shrink over time</span><span class="ctrl"><span class="switch" role="switch" aria-checked="false"></span></span></div>
+      <div class="row"><span class="k">Shrink over time</span><span class="ctrl switch-ctrl"><span class="switch" role="switch" aria-checked="false"></span><span class="switch-word">Off</span></span></div>
     </div>
     <div class="sheet-dock">
       <div class="dock-row"><button class="btn-primary">Save rules</button><span class="text-action muted">Cancel</span></div>
     </div>
   </section>
+</div>` });
+
+
+/* ── STATE STUDIES (non-canonical extras: paused / offline / eliminated) ───── */
+const statePausedPage = () => page({ title: 'State study — hunt paused', body: `<div class="hunt state-paused">
+  ${groundDark}
+  <div class="layer">
+    ${band({ word: 'Paused', square: true, room: 'Riverside Run', clock: '41:12', right: 'stopped',
+      readings: [reading('Zone', '240', 'm'), reading('Prey', '2 / 2')],
+      children: progressScale({ playedRatio: 18.8 / 60, labels: false }) })}
+    ${huntChart('hunter', 553)}
+    <div class="strip"><span class="glyph">${icon('warning', 18)}</span><span class="msg">The hunt is paused. The clock is stopped.</span></div>
+    <div class="dock">
+      <button class="btn-primary">Resume the hunt</button>
+      <div class="action-row dock-actions" style="margin-top:4px">
+        <span class="text-action">${icon('log', 18)} Field log</span>
+        <span class="text-action muted">${icon('settings', 18)} Hunt rules</span>
+      </div>
+    </div>
+  </div>
+</div>` });
+
+const stateOfflinePage = () => page({ title: 'State study — offline / reconnecting', body: `<div class="hunt state-offline">
+  ${groundDark}
+  <div class="layer">
+    ${huntBand('hunter')}
+    <div class="offline"><span class="dot"></span><span class="t">Offline · reconnecting</span><span class="r">12 s ago</span></div>
+    ${huntChart('hunter', 534)}
+    ${reportStrip('hunter')}
+    <div class="dock">
+      <button class="btn-primary" aria-disabled="true">Tag a prey</button>
+      <p class="proposal">Reconnect to tag. The last reports stay on screen.</p>
+      <div class="action-row dock-actions" style="margin-top:2px">
+        <span class="text-action">Retry now</span>
+        <span class="text-action muted">${icon('log', 18)} Field log</span>
+      </div>
+    </div>
+  </div>
+</div>` });
+
+const stateEliminatedPage = () => page({ title: 'State study — eliminated / spectating', body: `<div class="hunt prey-hunt state-eliminated">
+  ${groundDark}
+  <div class="layer">
+    ${band({ word: 'Live', live: true, room: 'Riverside Run', clock: '41:12', right: 'REMAINING',
+      readings: [reading('Zone', '240', 'm'), reading('Sharing', 'Off')],
+      children: progressScale({ playedRatio: 18.8 / 60, labels: false }) })}
+    <div class="strip tagged-strip"><span class="glyph">${icon('tag', 18)}</span><span class="msg"><span class="mono">TAGGED · 20:58</span><br>You were tagged. You are spectating this match. You can still chat, but you cannot tag or share new positions.</span></div>
+    ${huntChart('prey', 503)}
+    <div class="dock">
+      <div class="share-block">
+        <span class="k">Tagged<br>at 20:58</span>
+        <span class="v">OUT</span>
+        <span class="next"><span class="k">Status</span><span class="v spec">Spectating</span></span>
+      </div>
+      <div class="action-row dock-actions" style="margin-top:8px">
+        <span class="text-action">${icon('log', 18)} Field log</span>
+        <span class="text-action muted">${icon('settings', 18)} Hunt rules</span>
+      </div>
+    </div>
+  </div>
 </div>` });
 
 /* ── write pages ───────────────────────────────────────────────────────────── */
@@ -679,6 +738,9 @@ const PAGES = {
   'sheet-room-settings': rulesSheetPage,
   'lobby-rtl': lobbyRtlPage,
   'home-light': homeLightPage,
+  'state-paused': statePausedPage,
+  'state-offline': stateOfflinePage,
+  'state-eliminated': stateEliminatedPage,
 };
 
 await mkdir(ROOT, { recursive: true });

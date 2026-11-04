@@ -60,6 +60,7 @@ const onlyDirs = (opt('--dirs') || '').split(',').map((s) => s.trim()).filter(Bo
 const onlyPages = (opt('--only') || '').split(',').map((s) => s.trim()).filter(Boolean);
 const STRESS = flag('--stress');
 const QUIET = flag('--quiet');
+const TAG = opt('--tag') || '';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8',
@@ -658,16 +659,17 @@ async function main() {
   }
 
   fs.mkdirSync(EVIDENCE, { recursive: true });
-  const outJson = path.join(EVIDENCE, 'ux-audit.json');
+  const suffix = TAG ? `-${TAG}` : '';
+  const outJson = path.join(EVIDENCE, `ux-audit${suffix}.json`);
   fs.writeFileSync(outJson, JSON.stringify(report, null, 2));
   // per-direction snapshots so a single-direction re-run never destroys the others
   for (const [dirName, d] of Object.entries(report.directions)) {
-    fs.writeFileSync(path.join(EVIDENCE, `ux-audit-${dirName}.json`), JSON.stringify({ meta: report.meta, consoleErrors: report.consoleErrors, directions: { [dirName]: d } }, null, 2));
+    fs.writeFileSync(path.join(EVIDENCE, `ux-audit${suffix}-${dirName}.json`), JSON.stringify({ meta: report.meta, consoleErrors: report.consoleErrors, directions: { [dirName]: d } }, null, 2));
   }
 
   /* markdown digest */
   const lines = ['# UX audit digest (reviewer-ux measurement tool)', '', `Generated ${report.meta.when} · canvas ${report.meta.canvas} · stress=${STRESS}`, ''].
-    concat(['Read as: hard-text = <12 px text nodes; aux-or-body = 12–13.9 px (aux role is allowed, body role is not);',
+    concat(['Read as: hard-text = <11 px text nodes; aux-or-body = 11–13.9 px (11–12 machine metadata is allowed, body role is not);',
       'clipped = text clipped by an overflow-hidden ancestor or nowrap overflow; out-of-canvas = real content outside 390×844;',
       'cyan surfaces = cyan fills with area ≥ 600 px² (one-cyan-surface rule); seed-missing = expected seed tokens absent;',
       'rtl-uniso = Latin/number runs in an RTL page without an LTR isolate. Contrast is computed from DOM colours; verify crops.', '']);
@@ -703,7 +705,7 @@ async function main() {
       lines.push('');
     }
   }
-  fs.writeFileSync(path.join(EVIDENCE, 'ux-audit-summary.md'), lines.join('\n'));
+  fs.writeFileSync(path.join(EVIDENCE, `ux-audit${suffix}-summary.md`), lines.join('\n'));
 
   await browser.close();
   server.close();

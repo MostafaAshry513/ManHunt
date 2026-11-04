@@ -15,12 +15,12 @@
   .map-wrap { flex: 1 1 auto; min-height: 0; }
   .peek { padding: 9px 24px 9px; }
   .peek-line1 { font-family: var(--a-ui); font-size: 13px; line-height: 18px; color: var(--a-ink); }
-  .peek-line2 { font-family: var(--a-mono); font-size: 10.5px; line-height: 15px; letter-spacing: .04em; color: var(--a-muted); margin-top: 2px; }
+  .peek-line2 { font-family: var(--a-mono); font-size: 11.5px; line-height: 15px; letter-spacing: .03em; color: var(--a-muted); margin-top: 2px; }
   .hunt-dock .dock-status { display: flex; justify-content: space-between; font-size: 12px; min-height: 20px; }
-  .hunt-dock .dock-status .inline { min-height: 20px; font-size: 12px; }
+  .hunt-dock .dock-status .inline { min-height: 48px; margin-block: -14px; padding-block: 14px; font-size: 12px; }
   .hunt-dock { padding: 8px 24px 20px; gap: 6px; }
   .map-legend { position: absolute; inset-inline-start: 24px; bottom: 16px; display: flex; flex-direction: column; gap: 5px; }
-  .lg { display: flex; align-items: center; gap: 7px; font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: .04em; color: #e6edf7; text-shadow: 0 1px 3px #0b1220, 0 1px 1px #0b1220; }
+  .lg { display: flex; align-items: center; gap: 7px; font-family: var(--a-mono); font-size: 11.5px; line-height: 15px; letter-spacing: .03em; color: #e6edf7; text-shadow: 0 1px 3px #0b1220, 0 1px 1px #0b1220; }
   .lg .fresh { width: 8px; height: 8px; border-radius: 50%; background: #ff7a59; box-shadow: 0 0 0 3px rgba(255,122,89,.25); }
   .lg .stale { width: 8px; height: 8px; border-radius: 50%; border: 1.5px dashed #ff7a59; opacity: .75; }
   .lg .own { width: 8px; height: 8px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 0 2px rgba(34,211,238,.3); }
@@ -53,7 +53,7 @@
   </section>
 
   <!-- The field: drawn city blocks (a stand-in for the live OSM tiles), zone, reports, trail. -->
-  <div class="map-wrap" role="img" aria-label="The field. Zone 240 metres. Two reported prey positions, one fresh and one stale. Trail heading east.">
+  <div class="map-wrap" role="img" aria-label="The field. Zone 240 metres. Latest reports, not a live track: Nadia reported 12 seconds ago; Rana's report is 14 minutes old. Your own position is shown. Other players are not shown.">
     <svg viewBox="0 0 390 540" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <rect width="390" height="540" fill="#0b1220"/>
       <g fill="#101827" stroke="#26324b" stroke-width="1">
@@ -90,6 +90,12 @@
       <circle cx="196" cy="392" r="30" fill="none" stroke="#22d3ee" stroke-opacity=".18" stroke-width="1.4"/>
     </svg>
 
+    <ul class="mh-sr-only">
+      <li>Nadia: fresh report, 12 seconds ago.</li>
+      <li>Rana: stale report, 14 minutes old.</li>
+      <li>Your position: shown in cyan. Other players are not shown.</li>
+    </ul>
+
     <div class="map-controls">
       <button class="map-btn" type="button" aria-label="Zoom in"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M12 5v14M5 12h14"/></svg></button>
       <button class="map-btn" type="button" aria-label="Zoom out"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M5 12h14"/></svg></button>
@@ -114,7 +120,7 @@
   <div class="hunt-dock">
     <div class="dock-status">
       <span>Trails on. Hunters see the latest reports.</span>
-      <span class="inline" style="font-weight:400;color:var(--a-muted)">Hide trails</span>
+      <span class="inline hit48" style="font-weight:400;color:var(--a-muted)">Hide trails</span>
     </div>
     <button class="btn primary" type="button">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><circle cx="18.5" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg>

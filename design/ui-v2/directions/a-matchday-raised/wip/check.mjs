@@ -7,7 +7,7 @@ try {
     const res = [];
     document.querySelectorAll(sel).forEach((el) => {
       const r = el.getBoundingClientRect();
-      res.push({ tag: el.tagName, cls: String(el.className).slice(0, 40), text: (el.textContent || '').trim().slice(0, 40), top: Math.round(r.top), bottom: Math.round(r.bottom) });
+      res.push({ tag: el.tagName, cls: String(el.className).slice(0, 40), text: (el.textContent || '').trim().slice(0, 40), top: Math.round(r.top), bottom: Math.round(r.bottom), left: Math.round(r.left), right: Math.round(r.right) });
     });
     return res;
   }, selector || '.btn, .set-foot, .set-body');

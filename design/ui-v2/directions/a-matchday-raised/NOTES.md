@@ -423,6 +423,110 @@ settings → new section composables (segmented, slider, ruled rows), drawn plat
 port. No engine change required; new token values are the ladder/board scale, colour refinements recorded
 in §14; Arabic needs the env stand-in only for the proof (shipped app uses system Arabic).
 
-## 15. Review response (round 2)
+## 15. Review response (round 2) — decisions, changes, remaining risks
 
-_To be added after reviewer feedback._
+Round-2 pass driven by `reviews/round-1-visual.md` (weighted 3.60/5, capped 5/7 by the unlabelled rematch) and
+`reviews/round-1-ux.md` (3.75/5). Both reviewer message threads are logged in the review files; this is the
+item → decision → change record. All 16 renders were re-produced from the revised source
+(14 canonical + 2 extra state frames); audit after the pass: **0 text nodes < 11.5 px, 0 metadata pairs < 7:1,
+0 sub-48 dp interactive targets, 0 clipped regions, 0 page overflow, 0 Arabic letter-spacing in `lobby-rtl`**.
+
+### 15.1 reviewer-visual items
+
+| Item | Decision | What changed |
+|---|---|---|
+| **Cap §2.7: `result` "Play again" presented as shipped** | Accept — labelled as a proposal, not removed (brief's result must-show includes rematch; the shipped app has none) | `result`: action now reads "Play again" + visible **Proposal** data tag; one mono line under the secondary buttons: "Play again needs a server action to restart the room." NOTES already costed the server action. |
+| `home-light` shows a different state from `home` | Accept | Proof re-rendered from the identical state: Hunt name "Riverside Run" focused, code cells empty, Join hunt disabled. Same DOM, same behaviours; only the theme changes. |
+| Auxiliary type below floor (10.5/9.5 px) | Accept — system token pass | `data.small` 11.5/15, board meta labels 11.5, chat gutter 11.5 (44 dp), history meta 11.5, switch labels 11.5, settings footer 9.5→11, claim/result credits 11.5. Measured post-pass: 0 nodes below 11.5 px on all 16 pages. |
+| Metadata < 7:1 (5.34:1 board labels) | Accept — one token change | Board muted token `.55 → .75` alpha (= #B0B8C3 on #0e1728, **8.95:1**). Field/plate metadata now 9.1:1 / 8.09:1; light theme 7.18:1. Contrast table in §13; rechecked per pair. |
+| Icon-only Settings entry | Accept | Masthead shows the mixer FieldMark **plus a visible "Settings" label** (48 dp target) on `home` and `home-light`. No icon-only navigation remains. |
+| `lobby` should be one object, not a perfected shipped page | Accept — restructured | Readiness moved fully into the Board gutter (`READY 5 / 5` + five ticks, no separate "Everyone is ready" line); the invite code and its Share action are one social object inside the Board's big row; the teams section carries only "The teams / 5 players". Host controls kept (Stand down, side switch, Begin + reason). |
+| `hunt-prey` reads as an empty map at thumbnail | Accept | Added one in-map own-position label ("You · last report 20:41") over the dot, plus the existing cadence band; **no other players** added (hard rule). |
+| "hosted test server" vague | Pushback accepted by reviewer | Kept deliberately: no IP/environment address in a designed capture; the plain-HTTP test-deployment caveat is in the auth footer / NOTES. |
+| Board deeper ink | No change (confirmed no contrast cost; chalk 15.2:1) | — |
+| Other cheap fixes | Accept | History 10 px clip fixed; room-rules 6 px clip fixed; London coordinates replaced; Settings label added. (Delivery note "auth closest to shipping" left as-is within A's territory: it is the brand's first-contact composition; the lobby is the page pushed this round.) |
+
+### 15.2 reviewer-ux items
+
+| Item | Decision | What changed |
+|---|---|---|
+| 92 nodes below 11 px | Accept | See 15.1 — 0 remaining. `data.small` token raised system-wide; all one-off 10–10.5 px page rules updated. |
+| 36 metadata pairs at 5.34:1 | Accept | Board-muted alpha raise (8.95:1) + size pass. Re-measured all pairs (field 9.1:1, plate 8.09:1, credit 10.88:1, light 7.18:1). |
+| Sub-48 dp targets: View hunt history 44, Sign out 44, rules switches 40×22 | Accept | Secondary/destructive buttons now ≥48 (page overrides removed); both switches get a 48×48 hit wrapper (visual stays 40×22, ON/OFF word visible); inline text actions get 48 high hit boxes via padding (visual unchanged); segmented cells get 48 layout height (38 visual, clipped); board share action 48. Post-audit: 0 interactive targets <48. |
+| Fake London zone centre | Accept | Room-rules shows the seed centre as `Set on the map · 40.8008, -73.9720` (Riverside Park, Manhattan; no invented place label). "Zone centre not set" remains the documented shipped fallback. |
+| `home-light` parity | Accept | Fixed (see 15.1). |
+| Claim expiry missing | Accept — C-verified behaviour | Claim sheet now shows **"Answer in 01:12"** (from `expiresAt`) and "No answer → the huntmaster decides." The server turns an expired claim into a huntmaster dispute (verified in `server/src/rooms.ts` by reviewer-visual), so the copy is accurate. |
+| Arabic letter-spacing | Accept | `[dir="rtl"] .arabic-h { letter-spacing: 0 }` added (the earlier RTL overrides missed `.board-code-label`, `.board-share`, `.board-teamline`, `.btn`); every numeric run in `lobby-rtl` isolated with `.mh-ltr` including the rules-summary 60/5/240. Post-audit: tracking 0 px on Arabic, unisolated 0. |
+| Leave/back confirm | Accept — documented (notes-or-frame per §18) | §6 state bank adds the shipped `MatchSheet` copy: lobby "Leave the room? / You'll lose your spot in the lobby. You can rejoin with the code." and active hunt "Leave this hunt? / The hunt runs without you. Your team keeps playing and you can't rejoin this match."; toolbar back + system back route to it (implementation note in §9). Not rendered this round (explicitly allowed by the brief; paused/eliminated frames add more value). |
+| Dismissed-claim persistent banner | Accept — documented | §6 now specifies the coral strip under the Board: "A tag claim is waiting for your answer." / "Confirm or dispute it to keep the hunt fair." / REVIEW 48 dp; dismissal never loses the decision. |
+| Hunt-prey "last report" client state | Partial accept | Render keeps "Last report 20:41" only (no "next"), labelled in §9 as **own-send client state** (the phone knows when it last sent; no server ack). "Reports every 5 min" is the room setting. Cost named as small client state, not server invention. |
+| Map text alternative not the per-prey list | Accept | `hunt-hunter` now carries a visually-hidden per-prey status list (Nadia fresh 12 s; Rana stale 14 min) plus a tightened aria-label ("latest reports, not a live track… other players are not shown"). `result` trail plate gets a descriptive text alternative. |
+| Other flagged states | Accept — rendered extras | Added **two non-canonical state frames** (appended on the contact sheet as extras): `hunt-paused.html` (PAUSED board, stopped clock, paused strip + Resume, disabled Tag with reason) and `hunt-eliminated.html` (tagged prey: "Tagged. You're out." strip, sharing stopped, Open chat, no actions). |
+| Settings footer 9.5 px | Accept | 11 px /15 and single footer line; page re-fitted. |
+| History clip / rules clip | Accept | Both fixed; audit now shows 0 clipped regions and page heights 844. |
+
+### 15.3 Changes that also affect the rest of the system
+- **Type floor is now a system rule:** nothing readable below 11.5 px; mono metadata is 11.5 with tighter
+  tracking; Big Shoulders numerals untouched (display scale is the point).
+- **Metadata token split:** `--a-board-muted` is now a readable 8.95:1 on ink; page-level "quiet" text on
+  field/plate is ≥7.18:1. Do not lower it without re-running the contrast table.
+- **48 dp rule for every action:** `.inline.hit48` padding trick and the switch hit wrapper are the pattern
+  for implementation (visual height stays; hit target grows). Segmented cells are 48 layout / 38 visual.
+- **Lobby Board is one object:** readiness ticks + code + share all live in the Board; do not re-introduce a
+  separate readiness caption on implementation.
+- **Claim lifecycle:** `expiresAt` countdown + "no answer → huntmaster decides" is part of the claim sheet;
+  the persistent coral strip is the re-entry state. Both are honest server behaviours.
+- **State frames:** paused/eliminated are rendered extras in `out/` and the contact sheet; other states
+  (offline, loading, error, head start, chat empty/send-error, history empty/error, claim busy/disputed) remain
+  documented in §6/§11 with copy and layout.
+
+### 15.4 Remaining risks / new known weaknesses
+1. **Result dock is now denser** (proposal tag + server-action line). It fits at 390×844 but the note is the
+   first thing to cut at 320 dp / large text scale — the proposal tag is the essential part.
+2. **Room-rules sheet is ~91 % of the screen** (top 72 dp) to fit the full real control set at the new type
+   floor; implementation should make it a full-height page with a pinned Save action on short screens.
+3. **Switch state is ON/OFF word + knob position + border**, never fill alone; the visual is 40×22 inside a
+   48 hit wrapper — implementation must keep the wrapper, not shrink to the visual.
+4. **`lobby-rtl` has four provisional Arabic strings** not in `Localization.kt`: "مشاركة الرمز",
+   "أنت على هذا الجانب", "انضم إلى الصيادين", "المضيف", plus the dock's "الجميع مستعد. المطارقة جاهزة للبدء."
+   and the teams caption "5 لاعبين" — flagged for copy review (no tracking, existing words reused where possible).
+5. **Claim countdown is static in the frame** ("01:12"); implementation derives it from `expiresAt` and must
+   not re-render the whole sheet per second (single Text, seconds boundary).
+6. **Extra state frames are extras**, not part of the canonical 14; owner pack should treat them as evidence of
+   the state system, not new screens.
+7. **Results screen still uses the drawn trail stand-in** (allowed, labelled) — real implementation should
+   snapshot the map or keep the drawn plate; do not draw fake street labels.
+8. **Light masthead** is light chrome with the official dark-on-light mark/wordmark (per shipped light theme);
+   the Board-bearing pages keep the ink Board — if the owner wants the Masthead ink in light too, that is a
+   one-token decision, not a system change.
+9. **No leave-confirm render** (documented only) — cheap to add if the owner review wants the destructive beat
+   proven; the component and copy are specified.
+10. **200 % / 320 dp reflow is specified, not rendered**: Board stacks (state+data wrap, clock stops at 44 sp),
+    team sheets go single column, inline actions grow, pages scroll only inside the permitted regions; no fixed
+    text heights. Add to implementation acceptance tests.
+
+### 15.5 Compose/implementation notes added in round 2
+- Metadata tokens: `data.small` 11.5/15, `state` 11.5, board-muted `chalk @75%` (never below 7:1); the
+  shipped `BoardTheme` muteds must be re-checked because the current `#A7B6CC` on `board` is 5.34:1.
+- Hit targets: `heightIn(min = 48.dp)` on all text actions; switch rows as `selectable` 48 dp with the visual
+  track 40×22 inside; segmented choices 48 dp tall (visual can inset).
+- Claim: `expiresAt` → `remember` countdown text, one node; consequence copy "No answer → the huntmaster
+  decides"; dismissal keeps the coral strip (never lose the decision).
+- Leave/back: `BackHandler`/toolbar back opens the MatchSheet from §6; destructive action names the
+  consequence; active hunt copy says the hunt runs without you.
+- Hunt-prey: own-send "last report" needs a small client state (timestamp of last successful send) — no server
+  change; if not implemented, show only "Reports every 5 min".
+- Lobby: readiness ticks are data (up to 8), Board big row = code + Share; do not duplicate readiness below.
+- Type scaling: body 1:1, display/board half-rate capped 1.25; at 200 % the Board stacks, team sheets
+  single-column, dock buttons grow; page scrolls allowed only in the documented regions (chat log, long lists).
+
+
+## 16. Round-2 file set
+
+- 14 canonical pages + **2 extra state frames**: `hunt-paused.html`, `hunt-eliminated.html` (non-canonical;
+  rendered into `out/` for state evidence, not part of the canonical 14-up contact grid — the env sheet tool
+  captures 16 pages but lays out the canonical 14).
+- `out/`: 16 page PNGs at exactly 1170×2532 (14 canonical + 2 extras) + `out/contact-a-matchday-raised.png`
+  (canonical 14-up grid; also `env/out/sheets/a-matchday-raised.png`). The extra frames are
+  `out/hunt-paused.png` and `out/hunt-eliminated.png`.
+- `_a.css`: the shared system (tokens, board, rules, plates, tags, sheets, docks, map, chat, settings, RTL).

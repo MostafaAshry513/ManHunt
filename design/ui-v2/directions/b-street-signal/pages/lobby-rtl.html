@@ -7,29 +7,30 @@
 <link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
 <link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
 <style>
-  .code-poster { font-family: var(--font-mono); font-size: 58px; line-height: 60px; letter-spacing: .05em;
-                 font-variant-numeric: tabular-nums; color: var(--chalk); direction: ltr; unicode-bidi: isolate; }
-  .lobby-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
-  .side-switch { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-arabic); font-size: 11px;
-                 color: var(--muted); min-height: 32px; letter-spacing: 0; }
-  .ar-title { font-family: var(--font-arabic); font-weight: 700; font-size: 21px; line-height: 30px; }
-  .ar-body { font-family: var(--font-arabic); letter-spacing: 0; }
+  .code-poster { font-family: var(--font-mono); font-size: 54px; line-height: 56px; letter-spacing: .05em;
+                 font-variant-numeric: tabular-nums; color: var(--chalk); }
+  .lobby-dock { position: absolute; left: 24px; right: 24px; bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .side-seg .cell { min-height: 48px; height: 48px; font-family: var(--font-arabic); font-size: 13px; letter-spacing: 0; }
+  .team-row { height: 52px; }
+  .ar-lbl { font-family: var(--font-arabic); letter-spacing: 0; }
+  .tape.ar-lbl { font-family: var(--font-arabic); letter-spacing: 0; }
+  .badge { font-family: var(--font-arabic); font-size: 11px; letter-spacing: 0; }
   [dir="rtl"] .tape { transform: rotate(1.5deg); }
   [dir="rtl"] .back-arrow svg { transform: scaleX(-1); }
 </style>
 </head>
 <body>
-<main class="page" style="padding-bottom:170px">
+<main class="page" style="padding-bottom:244px">
 
-  <header class="strip" style="padding-top:16px;gap:10px">
+  <header class="strip" style="padding-top:12px;padding-bottom:4px;gap:10px">
     <button class="icon-btn icon-btn--bare back-arrow" type="button" aria-label="رجوع">
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M15 4 7 12l8 8"/></svg>
     </button>
     <div class="col" style="gap:3px">
-      <h1 class="ar-title">مطاردة النهر</h1>
+      <h1 class="ar-lbl" style="font-weight:700;font-size:20px;line-height:28px">مطاردة النهر</h1>
       <div class="row gap8">
-        <span class="state ar-body" style="color:var(--muted);font-size:11px">الردهة</span>
-        <span class="data-l">5 لاعبين</span>
+        <span class="state ar-lbl" style="color:var(--muted);font-size:11px;letter-spacing:0">الردهة</span>
+        <span class="data-l"><span class="ltr">5</span> <span class="ar-lbl">لاعبين</span></span>
       </div>
     </div>
     <span class="gutter-right row gap8">
@@ -46,93 +47,101 @@
     </span>
   </header>
 
-  <section class="gutter" style="margin-top:6px">
+  <section class="gutter" style="margin-top:2px">
     <div class="row spread" style="align-items:flex-end">
       <div class="col">
-        <span class="tape" style="align-self:flex-start">رمز الدعوة</span>
-        <div class="code-poster mt8">K7M2QX</div>
+        <span class="tape ar-lbl" style="align-self:flex-start">رمز الدعوة</span>
+        <div class="code-poster mt8 ltr">K7M2QX</div>
         <svg width="250" height="12" viewBox="0 0 250 12" aria-hidden="true" style="margin-top:2px">
           <path d="M2 8 C 52 3, 108 11, 160 6 S 224 9, 248 4" fill="none" stroke="var(--coral)" stroke-width="2.6" opacity=".85"/>
         </svg>
       </div>
       <div class="col" style="align-items:flex-end;gap:4px">
-        <span class="data" style="color:var(--chalk)">5 / 5</span>
-        <span class="ar-body" style="font-size:12px;color:var(--muted)">مستعد</span>
+        <span class="data" style="color:var(--chalk)"><span class="ltr">5 / 5</span> <span class="ar-lbl">مستعد</span></span>
         <span class="tally" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><s class="on"></s></span>
       </div>
     </div>
-    <div class="row spread" style="margin-top:10px;min-height:44px">
-      <button class="inline ar-body" style="border:0;min-height:44px;font-size:14px" type="button">
+    <div class="row spread" style="margin-top:6px;min-height:48px">
+      <button class="inline ar-lbl" style="min-height:48px;font-size:14px" type="button">
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" class="stroke">
           <path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M4 14v5h16v-5"/>
         </svg>
         مشاركة الغرفة
       </button>
-      <span class="cap ar-body">المس الرمز لنسخه.</span>
+      <span class="cap ar-lbl">المس الرمز لنسخه.</span>
     </div>
   </section>
 
-  <div class="rule" style="margin:10px 24px 0"></div>
+  <div class="rule" style="margin:6px 24px 0"></div>
 
-  <section class="gutter" style="margin-top:16px">
+  <section class="gutter" style="margin-top:10px">
     <div class="teamcol">
-      <div class="team-head team-head--prey"><span class="ar-body">الفرائس</span><span>2</span></div>
+      <div class="team-head team-head--prey" style="height:30px"><span class="ar-lbl">الفرائس</span><span>2</span></div>
       <div class="team-row">
-        <span class="kit kit--prey ar-body">نادية</span>
-        <span class="badge">المضيف</span><span class="badge ar-body">أنت</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="kit kit--prey ar-lbl">نادية</span>
+        <span class="badge">المضيف</span><span class="badge">أنت</span>
+        <span class="gutter-right state ar-lbl" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0">
           مستعد
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
       <div class="team-row">
-        <span class="kit kit--prey ar-body">رنا</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="kit kit--prey ar-lbl">رنا</span>
+        <span class="gutter-right state ar-lbl" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0">
           مستعد
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
     </div>
 
-    <div class="teamcol" style="margin-top:16px">
-      <div class="team-head team-head--hunters"><span class="ar-body">الصيادون</span><span>3</span></div>
+    <div class="teamcol" style="margin-top:10px">
+      <div class="team-head team-head--hunters" style="height:30px"><span class="ar-lbl">الصيادون</span><span>3</span></div>
       <div class="team-row">
-        <span class="kit kit--hunters ar-body">عمر</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="kit kit--hunters ar-lbl">عمر</span>
+        <span class="gutter-right state ar-lbl" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0">
           مستعد
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
       <div class="team-row">
-        <span class="kit kit--hunters ar-body">سليم</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="kit kit--hunters ar-lbl">سليم</span>
+        <span class="gutter-right state ar-lbl" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0">
           مستعد
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
       <div class="team-row">
-        <span class="kit kit--hunters ar-body">يوسف</span>
-        <button class="side-switch gutter-right" type="button" style="min-height:48px">
+        <span class="kit kit--hunters ar-lbl">يوسف</span>
+        <span class="gutter-right state ar-lbl" style="color:var(--muted);display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:0">
           مستعد
           <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" class="stroke check"><path d="M4 13l5 5L20 6"/></svg>
-        </button>
+        </span>
       </div>
     </div>
-    <div class="row" style="margin-top:10px">
-      <span class="cap ar-body">اختر جانبك واستعد؛ يبدأ حكم المطاردة المطاردة.</span>
+    <div class="row" style="margin-top:8px">
+      <span class="cap ar-lbl">اختر جانبك واستعد؛ يبدأ حكم المطاردة المطاردة.</span>
     </div>
   </section>
 
   <div class="lobby-dock">
-    <div class="rule"></div>
-    <div class="row spread" style="margin-top:2px">
-      <span class="data ar-body" style="color:var(--muted);font-size:12px">كل اللاعبين مستعدون.</span>
-      <button class="inline ar-body" style="border:0;min-height:32px;font-size:12px" type="button">قواعد المطاردة</button>
+    <div class="row spread" style="gap:10px">
+      <div class="col" style="gap:2px">
+        <span class="data-l ar-lbl">جانبك</span>
+        <div class="seg side-seg" style="gap:6px">
+          <span class="cell on" role="radio" aria-checked="true">الفريسة</span>
+          <span class="cell" role="radio" aria-checked="false">الصيادون</span>
+        </div>
+      </div>
+      <button class="inline ar-lbl" style="min-height:48px;min-width:48px;font-size:13px" type="button">تراجع</button>
     </div>
-    <button class="btn btn--primary ar-body" type="button"><span class="btn-label" style="font-family:var(--font-arabic)">ابدأ المطاردة</span></button>
+    <div class="row spread">
+      <span class="data ar-lbl" style="color:var(--muted);letter-spacing:0">كل اللاعبين مستعدون.</span>
+      <button class="inline ar-lbl" style="min-height:48px;font-size:13px" type="button">قواعد المطاردة</button>
+    </div>
+    <button class="btn btn--primary" type="button"><span class="btn-label ar-lbl">ابدأ المطاردة</span></button>
     <div class="row spread">
       <span class="credit-line">مطاردة النهر · الغرفة <span class="ltr">K7M2QX</span></span>
-      <span class="credit-line">5 لاعبين</span>
+      <span class="credit-line"><span class="ltr">5</span> <span class="ar-lbl">لاعبين</span></span>
     </div>
   </div>
 

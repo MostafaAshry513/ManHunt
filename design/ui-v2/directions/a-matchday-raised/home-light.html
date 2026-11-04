@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ManHunt — Home (light)</title>
+<title>ManHunt — Home (daylight chalk)</title>
 <link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
 <link rel="stylesheet" href="_a.css">
 <style>
@@ -23,7 +23,7 @@
   .foot-row { display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
   .foot-row .foot-id, .foot-row .bi-id { font-family: var(--a-ui); font-size: 13px; line-height: 18px; color: var(--a-muted); }
   
-  .foot-ver { display: flex; align-items: center; justify-content: space-between; font-family: var(--a-mono); font-size: 10.5px; line-height: 14px; letter-spacing: 0.05em; color: var(--a-muted); padding-top: 4px; }
+  .foot-ver { display: flex; align-items: center; justify-content: space-between; font-family: var(--a-mono); font-size: 11.5px; line-height: 15px; letter-spacing: 0.03em; color: var(--a-muted); padding-top: 4px; }
   .foot-ver .signout { font-family: var(--a-ui); font-weight: 700; font-size: 12px; letter-spacing: 0; color: var(--a-muted); }
 </style>
 </head>
@@ -38,8 +38,9 @@
     </div>
     <div class="masthead-right">
       <span class="masthead-time">20:31</span>
-      <button class="icon-btn" type="button" aria-label="Settings">
-        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M3 6h15M3 12h11M3 18h17"/><path d="M20 4v4M16 10v4M22 16v4"/></svg>
+      <button class="icon-btn with-label" type="button" aria-label="Settings">
+        <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="butt"><path d="M3 6h15M3 12h11M3 18h17"/><path d="M20 4v4M16 10v4M22 16v4"/></svg>
+        <span>Settings</span>
       </button>
     </div>
   </header>
@@ -73,8 +74,8 @@
       <span class="ti">Host a hunt</span>
     </div>
     <div class="field-label"><span>Hunt name</span></div>
-    <div class="field" style="max-width:342px">
-      <span class="caret"></span>
+    <div class="field is-value focus" style="max-width:342px">
+      <span>Riverside Run</span><span class="caret" style="margin-inline-start:1px"></span>
     </div>
     <button class="btn primary" type="button">Create the hunt</button>
   </section>
@@ -85,10 +86,10 @@
       <div class="join-head">
         <div class="ti">Join a hunt</div>
         <div class="code-cells" role="group" aria-label="Invite code">
-          <span class="code-cell">K</span><span class="code-cell">7</span><span class="code-cell">M</span><span class="code-cell">2</span><span class="code-cell">Q</span><span class="code-cell active">X</span>
+          <span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span><span class="code-cell empty">–</span>
         </div>
         <div class="helper">Ask the host for the six-character code.</div>
-        <button class="btn secondary" type="button" style="margin-top:10px">Join hunt</button>
+        <button class="btn secondary is-disabled" type="button" style="margin-top:10px">Join hunt</button>
       </div>
     </div>
   </section>

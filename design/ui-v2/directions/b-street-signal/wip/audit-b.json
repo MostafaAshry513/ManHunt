@@ -1,0 +1,152 @@
+[
+ {
+  "page": "auth",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "chat",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "history",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "home-light",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "home",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "hunt-hunter",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "hunt-prey-eliminated",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "hunt-prey",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "lobby-rtl",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "lobby",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "result",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "roles",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "settings",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "sheet-room-settings",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ },
+ {
+  "page": "sheet-tag-claim",
+  "overflow": {
+   "w": 390,
+   "h": 844
+  },
+  "small": [],
+  "targets": [],
+  "contrast": []
+ }
+]

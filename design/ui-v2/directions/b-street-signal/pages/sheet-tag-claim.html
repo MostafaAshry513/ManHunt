@@ -9,13 +9,12 @@
 <style>
   .hunt-strip { border-bottom: 1px solid var(--rule); padding: 9px 24px 8px; }
   .claim-head { background: var(--coral); color: var(--paper-ink); padding: 12px 24px 14px; position: relative; }
-  .claim-head .word { font-family: var(--font-display); font-weight: 700; font-size: 62px; line-height: 58px; letter-spacing: -0.02em; }
-  .claim-head .stamp { position: absolute; inset-inline-end: 22px; bottom: 12px; color: var(--paper-ink); }
-  .claim-who { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--dim); }
-  .consequence { background: var(--lift); border-inline-start: 3px solid var(--coral); padding: 10px 14px; margin: 0 24px; }
-  .claim-actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding: 16px 24px 24px; }
-  .sheet { padding: 0; height: 72%; }
-  .sheet-body { padding: 0 0 0; overflow: hidden; }
+  .claim-head .display-line { font-family: var(--font-display); font-weight: 700; font-size: 42px; line-height: 42px; letter-spacing: -0.015em; }
+  .claim-head .countdown { font-family: var(--font-mono); font-size: 12px; line-height: 17px; letter-spacing: .06em; margin-top: 8px; }
+  .claim-who { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; color: rgba(11,18,32,.72); }
+  .consequence { background: var(--lift); border-inline-start: 3px solid var(--coral); padding: 10px 14px; }
+  .claim-actions { display: flex; flex-direction: column; gap: 10px; margin-top: auto; padding: 14px 24px 24px; }
+  .sheet { padding: 0; height: 74%; }
 </style>
 </head>
 <body>
@@ -47,25 +46,23 @@
 
   <div class="mh-scrim"></div>
 
-  <!-- the claim: one decision, consequence stated before the tap -->
+  <!-- the claim: consequence-first, answer countdown from pendingTag.expiresAt vs serverNow -->
   <section class="sheet">
-    <div style="padding: 14px 24px 0">
+    <div style="padding: 12px 24px 0">
       <span class="tape" style="transform:rotate(-1.5deg)">Tag claim</span>
     </div>
-    <div class="sheet-grip" style="margin-top:14px"></div>
+    <div class="sheet-grip" style="margin-top:10px"></div>
 
     <div class="claim-head">
-      <div class="row spread" style="align-items:flex-start">
-        <div class="word">Tag claim</div>
-      </div>
-      <span class="stamp stamp--sm" style="position:absolute;inset-inline-end:22px;bottom:12px;color:#0b1220">Answer</span>
-      <div class="claim-who" style="margin-top:8px;color:rgba(11,18,32,.72)">OMAR · 20:48 · RIVERSIDE RUN</div>
+      <div class="claim-who">OMAR · 20:48 · RIVERSIDE RUN</div>
+      <div class="display-line" style="margin-top:4px">Omar tagged you.</div>
+      <div class="countdown">Answer in 01:12 · no answer → the huntmaster decides</div>
     </div>
 
-    <div class="sheet-body" style="padding: 16px 24px 0">
-      <h2 class="title" style="font-size:22px;line-height:27px">Omar says he tagged you.</h2>
-      <p class="body muted" style="margin-top:8px;font-size:15px;line-height:22px">Confirm it if it happened. If it didn't, dispute it — the huntmaster decides.</p>
-      <div class="consequence" style="margin:14px 0 0">
+    <div style="padding: 14px 24px 0">
+      <h2 class="title" style="font-size:21px;line-height:26px">Confirming means you're out.</h2>
+      <p class="body muted" style="margin-top:6px;font-size:15px;line-height:22px">Confirm it if it happened. If it didn't, dispute it — the huntmaster decides.</p>
+      <div class="consequence" style="margin:12px 0 0">
         <span class="small" style="color:var(--chalk)">If you confirm, you're out and spectating. If you dispute, the huntmaster decides.</span>
       </div>
     </div>

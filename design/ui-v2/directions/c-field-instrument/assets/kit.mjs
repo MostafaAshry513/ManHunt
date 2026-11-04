@@ -304,11 +304,11 @@ export function progressScale({ playedRatio = 0.313, labels = true, start = '00:
 export function chit(team, name, count = null) {
   const cls = team === 'prey' ? 'preys' : 'hunterss';
   const glyph = team === 'prey' ? icon('prey', 15) : icon('hunters', 15);
-  return `<span class="chit ${cls}"><span class="bar"></span>${glyph}<span class="name">${esc(name)}</span>${count !== null ? `<span class="count num">${esc(count)}</span>` : ''}</span>`;
+  return `<span class="chit ${cls}"><span class="bar"></span>${glyph}<span class="name">${esc(name)}</span>${count !== null ? `<span class="count num ltr">${esc(count)}</span>` : ''}</span>`;
 }
 
-export function sectionHead(label, meta = '', ticks = true) {
-  return `<div class="section-head">${ticks ? '<span class="ticks"><i></i><i></i><i></i></span>' : ''}<span class="label">${esc(label)}</span><span class="line"></span>${meta ? `<span class="meta num">${esc(meta)}</span>` : ''}</div>`;
+export function sectionHead(label, meta = '', ticks = true, rawMeta = false) {
+  return `<div class="section-head">${ticks ? '<span class="ticks"><i></i><i></i><i></i></span>' : ''}<span class="label">${esc(label)}</span><span class="line"></span>${meta ? `<span class="meta num">${rawMeta ? meta : esc(meta)}</span>` : ''}</div>`;
 }
 
 

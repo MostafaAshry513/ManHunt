@@ -7,61 +7,58 @@
 <link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
 <link rel="stylesheet" href="/design/ui-v2/directions/b-street-signal/direction.css">
 <style>
-  .sheet { height: 90%; padding: 0; }
-  .rs-head { display: flex; align-items: baseline; gap: 10px; padding: 0 24px; }
-  .rs-head h2 { font-size: 18px; }
-  .rs-lead { padding: 1px 24px 6px; font-family: var(--font-ui); font-size: 12px; line-height: 16px; color: var(--dim); }
-  .group { border-top: 1px solid var(--rule); margin-top: 4px; }
-  .group-title { display: flex; align-items: baseline; justify-content: space-between; padding: 6px 24px 2px; }
+  .sheet { height: 96%; padding: 0; }
+  .rs-lead { padding: 0 24px 2px; font-family: var(--font-ui); font-size: 12px; line-height: 16px; color: var(--dim); }
+  .group { border-top: 1px solid var(--rule); margin-top: 0; }
+  .group-title { display: flex; align-items: baseline; justify-content: space-between; padding: 5px 24px 2px; }
   .group-title h3 { font-family: var(--font-ui); font-weight: 700; font-size: 14px; line-height: 18px; color: var(--chalk); }
-  .grow { flex: 1 1 auto; }
-  .row { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 24px; }
+  .row { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 24px; }
   .row .k { flex: 1 1 auto; font-family: var(--font-ui); font-size: 14px; line-height: 19px; color: var(--chalk); }
   .row .v { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; color: var(--muted); }
-  .stepper { display: flex; align-items: center; gap: 0; border: 1px solid var(--rule-strong); height: 38px; }
-  .stepper b { width: 32px; text-align: center; font-family: var(--font-ui); font-weight: 700; font-size: 15px; color: var(--muted); }
-  .stepper span { min-width: 58px; text-align: center; font-family: var(--font-mono); font-size: 13px; color: var(--chalk); padding: 0 8px; }
-  .seg .cell { height: 36px; padding: 0 10px; font-size: 12px; }
-  .coords { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-  .tag-policy { padding: 0 24px 8px; }
-  .tag-policy p { font-family: var(--font-ui); font-size: 12px; line-height: 16px; color: var(--dim); margin-top: 4px; }
-  .rs-actions { display: flex; flex-direction: column; gap: 6px; padding: 8px 24px 18px; margin-top: auto; }
+  .stepper { display: flex; align-items: center; border: 1px solid var(--rule-strong); height: 48px; }
+  .stepper b { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;
+               font-family: var(--font-ui); font-weight: 700; font-size: 16px; color: var(--muted); }
+  .stepper span { min-width: 62px; text-align: center; font-family: var(--font-mono); font-size: 13px; color: var(--chalk); padding: 0 6px; }
+  .seg .cell { height: 48px; padding: 0 10px; font-size: 12px; }
+  .tag-policy { padding: 0 24px 2px; }
+  .tag-policy p { font-family: var(--font-ui); font-size: 12px; line-height: 16px; color: var(--dim); margin-top: 2px; }
+  .rs-actions { display: flex; flex-direction: column; gap: 8px; padding: 6px 24px 16px; margin-top: auto; }
 </style>
 </head>
 <body>
 <main class="page">
 
-  <!-- the lobby behind the rules, dimmed -->
-  <header class="strip" style="padding-top:16px;gap:10px">
+  <header class="strip" style="padding-top:12px;gap:10px">
     <button class="icon-btn icon-btn--bare" type="button" aria-label="Back">
       <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" class="stroke"><path d="M15 4 7 12l8 8"/></svg>
     </button>
     <div class="col" style="gap:3px"><h1 class="title">Riverside Run</h1><span class="state" style="color:var(--muted)">LOBBY</span></div>
   </header>
-  <div class="gutter" style="margin-top:10px">
+  <div class="gutter" style="margin-top:8px">
     <span class="tape" style="transform:rotate(-1.5deg)">Invite code</span>
-    <div class="mono" style="font-size:56px;letter-spacing:.05em;color:var(--chalk);margin-top:6px">K7M2QX</div>
+    <div class="mono ltr" style="font-size:52px;letter-spacing:.05em;color:var(--chalk);margin-top:6px">K7M2QX</div>
   </div>
-  <div class="gutter" style="margin-top:18px">
-    <div class="team-head team-head--prey" style="height:30px"><span>PREY</span><span>2</span></div>
-    <div class="team-row"><span class="kit kit--prey">Nadia</span><span class="badge">HOST</span></div>
-    <div class="team-row"><span class="kit kit--prey">Rana</span></div>
-    <div class="team-head team-head--hunters" style="height:30px;margin-top:12px"><span>HUNTERS</span><span>3</span></div>
-    <div class="team-row"><span class="kit kit--hunters">Omar</span></div>
+  <div class="gutter" style="margin-top:12px">
+    <div class="team-head team-head--prey" style="height:28px"><span>PREY</span><span>2</span></div>
+    <div class="team-row" style="height:44px"><span class="kit kit--prey">Nadia</span><span class="badge">HOST</span></div>
+    <div class="team-row" style="height:44px"><span class="kit kit--prey">Rana</span></div>
+    <div class="team-head team-head--hunters" style="height:28px;margin-top:8px"><span>HUNTERS</span><span>3</span></div>
+    <div class="team-row" style="height:44px"><span class="kit kit--hunters">Omar</span></div>
+    <div class="team-row" style="height:44px"><span class="kit kit--hunters">Selim</span></div>
   </div>
 
   <div class="mh-scrim"></div>
 
   <!-- hunt rules: a control panel that stays boringly legible -->
   <section class="sheet">
-    <div style="padding: 12px 24px 0">
+    <div style="padding: 4px 24px 0">
       <span class="tape" style="transform:rotate(-1.5deg)">Hunt rules</span>
     </div>
-    <div class="sheet-grip" style="margin-top:12px"></div>
-    <div class="rs-lead" style="padding-top:0">Applies to the next match. Rules are enforced by the server.</div>
+    <div class="sheet-grip" style="margin-top:2px"></div>
+    <div class="rs-lead">Applies to the next match. Rules are enforced by the server.</div>
 
     <div class="group">
-      <div class="group-title"><h3>Timing</h3><span class="data-l">SERVER-TIMED</span></div>
+      <div class="group-title"><h3>Timing</h3><span class="data-l">Server-timed</span></div>
       <div class="row"><span class="k">Prey head start</span>
         <div class="stepper"><b>−</b><span>5 min</span><b>+</b></div></div>
       <div class="row"><span class="k">Hunt duration</span>
@@ -71,29 +68,31 @@
     </div>
 
     <div class="group">
-      <div class="group-title"><h3>Field</h3><span class="data-l">ZONE</span></div>
+      <div class="group-title"><h3>Field</h3><span class="data-l">Zone</span></div>
       <div class="row"><span class="k">Play area</span>
         <div class="seg"><span class="cell">Open</span><span class="cell on">Zone</span></div></div>
       <div class="row"><span class="k">Zone radius</span>
         <div class="stepper"><b>−</b><span>240 m</span><b>+</b></div></div>
-      <div class="row"><span class="k">Shrink over time</span><span class="switch"><span class="knob"></span></span></div>
+      <div class="row"><span class="k">Zone centre</span><span class="v">51.5007, -0.1246</span>
+        <button class="inline" style="min-height:48px;font-size:12px;margin-inline-start:auto" type="button">Pick on map</button></div>
+      <div class="row"><button class="inline" style="min-height:48px;font-size:12px" type="button">Use my location</button>
+        <span class="v" style="margin-inline-start:auto">Centre set</span></div>
+      <div class="row"><span class="k">Shrink over time</span>
+        <span class="switch off" role="switch" aria-checked="false" aria-label="Shrink over time"><span class="knob"></span></span></div>
+      <div class="row"><span class="k">Hunters can see trails</span>
+        <span class="switch on" role="switch" aria-checked="true" aria-label="Hunters can see trails"><span class="knob"></span></span></div>
     </div>
 
     <div class="group">
-      <div class="group-title"><h3>Visibility</h3></div>
-      <div class="row"><span class="k">Hunters can see trails</span><span class="switch on"><span class="knob"></span></span></div>
-    </div>
-
-    <div class="group">
-      <div class="group-title"><h3>Tag policy</h3><span class="data-l">SERVER-ENFORCED</span></div>
-      <div class="row" style="min-height:52px"><span class="k">Tags need the prey to confirm</span>
+      <div class="group-title"><h3>Tag policy</h3><span class="data-l">Server-enforced</span></div>
+      <div class="row" style="min-height:48px"><span class="k">Tags need the prey to confirm</span>
         <div class="seg"><span class="cell on">Confirm</span><span class="cell">Instant</span></div></div>
       <div class="tag-policy"><p>Confirm: the Prey answers. Instant: the Prey is out.</p></div>
     </div>
 
     <div class="rs-actions">
       <button class="btn btn--primary" style="height:52px" type="button"><span class="btn-label">Save rules</span></button>
-      <button class="btn btn--outline-sm" style="height:40px" type="button"><span class="btn-label">Cancel</span></button>
+      <button class="btn btn--outline-sm" style="height:48px" type="button"><span class="btn-label">Cancel</span></button>
     </div>
   </section>
 

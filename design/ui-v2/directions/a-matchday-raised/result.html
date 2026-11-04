@@ -11,7 +11,7 @@
   .result-board .board-main { padding-top: 0; padding-bottom: 8px; }
   .result-board .clock-52 { font-size: 50px; line-height: 46px; }
   .gwinner b { color: var(--a-board-violet); }
-  .winner-block { padding: 8px 24px 0; }
+  .winner-block { padding: 6px 24px 0; }
   .winner-word { font-family: var(--a-disp); font-weight: 700; font-size: 70px; line-height: 64px; letter-spacing: -.015em; color: var(--a-ink); }
   .winner-block .bs { margin-top: 8px; }
   .score-row { display: flex; align-items: baseline; gap: 12px; padding: 6px 24px 0; }
@@ -19,20 +19,21 @@
   .score-label { display: flex; flex-direction: column; gap: 1px; }
   .score-label .cap { color: var(--a-muted); }
   .score-label .da { color: var(--a-ink); }
-  .trail-plate { height: 100px; margin-top: 10px; border-top: 1px solid var(--a-rule); border-bottom: 1px solid var(--a-rule); }
-  .plate-credit { position: absolute; inset-inline-end: 24px; bottom: 7px; font-family: var(--a-mono); font-size: 10px; line-height: 13px; letter-spacing: .03em; color: rgba(230,237,247,.72); text-shadow: 0 1px 3px #0b1220; }
-  .teams { padding: 8px 24px 0; }
+  .trail-plate { height: 92px; margin-top: 8px; border-top: 1px solid var(--a-rule); border-bottom: 1px solid var(--a-rule); }
+  .plate-credit { position: absolute; inset-inline-end: 24px; bottom: 6px; font-family: var(--a-mono); font-size: 11.5px; line-height: 15px; letter-spacing: .02em; color: rgba(230,237,247,.82); text-shadow: 0 1px 3px #0b1220; }
+  .teams { padding: 6px 24px 0; }
   .teams .sheets { margin-top: 2px; }
-  .teams .player { min-height: 40px; }
+  .teams .player { min-height: 38px; }
   .teams .avatar { width: 24px; height: 24px; font-size: 11px; }
   .teams .p-name { font-size: 14px; line-height: 18px; }
-  .teams .p-meta { font-size: 10px; line-height: 13px; }
+  .teams .p-meta { font-size: 11.5px; line-height: 15px; }
   .tagged { color: var(--a-muted); }
   .cross { color: var(--a-muted); }
-  .dock-result { padding: 8px 24px 16px; gap: 6px; }
+  .dock-result { padding: 8px 24px 14px; gap: 6px; }
+  .proposal-note { font-family: var(--a-mono); font-size: 11px; line-height: 14px; letter-spacing: .03em; color: var(--a-muted); }
   .dock-result .dock-status { min-height: 24px; font-size: 12px; }
-  .dock-result .dock-status .inline { min-height: 24px; font-size: 12px; }
-  .dock-result .btn.secondary { min-height: 44px; }
+  .dock-result .dock-status .inline { min-height: 48px; margin-block: -12px; padding-block: 12px; font-size: 12px; }
+  
 </style>
 </head>
 <body>
@@ -70,7 +71,7 @@
     </div>
   </div>
 
-  <div class="field-plate trail-plate" aria-hidden="true">
+  <div class="field-plate trail-plate" role="img" aria-label="Final positions: Nadia and Rana were tagged inside the 240 metre zone. The play area and the last trail are drawn; no other players are shown.">
     <svg viewBox="0 0 390 116" preserveAspectRatio="xMidYMid slice">
       <rect width="390" height="116" fill="#0b1220"/>
       <g fill="#101827" stroke="#26324b" stroke-width="1">
@@ -117,10 +118,11 @@
   <div class="dock dock-result">
     <div class="dock-status">
       <span>The hunt is over. The result is final.</span>
-      <span class="inline">Play again</span>
+      <span class="inline hit48">Play again <span class="cap" style="color:var(--a-muted);font-size:11px">Proposal</span></span>
     </div>
     <button class="btn primary" type="button">Back to lobby</button>
     <button class="btn secondary" type="button">View hunt history</button>
+    <div class="proposal-note">Play again needs a server action to restart the room.</div>
   </div>
 </main>
 </body>
