@@ -10,6 +10,7 @@
   .hunt-strip { border-bottom: 1px solid var(--rule); padding: 9px 24px 8px; }
   .status-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 24px; }
   .claim-strip { background: var(--lift); border-top: 2px solid var(--coral); padding: 8px 24px; }
+  .claim-strip .inline { flex: none; white-space: nowrap; }
   .map-label { fill: #a7b6cc; font-family: "Red Hat Mono", monospace; font-size: 11px; letter-spacing: .06em; }
   .map-tag { fill: #0b1220; font-family: "Instrument Sans", sans-serif; font-weight: 700; font-size: 11px; }
 </style>
@@ -86,8 +87,8 @@
 
   <!-- decision durability: the claim never disappears into a dismissed sheet -->
   <div class="claim-strip">
-    <div class="row spread">
-      <span class="small" style="color:var(--chalk)">A tag claim is waiting for your answer.</span>
+    <div class="row spread" style="gap:8px">
+      <span class="small" style="color:var(--chalk);font-size:13px;min-width:0">A tag claim is waiting for your answer.</span>
       <button class="inline" style="min-height:48px;font-size:13px;color:var(--coral)" type="button">Review tag claim</button>
     </div>
   </div>

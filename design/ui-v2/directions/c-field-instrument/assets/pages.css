@@ -254,7 +254,7 @@
 .rules-sheet .stepper button { height: 38px; width: 44px; }
 .rules-sheet .stepper .val { height: 38px; min-width: 74px; }
 .rules-sheet .dock-row { display: flex; align-items: center; gap: var(--s5); }
-.rules-sheet .dock-row .btn-primary { flex: 1; height: 56px; }
+.rules-sheet .dock-row .btn-primary { flex: 1; height: 64px; }
 
 /* ── LIGHT proof ───────────────────────────────────────────────────────────── */
 html[data-theme="light"] .auth .dial svg .dial-ring { stroke: rgba(15,23,42,.25); }
@@ -597,3 +597,10 @@ html[dir="rtl"] .manifest .m-row { padding-top: 6px; padding-bottom: 6px; }
 .paper .paperm .data,
 .paper .big .u,
 .paper .note-foot .data { color: #2b3546; }
+
+/* ── QA pass: one control column, one control width ───────────────────────── */
+.settings .row .stepper { width: 172px; }
+.settings .row .stepper .val { flex: 1 1 auto; min-width: 0; }
+.rules-sheet .row .rocker { width: 176px; }
+.rules-sheet .row .switch-word { min-width: 26px; text-align: start; }
+.rules-sheet .row .switch-ctrl { width: 176px; justify-content: flex-end; }

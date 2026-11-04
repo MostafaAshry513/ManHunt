@@ -168,7 +168,7 @@ html[data-theme="light"] {
 
 /* ── buttons / dock / fields ──────────────────────────────────────────────── */
 .btn {
-  display: flex; align-items: center; justify-content: center; width: 100%;
+  display: flex; align-items: center; justify-content: center; width: 100%; box-sizing: border-box;
   font-family: var(--font-ui); font-weight: 700; font-size: 16px; line-height: 1;
   letter-spacing: 0.01em; border: 0;
 }
@@ -242,7 +242,7 @@ html[data-theme="light"] {
 /* ── log ──────────────────────────────────────────────────────────────────── */
 .log { display: flex; flex-direction: column; }
 .log-row { display: flex; gap: 12px; padding: 10px 24px 10px 0; border-bottom: 1px solid var(--rule); }
-.log-time { width: 44px; flex: none; font-family: var(--font-mono); font-size: 11px; line-height: 16px;
+.log-time { width: 68px; flex: none; font-family: var(--font-mono); font-size: 11px; line-height: 16px;
             letter-spacing: 0.06em; color: var(--dim); padding-inline-start: 24px; }
 .log-body { flex: 1 1 auto; min-width: 0; }
 .log-who { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
@@ -325,3 +325,5 @@ svg.stroke-1 { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linec
 html[data-theme="light"] .block--ink-keep { background: #0b1220; color: #e6edf7; }
 html[data-theme="light"] .block--ink-keep .small, html[data-theme="light"] .block--ink-keep .cap { color: #a7b6cc; }
 html[data-theme="light"] .block--ink-keep .dim { color: #6f829b; }
+
+.credit-line.tight { letter-spacing: 0; }

@@ -188,6 +188,7 @@ html[data-theme="light"] {
 .btn.disabled, .btn.primary.is-disabled { background: rgba(34, 211, 238, 0.12); color: rgba(230, 237, 247, 0.38); }
 :root[data-theme="light"] .btn.primary.is-disabled { background: rgba(11, 107, 131, 0.1); color: rgba(15, 23, 42, 0.4); }
 .btn.secondary.is-disabled { color: rgba(230, 237, 247, 0.38); border-color: var(--a-rule); }
+:root[data-theme="light"] .btn.secondary.is-disabled, html[data-theme="light"] .btn.secondary.is-disabled { color: rgba(15, 23, 42, 0.42); }
 .inline { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; min-width: 48px; font-family: var(--a-ui); font-weight: 700; font-size: 13px; line-height: 16px; color: var(--a-ink); text-decoration: none; }
 .inline .arrow { color: var(--a-muted); }
 .inline.muted-link { color: var(--a-muted); font-weight: 400; font-size: 13px; }
