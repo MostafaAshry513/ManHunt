@@ -42,5 +42,8 @@ export function sortPages(files) {
 /** Canonical order for the matrix: every known page, with present extras appended. */
 export function matrixOrder(extraIds = []) {
   const known = new Set(PAGE_IDS);
-  return [...PAGE_IDS, ...extraIds.filter((id) => !known.has(id)).sort()];
+  // Dedupe extras: two directions may carry the same extra state-page id
+  // (e.g. state-paused); the matrix/strips want one row per page, not per direction.
+  const extras = [...new Set(extraIds.filter((id) => !known.has(id)))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  return [...PAGE_IDS, ...extras];
 }
