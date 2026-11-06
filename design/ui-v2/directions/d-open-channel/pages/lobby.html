@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lobby — ManHunt · Open Channel</title>
+<link rel="stylesheet" href="/design/ui-v2/env/canvas.css">
+<link rel="stylesheet" href="/design/ui-v2/directions/d-open-channel/direction.css">
+
+</head>
+<body>
+<main class="page ">
+<header class="rig">
+  <button class="ic ic--back" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M15 4 7 12l8 8"/></svg></button><div class="rgrow"><h1 class="title">Riverside Run</h1><div class="data-s" style="margin-top:1px">Lobby · 5 players</div></div>
+  <div class="status"><button class="ic ic--end" type="button" aria-label="Share room code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M5 13v7h14v-7"/></svg></button><button class="ic ic--end" type="button" aria-label="Past hunts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3v5h-5"/></svg></button></div>
+</header>
+<section class="lobby-readout">
+  <div class="line">
+    <div><div class="lbl">Room code</div><div class="code">K7M2QX</div></div>
+    <div class="act"><button class="inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true"><path d="M9 9h11v11H9z"/><path d="M4 15V4h11"/></svg> Share code</button><span class="data-s" style="margin-top:2px">tap to copy</span></div>
+  </div>
+  <div class="l2">
+    <div class="ready"><span class="rd">Ready</span><span class="tally"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="data">5 / 5</span></div>
+    <span class="data-s">Classic hunt · 60 min</span>
+  </div>
+</section>
+<section class="roll">
+  <div class="sec-line"><span class="ticks"><i></i><i></i><i></i></span><span class="t">Roll call</span><span class="r">Pick a side before you start</span></div>
+  <div class="roll-sec">
+    <div class="roll-head roll-head--prey"><span class="tn">Prey</span><span class="tc">2</span></div>
+    <div class="member">
+  <span class="av av--prey">N</span>
+  <span class="nm">Nadia</span>
+  
+  <span class="rd"><span class="lamp on"></span><span class="state">Ready</span></span>
+</div>
+    <div class="member">
+  <span class="av av--prey">R</span>
+  <span class="nm">Rana</span>
+  
+  <span class="rd"><span class="lamp on"></span><span class="state">Ready</span></span>
+</div>
+  </div>
+  <div class="roll-sec">
+    <div class="roll-head roll-head--hunt"><span class="tn">Hunters</span><span class="tc">3</span></div>
+    <div class="member member--you">
+  <span class="av av--hunt">O</span>
+  <span class="nm">Omar</span>
+  <span class="tag">HOST · YOU</span>
+  <span class="rd"><span class="lamp on"></span><span class="state">Ready</span></span>
+</div>
+    <div class="member">
+  <span class="av av--hunt">S</span>
+  <span class="nm">Selim</span>
+  
+  <span class="rd"><span class="lamp on"></span><span class="state">Ready</span></span>
+</div>
+    <div class="member">
+  <span class="av av--hunt">Y</span>
+  <span class="nm">Youssef</span>
+  
+  <span class="rd"><span class="lamp on"></span><span class="state">Ready</span></span>
+</div>
+  </div>
+</section>
+<section style="padding:14px 24px 0">
+  <div class="side-pick">
+    <span class="lab">Your side</span>
+    <div class="seg" role="radiogroup" aria-label="Your side">
+      <span class="opt" role="radio" aria-checked="false">Prey</span>
+      <span class="opt on" role="radio" aria-checked="true">Hunters</span>
+    </div>
+  </div>
+</section>
+<section class="lobby-rules">
+  <div class="sec-line"><span class="ticks"><i></i><i></i><i></i></span><span class="t">Room rules</span><span class="r"><button class="inline" style="font-size:12px;min-height:24px">Edit rules</button></span></div>
+  <div class="rule-grid">
+    <span class="ri"><span class="k">Rules</span><span class="v">Classic hunt</span></span>
+    <span class="ri"><span class="k">Start</span><span class="v">5 min</span></span>
+    <span class="ri"><span class="k">Duration</span><span class="v">60 min</span></span>
+    <span class="ri"><span class="k">Reports</span><span class="v">5 min</span></span>
+    <span class="ri"><span class="k">Zone</span><span class="v">240 m</span></span>
+    <span class="ri"><span class="k">Trails</span><span class="v">on</span></span>
+  </div>
+</section>
+<div class="grow"></div>
+<div class="dock lobby-dock">
+  <div class="status"><span class="l">Everyone&rsquo;s ready. The hunt is yours to start.</span><span class="r"><button class="inline" style="font-size:12px">Stand down</button></span></div>
+  <button class="key key--primary" type="button">Begin the hunt</button>
+</div>
+</main>
+</body>
+</html>
