@@ -1,8 +1,12 @@
 # Direction E — Still Night
 
-**One line:** the hunt as a quiet field object — graphite chrome, a chalk-paper map that is
-the only bright thing on the screen, one figure, one accent, and a minute ruler you can read
-at a glance.
+**One line:** the hunt as a quiet field object — graphite chrome, a field chart that is the
+only bright thing on the screen (a dark chart with luminous traces at night, printed paper in
+daylight), one figure, one accent, and a minute ruler you can read at a glance.
+
+**Themes:** Night (default graphite), Dusk (blue hour, cooler and a step less black) and
+Daylight (brand chalk, the same drawing as printed paper). Theme tokens, per-theme map
+treatment and proofs are in §4 and §5.
 
 Designed with the **unslop** skill by Damir Sokolovsky ([@heydamir](https://x.com/heydamir)),
 <https://github.com/heydamir/unslop>, CC BY 4.0. The audit, direction and pass order follow the
@@ -13,7 +17,8 @@ no image-generation tool was available, so the direction's one rich visual is bu
 (SVG + CSS), which the skill explicitly allows for app screens.
 
 Static design direction: 390×844 dp, rendered at 3× = 1170×2532 px by the shared
-`design/ui-v2/env` renderer. 14 canonical pages + 3 state studies, same coverage as A–D.
+`design/ui-v2/env` renderer. 14 canonical pages + 3 state studies, same coverage as A–D,
+plus 2 theme proofs (Dusk home, Daylight live hunt) once the theme system was added.
 
 ---
 
@@ -108,8 +113,10 @@ tracking; and the system gets one signature detail you can describe in a sentenc
   streetlight. Surfaces are graphite (pencil lead, unlit asphalt); the map is chalk-white paper
   with print inks; type is plain-spoken.
 - **Moments.** Two, and only two, carry the colour and craft: **(1) the field plate** — a drawn
-  chalk-paper map with real street names, a cyan zone ring, coral/violet position marks and a
-  dashed report trail; it is the single bright thing on every screen that has one. **(2) the
+  map of the seeded area with real street names, a cyan zone ring, coral/violet position marks
+  and a dashed report trail. It is the single bright thing on every screen that has one: at
+  Night and Dusk it is a dark chart (deeper than the chrome) lit only by those traces; in
+  Daylight the identical drawing is printed on white paper with darker print inks. **(2) the
   clock** — one Big Shoulders figure at 64 px, the only display type on the screen, with the
   minute ruler under it.
 - **Signature.** **The minute ruler.** A 1 px hairline of 60 ticks under the clock, where the
@@ -142,7 +149,10 @@ only as (a) the one live-state dot, (b) the zone ring inside the plate, (c) the 
 indicator — a few percent of the screen. Coral and violet are **semantic only**: Prey and
 Hunters, used as 6–7 px dots in lists and as the print inks inside the plate. Primary buttons
 are off-white from the ramp, not the accent, so the accent never becomes "the button colour".
-The plate is the direction's one bright element and it is a *light* object on a dark screen.
+The plate is the direction's one bright element: since the owner review it is a **dark chart**
+in the night themes — the plate surface sits deeper than the page, and the only light on it is
+the cyan zone ring, the coral/violet marks and the map labels — and **printed paper** in
+Daylight. Nothing else in the chrome changed.
 
 **Pass 3 — Icons.** One line set, 16–18 px, 1.5 stroke, currentColor, 6–8 px gap to label.
 Icons appear only where they carry meaning (back, copy, download, send, close); the top bar
@@ -188,8 +198,9 @@ St / Broadway / Hudson) with building blocks, roads, park, print-ink labels, a c
 coral Prey marks (fresh solid ring, stale dashed), a violet Hunter mark, a dashed report trail,
 your own cyan ring, a north arrow and a 100 m note. It is labelled "not a live track" and the
 attribution band credits OpenStreetMap contributors — the geometry is drawn, not tiles copied.
-The plate stays a light paper object in both themes; in dark it is the one bright element, and
-in the light proof it reads as a printed map on a white desk.
+The plate is the same drawing in every theme; at Night and Dusk it is a dark chart (deeper
+than the chrome, with luminous traces), and in Daylight it reads as a printed map on white
+paper. See §4 for the per-theme plate tokens and §5 for the proofs.
 
 **Pass 9 — Motion (specified, not animated in static renders).** One easing curve
 `cubic-bezier(0.22,1,0.36,1)`; 120–180 ms for press/toggle, 300–400 ms for sheets; entrances
@@ -211,10 +222,49 @@ Hunters `#a79bff`, positive `#4cc38a`, negative `#e5484d`.
 `#4b5565` / `#6b7487` text, darkened accents `#0c6b84` / `#b33a0f` / `#5b21b6`; the plate
 becomes white paper with the same print inks. No cream or beige anywhere.
 
-**Plate print inks (on paper, both themes).** zone `#0c6b84`, Prey `#c2410c`, Hunter `#5b21b6`,
-map ink `#3f4650` / `#6b7280`, paper `#f2f4f5`, blocks `#e4e8eb`, park `#e2eae0`, water
-`#dde7ee`. These are deliberately darker than the UI accents so thin lines stay legible on
-paper.
+**Theme system.** Three complete palettes, not filters. Same tokens, same components; only the
+values move:
+
+| Token role | Night (default) | Dusk | Daylight |
+| --- | --- | --- | --- |
+| page / deep | `#131416` / `#0e0f11` | `#121722` / `#0d111a` | `#f7f9fc` / `#eef2f7` |
+| surface / raised | `#191a1d` / `#232529` | `#181e2a` / `#222a38` | `#ffffff` / `#eef2f8` |
+| text / secondary / muted | `#eef0f3` / `#a6abb4` / `#7c828c` | `#e9edf4` / `#a7b0c2` / `#7b8497` | `#111827` / `#4b5565` / `#6b7487` |
+| accent | `#22d3ee` | `#22d3ee` | `#0c6b84` |
+| Prey / Hunter | `#ff7a59` / `#a79bff` | `#ff8364` / `#b3a6ff` | `#b33a0f` / `#5b21b6` |
+| primary button | off-white `#eef0f3` | off-white `#e9edf4` | ink `#111827` |
+
+Night is the primary theme (a night game); Dusk is the blue hour variant for people who want
+a cooler, slightly lighter dark; Daylight is the brand-chalk reading theme. The settings theme
+picker shows all three with a material swatch (background · plate · accent) and marks the
+active one with a check; no theme is invented per screen.
+
+**Plate treatment per theme.** The plate is the same drawing in all three themes, with
+different materials and inks:
+
+| Plate token | Night | Dusk | Daylight |
+| --- | --- | --- | --- |
+| paper (plate surface) | `#0a0c0e` | `#0e141f` | `#ffffff` |
+| blocks / block accents | `#14181c` / `#1b2126` | `#1a2230` / `#222c3d` | `#eef2f7` / `#e4eaf1` |
+| roads / road edges | `#1d242a` / `#293138` | `#232e40` / `#303d52` | `#fbfcfd` / `#dfe6ee` |
+| park / water | `#121a14` / `#0d151d` | `#152219` / `#0f1a27` | `#e9f0e7` / `#e8f0f6` |
+| map labels | `#7b8590` | `#8390a6` | `#6b7280` |
+| zone ring / Prey / Hunter | `#22d3ee` / `#ff7a59` / `#a79bff` | `#22d3ee` / `#ff8364` / `#b3a6ff` | `#0c6b84` / `#c2410c` / `#5b21b6` |
+| zone fill opacity | 10% | 10% | 6% |
+
+In the night themes the plate is a dark chart: its surface is deeper than the page so it still
+reads as one recessed object, the road grid is a step lighter than the blocks, and the
+luminous traces (cyan ring, coral/violet marks, the dashed trail, your own cyan ring) are the
+only bright marks on the screen. Marker halos use the plate surface colour so map labels stay
+legible on both dark and paper. In Daylight the same drawing is printed on white paper with the
+darker print inks. Legibility was checked on the renders: map labels and the attribution band
+stay ≥ 4.5:1 against their plate surface in all three themes; the plate is never the only place
+a safe interaction happens (all controls are on the chrome).
+
+**Legacy light token names.** `data-theme="light"` remains the Daylight theme; Night is
+`data-theme="dark"` (aliased as `night`) so existing pages and proofs keep working. `home-light`
+is kept as the canonical Daylight proof page name; the new theme proofs are `home-dusk` and
+`hunt-hunter-light`.
 
 **Type.** Instrument Sans 400/500; Big Shoulders 400 for the single display figure (64/60,
 40/38 for the small figure) and two 44 px headlines; Red Hat Mono 400 for all machine data
@@ -223,7 +273,8 @@ paper.
 **Components.** Top bar (56, wordmark or back+title, one quiet text action); buttons (primary
 off-white 48, secondary raised 48, quiet text); fields (label 13 + 44 control + hairline, mono
 hint); rows (44–46 + hairline); roster row (dot + name + optional tag + mono status); minute
-ruler; segmented control (40); stepper (40); switch (40×24, text On/Off beside it); paper plate
+ruler; segmented control (40); stepper (40); switch (40×24, text On/Off beside it); theme picker
+(40 px rows with background/plate/accent swatch and a check); field plate
 (14 radius, footer attribution band); report row; team final table; history row; bottom dock
 (status row + one filled action); overlay sheet (16 radius, handle, quiet head, title 24, note
 box, stacked actions); banners for paused/offline/tagged.
@@ -234,11 +285,12 @@ played), labels 0 and 60 min. It is one component used consistently, never decor
 
 ---
 
-## 5. Pages (17)
+## 5. Pages (19: 14 canonical + 3 states + 2 theme proofs)
 
 Canonical 14: `auth`, `roles`, `home`, `lobby`, `hunt-hunter`, `hunt-prey`, `chat`, `result`,
 `history`, `settings`, `sheet-tag-claim`, `sheet-room-settings`, `lobby-rtl`, `home-light`.
-State studies 3: `paused`, `tagged`, `offline`.
+State studies 3: `paused`, `tagged`, `offline`. Theme proofs 2: `home-dusk` (Dusk home) and
+`hunt-hunter-light` (Daylight live hunt, printed-paper plate).
 
 | Page | Intent | The moment |
 | --- | --- | --- |
@@ -255,7 +307,9 @@ State studies 3: `paused`, `tagged`, `offline`.
 | sheet-tag-claim | The one decision that must be explicit in the product. | The plate stays visible behind the scrim; sheet gives confirm and dispute equal weight, with the consequence in a quiet note box. |
 | sheet-room-settings | Host edits, server-enforced, plainly. | Steppers + segmented mode + the zone centre as a real coordinate line. |
 | lobby-rtl | Arabic proof of the same lobby, mirrored, with logical properties and LTR codes. | Same plate and ruler, mirrored layout, no letter-spacing on Arabic. |
-| home-light | Light-theme proof on the brand chalk ground. | The paper plate reads as a printed map on a white desk. |
+| home-light | Daylight proof on the brand chalk ground (same page as home). | The plate reads as a printed map on a white desk; the chrome is chalk and ink. |
+| home-dusk | Dusk proof of the same home page. | Cool blue-hour chrome with the dark chart a step deeper still. |
+| hunt-hunter-light | Daylight proof of the busiest screen, to prove the system in the reading theme. | The printed-paper plate and ink clock under a chalk page; button flips to ink-on-white. |
 | paused | The clock is stopped, tagging is off, the host can resume. | Muted figure + dashed zone ring; frozen positions as dotted markers. |
 | tagged | The Prey's hunt is over; they spectate, chat stays open. | Dashed ring + faded own position; the alert banner does the state work. |
 | offline | Show the last state, say it may be stale, disable tagging. | Alert banner + muted figure + dotted "last known" reports. |
@@ -275,9 +329,11 @@ floating on the artwork.
   section labels 13; nothing below 10.5 except map annotations (cartographic, inside the
   artwork) and the plate legal line.
 - Contrast: primary/secondary text on graphite ≥ 7:1 / ≥ 5:1; accent used for a dot and a
-  ring, not for body text; map print inks ≥ 4.5:1 on paper for text, lines are 2 px strokes;
-  button labels off-white on ink ≥ 15:1. Light proof uses the brand's daylight tokens and
-  darkened accents.
+  ring, not for body text; map inks ≥ 4.5:1 against their plate surface for text in all three
+  themes; line work is ≥ 1.5 px strokes; primary button labels are ink on off-white (Night/
+  Dusk) or white on ink (Daylight), ≥ 12:1. The theme picker has a textual label for every
+  option (name + description) so it is not colour-only; the active row carries a check, a
+  raised surface and a hairline.
 - Targets: every control ≥ 44 px; icon buttons 44×44 hit area; stepper keys 40×40 inside a
   44 px row; rows are 44–46; no hover-only affordances.
 - Focus order follows DOM reading order; the two sheets are described as dialogs (`role` in
@@ -303,8 +359,10 @@ floating on the artwork.
   same print overlay (zone ring, marks, trail) and the same paper/ink styling — the direction's
   contract is "one bright paper object", not "hand-drawn tiles".
 - No new permissions, no new endpoints, no gameplay changes. Rematch stays a labelled proposal.
-- Fonts are the project's existing OFL brand fonts (no new faces); light/dark tokens are plain
-  Color values; RTL is covered by Compose's layout direction.
+- Fonts are the project's existing OFL brand fonts (no new faces); the three themes are three
+  plain token sets (Color values + the plate ink set) selected by a `ThemeMode` enum
+  (Night / Dusk / Daylight; "follow system" is a product decision), applied above the theme
+  like the app's existing dark/light switch; RTL is covered by Compose's layout direction.
 
 ---
 
@@ -312,10 +370,16 @@ floating on the artwork.
 
 - **The plate is drawn, not live.** Every page says "not a live track" and the plate credits
   OpenStreetMap contributors. Real tiles are an implementation concern (A–D carry the same
-  note). This is a design-direction limitation, stated rather than hidden.
-- **Light theme is a proof, not the primary.** The brief is dark-first (night game); E keeps
-  dark primary and shows one light page (`home-light`) on the brand chalk ground. The plate is
-  the same object in both.
+  note). This is a design-direction limitation, stated rather than hidden. In the dark themes
+  the implementation will need a dark map style (or a styled overlay/tint on the existing
+  raster tiles) that keeps roads a step lighter than blocks, as in the drawing.
+- **Theme proofs are extras, not canonical pages.** The contact sheet renders the 14 canonical
+  pages; `home-dusk` and `hunt-hunter-light` are theme proofs carried as extra pages (the sheet
+  header counts them with the state studies, and they appear in the matrix and strips). The
+  canonical page set stays at 14 so coverage comparisons with A–D remain exact.
+- **Three themes are design intent, not a full theming audit.** Night/Dusk/Daylight are
+  complete token sets and the key pages are proven, but A–D (and the shipped app) remain
+  single-theme; E does not retro-fit themes onto the other directions.
 - **Uppercase is gone by design.** E writes states as "Live", "Paused", "Full time". That is
   the unslop copy pass applied to the whole direction; the shipped app's state vocabulary stays
   in caps for A–D. If the owner prefers the app's capitalised state words, this is a mechanical
@@ -340,14 +404,18 @@ floating on the artwork.
 
 ## 9. Verification
 
-- 17/17 pages rendered by `design/ui-v2/env/render.mjs` at exactly 1170×2532 px, no overflow
-  warnings from the renderer.
+- 19/19 pages rendered by `design/ui-v2/env/render.mjs` at exactly 1170×2532 px, no overflow
+  warnings from the renderer (14 canonical + 3 state studies + 2 theme proofs).
 - Fit audit (`/tmp/egen/fit.mjs`, per-element, every page): no content below the 390×844 fold,
   every stage asserted; contact sheet regenerated from these renders.
 - Geometry audit (`/tmp/egen/audit.mjs`): no clipped visible text, no content outside the
   canvas, no control-column drift, no interactive collisions. The only flagged line-box
   intersections are font-metric overlaps between the state line and the display figure on hunt
   screens (line boxes overlap by 4–8 px, no ink collision); verified visually.
+- Theme checks: every page rendered in its intended theme; the dark and dusk plates were
+  checked for label/attribution contrast, block-vs-road separation and halo legibility; the
+  Daylight pages were checked for paper-vs-chrome separation. Settings was re-fit after the
+  theme picker replaced the old two-option segmented control.
 - A/B/C untouched; only the shared pack (contact sheet, matrix, strips, gallery) is regenerated
   to include the fourth direction.
 

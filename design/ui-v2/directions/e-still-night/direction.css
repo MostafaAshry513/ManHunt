@@ -1,14 +1,16 @@
 /* ============================================================================
    DIRECTION E — "STILL NIGHT"
-   The quiet one: graphite chrome, one bright moment per screen (a chalk-paper
-   field plate), one figure, one accent, one signature detail (a minute ruler).
+   The quiet one: graphite chrome, one bright moment per screen (a field chart —
+   a dark chart with luminous traces at night, printed paper in daylight), one
+   figure, one accent, one signature detail (a minute ruler). Three themes:
+   Night (default), Dusk, Daylight.
    Designed through the unslop process by Damir Sokolovsky (@heydamir),
    https://github.com/heydamir/unslop, CC BY 4.0. See NOTES.md §0 and §9.
    Sits on /design/ui-v2/env/canvas.css (canvas contract + brand faces).
    ========================================================================== */
 
 /* ── Tokens ──────────────────────────────────────────────────────────────── */
-:root, :root[data-theme="dark"], html[data-theme="dark"] {
+:root, :root[data-theme="dark"], html[data-theme="dark"], :root[data-theme="night"], html[data-theme="night"] {
   /* graphite ramp — neutral, tinted cool by a hair, never reads as a colour */
   --e-bg: #131416;
   --e-bg-deep: #0e0f11;
@@ -35,18 +37,23 @@
   --e-primary: #eef0f3;
   --e-on-primary: #16181b;
 
-  /* the paper plate is an object: same material in both themes, print inks */
-  --e-paper: #f2f4f5;
-  --e-paper-block: #e4e8eb;
-  --e-paper-block-2: #dce1e5;
-  --e-paper-park: #e2eae0;
-  --e-paper-water: #dde7ee;
-  --e-paper-edge: rgba(22, 24, 27, 0.16);
-  --e-map-ink: #3f4650;
-  --e-map-ink-2: #6b7280;
-  --e-map-zone: #0c6b84;
-  --e-map-prey: #c2410c;
-  --e-map-hunt: #5b21b6;
+  /* the field plate is an object: at night it is a dark chart, deeper than the
+     chrome, with luminous traces; Daylight renders the same drawing as printed
+     paper (see the theme blocks below) */
+  --e-paper: #0a0c0e;
+  --e-paper-block: #14181c;
+  --e-paper-block-2: #1b2126;
+  --e-paper-park: #121a14;
+  --e-paper-water: #0d151d;
+  --e-map-road: #1d242a;
+  --e-map-road-edge: #293138;
+  --e-paper-edge: rgba(238, 240, 243, 0.12);
+  --e-map-ink: #8b939e;
+  --e-map-ink-2: #7b8590;
+  --e-map-zone: #22d3ee;
+  --e-map-prey: #ff7a59;
+  --e-map-hunt: #a79bff;
+  --e-map-zone-fill: 0.1;
 
   /* type */
   --e-ui: "Instrument Sans", "Segoe UI", sans-serif;
@@ -55,6 +62,46 @@
   --e-arabic: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", sans-serif;
 }
 
+/* ── Theme: Dusk — the blue hour, cooler and a step less black ──────────── */
+:root[data-theme="dusk"], html[data-theme="dusk"] {
+  --e-bg: #121722;
+  --e-bg-deep: #0d111a;
+  --e-surface: #181e2a;
+  --e-raised: #222a38;
+
+  --e-ink: #e9edf4;
+  --e-ink-2: #a7b0c2;
+  --e-ink-3: #7b8497;
+
+  --e-rule: rgba(233, 237, 244, 0.08);
+  --e-rule-2: rgba(233, 237, 244, 0.14);
+
+  --e-accent: #22d3ee;
+  --e-prey: #ff8364;
+  --e-hunt: #b3a6ff;
+  --e-positive: #4cc38a;
+  --e-negative: #ef6a6a;
+
+  --e-primary: #e9edf4;
+  --e-on-primary: #12161f;
+
+  --e-paper: #0e141f;
+  --e-paper-block: #1a2230;
+  --e-paper-block-2: #222c3d;
+  --e-paper-park: #152219;
+  --e-paper-water: #0f1a27;
+  --e-map-road: #232e40;
+  --e-map-road-edge: #303d52;
+  --e-paper-edge: rgba(233, 237, 244, 0.14);
+  --e-map-ink: #93a0b5;
+  --e-map-ink-2: #8390a6;
+  --e-map-zone: #22d3ee;
+  --e-map-prey: #ff8364;
+  --e-map-hunt: #b3a6ff;
+  --e-map-zone-fill: 0.1;
+}
+
+/* ── Theme: Daylight — brand chalk, the drawing as printed paper ────────── */
 :root[data-theme="light"], html[data-theme="light"] {
   --e-bg: #f7f9fc;          /* brand daylight chalk, never cream */
   --e-bg-deep: #eef2f7;
@@ -82,7 +129,15 @@
   --e-paper-block-2: #e4eaf1;
   --e-paper-park: #e9f0e7;
   --e-paper-water: #e8f0f6;
+  --e-map-road: #fbfcfd;
+  --e-map-road-edge: #dfe6ee;
   --e-paper-edge: rgba(17, 24, 39, 0.12);
+  --e-map-ink: #3f4650;
+  --e-map-ink-2: #6b7280;
+  --e-map-zone: #0c6b84;
+  --e-map-prey: #c2410c;
+  --e-map-hunt: #5b21b6;
+  --e-map-zone-fill: 0.06;
 }
 
 [dir="rtl"] {
@@ -268,6 +323,7 @@
   box-shadow: inset 0 0 0 1px var(--e-paper-edge);
 }
 .plate > svg.map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.plate .map .zonefill { fill: var(--e-map-zone); fill-opacity: var(--e-map-zone-fill, 0.06); }
 .plate .attrib {
   position: absolute; inset-inline: 0; bottom: 0;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -470,13 +526,13 @@ html[data-theme="light"] .scrim { background: rgba(17, 24, 39, 0.32); }
 /* settings */
 .set { padding: 4px 24px 0; }
 .set .sec { margin-top: 8px; }
-.set .srow { display: flex; align-items: center; gap: 12px; min-height: 46px; border-bottom: 1px solid var(--e-rule); }
+.set .srow { display: flex; align-items: center; gap: 12px; min-height: 44px; border-bottom: 1px solid var(--e-rule); }
 .set .srow .k { flex: 1 1 auto; min-width: 0; }
 .set .srow .k .n { font-family: var(--e-ui); font-size: 14px; line-height: 19px; color: var(--e-ink); }
 .set .srow .k .h { display: block; margin-top: 1px; font-family: var(--e-ui); font-size: 12px; line-height: 16px; color: var(--e-ink-3); }
 .set .srow .c { flex: none; display: flex; align-items: center; gap: 10px; }
 .set .srow .v { font-family: var(--e-mono); font-size: 12px; line-height: 16px; color: var(--e-ink-2); }
-.set .sec-label { margin-top: 12px; padding-bottom: 2px; font-family: var(--e-ui); font-size: 13px; line-height: 16px; font-weight: 500; color: var(--e-ink-2); }
+.set .sec-label { margin-top: 8px; padding-bottom: 2px; font-family: var(--e-ui); font-size: 13px; line-height: 16px; font-weight: 500; color: var(--e-ink-2); }
 .set .seg { width: 160px; }
 .set .preview { padding: 8px 0 2px; font-family: var(--e-ui); font-size: 13px; line-height: 19px; color: var(--e-ink-3); }
 .set .foot-note { padding-top: 6px; font-family: var(--e-ui); font-size: 12px; line-height: 17px; color: var(--e-ink-3); }
@@ -498,3 +554,16 @@ html[data-theme="light"] .scrim { background: rgba(17, 24, 39, 0.32); }
 .hunt-body .map-wrap { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
 .hunt-body .map-wrap .plate { flex: 1 1 auto; height: auto; min-height: 240px; }
 .hunt-body .map-wrap .map-note { flex: none; }
+
+/* ── Theme picker (settings) ────────────────────────────────────────────── */
+.theme-list { margin: 4px 0 2px; display: flex; flex-direction: column; gap: 4px; }
+.theme-row { display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 0 10px; margin: 0 -10px; border-radius: 10px; }
+.theme-row.on { background: var(--e-raised); box-shadow: inset 0 0 0 1px var(--e-rule); }
+.theme-row .sw { width: 46px; height: 26px; flex: none; position: relative; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--e-rule-2); background: var(--sw-bg, var(--e-bg)); overflow: hidden; }
+.theme-row .sw .platechip { position: absolute; inset-inline-start: 36%; top: 4px; bottom: 4px; width: 32%; border-radius: 2px; background: var(--sw-plate, var(--e-surface)); }
+.theme-row .sw .dot { position: absolute; inset-inline-end: 5px; top: 50%; margin-top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--sw-accent, var(--e-accent)); }
+.theme-row .k { flex: 1 1 auto; min-width: 0; }
+.theme-row .n { font-family: var(--e-ui); font-size: 14px; line-height: 19px; color: var(--e-ink); }
+.theme-row .h { display: block; margin-top: 1px; font-family: var(--e-ui); font-size: 12px; line-height: 16px; color: var(--e-ink-3); }
+.theme-row .ck { width: 16px; height: 16px; flex: none; color: var(--e-ink); }
+.theme-row .ck svg { width: 16px; height: 16px; }
