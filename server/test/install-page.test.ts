@@ -35,7 +35,7 @@ test('install page renders version, size, checksum and server from the update ma
   const app = await makeApp(manifestPath);
   t.after(() => app.close());
 
-  const res = await app.inject({ method: 'GET', url: '/', headers: { host: 'example.test' } });
+  const res = await app.inject({ method: 'GET', url: '/classic', headers: { host: 'example.test' } });
   assert.equal(res.statusCode, 200);
   assert.match(String(res.headers['content-type']), /text\/html/);
 
@@ -133,7 +133,7 @@ test('install page shows aggregate account count and weekly growth', async (t) =
     assert.equal(registered.statusCode, 200, registered.body);
   }
 
-  const page = await app.inject({ method: 'GET', url: '/' });
+  const page = await app.inject({ method: 'GET', url: '/classic' });
   assert.match(page.body, /<b>2<\/b><span class="data-sm">accounts started<\/span>/);
   assert.match(page.body, /<b class="plus">\+2<\/b><span class="data-sm">new this week<\/span>/);
 });
@@ -222,10 +222,10 @@ test('install page still downloads without a published manifest and the update A
   const page = await app.inject({ method: 'GET', url: '/' });
   assert.equal(page.statusCode, 200);
   assert.match(page.body, /Download the APK/);
-  assert.match(page.body, /not published on this server yet/);
-  assert.match(page.body, /No checksum has been published for this build/);
-  // A fresh deployment (no accounts yet) shows the licence fact rather than a wall of zeroes.
-  assert.match(page.body, /<b>MIT<\/b><span class="data-sm">licensed source<\/span>/);
+  assert.match(page.body, /Your street/);
+  assert.match(page.body, /is the board/);
+  assert.match(page.body, /Real-world hide-and-seek/);
+  assert.match(page.body, /night-bricolage\.ttf/);
   assert.doesNotMatch(page.body, /accounts started/);
 
   const latest = await app.inject({ method: 'GET', url: '/api/app/latest' });

@@ -199,6 +199,15 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     'instrument-sans-400.woff2': 'font/woff2',
     'instrument-sans-700.woff2': 'font/woff2',
     'red-hat-mono-400.woff2': 'font/woff2',
+    // NIGHT SHIFT landing page: self-hosted faces and the five real app screens.
+    'night-bricolage.ttf': 'font/ttf',
+    'night-archivo.ttf': 'font/ttf',
+    'night-plex-mono.ttf': 'font/ttf',
+    'night-home.png': 'image/png',
+    'night-lobby.png': 'image/png',
+    'night-hunt.png': 'image/png',
+    'night-chat.png': 'image/png',
+    'night-result.png': 'image/png',
   };
   app.get<{ Params: { file: string } }>('/media/:file', async (req, reply) => {
     const type = siteMedia[req.params.file];
@@ -230,6 +239,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       'SELECT COUNT(*) AS n FROM users WHERE created_at >= ?',
       weekAgo,
     )?.n ?? 0;
+    const nightShift = await readFile(resolve(process.cwd(), 'public', 'site', 'night-shift.html')).catch(() => null);
     return reply
       .type('text/html; charset=utf-8')
       .header('cache-control', 'no-store')
@@ -238,7 +248,29 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .header('x-frame-options', 'DENY')
       .header('referrer-policy', 'no-referrer')
       .header('content-security-policy', "default-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
-      .send(applySiteMaster(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }), master));
+      .send(nightShift ?? applySiteMaster(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }), master));
+  });
+
+  // Previous NIGHT FIXTURE page kept as a static fallback/reference while the new landing page
+  // settles. It uses the same manifest-aware renderer and hardening headers.
+  app.get('/classic', async (req, reply) => {
+    const raw = await readManifestText(manifestPath);
+    const manifest = raw === null ? null : parseManifest(raw);
+    const totalAccounts = get<{ n: number }>(deps.db, 'SELECT COUNT(*) AS n FROM users')?.n ?? 0;
+    const weekAgo = clock() - 7 * 24 * 60 * 60 * 1000;
+    const newAccounts = get<{ n: number }>(
+      deps.db,
+      'SELECT COUNT(*) AS n FROM users WHERE created_at >= ?',
+      weekAgo,
+    )?.n ?? 0;
+    return reply
+      .type('text/html; charset=utf-8')
+      .header('cache-control', 'no-store')
+      .header('x-content-type-options', 'nosniff')
+      .header('x-frame-options', 'DENY')
+      .header('referrer-policy', 'no-referrer')
+      .header('content-security-policy', "default-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
+      .send(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }));
   });
 
   app.get('/join', async (req, reply) => {

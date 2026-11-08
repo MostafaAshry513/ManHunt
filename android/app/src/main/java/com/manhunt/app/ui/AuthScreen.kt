@@ -211,6 +211,13 @@ fun AuthScreen() {
                     color = MaterialTheme.colorScheme.primary,
                 )
                 HeadingText(t("Hide from your friends."), style = ManHuntType.displayL())
+                Text(
+                    ui.serverUrl,
+                    style = ManHuntType.dataSmall(),
+                    color = BoardTheme.muted(),
+                    maxLines = 1,
+                    modifier = Modifier.testTag("auth_server_line"),
+                )
                 PlateTextField(
                     value = ui.username,
                     onValueChange = vm::onUsername,
