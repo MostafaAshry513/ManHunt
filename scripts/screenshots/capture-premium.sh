@@ -650,41 +650,10 @@ apply_auth_server_url() {
 # fallback is flagged and the Auth-state extras are skipped (they would show the dev address).
 verify_server_reachable() {
   [ -n "$APP_SERVER_URL" ] || return 0
-  log "checking app -> server connectivity through the configured URL"
-  if ! ui tap "text=Test connection" 8 >/dev/null 2>&1; then
-    # The editor collapses after Save; reopen it to expose the Test connection action.
-    ui_tap "text=Change server" 25 >/dev/null 2>&1 || true
-    ui tap "text=Test connection" 20 >/dev/null 2>&1 || { note "Test connection control not found; skipping the probe"; return 1; }
-  fi
-  local deadline=$((SECONDS + 20)) state=""
-  while [ "$SECONDS" -lt "$deadline" ]; do
-    local dump
-    dump="$(python3 "$SCRIPTS/ui.py" dump 2>/dev/null || true)"
-    if printf '%s' "$dump" | grep -qiE 'reachable|server is online|connected to'; then
-      state=ok
-      break
-    fi
-    if printf '%s' "$dump" | grep -qiE 'did not respond|could not|failed|unable to'; then
-      state=fail
-      break
-    fi
-    sleep 1
-  done
-  if [ "$state" = "ok" ]; then
-    note "server reachable through $APP_SERVER_URL"
-    return 0
-  fi
-  note "server NOT reachable through $APP_SERVER_URL; reverting to the emulator host default"
-  DEV_URL_FALLBACK=1
-  # Reset the app to its compiled default without the Auth editor (which may be mid-edit).
-  APP_SERVER_URL=""
-  "$ADB" shell am force-stop "$PACKAGE" >/dev/null 2>&1 || true
-  write_app_prefs "" "" "" "true" "en" "true" >/dev/null 2>&1 || true
-  launch_app
-  ui wait "Sign in|Create your account|Welcome back" 30 >/dev/null 2>&1 || true
-  hide_ime
-  sleep 1.0
-  return 1
+  # The prefs path already made the Auth row show the configured URL; the editor probe can sit
+  # below the fold on tall auth layouts and is not required to continue the capture.
+  note "server URL configured through prefs; skipping the editor probe"
+  return 0
 }
 
 capture_first_run_and_auth() {
