@@ -196,7 +196,7 @@ fun AuthScreen() {
             BrandFieldPlate(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(140.dp)
                     .testTag("auth_field_plate"),
                 animate = true,
             )

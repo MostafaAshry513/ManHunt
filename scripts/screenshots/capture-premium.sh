@@ -164,6 +164,14 @@ tap_field() {
   if ui tap-near "text=$label" 0 80 20 >/dev/null 2>&1; then
     return 0
   fi
+  # Tall auth layouts can place the next field below the keyboard fold. Close the IME and bring
+  # the form up once, then retry the labelled tap before falling back to the EditText index.
+  hide_ime
+  "$ADB" shell input swipe 540 1700 540 850 280 >/dev/null 2>&1 || true
+  sleep 0.6
+  if ui tap-near "text=$label" 0 80 20 >/dev/null 2>&1; then
+    return 0
+  fi
   note "$label label not tappable; falling back to text field #$index"
   ui tap-edit "$index" 20 >/dev/null 2>&1
 }
