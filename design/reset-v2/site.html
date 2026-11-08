@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ManHunt — the street is the board</title>
+<style>
+@font-face{font-family:"Bricolage Grotesque";src:url("fonts/BricolageGrotesque.ttf") format("truetype");font-weight:200 800;font-stretch:75% 100%}
+@font-face{font-family:"Archivo";src:url("fonts/Archivo.ttf") format("truetype");font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:"IBM Plex Mono";src:url("fonts/IBMPlexMono-Regular.ttf") format("truetype");font-weight:400}
+:root{
+  --ink:#08090A;--ink-2:#0D0F11;--surface:#121416;--surface-2:#181B1E;
+  --chalk:#F3EFE6;--muted:#A6A39B;--dim:#717570;
+  --flare:#FF5A36;--on-flare:#1A0803;--lime:#B8F04A;--cobalt:#6D8CFF;--mint:#3BE3A3;
+  --line:rgba(243,239,230,.13);--line-strong:rgba(243,239,230,.3);
+  --display:"Bricolage Grotesque",system-ui,sans-serif;--sans:"Archivo",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
+  --pad:clamp(20px,4.8vw,72px);
+}
+*{box-sizing:border-box}html{background:var(--ink);color:var(--chalk)}
+body{margin:0;font-family:var(--sans);background:var(--ink);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+.wrap{max-width:1440px;margin:0 auto;padding:0 var(--pad)}
+.nav{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;font:700 20px/1 var(--display);letter-spacing:-.03em}
+.mark{width:22px;height:22px;position:relative}
+.mark:before,.mark:after{content:"";position:absolute;left:10px;top:-1px;width:2px;height:24px;background:var(--flare)}
+.mark:before{transform:rotate(38deg)}.mark:after{transform:rotate(-38deg);background:var(--chalk)}
+.nav-links{display:flex;gap:28px;font:13px/1 var(--sans);color:var(--muted)}
+.nav-links a:hover{color:var(--chalk)}
+.nav .apk{border:1px solid var(--line-strong);padding:11px 14px;font:11px/1 var(--mono);color:var(--chalk)}
+.mobile-menu{display:none;font:12px/1 var(--mono);color:var(--muted)}
+.tape{height:5px;background:repeating-linear-gradient(135deg,var(--flare) 0 8px,transparent 8px 16px);opacity:.9}
+.hero{display:grid;grid-template-columns:1.02fr 1.18fr;gap:clamp(28px,4vw,64px);padding:clamp(48px,7vw,96px) 0 clamp(48px,6vw,84px);align-items:center}
+.hero-copy{position:relative;z-index:2}
+.kicker{font:10px/1.2 var(--mono);color:var(--flare);letter-spacing:.03em;margin:0 0 18px}
+h1{font:600 clamp(62px,8.7vw,138px)/.81 var(--display);letter-spacing:-.07em;font-stretch:88%;margin:0}
+.hero p.lead{max-width:400px;margin:26px 0 0;font-size:clamp(15px,1.4vw,18px);line-height:1.55;color:var(--muted)}
+.actions{display:flex;gap:10px;align-items:stretch;margin-top:30px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:space-between;gap:32px;min-height:52px;padding:0 18px;border:1px solid var(--line-strong);font:600 13px/1 var(--sans)}
+.btn--primary{background:var(--flare);border-color:var(--flare);color:var(--on-flare)}
+.btn .arrow{font:16px/1 var(--mono)}
+.hero-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:26px;font:10px/1.3 var(--mono);color:var(--dim)}
+.hero-meta span{display:flex;gap:6px;align-items:center}
+.hero-meta i{width:5px;height:5px;background:var(--flare);border-radius:50%;display:inline-block}
+.hero-visual{position:relative;min-height:520px;border:1px solid var(--line-strong);overflow:hidden;background:var(--surface)}
+.hero-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.16) brightness(.62) contrast(1.14)}
+.hero-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,9,10,.45),rgba(8,9,10,.05) 45%,rgba(8,9,10,.72))}
+.map-hud{position:absolute;left:18px;top:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start;z-index:2}
+.map-hud .clock{font:600 54px/.8 var(--display);letter-spacing:-.05em}
+.map-hud .meta{color:var(--chalk);margin-top:7px}
+.map-hud .panel{border:1px solid var(--line-strong);background:rgba(8,9,10,.62);padding:10px 11px;font:10px/1.5 var(--mono);color:var(--muted);text-align:right}
+.map-hud .panel b{color:var(--chalk);font-weight:400}
+.map-ring{position:absolute;width:190px;height:190px;border:1px solid var(--flare);border-radius:50%;right:22%;bottom:24%;z-index:2;opacity:.8}
+.map-ring:before{content:"";position:absolute;inset:34px;border:1px dashed rgba(255,90,54,.55);border-radius:50%}
+.map-dot{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--flare);right:calc(22% + 87px);bottom:calc(24% + 87px);z-index:3;box-shadow:0 0 0 8px rgba(255,90,54,.15)}
+.map-you{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--cobalt);right:calc(22% + 50px);bottom:calc(24% + 32px);z-index:3}
+.map-caption{position:absolute;left:18px;bottom:16px;z-index:2;font:9px/1.3 var(--mono);color:var(--dim)}
+.map-caption b{display:block;color:var(--chalk);font-weight:400;margin-bottom:3px}
+.map-teams{position:absolute;right:18px;bottom:16px;z-index:2;display:flex;gap:8px}
+.map-teams span{border:1px solid currentColor;padding:6px 8px;font:10px/1 var(--mono)}
+.map-teams .prey{color:var(--lime)}.map-teams .hunters{color:var(--cobalt)}
+.sides{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.side{padding:26px 0 30px}
+.side+.side{border-left:1px solid var(--line);padding-left:clamp(24px,4vw,56px)}
+.side:first-child{padding-right:clamp(24px,4vw,56px)}
+.side .tag{font:10px/1 var(--mono);letter-spacing:.03em}
+.side.prey .tag{color:var(--lime)}.side.hunters .tag{color:var(--cobalt)}
+.side h2{font:600 clamp(28px,3.2vw,44px)/.95 var(--display);letter-spacing:-.04em;margin:12px 0 8px}
+.side p{color:var(--muted);font-size:14px;line-height:1.55;max-width:380px;margin:0}
+.side .rule{display:flex;gap:9px;align-items:center;margin-top:18px;font:10px/1.3 var(--mono);color:var(--dim)}
+.side .rule b{color:var(--chalk);font-weight:400}
+.week{padding:clamp(48px,6vw,82px) 0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:0}
+.sec-head h2{font:600 clamp(34px,4.4vw,62px)/.9 var(--display);letter-spacing:-.05em;margin:0}
+.sec-head p{color:var(--muted);font-size:13px;line-height:1.5;max-width:330px;margin:0 0 2px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.step{padding:24px 24px 28px 0;border-bottom:1px solid var(--line)}
+.step+.step{border-left:1px solid var(--line);padding-left:24px}
+.step .n{font:10px/1 var(--mono);color:var(--flare)}
+.step h3{font:600 24px/1 var(--display);letter-spacing:-.03em;margin:17px 0 8px}
+.step p{color:var(--muted);font-size:13px;line-height:1.55;margin:0}
+.screens{display:flex;gap:clamp(16px,2.4vw,32px);align-items:flex-start;padding:clamp(38px,5vw,70px) 0 clamp(40px,5vw,74px);overflow:visible}
+.phone{flex:1 1 0;width:auto;min-width:0;border:1px solid var(--line-strong);position:relative;background:var(--surface)}
+.phone img{width:100%;height:auto}
+.phone .cap{display:flex;justify-content:space-between;padding:9px 10px;border-top:1px solid var(--line);font:9px/1 var(--mono);color:var(--dim)}
+.phone .cap b{color:var(--chalk);font-weight:400}
+.rules{padding:clamp(42px,5vw,72px) 0;border-top:1px solid var(--line)}
+.rule-row{display:grid;grid-template-columns:58px 1fr 1fr;gap:20px;border-bottom:1px solid var(--line);padding:20px 0;align-items:baseline}
+.rule-row .n{font:10px/1 var(--mono);color:var(--flare)}
+.rule-row h3{font:600 clamp(18px,2vw,25px)/1 var(--display);letter-spacing:-.025em;margin:0}
+.rule-row p{font-size:13px;line-height:1.5;color:var(--muted);margin:0;max-width:460px}
+.download{border-top:1px solid var(--line);padding:clamp(58px,7vw,96px) 0;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:end}
+.download h2{font:600 clamp(64px,10vw,150px)/.78 var(--display);letter-spacing:-.08em;margin:0}
+.download .right{max-width:340px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.download p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
+.download .meta{font:10px/1.5 var(--mono);color:var(--dim)}
+.footer{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding:18px 0 28px;font:10px/1.4 var(--mono);color:var(--dim)}
+.footer .brand{font:600 14px/1 var(--display);letter-spacing:-.02em;color:var(--chalk);gap:8px}
+.footer .mark{width:14px;height:14px}.footer .mark:before,.footer .mark:after{height:16px;left:6px}
+@media(max-width:980px){
+ .hero{grid-template-columns:1fr;gap:32px}.hero-visual{min-height:400px}
+ .nav-links{display:none}.mobile-menu{display:block}
+ .sides{grid-template-columns:1fr}.side+.side{border-left:0;border-top:1px solid var(--line);padding-left:0}
+ .steps{grid-template-columns:1fr}.step{padding:20px 0}.step+.step{border-left:0;border-top:1px solid var(--line);padding-left:0}
+ .screens{overflow-x:auto;scrollbar-width:none}.phone{flex:none;width:250px}
+ .download{grid-template-columns:1fr}.download .right{max-width:420px}
+ .rule-row{grid-template-columns:32px 1fr;gap:12px}.rule-row p{grid-column:2}
+}
+@media(max-width:600px){
+ .nav{height:64px}.nav .apk{padding:10px;font-size:10px}
+ .hero{padding-top:38px}.hero-visual{min-height:320px}
+ .map-hud .clock{font-size:44px}.map-ring{width:140px;height:140px;right:18%;bottom:28%}
+ .map-dot{right:calc(18% + 62px);bottom:calc(28% + 62px)}
+ .map-you{right:calc(18% + 32px);bottom:calc(28% + 20px)}
+ .hero p.lead{font-size:15px}.actions{flex-direction:column}.actions .btn{width:100%;flex:none}
+ .hero-meta{gap:12px}
+ .screens{padding-top:34px}.phone{width:220px}
+ .download h2{font-size:72px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+/* Section paddings above use vertical-only shorthands; restore the page rail. */
+.hero,.week,.rules,.download{padding-left:var(--pad);padding-right:var(--pad)}
+</style>
+</head>
+<body>
+<div class="tape"></div>
+<header class="wrap nav">
+  <a class="brand" href="#top"><span class="mark"></span>MANHUNT</a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#field">The field</a>
+    <a href="#night">How a night runs</a>
+    <a href="#app">In the app</a>
+    <a href="#rules">Rules</a>
+  </nav>
+  <a class="apk" href="#download">Get the APK</a>
+  <button class="mobile-menu">Menu</button>
+</header>
+
+<main id="top">
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <p class="kicker">Real-world hide-and-seek / Android</p>
+      <h1>Your street<br>is the board.</h1>
+      <p class="lead">Two teams. One code. A live clock nobody can pause. ManHunt is the game you already know, played on the streets you already share.</p>
+      <div class="actions">
+        <a class="btn btn--primary" href="#download">Download the APK <span class="arrow">↓</span></a>
+        <a class="btn" href="#night">Read the rules <span class="arrow">→</span></a>
+      </div>
+      <div class="hero-meta"><span><i></i>Free sideload</span><span><i></i>2+ phones</span><span><i></i>Server-owned clock</span><span>Android 8.0+</span></div>
+    </div>
+    <div class="hero-visual" aria-label="A live ManHunt field">
+      <img src="assets/map.jpg" alt="Street map of a live hunt">
+      <div class="map-hud">
+        <div><div class="meta">LIVE / RIVERSIDE RUN</div><div class="clock">41:12</div></div>
+        <div class="panel">ZONE <b>240 m</b><br>REPORT <b>2 min</b><br>ROUND <b>20:00</b></div>
+      </div>
+      <div class="map-ring"></div><div class="map-dot"></div><div class="map-you"></div>
+      <div class="map-caption"><b>THE FIELD IS THE PRODUCT</b>Real map, real streets, real trails.</div>
+      <div class="map-teams"><span class="prey">PREY 2</span><span class="hunters">HUNTERS 3</span></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="field">
+    <div class="sec-head"><h2>Two sides.<br>One field.</h2><p>No teams are cosmetic. The server knows who is hiding, who is hunting and how old every report is.</p></div>
+    <div class="sides">
+      <div class="side prey"><span class="tag">PREY / HIDE</span><h2>Be somewhere else.</h2><p>Hide in the zone. Your position only reaches the other side as an old report, not a live feed. Stay moving, stay public, stay quiet.</p><div class="rule"><b>You confirm the tag.</b> Or dispute it. The server decides.</div></div>
+      <div class="side hunters"><span class="tag">HUNTERS / FOLLOW</span><h2>Read the trail.</h2><p>Every report grows older. A dot on your map is a memory of where someone was, not where they are. Chase the gap.</p><div class="rule"><b>You can’t see live positions.</b> Only what the field recorded.</div></div>
+    </div>
+  </section>
+
+  <section class="wrap week" id="night">
+    <div class="sec-head"><h2>How a night runs.</h2><p>Three beats. No signup funnel, no lobby minigame, no five-tab tutorial.</p></div>
+    <div class="steps">
+      <div class="step"><span class="n">01 / PICK SIDES</span><h3>Open the room.</h3><p>One host creates a room and sends a six-character code. Two phones minimum, five players makes a night.</p></div>
+      <div class="step"><span class="n">02 / START THE CLOCK</span><h3>The server starts it.</h3><p>One round, one shrinking zone, one clock. Nobody can pause it or start it twice.</p></div>
+      <div class="step"><span class="n">03 / TAG IN PERSON</span><h3>Close enough to touch.</h3><p>A tag needs a prey confirmation, a dispute or a server decision. The record is the result.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="app">
+    <div class="sec-head"><h2>In the app.</h2><p>Built for a phone in one hand, a street under your feet and a friend half a block away.</p></div>
+    <div class="screens">
+      <div class="phone"><img src="screens/home.png" alt="Home screen"><div class="cap"><b>THE STREET</b><span>Start / join</span></div></div>
+      <div class="phone"><img src="screens/lobby.png" alt="Lobby screen"><div class="cap"><b>THE ROOM</b><span>2 prey / 3 hunters</span></div></div>
+      <div class="phone"><img src="screens/hunt.png" alt="Live hunt screen"><div class="cap"><b>THE FIELD</b><span>Report / tag</span></div></div>
+      <div class="phone"><img src="screens/chat.png" alt="Field radio screen"><div class="cap"><b>THE RADIO</b><span>All channels</span></div></div>
+      <div class="phone"><img src="screens/result.png" alt="Full time screen"><div class="cap"><b>FULL TIME</b><span>Server verified</span></div></div>
+    </div>
+  </section>
+
+  <section class="wrap rules" id="rules">
+    <div class="sec-head"><h2>Rules that hold.</h2><p>The rules are the product. These are not settings; they are the game.</p></div>
+    <div class="rule-row"><span class="n">01</span><h3>The clock is the server’s.</h3><p>It starts at the room, not on a phone. Closing the app does not pause the hunt.</p></div>
+    <div class="rule-row"><span class="n">02</span><h3>Locations are reports.</h3><p>Hunters see the last report and its age. Nobody sees a live cursor for the other team.</p></div>
+    <div class="rule-row"><span class="n">03</span><h3>Tags are confirmed.</h3><p>Prey confirms or disputes. A dispute goes to the host or server; it never disappears.</p></div>
+    <div class="rule-row"><span class="n">04</span><h3>The zone shrinks.</h3><p>Every round ends. The field tightens. Running out of space is part of the game.</p></div>
+  </section>
+
+  <section class="wrap download" id="download">
+    <h2>Get in.</h2>
+    <div class="right">
+      <p>ManHunt is a free sideloaded Android game. No Play Store, no account farm, no feed. Install it, make a handle, send a code.</p>
+      <a class="btn btn--primary" href="/app.apk">Download the APK <span class="arrow">↓</span></a>
+      <div class="meta">Free APK / Android 8.0+ / 2+ phones<br>Sideload: allow unknown sources when asked.</div>
+    </div>
+  </section>
+</main>
+<footer class="wrap footer">
+  <a class="brand" href="#top"><span class="mark"></span>MANHUNT</a>
+  <span>REAL-WORLD GPS HIDE-AND-SEEK / NIGHT SHIFT CONCEPT / 2026</span>
+  <span>UNSLOP PASS BY MANHUNT DESIGN · @HEYDAMIR FRAMEWORK</span>
+</footer>
+</body>
+</html>
