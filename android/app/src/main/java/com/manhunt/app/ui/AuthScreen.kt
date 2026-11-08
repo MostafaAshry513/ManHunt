@@ -274,7 +274,7 @@ fun AuthScreen() {
                 )
                 ErrorStrip(message = ui.error, onRetry = vm::submit)
                 BoardButton(
-                    text = if (ui.register) t("Create a handle") else t("Enter the street"),
+                    text = if (ui.register) t("Create account") else t("Sign in"),
                     onClick = vm::submit,
                     enabled = canSubmit,
                     loading = ui.loading,
