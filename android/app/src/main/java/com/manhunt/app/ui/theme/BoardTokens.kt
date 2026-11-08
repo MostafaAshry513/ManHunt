@@ -95,6 +95,10 @@ object BoardTheme {
     @Composable
     fun board(): Color = if (isDark()) MaterialTheme.colorScheme.surface else BoardColors.ink
 
+    /** The chosen master colour: primary actions, selection and the live signal. */
+    @Composable
+    fun master(): Color = if (isDark()) LocalMasterTheme.current.accentDark else LocalMasterTheme.current.accentLight
+
     /** Muted text in the current theme. */
     @Composable
     fun muted(): Color = MaterialTheme.colorScheme.onSurfaceVariant

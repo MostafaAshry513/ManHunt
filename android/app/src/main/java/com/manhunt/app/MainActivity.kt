@@ -16,11 +16,13 @@ import androidx.compose.ui.Modifier
 import com.manhunt.app.ui.AppRoot
 import com.manhunt.app.ui.DeepLink
 import com.manhunt.app.ui.StartupBrandScreen
+import com.manhunt.app.ui.theme.MasterThemeChoice
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Graph.install(applicationContext)
+        MasterThemeChoice.init(applicationContext, intent)
         enableEdgeToEdge()
         // The app paints its own background edge-to-edge; no system scrim is needed behind
         // gesture/3-button navigation. Icon contrast is handled by ManHuntTheme.
@@ -44,6 +46,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        MasterThemeChoice.init(applicationContext, intent)
         handleDeepLink(intent)
     }
 

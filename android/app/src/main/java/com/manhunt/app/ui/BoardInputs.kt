@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.runtime.setValue
@@ -131,12 +131,13 @@ fun Masthead(
 /** The 01 Open Zone mark: incomplete cyan ring with the two team dots inside. Decorative. */
 @Composable
 fun ZoneMark(modifier: Modifier = Modifier) {
+    val master = BoardTheme.master()
     Canvas(modifier) {
         val stroke = 2.2.dp.toPx()
         val r = (size.minDimension - stroke) / 2f
         val center = Offset(size.width / 2f, size.height / 2f)
         drawArc(
-            color = BoardColors.cyan,
+            color = master,
             startAngle = -58f + 12f,
             sweepAngle = 336f,
             useCenter = false,

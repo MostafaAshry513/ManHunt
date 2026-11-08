@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -73,7 +73,7 @@ fun MatchBoard(
     live: Boolean = true,
     heroClock: Boolean = false,
 ) {
-    val signal = if (live) BoardColors.cyan else BoardColors.chalkMuted
+    val signal = if (live) BoardTheme.master() else BoardColors.chalkMuted
     Column(
         modifier
             .fillMaxWidth()
@@ -145,9 +145,10 @@ private fun boardRuleColor(): Color =
 fun StateTag(
     text: String,
     modifier: Modifier = Modifier,
-    tone: Color = BoardColors.cyan,
+    tone: Color? = null,
     live: Boolean = true,
 ) {
+    val resolvedTone = tone ?: BoardTheme.master()
     Row(
         modifier
             .heightIn(min = BoardMetrics.stateTagHeight)
@@ -163,12 +164,12 @@ fun StateTag(
         horizontalArrangement = Arrangement.spacedBy(BoardSpace.s2),
     ) {
         if (live) {
-            Box(Modifier.size(5.dp).background(tone))
+            Box(Modifier.size(5.dp).background(resolvedTone))
         }
         Text(
             text = text.uppercase(),
             style = ManHuntType.state(),
-            color = tone,
+            color = resolvedTone,
             maxLines = 1,
         )
     }

@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import android.Manifest
 import androidx.compose.foundation.background
@@ -7,6 +7,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import com.manhunt.app.ui.theme.MasterTheme
+import com.manhunt.app.ui.theme.MasterThemeChoice
 import com.manhunt.app.ui.theme.BoardShape
 import com.manhunt.app.ui.theme.BoardTheme
 import com.manhunt.app.ui.theme.ManHuntType
@@ -202,6 +206,8 @@ private fun AppearanceTab(
         )
     }
 
+    MasterColorPicker()
+
     ScreenCard(title = t("Text size"), icon = Icons.Outlined.Person) {
         Text(
             "${(scale * 100).toInt()}%",
@@ -240,6 +246,53 @@ private fun AppearanceTab(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun MasterColorPicker() {
+    val context = LocalContext.current
+    ScreenCard(title = t("Master color"), icon = Icons.Outlined.Palette) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(ManHuntSpacing.sm),
+        ) {
+            MasterTheme.entries.forEach { theme ->
+                val selected = MasterThemeChoice.current == theme
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .clickable { MasterThemeChoice.select(context, theme) }
+                        .testTag("master_color_${theme.id}"),
+                    verticalArrangement = Arrangement.spacedBy(ManHuntSpacing.xs),
+                ) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 32.dp)
+                            .background(theme.accentDark, BoardShape.plate)
+                            .border(
+                                width = if (selected) 2.dp else 1.dp,
+                                color = if (selected) MaterialTheme.colorScheme.onBackground
+                                else MaterialTheme.colorScheme.outline,
+                                shape = BoardShape.plate,
+                            ),
+                    )
+                    Text(
+                        theme.label,
+                        style = ManHuntType.dataSmall(),
+                        color = if (selected) MaterialTheme.colorScheme.onBackground
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+        Text(
+            t("One accent for actions, selection and the live signal. Team colours never change."),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

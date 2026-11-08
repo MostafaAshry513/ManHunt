@@ -55,6 +55,7 @@ fun LobbyBoard(
     roomCode: String? = null,
     onCopyCode: (() -> Unit)? = null,
 ) {
+    val master = BoardTheme.master()
     Column(
         modifier
             .fillMaxWidth()
@@ -90,7 +91,7 @@ fun LobbyBoard(
                     Text(
                         roomCode,
                         style = ManHuntType.data(18.sp),
-                        color = BoardColors.cyan,
+                        color = master,
                         maxLines = 1,
                         modifier = Modifier
                             .testTag("room_code")
@@ -109,7 +110,7 @@ fun LobbyBoard(
                     Modifier
                         .size(width = 14.dp, height = 4.dp)
                         .background(
-                            if (index < readyCount) BoardColors.cyan else BoardColors.chalk.copy(alpha = 0.16f),
+                            if (index < readyCount) master else BoardColors.chalk.copy(alpha = 0.16f),
                         ),
                 )
             }

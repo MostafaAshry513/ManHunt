@@ -77,12 +77,12 @@ object ManHuntSizes {
     val mapHeight: Dp = 220.dp
 }
 
-// Dark: deep navy, electric teal, coral prey, violet hunters.
-private val DarkColors = darkColorScheme(
-    primary = Color(0xFF22D3EE),
-    onPrimary = Color(0xFF04222B),
-    primaryContainer = Color(0xFF0E3B47),
-    onPrimaryContainer = Color(0xFFB7F3FF),
+// Dark: deep navy, chosen master accent, coral prey, violet hunters.
+private fun darkColors(master: MasterTheme) = darkColorScheme(
+    primary = master.accentDark,
+    onPrimary = master.onAccentDark,
+    primaryContainer = master.containerDark,
+    onPrimaryContainer = master.onContainerDark,
     // #A79BFF keeps the HUNTERS pill above WCAG AA (4.5:1) on its tinted background.
     secondary = Color(0xFFA79BFF),
     onSecondary = Color(0xFF14102E),
@@ -106,15 +106,15 @@ private val DarkColors = darkColorScheme(
     onErrorContainer = Color(0xFFFFD9DC),
     inverseSurface = Color(0xFFE6EDF7),
     inverseOnSurface = Color(0xFF131C2E),
-    inversePrimary = Color(0xFF0E7490),
+    inversePrimary = master.accentLight,
 )
 
-// Light: soft neutral, darker teal/orange/violet that keep AA contrast.
-private val LightColors = lightColorScheme(
-    primary = Color(0xFF0C6B84),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFCDEFF7),
-    onPrimaryContainer = Color(0xFF062E38),
+// Light: soft neutral, a darker shade of the chosen master, plus the fixed team semantics.
+private fun lightColors(master: MasterTheme) = lightColorScheme(
+    primary = master.accentLight,
+    onPrimary = master.onAccentLight,
+    primaryContainer = master.containerLight,
+    onPrimaryContainer = master.onContainerLight,
     secondary = Color(0xFF5B21B6),
     onSecondary = Color(0xFFFFFFFF),
     secondaryContainer = Color(0xFFEDE8FF),
@@ -138,7 +138,7 @@ private val LightColors = lightColorScheme(
     onErrorContainer = Color(0xFF5F1212),
     inverseSurface = Color(0xFF0F172A),
     inverseOnSurface = Color(0xFFF7F9FC),
-    inversePrimary = Color(0xFF22D3EE),
+    inversePrimary = master.inverseLight,
 )
 
 
@@ -263,6 +263,7 @@ private val ManHuntShapes = Shapes(
 fun ManHuntTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     fontScale: Float = 1f,
+    master: MasterTheme = MasterThemeChoice.current,
     content: @Composable () -> Unit,
 ) {
     // enableEdgeToEdge() derives icon colors from the system theme, but ManHunt can override
@@ -282,9 +283,9 @@ fun ManHuntTheme(
     val typography = remember(fontScale, arabic) {
         (if (arabic) ArabicTypography else LatinTypography).scaledFor(fontScale)
     }
-    CompositionLocalProvider(LocalBoardArabic provides arabic) {
+    CompositionLocalProvider(LocalBoardArabic provides arabic, LocalMasterTheme provides master) {
         MaterialTheme(
-            colorScheme = if (darkTheme) DarkColors else LightColors,
+            colorScheme = if (darkTheme) darkColors(master) else lightColors(master),
             typography = typography,
             shapes = ManHuntShapes,
             content = content,
