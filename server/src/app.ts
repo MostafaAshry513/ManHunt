@@ -218,6 +218,10 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
   app.get('/', async (req, reply) => {
     const raw = await readManifestText(manifestPath);
     const manifest = raw === null ? null : parseManifest(raw);
+    // Optional master-colour preview: /?master=sodium. Unknown values fall back to Floodlight.
+    const master = typeof (req.query as { master?: unknown } | undefined)?.master === 'string'
+      ? String((req.query as { master: string }).master)
+      : '';
     // Aggregate community stats only: never expose account details on a public page.
     const totalAccounts = get<{ n: number }>(deps.db, 'SELECT COUNT(*) AS n FROM users')?.n ?? 0;
     const weekAgo = clock() - 7 * 24 * 60 * 60 * 1000;
@@ -234,7 +238,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
       .header('x-frame-options', 'DENY')
       .header('referrer-policy', 'no-referrer')
       .header('content-security-policy', "default-src 'none'; img-src 'self' data:; font-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'")
-      .send(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }));
+      .send(applySiteMaster(renderInstallPage(manifest, publicBaseUrl(req), { totalAccounts, newAccounts }), master));
   });
 
   app.get('/join', async (req, reply) => {
@@ -519,6 +523,30 @@ function formatDate(iso: string | undefined): string {
   if (typeof iso !== 'string') return '';
   const parsed = Date.parse(iso);
   return Number.isFinite(parsed) ? new Date(parsed).toISOString().slice(0, 10) : '';
+}
+
+/**
+ * Candidate master colours for the install page. The app exposes the same ids so the page can
+ * preview the accent a player chose before the APK is built with it as the default.
+ */
+const SITE_MASTERS: Record<string, { accent: string; onAccent: string }> = {
+  floodlight: { accent: '#22D3EE', onAccent: '#04222B' },
+  sodium: { accent: '#FFB454', onAccent: '#2A1600' },
+  highvis: { accent: '#C9F25C', onAccent: '#182400' },
+  chalk: { accent: '#8FB3FF', onAccent: '#07142E' },
+  pitch: { accent: '#59D98C', onAccent: '#042414' },
+};
+
+/**
+ * Replace the two accent values in the finished page. The default page already uses
+ * Floodlight, so an absent or unknown `master` returns it untouched.
+ */
+function applySiteMaster(html: string, master: string): string {
+  const palette = SITE_MASTERS[master.trim().toLowerCase()];
+  if (!palette) return html;
+  return html
+    .replaceAll('#22D3EE', palette.accent)
+    .replaceAll('#04222B', palette.onAccent);
 }
 
 /**

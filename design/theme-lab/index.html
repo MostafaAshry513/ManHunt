@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ManHunt — master colour lab</title>
+<style>
+  :root{--ink:#0B1220;--field:#131C2E;--chalk:#E6EDF7;--muted:#A7B6CC;--dim:#7C8DA8;--rule:#2A3550;--sans:"Instrument Sans",system-ui,sans-serif;--display:"Big Shoulders Display",Impact,sans-serif;--mono:"Red Hat Mono",ui-monospace,monospace}
+  *{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--chalk);font:15px/1.6 var(--sans)}
+  main{max-width:1680px;margin:0 auto;padding:48px 32px 80px}
+  header{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;border-bottom:1px solid var(--rule);padding-bottom:20px}
+  h1{font:700 clamp(48px,7vw,92px)/.9 var(--display);margin:0;text-transform:uppercase;letter-spacing:-.01em}
+  .sub{max-width:520px;color:var(--muted);margin:0 0 6px}
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-top:32px}
+  article{border:1px solid var(--rule);background:var(--field);padding:14px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  h2{font:700 26px/1 var(--display);margin:0;text-transform:uppercase}
+  .hex{font:12px/1 var(--mono);color:var(--dim)}
+  .swatch{width:28px;height:28px;border:1px solid rgba(255,255,255,.25)}
+  .label{font:11px/1.4 var(--mono);letter-spacing:.06em;color:var(--dim);margin:14px 0 6px;text-transform:uppercase}
+  img{display:block;width:100%;height:auto;border:1px solid var(--rule);background:var(--ink)}
+  .note{color:var(--muted);font-size:13px;margin:12px 0 0}
+  footer{margin-top:32px;color:var(--dim);font-size:13px;border-top:1px solid var(--rule);padding-top:16px}
+  a{color:var(--chalk)}
+  @media(max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){main{padding:24px 16px 48px}.grid{grid-template-columns:1fr}header{display:block}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div><h1>Master<br>colour lab</h1></div>
+    <p class="sub">Five candidate accents on the same real app screen and the same real site hero. The app chooses in Settings; the site previews with <code>?master=</code>. Default stays Floodlight until a winner is promoted.</p>
+  </header>
+  <section class="grid">
+    <article>
+      <div class="top"><h2>Floodlight</h2><span class="hex">#22D3EE</span><span class="swatch" style="background:#22D3EE"></span></div>
+      <p class="label">App / Home</p><img src="app/floodlight-home.png" alt="Floodlight app Home">
+      <p class="label">Site / Hero</p><img src="site/floodlight-hero.png" alt="Floodlight site hero">
+      <p class="note">The current accent. Cool, digital, safest.</p>
+    </article>
+    <article>
+      <div class="top"><h2>Sodium</h2><span class="hex">#FFB454</span><span class="swatch" style="background:#FFB454"></span></div>
+      <p class="label">App / Home</p><img src="app/sodium-home.png" alt="Sodium app Home">
+      <p class="label">Site / Hero</p><img src="site/sodium-hero.png" alt="Sodium site hero">
+      <p class="note">Streetlight warmth. Recommended: reads as a night game, not a dashboard.</p>
+    </article>
+    <article>
+      <div class="top"><h2>High-vis</h2><span class="hex">#C9F25C</span><span class="swatch" style="background:#C9F25C"></span></div>
+      <p class="label">App / Home</p><img src="app/highvis-home.png" alt="High-vis app Home">
+      <p class="label">Site / Hero</p><img src="site/highvis-hero.png" alt="High-vis site hero">
+      <p class="note">Safety-marker energy. The loudest and most athletic.</p>
+    </article>
+    <article>
+      <div class="top"><h2>Chalk</h2><span class="hex">#8FB3FF</span><span class="swatch" style="background:#8FB3FF"></span></div>
+      <p class="label">App / Home</p><img src="app/chalk-home.png" alt="Chalk app Home">
+      <p class="label">Site / Hero</p><img src="site/chalk-hero.png" alt="Chalk site hero">
+      <p class="note">Calm field blue. The quietest of the five.</p>
+    </article>
+    <article>
+      <div class="top"><h2>Pitch</h2><span class="hex">#59D98C</span><span class="swatch" style="background:#59D98C"></span></div>
+      <p class="label">App / Home</p><img src="app/pitch-home.png" alt="Pitch app Home">
+      <p class="label">Site / Hero</p><img src="site/pitch-hero.png" alt="Pitch site hero">
+      <p class="note">Turf and club green. Friendly, grounded, less nocturnal.</p>
+    </article>
+  </section>
+  <footer>App: Settings → Appearance → Master color. Site: <code>/?master=floodlight|sodium|highvis|chalk|pitch</code>. Unslop pass by the ManHunt design team; unslop framework by Damir Sokolovsky (@heydamir), CC BY 4.0.</footer>
+</main>
+</body>
+</html>
