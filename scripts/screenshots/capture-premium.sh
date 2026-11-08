@@ -729,11 +729,20 @@ login_omar() {
 }
 
 fill_login_and_submit() {
-  tap_field "Username" 0 || fail "username field not found on Auth"
+  # Use the EditText order directly and clear first. Label taps can land on the wrong field after
+  # the tall NIGHT SHIFT layout scrolls, which would type the password into the username field.
+  ui tap-edit 0 20 >/dev/null 2>&1 || fail "username field not found on Auth"
+  "$ADB" shell input keyevent KEYCODE_MOVE_END >/dev/null 2>&1 || true
+  for _ in $(seq 1 80); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
   type_text "Omar"
-  tap_field "Password" 1 || fail "password field not found on Auth"
+  hide_ime
+  sleep 0.4
+  ui tap-edit 1 20 >/dev/null 2>&1 || fail "password field not found on Auth"
+  "$ADB" shell input keyevent KEYCODE_MOVE_END >/dev/null 2>&1 || true
+  for _ in $(seq 1 80); do "$ADB" shell input keyevent KEYCODE_DEL >/dev/null 2>&1 || true; done
   type_text "$HUNT_PASSWORD"
   hide_ime
+  sleep 0.4
   ui_tap "text=Sign in|text=Sign In|res=auth_submit" 30
 }
 
