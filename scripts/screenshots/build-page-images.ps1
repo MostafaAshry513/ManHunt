@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   Builds professional 4:5 "product page" images from the real delivery captures:
   dark ManHunt page treatment, official lockup, phone frame, title + caption.
@@ -55,7 +55,7 @@ New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $outDir1080 = Join-Path $outDir '1080x1350'
 New-Item -ItemType Directory -Force -Path $outDir1080 | Out-Null
 
-$fonts = if ($FontDir) { Resolve-UnderRoot $FontDir } else { Join-Path $root 'design\brand\motion-kit\assets\fonts' }
+$fonts = if ($FontDir) { Resolve-UnderRoot $FontDir } else { Join-Path $root 'design\reset-v2\fonts' }
 $lockup = if ($LockupPath) { Resolve-UnderRoot $LockupPath } else { Join-Path $root 'design\brand\identity\final\lockup\previews\lockup-horizontal-light-on-dark.png' }
 if (-not (Test-Path $lockup)) { throw "official lockup not found: $lockup" }
 
@@ -83,9 +83,9 @@ function New-PrivateFonts([string]$dir, [string[]]$files) {
     return $collection
 }
 
-$displayFonts = New-PrivateFonts $fonts @('BigShoulders-Bold.ttf')
-$sansFonts = New-PrivateFonts $fonts @('InstrumentSans-Regular.ttf', 'InstrumentSans-Bold.ttf')
-$monoFonts = New-PrivateFonts $fonts @('RedHatMono-Regular.ttf', 'RedHatMono-Bold.ttf')
+$displayFonts = New-PrivateFonts $fonts @('BricolageGrotesque.ttf')
+$sansFonts = New-PrivateFonts $fonts @('Archivo.ttf')
+$monoFonts = New-PrivateFonts $fonts @('IBMPlexMono-Regular.ttf')
 
 function New-Family($collection, [string]$wanted) {
     foreach ($family in $collection.Families) {
@@ -93,18 +93,18 @@ function New-Family($collection, [string]$wanted) {
     }
     return $collection.Families[0]
 }
-$familyDisplay = New-Family $displayFonts 'Big Shoulders'
-$familySans = New-Family $sansFonts 'Instrument Sans'
-$familyMono = New-Family $monoFonts 'Red Hat Mono'
+$familyDisplay = New-Family $displayFonts 'Bricolage Grotesque'
+$familySans = New-Family $sansFonts 'Archivo'
+$familyMono = New-Family $monoFonts 'IBM Plex Mono'
 
 # ---------------------------------------------------------------- palette / geometry (1600x2000 design space)
-$navy = [System.Drawing.Color]::FromArgb(11, 18, 32)          # #0B1220
-$surface = [System.Drawing.Color]::FromArgb(19, 28, 46)       # #131C2E
-$chalk = [System.Drawing.Color]::FromArgb(230, 237, 247)      # #E6EDF7
-$muted = [System.Drawing.Color]::FromArgb(150, 164, 190)      # muted chalk
-$cyan = [System.Drawing.Color]::FromArgb(34, 211, 238)        # #22D3EE
-$hairline = [System.Drawing.Color]::FromArgb(42, 53, 80)      # #2A3550
-$coral = [System.Drawing.Color]::FromArgb(255, 122, 89)       # #FF7A59
+$navy = [System.Drawing.Color]::FromArgb(8, 9, 10)            # #08090A
+$surface = [System.Drawing.Color]::FromArgb(18, 20, 22)        # #121416
+$chalk = [System.Drawing.Color]::FromArgb(243, 239, 230)      # #F3EFE6
+$muted = [System.Drawing.Color]::FromArgb(166, 163, 155)      # muted bone
+$cyan = [System.Drawing.Color]::FromArgb(255, 90, 54)         # #FF5A36
+$hairline = [System.Drawing.Color]::FromArgb(36, 39, 43)       # #24272B
+$coral = [System.Drawing.Color]::FromArgb(184, 240, 74)       # #B8F04A
 
 $designW = 1600
 $designH = 2000
@@ -151,16 +151,15 @@ function Split-TextToWidth($g, [string]$text, $font, [single]$maxWidth) {
 }
 # ---------------------------------------------------------------- page definitions
 $pages = @(
-    [pscustomobject]@{ index = 1; slug = 'home'; source = 's03-home.png'; kicker = 'MATCHDAY APP  /  HOME'; headline = @('CREATE', 'A HUNT.'); captionLines = @('Six-character invite code. Classic Hunt.', 'Two sides. One room. Real streets.'); dataLines = @('CLASSIC HUNT  /  ROOMS + INVITE CODES', 'PREY REPORT POSITIONS  /  HUNTERS FOLLOW REPORTS', 'IN-PERSON TAG  /  PREY CONFIRMS OR DISPUTES'); credit = $false },
-    [pscustomobject]@{ index = 2; slug = 'lobby'; source = 's06-lobby-player.png'; kicker = 'MATCHDAY APP  /  LOBBY'; headline = @('PICK', 'A SIDE.'); captionLines = @('Prey hide. Hunters follow the latest', 'reports. The ready check unlocks the start.'); dataLines = @('TWO SIDES  /  PREY + HUNTERS', 'READY CHECK  /  WAITING STATE', 'INVITE CODE  /  SIX CHARACTERS'); credit = $false },
-    [pscustomobject]@{ index = 3; slug = 'hunt'; source = 's07-hunt.png'; kicker = 'MATCHDAY APP  /  HUNT'; headline = @('LATEST', 'REPORT.'); captionLines = @('Reports go stale. The board shows the', 'latest one - never a live track.'); dataLines = @('BOARD CLOCK  /  SERVER TIME', 'REPORTS GO STALE  /  FRESH + STALE MARKERS', 'MAP TILES  /  OPENSTREETMAP'); credit = $true },
-    [pscustomobject]@{ index = 4; slug = 'claim'; source = 's08-hunt-claim.png'; kicker = 'MATCHDAY APP  /  TAG'; headline = @('IN-PERSON', 'TAG.'); captionLines = @('Prey confirms or disputes.', 'The server decides.'); dataLines = @('IN-PERSON TAG  /  NO GEAR REQUIRED', 'PREY CONFIRMS OR DISPUTES', 'SERVER DECIDES  /  NO INVENTED RULES'); credit = $true },
-    [pscustomobject]@{ index = 5; slug = 'chat'; source = 's11-chat.png'; kicker = 'MATCHDAY APP  /  FIELD LOG'; headline = @('FIELD', 'LOG.'); captionLines = @('Room chat, tag claims and system', 'events in one thread.'); dataLines = @('FIELD LOG  /  ROOM CHAT + SYSTEM EVENTS', 'TAG CLAIMS IN THREAD', 'ROOM-ONLY  /  NO PUBLIC FEED'); credit = $false },
-    [pscustomobject]@{ index = 6; slug = 'result'; source = 's12-result-hunters.png'; kicker = 'MATCHDAY APP  /  FULL TIME'; headline = @('FULL', 'TIME.'); captionLines = @('Hunters win when every Prey is tagged.', 'Honest scores, server clock.'); dataLines = @('FULL TIME  /  REAL MATCH RESULT', 'HONEST SCORE  /  NO INVENTED STATS', 'PREY REMAINING SHOWN'); credit = $false },
-    [pscustomobject]@{ index = 7; slug = 'rtl'; source = 's04-home-rtl.png'; kicker = 'MATCHDAY APP  /  ARABIC'; headline = @('RIGHT', 'TO LEFT.'); captionLines = @('Full Arabic layout.', 'Same rules, same board.'); dataLines = @('ARABIC  /  RIGHT TO LEFT', 'SAME RULES  /  SAME BOARD', 'FULL MIRRORED LAYOUT'); credit = $false },
-    [pscustomobject]@{ index = 8; slug = 'light'; source = 's15-home-light.png'; kicker = 'MATCHDAY APP  /  LIGHT'; headline = @('LIGHT', 'MODE.'); captionLines = @('The same matchday board', 'in daylight.'); dataLines = @('LIGHT + DARK  /  SAME SYSTEM', 'THEME FOLLOWS YOUR SETTING', 'SAME MATCHDAY TYPOGRAPHY'); credit = $false }
+     [pscustomobject]@{ index = 1; slug = 'home'; source = 's03-home.png'; kicker = 'NIGHT SHIFT APP  /  STREET'; headline = @('START', 'SOMETHING.'); captionLines = @('Two teams. One street. One clock', 'the players cannot bend.'); dataLines = @('FREE SIDELOAD  /  ANDROID 8.0+', 'TWO SIDES  /  PREY + HUNTERS', 'INVITE CODE  /  SIX CHARACTERS'); credit = $false },
+    [pscustomobject]@{ index = 2; slug = 'lobby'; source = 's06-lobby-player.png'; kicker = 'NIGHT SHIFT APP  /  ROOM'; headline = @('TAKE', 'A SIDE.'); captionLines = @('Prey hide. Hunters follow the latest', 'reports. The ready check unlocks the start.'); dataLines = @('TWO SIDES  /  PREY + HUNTERS', 'READY CHECK  /  WAITING STATE', 'INVITE CODE  /  SIX CHARACTERS'); credit = $false },
+    [pscustomobject]@{ index = 3; slug = 'hunt'; source = 's07-hunt.png'; kicker = 'NIGHT SHIFT APP  /  FIELD'; headline = @('LATEST', 'REPORT.'); captionLines = @('Reports go stale. The board shows the', 'latest one - never a live track.'); dataLines = @('BOARD CLOCK  /  SERVER TIME', 'REPORTS GO STALE  /  FRESH + STALE MARKERS', 'MAP TILES  /  OPENSTREETMAP'); credit = $true },
+    [pscustomobject]@{ index = 4; slug = 'claim'; source = 's08-hunt-claim.png'; kicker = 'NIGHT SHIFT APP  /  TAG'; headline = @('IN-PERSON', 'TAG.'); captionLines = @('Prey confirms or disputes.', 'The server decides.'); dataLines = @('IN-PERSON TAG  /  NO GEAR REQUIRED', 'PREY CONFIRMS OR DISPUTES', 'SERVER DECIDES  /  NO INVENTED RULES'); credit = $true },
+    [pscustomobject]@{ index = 5; slug = 'chat'; source = 's11-chat.png'; kicker = 'NIGHT SHIFT APP  /  RADIO'; headline = @('THE', 'FIELD.'); captionLines = @('Room chat, tag claims and system', 'events in one transcript.'); dataLines = @('FIELD LOG  /  ROOM CHAT + SYSTEM EVENTS', 'TAG CLAIMS IN THREAD', 'ROOM-ONLY  /  NO PUBLIC FEED'); credit = $false },
+    [pscustomobject]@{ index = 6; slug = 'result'; source = 's12-result-hunters.png'; kicker = 'NIGHT SHIFT APP  /  FULL TIME'; headline = @('FULL', 'TIME.'); captionLines = @('Hunters win when every Prey is tagged.', 'Honest scores, server clock.'); dataLines = @('FULL TIME  /  REAL MATCH RESULT', 'HONEST SCORE  /  NO INVENTED STATS', 'PREY REMAINING SHOWN'); credit = $false },
+    [pscustomobject]@{ index = 7; slug = 'rtl'; source = 's04-home-rtl.png'; kicker = 'NIGHT SHIFT APP  /  ARABIC'; headline = @('RIGHT', 'TO LEFT.'); captionLines = @('Full Arabic layout.', 'Same rules, same system.'); dataLines = @('ARABIC  /  RIGHT TO LEFT', 'SAME RULES  /  SAME BOARD', 'FULL MIRRORED LAYOUT'); credit = $false },
+    [pscustomobject]@{ index = 8; slug = 'light'; source = 's15-home-light.png'; kicker = 'NIGHT SHIFT APP  /  LIGHT'; headline = @('LIGHT', 'MODE.'); captionLines = @('The same street system', 'in daylight.'); dataLines = @('LIGHT + DARK  /  SAME SYSTEM', 'THEME FOLLOWS YOUR SETTING', 'SAME NIGHT SHIFT TYPOGRAPHY'); credit = $false }
 )
-
 # ---------------------------------------------------------------- render one page
 function Render-Page([string]$targetPath, [int]$width, [int]$height, [object]$page) {
     $scale = $width / $designW
@@ -207,7 +206,7 @@ function Render-Page([string]$targetPath, [int]$width, [int]$height, [object]$pa
         try {
             # top hairline
             $g.DrawLine($hairPen, [single](96 * $scale), [single]($headerRuleY * $scale), [single](1504 * $scale), [single]($headerRuleY * $scale))
-            $pageLabel = ('MATCHDAY  {0:00} / 08' -f $page.index)
+            $pageLabel = ('NIGHT SHIFT  {0:00} / 08' -f $page.index)
             $labelW = $g.MeasureString($pageLabel, $monoLabel, [System.Drawing.PointF]::Empty, [System.Drawing.StringFormat]::GenericTypographic).Width
             Draw-StringTracked $g $pageLabel $monoLabel $mutedBrush ([single]((1504 * $scale) - $labelW - (24 * $scale))) ([single](82 * $scale)) ([single](1.5 * $scale))
 
@@ -355,7 +354,7 @@ try {
     $mut = New-Object System.Drawing.SolidBrush($muted)
     $cy = New-Object System.Drawing.SolidBrush($cyan)
     try {
-        $sg.DrawString('MANHUNT  /  MATCHDAY APP PAGES', $titleFont, $white, 68, 42)
+        $sg.DrawString('MANHUNT  /  NIGHT SHIFT APP PAGES', $titleFont, $white, 68, 42)
         $sg.DrawString('Real delivery captures, OS status bar cleanly removed - real UI only - 1600x2000 masters', $subFont, $mut, 70, 104)
         $i = 0
         foreach ($rec in $records) {
@@ -378,14 +377,14 @@ $sheet.Dispose()
 
 # ---------------------------------------------------------------- manifest
 $manifest = [pscustomobject]@{
-    title       = 'ManHunt MATCHDAY app pages'
+    title       = 'ManHunt NIGHT SHIFT app pages'
     generatedAt = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-    source      = 'Real emulator captures (1080x2400) framed on a dark MATCHDAY page; no UI mocked, redrawn or composited over the capture'
+    source      = 'Real emulator captures (1080x2400) framed on a dark NIGHT SHIFT page; no UI mocked, redrawn or composited over the capture'
     captureDir  = $captureDir
     fonts       = @(
-        [pscustomobject]@{ file = (Join-Path $fonts 'BigShoulders-Bold.ttf'); sha256 = (Get-FileHash (Join-Path $fonts 'BigShoulders-Bold.ttf') -Algorithm SHA256).Hash.ToLowerInvariant() },
-        [pscustomobject]@{ file = (Join-Path $fonts 'InstrumentSans-Regular.ttf'); sha256 = (Get-FileHash (Join-Path $fonts 'InstrumentSans-Regular.ttf') -Algorithm SHA256).Hash.ToLowerInvariant() },
-        [pscustomobject]@{ file = (Join-Path $fonts 'RedHatMono-Regular.ttf'); sha256 = (Get-FileHash (Join-Path $fonts 'RedHatMono-Regular.ttf') -Algorithm SHA256).Hash.ToLowerInvariant() }
+        [pscustomobject]@{ file = (Join-Path $fonts 'BricolageGrotesque.ttf'); sha256 = (Get-FileHash (Join-Path $fonts 'BricolageGrotesque.ttf') -Algorithm SHA256).Hash.ToLowerInvariant() },
+        [pscustomobject]@{ file = (Join-Path $fonts 'Archivo.ttf'); sha256 = (Get-FileHash (Join-Path $fonts 'Archivo.ttf') -Algorithm SHA256).Hash.ToLowerInvariant() },
+        [pscustomobject]@{ file = (Join-Path $fonts 'IBMPlexMono-Regular.ttf'); sha256 = (Get-FileHash (Join-Path $fonts 'IBMPlexMono-Regular.ttf') -Algorithm SHA256).Hash.ToLowerInvariant() }
     )
     lockup      = [pscustomobject]@{ file = $lockup; sha256 = (Get-FileHash $lockup -Algorithm SHA256).Hash.ToLowerInvariant() }
     statusBarGate = if ($StatusReport) { Resolve-UnderRoot $StatusReport } else { $null }
