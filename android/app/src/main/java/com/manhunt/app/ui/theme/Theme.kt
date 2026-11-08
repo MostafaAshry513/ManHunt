@@ -53,12 +53,12 @@ object ManHuntSpacing {
 
 /** Corner radius scale, aligned with [ManHuntShapes]. */
 object ManHuntRadius {
-    val xs: Dp = 8.dp
-    val sm: Dp = 12.dp
-    val md: Dp = 16.dp
-    val lg: Dp = 20.dp
-    val xl: Dp = 28.dp
-    val pill: Dp = 999.dp
+    val xs: Dp = 2.dp
+    val sm: Dp = 2.dp
+    val md: Dp = 2.dp
+    val lg: Dp = 2.dp
+    val xl: Dp = 2.dp
+    val pill: Dp = 2.dp
 }
 
 /** Elevation scale; ManHunt is a flat, border-led design, so most surfaces stay at 0. */
@@ -77,68 +77,66 @@ object ManHuntSizes {
     val mapHeight: Dp = 220.dp
 }
 
-// Dark: deep navy, chosen master accent, coral prey, violet hunters.
+// NIGHT SHIFT dark: bitumen, bone, flare; lime Prey and cobalt Hunters stay semantic.
 private fun darkColors(master: MasterTheme) = darkColorScheme(
     primary = master.accentDark,
     onPrimary = master.onAccentDark,
     primaryContainer = master.containerDark,
     onPrimaryContainer = master.onContainerDark,
-    // #A79BFF keeps the HUNTERS pill above WCAG AA (4.5:1) on its tinted background.
-    secondary = Color(0xFFA79BFF),
-    onSecondary = Color(0xFF14102E),
-    secondaryContainer = Color(0xFF241E4A),
-    onSecondaryContainer = Color(0xFFDAD1FF),
-    tertiary = Color(0xFFFF7A59),
-    onTertiary = Color(0xFF2A0D05),
-    tertiaryContainer = Color(0xFF442114),
-    onTertiaryContainer = Color(0xFFFFD9CE),
-    background = Color(0xFF0B1220),
-    onBackground = Color(0xFFE6EDF7),
-    surface = Color(0xFF131C2E),
-    onSurface = Color(0xFFE6EDF7),
-    surfaceVariant = Color(0xFF1D2840),
-    onSurfaceVariant = Color(0xFFA7B6CC),
-    outline = Color(0xFF3A4867),
-    outlineVariant = Color(0xFF2A3550),
+    secondary = Color(0xFF6D8CFF),
+    onSecondary = Color(0xFF07142E),
+    secondaryContainer = Color(0xFF16244A),
+    onSecondaryContainer = Color(0xFFDCE6FF),
+    tertiary = Color(0xFFB8F04A),
+    onTertiary = Color(0xFF182400),
+    tertiaryContainer = Color(0xFF2F3A0B),
+    onTertiaryContainer = Color(0xFFF0FFC2),
+    background = Color(0xFF08090A),
+    onBackground = Color(0xFFF3EFE6),
+    surface = Color(0xFF121416),
+    onSurface = Color(0xFFF3EFE6),
+    surfaceVariant = Color(0xFF1B1E21),
+    onSurfaceVariant = Color(0xFFA6A39B),
+    outline = Color(0xFF3A3E43),
+    outlineVariant = Color(0xFF24272B),
     error = Color(0xFFFF8A8A),
     onError = Color(0xFF2A0808),
     errorContainer = Color(0xFF44232A),
     onErrorContainer = Color(0xFFFFD9DC),
-    inverseSurface = Color(0xFFE6EDF7),
-    inverseOnSurface = Color(0xFF131C2E),
-    inversePrimary = master.accentLight,
+    inverseSurface = Color(0xFFF3EFE6),
+    inverseOnSurface = Color(0xFF121416),
+    inversePrimary = Color(0xFFC63B18),
 )
 
-// Light: soft neutral, a darker shade of the chosen master, plus the fixed team semantics.
+// NIGHT SHIFT light: warm paper, ink, a darker flare and the same team meanings.
 private fun lightColors(master: MasterTheme) = lightColorScheme(
     primary = master.accentLight,
     onPrimary = master.onAccentLight,
     primaryContainer = master.containerLight,
     onPrimaryContainer = master.onContainerLight,
-    secondary = Color(0xFF5B21B6),
+    secondary = Color(0xFF3B5BD9),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFEDE8FF),
-    onSecondaryContainer = Color(0xFF2A1660),
-    // Darker orange so PREY labels keep AA contrast on their tinted pill (light theme).
-    tertiary = Color(0xFFB33A0F),
+    secondaryContainer = Color(0xFFDCE6FF),
+    onSecondaryContainer = Color(0xFF07142E),
+    tertiary = Color(0xFF5E7A00),
     onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFFFFE4D8),
-    onTertiaryContainer = Color(0xFF3F1404),
-    background = Color(0xFFF7F9FC),
-    onBackground = Color(0xFF0F172A),
-    surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF0F172A),
-    surfaceVariant = Color(0xFFE6ECF5),
-    onSurfaceVariant = Color(0xFF475569),
-    outline = Color(0xFFB6C2D4),
-    outlineVariant = Color(0xFFD3DCE8),
+    tertiaryContainer = Color(0xFFEDF9C9),
+    onTertiaryContainer = Color(0xFF1C2600),
+    background = Color(0xFFF3EFE6),
+    onBackground = Color(0xFF08090A),
+    surface = Color(0xFFFFFDF8),
+    onSurface = Color(0xFF08090A),
+    surfaceVariant = Color(0xFFE7E1D6),
+    onSurfaceVariant = Color(0xFF5F5A52),
+    outline = Color(0xFFB8B0A3),
+    outlineVariant = Color(0xFFD9D3C7),
     error = Color(0xFFB91C1C),
     onError = Color(0xFFFFFFFF),
     errorContainer = Color(0xFFFEE2E2),
     onErrorContainer = Color(0xFF5F1212),
-    inverseSurface = Color(0xFF0F172A),
-    inverseOnSurface = Color(0xFFF7F9FC),
-    inversePrimary = master.inverseLight,
+    inverseSurface = Color(0xFF08090A),
+    inverseOnSurface = Color(0xFFF3EFE6),
+    inversePrimary = Color(0xFFFF5A36),
 )
 
 

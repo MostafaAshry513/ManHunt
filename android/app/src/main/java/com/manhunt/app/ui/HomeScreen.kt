@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -165,7 +165,12 @@ fun HomeScreen(onOpenRoom: (String) -> Unit, onOpenSettings: () -> Unit, onOpenR
                 verticalArrangement = Arrangement.spacedBy(BoardSpace.s8),
             ) {
                 Spacer(Modifier.height(BoardSpace.s6))
-                HeadingText(t("Hide from your friends."), style = ManHuntType.displayL())
+                Text(
+                    "Tonight / $clock",
+                    style = ManHuntType.data(),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                HeadingText(t("Start something."), style = ManHuntType.displayL())
 
                 // Host block: two verbs, no plate. The button is the only cyan surface.
                 Text(

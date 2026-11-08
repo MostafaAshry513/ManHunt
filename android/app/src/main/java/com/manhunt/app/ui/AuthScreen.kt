@@ -1,4 +1,4 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -205,6 +205,11 @@ fun AuthScreen() {
                 verticalArrangement = Arrangement.spacedBy(BoardSpace.s8),
             ) {
                 Spacer(Modifier.height(BoardSpace.s8))
+                Text(
+                    t("Real-world hide-and-seek / Android"),
+                    style = ManHuntType.data(),
+                    color = MaterialTheme.colorScheme.primary,
+                )
                 HeadingText(t("Hide from your friends."), style = ManHuntType.displayL())
                 PlateTextField(
                     value = ui.username,
@@ -269,7 +274,7 @@ fun AuthScreen() {
                 )
                 ErrorStrip(message = ui.error, onRetry = vm::submit)
                 BoardButton(
-                    text = if (ui.register) t("Create account") else t("Sign in"),
+                    text = if (ui.register) t("Create a handle") else t("Enter the street"),
                     onClick = vm::submit,
                     enabled = canSubmit,
                     loading = ui.loading,

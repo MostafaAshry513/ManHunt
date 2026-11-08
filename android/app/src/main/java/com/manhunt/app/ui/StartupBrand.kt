@@ -33,10 +33,10 @@ import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
 
-private val StartupField = Color(0xFF0B1220)
-private val StartupChalk = Color(0xFFE6EDF7)
+private val StartupField = Color(0xFF08090A)
+private val StartupChalk = Color(0xFFF3EFE6)
 private val StartupCyan: Color get() = MasterThemeChoice.current.accentDark
-private val StartupCoral = Color(0xFFFF7A59)
+private val StartupCoral = Color(0xFFB8F04A)
 
 /**
  * Cold-start brand screen: a short (1.4 s) Open Zone reveal that bridges the system splash

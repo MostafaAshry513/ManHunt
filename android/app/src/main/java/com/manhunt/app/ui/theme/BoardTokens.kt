@@ -28,53 +28,56 @@ import com.manhunt.app.R
  * - the Board strip is always ink, even in the daylight theme.
  */
 
-/** Bundled OFL faces from the approved brand motion kit (licence texts in res/raw). */
+/** Bundled OFL faces: NIGHT SHIFT is a late-night flyer with a field instrument inside. */
 object BoardFonts {
-    /** Big Shoulders Display — scoreboard/signage display face. */
+    /** Bricolage Grotesque — display headlines and scores. */
     val display = FontFamily(
-        Font(R.font.big_shoulders_bold, weight = FontWeight.Bold),
-        Font(R.font.big_shoulders_regular, weight = FontWeight.Normal),
+        Font(R.font.bricolage_grotesque, weight = FontWeight.Normal),
+        Font(R.font.bricolage_grotesque, weight = FontWeight.SemiBold),
+        Font(R.font.bricolage_grotesque, weight = FontWeight.Bold),
     )
 
-    /** Instrument Sans — all functional UI and body copy. */
+    /** Archivo — all functional UI and body copy. */
     val sans = FontFamily(
-        Font(R.font.instrument_sans_regular, weight = FontWeight.Normal),
-        Font(R.font.instrument_sans_bold, weight = FontWeight.Bold),
+        Font(R.font.archivo, weight = FontWeight.Normal),
+        Font(R.font.archivo, weight = FontWeight.Medium),
+        Font(R.font.archivo, weight = FontWeight.SemiBold),
     )
 
-    /** Red Hat Mono — machine data only (codes, timestamps, coordinates, state words). */
-    val mono = FontFamily(Font(R.font.red_hat_mono_regular, weight = FontWeight.Normal))
+    /** IBM Plex Mono — machine data only (codes, timestamps, coordinates, state words). */
+    val mono = FontFamily(Font(R.font.ibm_plex_mono_regular, weight = FontWeight.Normal))
 }
 
 /** Fixed brand colours; the theme translates them into semantic roles. */
 object BoardColors {
-    // Field / Board ink.
-    val ink = Color(0xFF0B1220)
-    val inkLift = Color(0xFF101A2C)
-    val chalk = Color(0xFFE6EDF7)
-    val chalkMuted = Color(0xFFA7B6CC)
-    val chalkDim = Color(0xFF7C8DA8)
+    // Bitumen / bone.
+    val ink = Color(0xFF08090A)
+    val inkLift = Color(0xFF0D0F11)
+    val chalk = Color(0xFFF3EFE6)
+    val chalkMuted = Color(0xFFA6A39B)
+    val chalkDim = Color(0xFF717570)
 
     // Structural rules.
-    val hairlineInk = Color(0xFF2A3550)
-    val hairlineStrongInk = Color(0xFF5E7198)
-    val hairlineDay = Color(0xFFD3DCE8)
-    val hairlineStrongDay = Color(0xFF7C8CA3)
+    val hairlineInk = Color(0xFF24272B)
+    val hairlineStrongInk = Color(0xFF4A4E53)
+    val hairlineDay = Color(0xFFD9D3C7)
+    val hairlineStrongDay = Color(0xFF8A8378)
 
-    // Signals. Cyan = referee/field, coral = Prey, violet = Hunters, error = error only.
-    val cyan = Color(0xFF22D3EE)
-    val onCyanDark = Color(0xFF04222B)
+    // Signals. Flare = action/live, lime = Prey, cobalt = Hunters, error = error only.
+    val cyan = Color(0xFFFF5A36)
+    val flare = Color(0xFFFF5A36)
+    val onCyanDark = Color(0xFF1A0803)
     val onCyanLight = Color(0xFFFFFFFF)
-    val coral = Color(0xFFFF7A59)
-    val violet = Color(0xFFA79BFF)
+    val coral = Color(0xFFB8F04A)
+    val violet = Color(0xFF6D8CFF)
     val errorDark = Color(0xFFFF8A8A)
     val errorLight = Color(0xFFB91C1C)
-    val amber = Color(0xFFF0A43A)
+    val amber = Color(0xFFFFC24B)
 
-    // Daylight chalk: ink type, white plates, hairlines, darker signal colours.
-    val daylight = Color(0xFFF7F9FC)
-    val daylightInk = Color(0xFF0F172A)
-    val daylightMuted = Color(0xFF475569)
+    // Daylight: warm paper, ink type, same signal meanings.
+    val daylight = Color(0xFFF3EFE6)
+    val daylightInk = Color(0xFF08090A)
+    val daylightMuted = Color(0xFF5F5A52)
 }
 
 /** Theme-aware semantic roles. The Board itself always uses [board]. */
@@ -138,11 +141,11 @@ object BoardShape {
     /** Bottom sheet: square shoulders, 2 dp top radius. */
     val sheet = RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp)
 
-    /** Kit/ticket tag silhouette; mirrors automatically in RTL. */
-    val tag = CutCornerShape(topEnd = 8.dp)
+    /** Kit/ticket tag silhouette; a quiet 2 dp ticket, never a pill. */
+    val tag = RoundedCornerShape(2.dp)
 
-    /** State word tag: smaller cut. */
-    val stateTag = CutCornerShape(topEnd = 4.dp)
+    /** State word tag: same quiet ticket. */
+    val stateTag = RoundedCornerShape(2.dp)
 
     /** Chalk rule / field surfaces. */
     val field = RoundedCornerShape(0.dp)
