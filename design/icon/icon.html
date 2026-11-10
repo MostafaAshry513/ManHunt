@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ManHunt — icon workbench</title>
+    <style>
+      @font-face{font-family:"BricolageIcon";src:url("BricolageGrotesque.ttf") format("truetype");font-weight:200 800;font-stretch:75% 100%}
+      @font-face{font-family:"ArchivoIcon";src:url("Archivo.ttf") format("truetype");font-weight:100 900}
+    </style>
+    <link rel="stylesheet" href="mockup-core.css" />
+    <link rel="stylesheet" href="icon.css" />
+  </head>
+  <body>
+    <script src="icon.js"></script>
+    <script>
+      /* ManHunt icon round 03.
+         One master on the 1024 grid. Essential marks inside r469.
+         The palette is the NIGHT SHIFT system; one lime point is the constant. */
+      const R = {
+        canvas: "#08090A",
+        surface: "#121416",
+        bone: "#F3EFE6",
+        muted: "#A6A39B",
+        flare: "#FF5A36",
+        lime: "#B8F04A",
+        cobalt: "#6D8CFF",
+      };
+      const RD = {
+        canvas: "#08090A",
+        surface: "#121416",
+        bone: "#F3EFE6",
+        muted: "#A6A39B",
+        flare: "#FF5A36",
+        lime: "#B8F04A",
+        cobalt: "#6D8CFF",
+      };
+      const P = (extra) => ({
+        light: { bg: R.canvas, mark: R.bone, accent: R.flare, point: R.lime, ...extra },
+        dark: { bg: RD.canvas, mark: RD.bone, accent: RD.flare, point: RD.lime, ...extra },
+        mono: { bg: "#000000", mark: "#ffffff", accent: "#ffffff", point: "#ffffff", ...extra },
+      });
+
+      const concepts = [
+        {
+          id: "m",
+          name: "M",
+          direction: "letterform",
+          note: "The bet: one letter carries the brand at 29 px. Risk: an M is the most generic letter on a home screen. The flare slash and lime point have to do the work.",
+          palettes: P(),
+          art: (p) => `
+            <path fill="${p.mark}" d="M251.7 770V294.8H408.8L516.2 649H517.6L623.2 294.8H772.4V770H675.6V399.6H674.1L558.6 770H464.4L350 399.4H348.6V770Z"/>
+            <path d="M280 760 L742 280" stroke="${p.accent}" stroke-width="42" stroke-linecap="square"/>
+            <circle cx="512" cy="535" r="36" fill="${p.point}"/>`,
+        },
+        {
+          id: "peek",
+          name: "Peek",
+          direction: "symbol",
+          note: "The bet: hide-and-seek is a human verb; a head and a wall read before any map. Risk: it can become a generic avatar if the wall and eye are not decisive.",
+          palettes: P(),
+          art: (p) => `
+            <rect x="568" y="218" width="206" height="588" fill="${p.accent}"/>
+            <rect x="568" y="218" width="22" height="588" fill="${p.mark}" opacity=".22"/>
+            <circle cx="430" cy="466" r="112" fill="${p.mark}"/>
+            <path d="M238 806 C248 660 332 604 430 604 C528 604 620 660 630 806 Z" fill="${p.mark}"/>
+            <circle cx="474" cy="456" r="34" fill="${p.point}"/>`,
+        },
+        {
+          id: "cut",
+          name: "Cut",
+          direction: "abstract",
+          note: "The bet: one hard cut makes a silhouette that survives every mask and every size. Risk: it is the least narrative; the lime point and the cut angle have to carry the meaning.",
+          palettes: P(),
+          art: (p) => `
+            <path d="M252 252 H772 V772 H252 Z" fill="${p.mark}"/>
+            <path d="M300 850 L724 174" stroke="${p.bg}" stroke-width="96"/>
+            <circle cx="512" cy="512" r="44" fill="${p.point}"/>`,
+        },
+        {
+          id: "flash",
+          name: "Flash",
+          direction: "symbol",
+          note: "The bet: the hunt has a tool; a searchlight is more specific than a torch glyph. Risk: at 16 px the beam can read as an arrow.",
+          palettes: P(),
+          art: (p) => `
+            <g transform="rotate(-36 512 512)">
+              <rect x="166" y="454" width="230" height="116" rx="28" fill="${p.accent}"/>
+              <path d="M396 466 L730 326 L816 402 L816 622 L730 700 L396 558 Z" fill="${p.mark}" opacity=".84"/>
+              <circle cx="764" cy="514" r="34" fill="${p.point}"/>
+            </g>`,
+        },
+        {
+          id: "afterimage",
+          name: "Afterimage",
+          direction: "abstract",
+          note: "The bet: the report age is the product rule; a solid dot with a broken ring says it in one shape. Risk: without the ring it is just a dot.",
+          palettes: P(),
+          art: (p) => `
+            <circle cx="512" cy="512" r="102" fill="${p.accent}"/>
+            <circle cx="512" cy="512" r="220" fill="none" stroke="${p.mark}" stroke-opacity=".34" stroke-width="34" stroke-dasharray="820 220" transform="rotate(-38 512 512)"/>
+            <circle cx="704" cy="300" r="34" fill="${p.point}"/>`,
+          artSmall: (p) => `
+            <circle cx="512" cy="512" r="108" fill="${p.accent}"/>
+            <circle cx="512" cy="512" r="226" fill="none" stroke="${p.mark}" stroke-opacity=".30" stroke-width="34" stroke-dasharray="820 220" transform="rotate(-38 512 512)"/>
+            <circle cx="704" cy="300" r="42" fill="${p.point}"/>`,
+        },
+        {
+          id: "stub",
+          name: "Stub",
+          direction: "symbol",
+          note: "The bet: the invite code is the doorway; a torn ticket owns the shape. Risk: six code characters cannot be literal at 16 px, so the notches and lime seat carry it.",
+          palettes: P(),
+          art: (p) => `
+            <g transform="rotate(-13 512 512)">
+              <rect x="266" y="256" width="492" height="520" rx="26" fill="${p.accent}"/>
+              <circle cx="266" cy="392" r="32" fill="${p.bg}"/>
+              <circle cx="266" cy="512" r="32" fill="${p.bg}"/>
+              <circle cx="266" cy="632" r="32" fill="${p.bg}"/>
+              <path d="M618 270 V778" stroke="${p.bg}" stroke-opacity=".62" stroke-width="16" stroke-dasharray="28 46"/>
+              <circle cx="522" cy="646" r="36" fill="${p.point}"/>
+            </g>`,
+        },
+      ];
+
+      renderIconWorkbench({
+        title: "ManHunt",
+        intro:
+          "Icon round 03, built in the app-icon workbench. Six directions from three families, judged at launcher sizes before the hero. The field is dark camera, blue chat, green map, yellow music, white grid, red play; no real marks.",
+        appName: "ManHunt",
+        roles: R,
+        concepts,
+        typefaces: {
+          glyph: "M",
+          palette: { bg: R.canvas, fg: R.bone },
+          fonts: [
+            { family: "BricolageIcon", weight: 700 },
+            { family: "ArchivoIcon", weight: 800 },
+            { family: "Georgia", weight: 700 },
+            { family: "Arial Black", weight: 900 },
+          ],
+        },
+        shelf: {
+          competitors: [
+            { name: "Dark camera", bg: "#17181B", fg: "#F2F2F2", glyph: "circle" },
+            { name: "Blue chat", bg: "#2F6FD6", fg: "#FFFFFF", glyph: "bubble" },
+            { name: "Green map", bg: "#1E8E5A", fg: "#FFFFFF", glyph: "ring" },
+            { name: "Yellow music", bg: "#F4C542", fg: "#1B1B1B", glyph: "wave" },
+            { name: "White grid", bg: "#FFFFFF", fg: "#30343A", glyph: "grid" },
+            { name: "Red play", bg: "#E33A35", fg: "#FFFFFF", glyph: "letter:P" },
+          ],
+        },
+        pageNotes: [
+          ["What this round tests", "Every idea is judged at 60 / 40 / 29 / 16 before the large hero, then in the Android 108/72/66 layers and the dark/light/mono palettes."],
+          ["Constant", "One lime report point. The letter M and Stub are the two most brand-led bets; Peek is the most literal; Afterimage is the most product-true."],
+        ],
+      });
+    </script>
+  </body>
+</html>
