@@ -23,6 +23,10 @@ Round 04 invented new marks. Round 05 starts from the approved identity in `desi
 
 The mark is scaled from `design/brand/identity/final/lockup/mark-light-on-dark.svg` onto the 1024 master. Rounded caps replace the old butt caps so the ring feels drawn, not cut. Open Zone and Open Flare were both judged at 60 / 40 / 29 / 16 and through the Android adaptive layers.
 
+### Spacing correction
+
+The first pass of Open Zone had a large dot sitting on the ring. That read as two objects overlapping. The corrected mark uses a **205-radius ring**, **84 stroke**, and a **55-radius point** moved into the break with clear space around it. The composition now breathes: the ring is ~48% of the tile and the point never touches it. This is the version in the screenshots and the recommendation.
+
 ## Evidence
 
 - [Concepts](shots/concepts.png)
