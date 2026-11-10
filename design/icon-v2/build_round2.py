@@ -108,7 +108,7 @@ CSS = """
 .intro p{max-width:610px;font-size:15px;line-height:1.55;color:var(--muted);margin:0}.intro p b{color:var(--ink);font-weight:600}
 .direction{display:grid;grid-template-columns:120px 1fr;gap:9px 18px;font-size:12px;line-height:1.45}.direction dt{font:10px/1.5 var(--mono);color:var(--dim)}.direction dd{margin:0;color:var(--muted)}.direction dd b{color:var(--ink);font-weight:600}
 .audit{display:grid;grid-template-columns:1fr 1fr;gap:26px 56px;padding:22px 0 28px;border-bottom:1px solid var(--line)}
-.audit h2{font:600 13px/1.2 var(--sans);margin:0 0 8px;letter-spacing:-.01em}.audit ul{margin:0;padding:0;list-style:none;font-size:12px;line-height:1.55;color:var(--muted)}.audit li{display:block;position:relative;padding-left:18px}.audit li+li{margin-top:8px}.audit li:before{content:"â€”";position:absolute;left:0;top:0;font-family:var(--mono);color:var(--dim)}.audit li em{font-style:normal;color:var(--ink)}
+.audit h2{font:600 13px/1.2 var(--sans);margin:0 0 8px;letter-spacing:-.01em}.audit ul{margin:0;padding:0;list-style:none;font-size:12px;line-height:1.55;color:var(--muted)}.audit li{display:block;position:relative;padding-left:18px}.audit li+li{margin-top:8px}.audit li:before{content:"Ã¢â‚¬â€";position:absolute;left:0;top:0;font-family:var(--mono);color:var(--dim)}.audit li em{font-style:normal;color:var(--ink)}
 .section-head{display:flex;align-items:flex-end;justify-content:space-between;margin:32px 0 14px}.section-head h2{font:600 28px/1 var(--display);letter-spacing:-.035em;margin:0}.section-head p{font:10px/1.4 var(--mono);color:var(--dim);margin:0}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .card{background:var(--paper);border:1px solid var(--line);padding:12px}.art{background:var(--ink);border-radius:2px;overflow:hidden;aspect-ratio:1}.art svg{width:100%;height:100%;display:block}
@@ -161,11 +161,11 @@ for key, name, desc, strength, body in ICONS:
 
 html = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ManHunt â€” launcher icon study 02</title><style>{CSS}</style></head>
+<title>ManHunt Ã¢â‚¬â€ launcher icon study 02</title><style>{CSS}</style></head>
 <body><div class="sheet">
 <div class="top"><div><div class="brand"><span class="slash"></span>MANHUNT</div>
 <h1><span>Put the player</span><span>in the icon.</span></h1></div>
-<div class="right">LAUNCHER ICON STUDY â€” 02<br>CHARACTER + OBJECT / NIGHT SHIFT<br>NOT APPLIED YET</div></div>
+<div class="right">LAUNCHER ICON STUDY Ã¢â‚¬â€ 02<br>CHARACTER + OBJECT / NIGHT SHIFT<br>NOT APPLIED YET</div></div>
 
 <div class="intro">
 <p>Round one was eight marks. None of them had a <b>player</b> in it. This round turns the icon back into a game: a hider, a hound, a searchlight, a runner, a patch, an eye, an M, a claw. Same palette and signature, none of the geometry repeated.</p>
@@ -179,28 +179,28 @@ html = f'''<!doctype html>
 
 <div class="audit">
 <div><h2>Why round one failed</h2><ul>
-<li><em>All eight were marks.</em> Ticket, ring, fold, grid, monogram â€” no player, no story, no reason to pick one up.</li>
+<li><em>All eight were marks.</em> Ticket, ring, fold, grid, monogram Ã¢â‚¬â€ no player, no story, no reason to pick one up.</li>
 <li><em>Too polite.</em> The palette was right; the forms were all thin, centred, logo-exercise geometry.</li>
 <li><em>Same silhouette family.</em> At a glance most of them read as a map or a scanner, not a hunt.</li>
 <li><em>No character.</em> The app pages have a voice; the icons had a grid.</li>
 </ul></div>
 <div><h2>What this round changes</h2><ul>
 <li><em>Big single forms.</em> A head, a hound, a beam, a body. Fewer elements, bigger shapes, less line work.</li>
-<li><em>Game-first reads.</em> Hide, hunt, search, run; the productâ€™s verbs before its system diagrams.</li>
+<li><em>Game-first reads.</em> Hide, hunt, search, run; the productÃ¢â‚¬â„¢s verbs before its system diagrams.</li>
 <li><em>One point of life.</em> Every direction still keeps the lime report point.</li>
 <li><em>Tested at launcher size.</em> 48 / 32 / 24 px, circle and squircle, monochrome.</li>
 </ul></div></div>
 
-<div class="section-head"><h2>Eight directions</h2><p>DARK GROUND / 48 Â· 32 Â· 24 PX CHECK</p></div>
+<div class="section-head"><h2>Eight directions</h2><p>DARK GROUND / 48 Ã‚Â· 32 Ã‚Â· 24 PX CHECK</p></div>
 <div class="grid">{''.join(cards)}</div>
 
 <div class="shortlist"><div class="section-head"><h2>What survives the launcher</h2><p>ADAPTIVE MASK / MONOCHROME / SAFE ZONE</p></div>
 <div class="picks">{''.join(picks)}</div></div>
 
-<footer><span>MANHUNT / REAL-WORLD GPS HIDE-AND-SEEK</span><span>ICON STUDY 02 / 8 DIRECTIONS / NIGHT SHIFT SYSTEM</span><span>UNSLOP BY @HEYDAMIR Â· CC BY 4.0</span></footer>
+<footer><span>MANHUNT / REAL-WORLD GPS HIDE-AND-SEEK</span><span>ICON STUDY 02 / 8 DIRECTIONS / NIGHT SHIFT SYSTEM</span><span>UNSLOP BY @HEYDAMIR Ã‚Â· CC BY 4.0</span></footer>
 </div></body></html>'''
 
-html = html.replace("â€”", "-").replace("â€™", "'").replace("Â·", "/").replace("”", '"').replace("™", "")
+html = html.replace("Ã¢â‚¬â€", "-").replace("Ã¢â‚¬â„¢", "'").replace("Ã‚Â·", "/").replace("â€", '"').replace("â„¢", "")
 (ROOT / "round2.html").write_text(html, encoding="utf-8")
 
 # Export 512 pngs and the sheet via Playwright.
@@ -211,7 +211,7 @@ with sync_playwright() as p:
     page.goto((ROOT / "round2.html").as_uri(), wait_until="networkidle")
     page.wait_for_timeout(300)
     page.screenshot(path=str(ROOT / "round2-study-sheet.png"), full_page=True)
-    icons = page.locator("svg.icon")
+    icons = page.locator(".grid .art svg.icon")
     for i in range(icons.count()):
         el = icons.nth(i)
         name = el.get_attribute("data-icon")
