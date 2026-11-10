@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="afterimage" viewBox="0 0 108 108" role="img" aria-label="Afterimage">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <circle cx="54" cy="55" r="9" fill="#FF5A36"></circle>
+          <circle cx="54" cy="55" r="21" fill="none" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"></circle>
+          <circle cx="54" cy="55" r="31" fill="none" stroke="#F3EFE6" stroke-opacity=".13" stroke-width="2" stroke-dasharray="58 20" transform="rotate(18 54 55)"></circle>
+          <circle cx="74" cy="34" r="3.6" fill="#B8F04A"></circle>
+        </svg>

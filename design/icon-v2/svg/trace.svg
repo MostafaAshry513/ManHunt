@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="trace" viewBox="0 0 108 108" role="img" aria-label="Trace">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <circle cx="32" cy="68" r="4" fill="#F3EFE6" opacity=".22"></circle>
+          <circle cx="44" cy="56" r="5.2" fill="#F3EFE6" opacity=".45"></circle>
+          <circle cx="58" cy="44" r="7.2" fill="#FF5A36"></circle>
+          <path d="M65 38 Q73 34 78 30" stroke="#B8F04A" stroke-width="3" fill="none" stroke-linecap="square"></path>
+          <circle cx="79" cy="29" r="3.4" fill="#B8F04A"></circle>
+        </svg>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="zone" viewBox="0 0 108 108" role="img" aria-label="Zone">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <path d="M30 30 H78 V59 L59 78 H30 Z" fill="none" stroke="#F3EFE6" stroke-width="3" stroke-linejoin="miter"></path>
+          <path d="M78 59 L59 78 L78 78 Z" fill="#FF5A36"></path>
+          <circle cx="54" cy="54" r="4.2" fill="#B8F04A"></circle>
+        </svg>

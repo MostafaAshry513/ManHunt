@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ManHunt — launcher icon study</title>
+<style>
+@font-face{font-family:"Bricolage";src:url("BricolageGrotesque.ttf") format("truetype");font-weight:200 800;font-stretch:75% 100%}
+@font-face{font-family:"Archivo";src:url("Archivo.ttf") format("truetype");font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:"Plex";src:url("IBMPlexMono-Regular.ttf") format("truetype");font-weight:400}
+:root{
+  --ink:#08090A;--surface:#121416;--bone:#F3EFE6;--paper:#FFFCF7;--muted:#5F5A52;--dim:#81796D;
+  --line:#C9C1B3;--line-soft:#DED7CA;--flare:#FF5A36;--lime:#B8F04A;--cobalt:#6D8CFF;
+  --display:"Bricolage",Georgia,serif;--sans:"Archivo",system-ui,sans-serif;--mono:"Plex",ui-monospace,monospace;
+  --outer:18px;--pad:5px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bone);color:var(--ink);font-family:var(--sans)}
+.sheet{width:1600px;padding:54px 64px 40px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:22px}
+.brand{display:inline-flex;align-items:center;gap:10px;font:700 20px/1 var(--display);letter-spacing:-.03em}
+.slash{width:22px;height:22px;position:relative}
+.slash:before,.slash:after{content:"";position:absolute;left:10px;top:0;width:2px;height:22px;background:var(--flare)}
+.slash:before{transform:rotate(38deg)}.slash:after{transform:rotate(-38deg);background:var(--ink)}
+.top .right{text-align:right;font:10px/1.6 var(--mono);color:var(--dim)}
+.top h1{font:600 68px/.86 var(--display);letter-spacing:-.06em;margin:28px 0 0;max-width:900px}
+.top h1 span{display:block}
+.intro{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;padding:28px 0 34px;border-bottom:1px solid var(--line)}
+.intro p{max-width:590px;font-size:15px;line-height:1.55;color:var(--muted);margin:0}
+.intro p b{color:var(--ink);font-weight:600}
+.direction{display:grid;grid-template-columns:120px 1fr;gap:10px 18px;font-size:12px;line-height:1.45}
+.direction dt{font:10px/1.5 var(--mono);color:var(--dim)}
+.direction dd{margin:0;color:var(--muted)}
+.direction dd b{color:var(--ink);font-weight:600}
+.audit{display:grid;grid-template-columns:1fr 1fr;gap:26px 56px;padding:24px 0 30px;border-bottom:1px solid var(--line)}
+.audit h2{font:600 13px/1.2 var(--sans);margin:0 0 8px;letter-spacing:-.01em}
+.audit ul{margin:0;padding:0;list-style:none;font-size:12px;line-height:1.55;color:var(--muted)}
+.audit li{display:block;position:relative;padding-left:18px}
+.audit li+li{margin-top:8px}
+.audit li:before{content:"—";position:absolute;left:0;top:0;font-family:var(--mono);color:var(--dim)}
+.audit li em{font-style:normal;color:var(--ink)}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin:32px 0 14px}
+.section-head h2{font:600 28px/1 var(--display);letter-spacing:-.035em;margin:0}
+.section-head p{font:10px/1.4 var(--mono);color:var(--dim);margin:0}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--paper);border:1px solid var(--line);padding:12px}
+.art{background:var(--ink);border-radius:2px;overflow:hidden;position:relative;aspect-ratio:1}
+.art svg{width:100%;height:100%;display:block}
+.card-top{display:flex;justify-content:space-between;align-items:baseline;margin:10px 1px 0}
+.card-top .n{font:10px/1 var(--mono);color:var(--flare)}
+.card-top h3{font:600 19px/1 var(--display);letter-spacing:-.03em;margin:0}
+.card p{font-size:11px;line-height:1.45;color:var(--muted);margin:6px 1px 0;min-height:48px}
+.sizes{display:flex;align-items:center;gap:14px;border-top:1px solid var(--line-soft);margin-top:10px;padding-top:10px}
+.sizes .box{display:grid;place-items:center;background:var(--ink);border-radius:2px;flex:none}
+.sizes .box svg{width:100%;height:100%;display:block}
+.sizes .b48{width:48px;height:48px}.sizes .b32{width:32px;height:32px}.sizes .b24{width:24px;height:24px}
+.sizes span{font:9px/1.4 var(--mono);color:var(--dim)}
+.shortlist{background:var(--ink);color:var(--bone);margin:36px -64px 0;padding:38px 64px 40px}
+.shortlist .section-head{margin:0 0 18px}
+.shortlist .section-head h2{color:var(--bone)}
+.shortlist .section-head p{color:var(--muted)}
+.picks{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.pick{display:grid;grid-template-columns:134px 1fr;gap:16px;align-items:start;border-top:1px solid #2A2D31;padding-top:18px}
+.pick .shapes{display:flex;flex-direction:column;gap:8px;align-items:center}
+.frame{width:100px;height:100px;background:var(--surface);border:1px solid #2A2D31;display:grid;place-items:center}
+.frame svg{width:100%;height:100%;display:block}
+.frame.circle{border-radius:50%;overflow:hidden}.frame.squircle{border-radius:22%;overflow:hidden}
+.pick .mono{width:48px;height:48px;background:var(--bone);border-radius:50%;display:grid;place-items:center;overflow:hidden}
+.pick .mono svg{width:100%;height:100%}
+.pick h3{font:600 23px/1 var(--display);letter-spacing:-.035em;margin:0 0 7px}
+.pick p{font-size:11px;line-height:1.5;color:#A6A39B;margin:0}
+.pick .why{font:9px/1.5 var(--mono);color:var(--dim);margin-top:10px}
+footer{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:28px;padding-top:14px;font:9px/1.4 var(--mono);color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="top">
+    <div>
+      <div class="brand"><span class="slash"></span>MANHUNT</div>
+      <h1><span>One mark,</span><span>eight ways in.</span></h1>
+    </div>
+    <div class="right">LAUNCHER ICON STUDY — 01<br>NIGHT SHIFT / ADAPTIVE 108dp<br>NOT APPLIED YET</div>
+  </div>
+
+  <div class="intro">
+    <p>A new launcher icon for a real-world hide-and-seek game. The app pages were rebuilt from zero around <b>bitumen, bone, flare, Bricolage and the report dot</b>; the icon has to belong to that system without becoming a tiny app screen. These are eight starts, not one safe answer.</p>
+    <dl class="direction">
+      <dt>PRODUCT</dt><dd>A live two-team hide-and-seek game played on real streets.</dd>
+      <dt>CHARACTER</dt><dd><b>Tense, exact, a little playful.</b> Not tactical, not toy.</dd>
+      <dt>WORLD</dt><dd>Night streets, printed tickets, folded field maps, one green report point.</dd>
+      <dt>MOMENT</dt><dd>The moment a report lands: one dot, old rings, a place you were.</dd>
+      <dt>SIGNATURE</dt><dd><b>One lime point</b> in or beside the mark. Every direction keeps it.</dd>
+    </dl>
+  </div>
+
+  <div class="audit">
+    <div>
+      <h2>What the old icon was doing</h2>
+      <ul>
+        <li><em>A ring and a coral dot.</em> It reads as a loading wheel or a generic radar, not a street game.</li>
+        <li><em>Cyan and coral.</em> Neither colour exists in NIGHT SHIFT anymore.</li>
+        <li><em>Thin geometry.</em> The ring breaks down at 48 px and disappears at 32 px.</li>
+        <li><em>No monochrome story.</em> Android 13 themed icons need a shape, not a colour wheel.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>What this study optimises for</h2>
+      <ul>
+        <li><em>Silhouette first.</em> Readable at 48 px and still recognisable at 32 px.</li>
+        <li><em>One idea per mark.</em> Ticket, fold, signal, cut, block, trace. No five-element mascot.</li>
+        <li><em>Adaptive-safe.</em> All marks sit inside the 66dp circle; tested in circle and squircle.</li>
+        <li><em>One lime point.</em> The game's report dot is the only colour event besides flare.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section-head"><h2>Eight starts</h2><p>DARK GROUND / 48 · 32 · 24 px CHECK</p></div>
+  <div class="grid">
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="afterimage" viewBox="0 0 108 108" role="img" aria-label="Afterimage">
+          <rect width="108" height="108" fill="#08090A"/>
+          <circle cx="54" cy="55" r="9" fill="#FF5A36"/>
+          <circle cx="54" cy="55" r="21" fill="none" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"/>
+          <circle cx="54" cy="55" r="31" fill="none" stroke="#F3EFE6" stroke-opacity=".13" stroke-width="2" stroke-dasharray="58 20" transform="rotate(18 54 55)"/>
+          <circle cx="74" cy="34" r="3.6" fill="#B8F04A"/>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">01</span><h3>Afterimage</h3></div>
+      <p>A solid report with older rings falling away. The whole game is in the gap between the two.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="54" cy="55" r="9" fill="#FF5A36"/><circle cx="54" cy="55" r="21" fill="none" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"/><circle cx="54" cy="55" r="31" fill="none" stroke="#F3EFE6" stroke-opacity=".13" stroke-width="2" stroke-dasharray="58 20" transform="rotate(18 54 55)"/><circle cx="74" cy="34" r="3.6" fill="#B8F04A"/></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="54" cy="55" r="9" fill="#FF5A36"/><circle cx="54" cy="55" r="21" fill="none" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"/><circle cx="54" cy="55" r="31" fill="none" stroke="#F3EFE6" stroke-opacity=".13" stroke-width="2" stroke-dasharray="58 20" transform="rotate(18 54 55)"/><circle cx="74" cy="34" r="3.6" fill="#B8F04A"/></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="54" cy="55" r="9" fill="#FF5A36"/><circle cx="54" cy="55" r="21" fill="none" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"/><circle cx="74" cy="34" r="3.6" fill="#B8F04A"/></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="stub" viewBox="0 0 108 108" role="img" aria-label="Stub">
+          <rect width="108" height="108" fill="#08090A"/>
+          <g transform="rotate(-13 54 54)">
+            <rect x="29" y="28" width="50" height="52" rx="3" fill="#FF5A36"/>
+            <circle cx="29" cy="41" r="3.1" fill="#08090A"/><circle cx="29" cy="54" r="3.1" fill="#08090A"/><circle cx="29" cy="67" r="3.1" fill="#08090A"/>
+            <line x1="63" y1="29" x2="63" y2="79" stroke="#08090A" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 5"/>
+            <circle cx="52" cy="66" r="3.4" fill="#B8F04A"/>
+          </g>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">02</span><h3>Stub</h3></div>
+      <p>The invite code as a torn ticket. Six characters, one bite out of the edge, one lime seat.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-13 54 54)"><rect x="29" y="28" width="50" height="52" rx="3" fill="#FF5A36"/><circle cx="29" cy="41" r="3.1" fill="#08090A"/><circle cx="29" cy="54" r="3.1" fill="#08090A"/><circle cx="29" cy="67" r="3.1" fill="#08090A"/><line x1="63" y1="29" x2="63" y2="79" stroke="#08090A" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 5"/><circle cx="52" cy="66" r="3.4" fill="#B8F04A"/></g></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-13 54 54)"><rect x="29" y="28" width="50" height="52" rx="3" fill="#FF5A36"/><circle cx="29" cy="41" r="3.1" fill="#08090A"/><circle cx="29" cy="54" r="3.1" fill="#08090A"/><circle cx="29" cy="67" r="3.1" fill="#08090A"/><line x1="63" y1="29" x2="63" y2="79" stroke="#08090A" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 5"/><circle cx="52" cy="66" r="3.4" fill="#B8F04A"/></g></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-13 54 54)"><rect x="29" y="28" width="50" height="52" rx="3" fill="#FF5A36"/><circle cx="29" cy="54" r="3.1" fill="#08090A"/><circle cx="52" cy="66" r="3.4" fill="#B8F04A"/></g></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="fold" viewBox="0 0 108 108" role="img" aria-label="Fold">
+          <rect width="108" height="108" fill="#08090A"/>
+          <path d="M30 28 L54 37 L78 28 L78 79 L54 70 L30 79 Z" fill="#F3EFE6"/>
+          <path d="M54 37 L78 28 L78 79 L54 70 Z" fill="#1A1D20"/>
+          <path d="M54 37 L54 70" stroke="#FF5A36" stroke-width="2.6"/>
+          <circle cx="65" cy="53" r="3.6" fill="#B8F04A"/>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">03</span><h3>Fold</h3></div>
+      <p>A field map folded once. The flare crease is the line between where you were and where you are.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 28 L54 37 L78 28 L78 79 L54 70 L30 79 Z" fill="#F3EFE6"/><path d="M54 37 L78 28 L78 79 L54 70 Z" fill="#1A1D20"/><path d="M54 37 L54 70" stroke="#FF5A36" stroke-width="2.6"/><circle cx="65" cy="53" r="3.6" fill="#B8F04A"/></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 28 L54 37 L78 28 L78 79 L54 70 L30 79 Z" fill="#F3EFE6"/><path d="M54 37 L78 28 L78 79 L54 70 Z" fill="#1A1D20"/><path d="M54 37 L54 70" stroke="#FF5A36" stroke-width="2.6"/><circle cx="65" cy="53" r="3.6" fill="#B8F04A"/></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 28 L54 37 L78 28 L78 79 L54 70 L30 79 Z" fill="#F3EFE6"/><path d="M54 37 L78 28 L78 79 L54 70 Z" fill="#1A1D20"/><circle cx="65" cy="53" r="3.6" fill="#B8F04A"/></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="cut" viewBox="0 0 108 108" role="img" aria-label="Cut">
+          <rect width="108" height="108" fill="#08090A"/>
+          <path d="M30 29 H78 V79 H30 Z" fill="#F3EFE6"/>
+          <path d="M37 84 L71 24" stroke="#08090A" stroke-width="10"/>
+          <circle cx="54" cy="54" r="4.4" fill="#B8F04A"/>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">04</span><h3>Cut</h3></div>
+      <p>The field plate with one clean cut through it. Bold at any size, and the dot survives instead of decorating.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 29 H78 V79 H30 Z" fill="#F3EFE6"/><path d="M37 84 L71 24" stroke="#08090A" stroke-width="10"/><circle cx="54" cy="54" r="4.4" fill="#B8F04A"/></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 29 H78 V79 H30 Z" fill="#F3EFE6"/><path d="M37 84 L71 24" stroke="#08090A" stroke-width="10"/><circle cx="54" cy="54" r="4.4" fill="#B8F04A"/></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 29 H78 V79 H30 Z" fill="#F3EFE6"/><path d="M37 84 L71 24" stroke="#08090A" stroke-width="11"/><circle cx="54" cy="54" r="4.4" fill="#B8F04A"/></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="block" viewBox="0 0 108 108" role="img" aria-label="Block">
+          <rect width="108" height="108" fill="#08090A"/>
+          <g transform="rotate(-9 54 54)">
+            <rect x="29" y="30" width="19" height="19" fill="#F3EFE6" opacity=".22"/>
+            <rect x="51" y="30" width="19" height="19" fill="#F3EFE6" opacity=".34"/>
+            <rect x="29" y="52" width="19" height="19" fill="#F3EFE6" opacity=".34"/>
+            <rect x="51" y="52" width="19" height="19" fill="#FF5A36"/>
+            <path d="M76 26 L76 82" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2"/>
+            <path d="M26 76 L82 76" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2"/>
+          </g>
+          <circle cx="72" cy="66" r="3.4" fill="#B8F04A"/>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">05</span><h3>Block</h3></div>
+      <p>A fragment of the street grid with the live block lit. The smallest possible map, not a map icon.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-9 54 54)"><rect x="29" y="30" width="19" height="19" fill="#F3EFE6" opacity=".22"/><rect x="51" y="30" width="19" height="19" fill="#F3EFE6" opacity=".34"/><rect x="29" y="52" width="19" height="19" fill="#F3EFE6" opacity=".34"/><rect x="51" y="52" width="19" height="19" fill="#FF5A36"/></g><circle cx="72" cy="66" r="3.4" fill="#B8F04A"/></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-9 54 54)"><rect x="29" y="30" width="19" height="19" fill="#F3EFE6" opacity=".22"/><rect x="51" y="30" width="19" height="19" fill="#F3EFE6" opacity=".34"/><rect x="29" y="52" width="19" height="19" fill="#F3EFE6" opacity=".34"/><rect x="51" y="52" width="19" height="19" fill="#FF5A36"/></g><circle cx="72" cy="66" r="3.4" fill="#B8F04A"/></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-9 54 54)"><rect x="29" y="30" width="19" height="19" fill="#F3EFE6" opacity=".22"/><rect x="51" y="30" width="19" height="19" fill="#F3EFE6" opacity=".34"/><rect x="29" y="52" width="19" height="19" fill="#F3EFE6" opacity=".34"/><rect x="51" y="52" width="19" height="19" fill="#FF5A36"/></g><circle cx="72" cy="66" r="3.4" fill="#B8F04A"/></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="mark" viewBox="0 0 108 108" role="img" aria-label="Mark">
+          <rect width="108" height="108" fill="#08090A"/>
+          <rect x="31" y="29" width="9" height="50" fill="#F3EFE6"/>
+          <rect x="68" y="29" width="9" height="50" fill="#F3EFE6"/>
+          <path d="M35 76 L54 50 L73 76" fill="none" stroke="#FF5A36" stroke-width="9" stroke-linejoin="miter"/>
+          <circle cx="54" cy="50" r="3.6" fill="#B8F04A"/>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">06</span><h3>Mark</h3></div>
+      <p>The M built from street plates and one flare hinge. The most brand-led option, least illustrative.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><rect x="31" y="29" width="9" height="50" fill="#F3EFE6"/><rect x="68" y="29" width="9" height="50" fill="#F3EFE6"/><path d="M35 76 L54 50 L73 76" fill="none" stroke="#FF5A36" stroke-width="9" stroke-linejoin="miter"/><circle cx="54" cy="50" r="3.6" fill="#B8F04A"/></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><rect x="31" y="29" width="9" height="50" fill="#F3EFE6"/><rect x="68" y="29" width="9" height="50" fill="#F3EFE6"/><path d="M35 76 L54 50 L73 76" fill="none" stroke="#FF5A36" stroke-width="9" stroke-linejoin="miter"/><circle cx="54" cy="50" r="3.6" fill="#B8F04A"/></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><rect x="31" y="29" width="10" height="50" fill="#F3EFE6"/><rect x="67" y="29" width="10" height="50" fill="#F3EFE6"/><path d="M35 76 L54 50 L73 76" fill="none" stroke="#FF5A36" stroke-width="10"/></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="zone" viewBox="0 0 108 108" role="img" aria-label="Zone">
+          <rect width="108" height="108" fill="#08090A"/>
+          <path d="M30 30 H78 V59 L59 78 H30 Z" fill="none" stroke="#F3EFE6" stroke-width="3" stroke-linejoin="miter"/>
+          <path d="M78 59 L59 78 L78 78 Z" fill="#FF5A36"/>
+          <circle cx="54" cy="54" r="4.2" fill="#B8F04A"/>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">07</span><h3>Zone</h3></div>
+      <p>The shrinking play area: three hard edges and one corner gone. Reads as a boundary, not a shield.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 30 H78 V59 L59 78 H30 Z" fill="none" stroke="#F3EFE6" stroke-width="3" stroke-linejoin="miter"/><path d="M78 59 L59 78 L78 78 Z" fill="#FF5A36"/><circle cx="54" cy="54" r="4.2" fill="#B8F04A"/></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 30 H78 V59 L59 78 H30 Z" fill="none" stroke="#F3EFE6" stroke-width="3" stroke-linejoin="miter"/><path d="M78 59 L59 78 L78 78 Z" fill="#FF5A36"/><circle cx="54" cy="54" r="4.2" fill="#B8F04A"/></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 30 H78 V59 L59 78 H30 Z" fill="none" stroke="#F3EFE6" stroke-width="4" stroke-linejoin="miter"/><path d="M78 59 L59 78 L78 78 Z" fill="#FF5A36"/></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+    <article class="card">
+      <div class="art">
+        <svg class="icon" data-icon="trace" viewBox="0 0 108 108" role="img" aria-label="Trace">
+          <rect width="108" height="108" fill="#08090A"/>
+          <circle cx="32" cy="68" r="4" fill="#F3EFE6" opacity=".22"/>
+          <circle cx="44" cy="56" r="5.2" fill="#F3EFE6" opacity=".45"/>
+          <circle cx="58" cy="44" r="7.2" fill="#FF5A36"/>
+          <path d="M65 38 Q73 34 78 30" stroke="#B8F04A" stroke-width="3" fill="none" stroke-linecap="square"/>
+          <circle cx="79" cy="29" r="3.4" fill="#B8F04A"/>
+        </svg>
+      </div>
+      <div class="card-top"><span class="n">08</span><h3>Trace</h3></div>
+      <p>Three reports getting newer, ending at the live one. No map, no player, just the afterimage trail.</p>
+      <div class="sizes"><div class="box b48"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="32" cy="68" r="4" fill="#F3EFE6" opacity=".22"/><circle cx="44" cy="56" r="5.2" fill="#F3EFE6" opacity=".45"/><circle cx="58" cy="44" r="7.2" fill="#FF5A36"/><path d="M65 38 Q73 34 78 30" stroke="#B8F04A" stroke-width="3" fill="none" stroke-linecap="square"/><circle cx="79" cy="29" r="3.4" fill="#B8F04A"/></svg></div><div class="box b32"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="32" cy="68" r="4" fill="#F3EFE6" opacity=".22"/><circle cx="44" cy="56" r="5.2" fill="#F3EFE6" opacity=".45"/><circle cx="58" cy="44" r="7.2" fill="#FF5A36"/><path d="M65 38 Q73 34 78 30" stroke="#B8F04A" stroke-width="3" fill="none"/><circle cx="79" cy="29" r="3.4" fill="#B8F04A"/></svg></div><div class="box b24"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="32" cy="68" r="4" fill="#F3EFE6" opacity=".30"/><circle cx="44" cy="56" r="5.2" fill="#F3EFE6" opacity=".50"/><circle cx="58" cy="44" r="7.2" fill="#FF5A36"/><circle cx="79" cy="29" r="3.8" fill="#B8F04A"/></svg></div><span>48 / 32 / 24</span></div>
+    </article>
+
+  </div>
+
+  <div class="shortlist">
+    <div class="section-head"><h2>Three that survive the launcher</h2><p>ADAPTIVE MASK / MONOCHROME / SAFE ZONE</p></div>
+    <div class="picks">
+      <article class="pick">
+        <div class="shapes">
+          <div class="frame circle"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="54" cy="55" r="9" fill="#FF5A36"/><circle cx="54" cy="55" r="21" fill="none" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"/><circle cx="54" cy="55" r="31" fill="none" stroke="#F3EFE6" stroke-opacity=".13" stroke-width="2" stroke-dasharray="58 20" transform="rotate(18 54 55)"/><circle cx="74" cy="34" r="3.6" fill="#B8F04A"/></svg></div>
+          <div class="frame squircle"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><circle cx="54" cy="55" r="9" fill="#FF5A36"/><circle cx="54" cy="55" r="21" fill="none" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"/><circle cx="54" cy="55" r="31" fill="none" stroke="#F3EFE6" stroke-opacity=".13" stroke-width="2" stroke-dasharray="58 20" transform="rotate(18 54 55)"/><circle cx="74" cy="34" r="3.6" fill="#B8F04A"/></svg></div>
+          <div class="mono"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#F3EFE6"/><circle cx="54" cy="55" r="9" fill="#08090A"/><circle cx="54" cy="55" r="21" fill="none" stroke="#08090A" stroke-opacity=".35" stroke-width="2.2" stroke-dasharray="88 22" transform="rotate(-38 54 55)"/><circle cx="54" cy="55" r="31" fill="none" stroke="#08090A" stroke-opacity=".14" stroke-width="2" stroke-dasharray="58 20" transform="rotate(18 54 55)"/><circle cx="74" cy="34" r="3.6" fill="#08090A"/></svg></div>
+        </div>
+        <div><h3>Afterimage</h3><p>The most product-true. It says “a report has an age” before it says “game”, and the dot is already the app's signature.</p><div class="why">PICK IF THE ICON SHOULD EXPLAIN THE RULE.</div></div>
+      </article>
+      <article class="pick">
+        <div class="shapes">
+          <div class="frame circle"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-13 54 54)"><rect x="29" y="28" width="50" height="52" rx="3" fill="#FF5A36"/><circle cx="29" cy="41" r="3.1" fill="#08090A"/><circle cx="29" cy="54" r="3.1" fill="#08090A"/><circle cx="29" cy="67" r="3.1" fill="#08090A"/><line x1="63" y1="29" x2="63" y2="79" stroke="#08090A" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 5"/><circle cx="52" cy="66" r="3.4" fill="#B8F04A"/></g></svg></div>
+          <div class="frame squircle"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><g transform="rotate(-13 54 54)"><rect x="29" y="28" width="50" height="52" rx="3" fill="#FF5A36"/><circle cx="29" cy="41" r="3.1" fill="#08090A"/><circle cx="29" cy="54" r="3.1" fill="#08090A"/><circle cx="29" cy="67" r="3.1" fill="#08090A"/><line x1="63" y1="29" x2="63" y2="79" stroke="#08090A" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 5"/><circle cx="52" cy="66" r="3.4" fill="#B8F04A"/></g></svg></div>
+          <div class="mono"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#F3EFE6"/><g transform="rotate(-13 54 54)"><rect x="29" y="28" width="50" height="52" rx="3" fill="#08090A"/><circle cx="29" cy="41" r="3.1" fill="#F3EFE6"/><circle cx="29" cy="54" r="3.1" fill="#F3EFE6"/><circle cx="29" cy="67" r="3.1" fill="#F3EFE6"/><circle cx="52" cy="66" r="3.4" fill="#F3EFE6"/></g></svg></div>
+        </div>
+        <div><h3>Stub</h3><p>The most game-like. The torn ticket explains the six-character code without a letter, and it owns a shape nobody else in the category uses.</p><div class="why">PICK IF THE ICON SHOULD FEEL LIKE THE INVITE.</div></div>
+      </article>
+      <article class="pick">
+        <div class="shapes">
+          <div class="frame circle"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 29 H78 V79 H30 Z" fill="#F3EFE6"/><path d="M37 84 L71 24" stroke="#08090A" stroke-width="10"/><circle cx="54" cy="54" r="4.4" fill="#B8F04A"/></svg></div>
+          <div class="frame squircle"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#08090A"/><path d="M30 29 H78 V79 H30 Z" fill="#F3EFE6"/><path d="M37 84 L71 24" stroke="#08090A" stroke-width="10"/><circle cx="54" cy="54" r="4.4" fill="#B8F04A"/></svg></div>
+          <div class="mono"><svg viewBox="0 0 108 108"><rect width="108" height="108" fill="#F3EFE6"/><path d="M30 29 H78 V79 H30 Z" fill="#08090A"/><path d="M37 84 L71 24" stroke="#F3EFE6" stroke-width="10"/><circle cx="54" cy="54" r="4.4" fill="#08090A"/></svg></div>
+        </div>
+        <div><h3>Cut</h3><p>The strongest silhouette. One bone plate, one clean cut, one dot. It will still read from across a home screen and it is impossible to mistake for a map app.</p><div class="why">PICK IF THE ICON SHOULD BE A BOLD STAMP.</div></div>
+      </article>
+    </div>
+  </div>
+
+  <footer><span>MANHUNT / REAL-WORLD GPS HIDE-AND-SEEK</span><span>ICON STUDY 01 / 8 STARTS / NIGHT SHIFT SYSTEM</span><span>UNSLOP BY @HEYDAMIR · CC BY 4.0</span></footer>
+</div>
+</body>
+</html>

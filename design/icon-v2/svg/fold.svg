@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="fold" viewBox="0 0 108 108" role="img" aria-label="Fold">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <path d="M30 28 L54 37 L78 28 L78 79 L54 70 L30 79 Z" fill="#F3EFE6"></path>
+          <path d="M54 37 L78 28 L78 79 L54 70 Z" fill="#1A1D20"></path>
+          <path d="M54 37 L54 70" stroke="#FF5A36" stroke-width="2.6"></path>
+          <circle cx="65" cy="53" r="3.6" fill="#B8F04A"></circle>
+        </svg>

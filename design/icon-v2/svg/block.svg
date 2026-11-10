@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="block" viewBox="0 0 108 108" role="img" aria-label="Block">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <g transform="rotate(-9 54 54)">
+            <rect x="29" y="30" width="19" height="19" fill="#F3EFE6" opacity=".22"></rect>
+            <rect x="51" y="30" width="19" height="19" fill="#F3EFE6" opacity=".34"></rect>
+            <rect x="29" y="52" width="19" height="19" fill="#F3EFE6" opacity=".34"></rect>
+            <rect x="51" y="52" width="19" height="19" fill="#FF5A36"></rect>
+            <path d="M76 26 L76 82" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2"></path>
+            <path d="M26 76 L82 76" stroke="#F3EFE6" stroke-opacity=".30" stroke-width="2"></path>
+          </g>
+          <circle cx="72" cy="66" r="3.4" fill="#B8F04A"></circle>
+        </svg>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="cut" viewBox="0 0 108 108" role="img" aria-label="Cut">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <path d="M30 29 H78 V79 H30 Z" fill="#F3EFE6"></path>
+          <path d="M37 84 L71 24" stroke="#08090A" stroke-width="10"></path>
+          <circle cx="54" cy="54" r="4.4" fill="#B8F04A"></circle>
+        </svg>

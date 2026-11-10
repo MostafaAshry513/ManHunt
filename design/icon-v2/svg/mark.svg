@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="mark" viewBox="0 0 108 108" role="img" aria-label="Mark">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <rect x="31" y="29" width="9" height="50" fill="#F3EFE6"></rect>
+          <rect x="68" y="29" width="9" height="50" fill="#F3EFE6"></rect>
+          <path d="M35 76 L54 50 L73 76" fill="none" stroke="#FF5A36" stroke-width="9" stroke-linejoin="miter"></path>
+          <circle cx="54" cy="50" r="3.6" fill="#B8F04A"></circle>
+        </svg>

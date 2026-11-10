@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg data-icon="stub" viewBox="0 0 108 108" role="img" aria-label="Stub">
+          <rect width="108" height="108" fill="#08090A"></rect>
+          <g transform="rotate(-13 54 54)">
+            <rect x="29" y="28" width="50" height="52" rx="3" fill="#FF5A36"></rect>
+            <circle cx="29" cy="41" r="3.1" fill="#08090A"></circle><circle cx="29" cy="54" r="3.1" fill="#08090A"></circle><circle cx="29" cy="67" r="3.1" fill="#08090A"></circle>
+            <line x1="63" y1="29" x2="63" y2="79" stroke="#08090A" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="3 5"></line>
+            <circle cx="52" cy="66" r="3.4" fill="#B8F04A"></circle>
+          </g>
+        </svg>
