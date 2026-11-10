@@ -4,6 +4,7 @@ import websocket from '@fastify/websocket';
 import { z } from 'zod';
 import type { DatabaseSync } from 'node:sqlite';
 import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { get } from './db.ts';
 import { ApiError, badRequest, unauthorized } from './errors.ts';
@@ -144,9 +145,13 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
 
   // Install page + APK download for testers. Version, size and checksum are read from the
   // published update manifest on every request, so the page cannot show stale metadata.
-  const apkPath = process.env.APK_PATH ?? resolve(
-    process.cwd(), '..', 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk',
+  // Production serves the minified release APK when it exists; debug is only the local fallback.
+  const releaseApkPath = resolve(
+    process.cwd(), '..', 'android', 'app', 'build', 'outputs', 'apk', 'release', 'app-release.apk',
   );
+  const apkPath = process.env.APK_PATH ?? (existsSync(releaseApkPath)
+    ? releaseApkPath
+    : resolve(process.cwd(), '..', 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk'));
 
   app.get('/favicon.png', async (_req, reply) => {
     try {

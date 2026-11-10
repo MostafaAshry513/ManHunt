@@ -1,5 +1,6 @@
-﻿package com.manhunt.app.ui
+package com.manhunt.app.ui
 
+import android.app.ActivityManager
 import android.provider.Settings
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -222,7 +223,14 @@ private fun rememberBrandMotionEnabled(): Boolean {
             )
         }.getOrDefault(1f)
     }
-    return !inspection && resumed && animatorScale > 0f
+    // Low-RAM phones get the static first frame: the field is decorative, and a per-frame
+    // radar loop is the first thing a potato device should not spend its frame budget on.
+    val lowRam = remember(context) {
+        runCatching {
+            (context.getSystemService(ActivityManager::class.java))?.isLowRamDevice == true
+        }.getOrDefault(false)
+    }
+    return !inspection && resumed && animatorScale > 0f && !lowRam
 }
 
 /**
