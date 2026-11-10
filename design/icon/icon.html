@@ -46,87 +46,49 @@
           id: "m",
           name: "M",
           direction: "letterform",
-          note: "The bet: one letter carries the brand at 29 px. Risk: an M is the most generic letter on a home screen. The flare slash and lime point have to do the work.",
+          note: "The bet: one rounded M can carry the brand and still feel drawn, not constructed. Risk: an M is generic; the live dot in the counter has to make it ours.",
           palettes: P(),
           art: (p) => `
-            <path fill="${p.mark}" d="M251.7 770V294.8H408.8L516.2 649H517.6L623.2 294.8H772.4V770H675.6V399.6H674.1L558.6 770H464.4L350 399.4H348.6V770Z"/>
-            <path d="M280 760 L742 280" stroke="${p.accent}" stroke-width="42" stroke-linecap="square"/>
-            <circle cx="512" cy="535" r="36" fill="${p.point}"/>`,
+            <path d="M300 770 C300 520 300 360 344 340 C388 320 450 490 512 620 C574 490 636 320 680 340 C724 360 724 520 724 770" fill="none" stroke="${p.mark}" stroke-width="112" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="512" cy="468" r="40" fill="${p.point}"/>`,
         },
         {
-          id: "peek",
-          name: "Peek",
+          id: "hide",
+          name: "Hide",
           direction: "symbol",
-          note: "The bet: hide-and-seek is a human verb; a head and a wall read before any map. Risk: it can become a generic avatar if the wall and eye are not decisive.",
+          note: "The bet: a single hooded silhouette makes hiding a body, not a wall plus a head plus an eye. Risk: read as a generic avatar; the droop of the hood and the one eye have to carry it.",
           palettes: P(),
           art: (p) => `
-            <rect x="568" y="218" width="206" height="588" fill="${p.accent}"/>
-            <rect x="568" y="218" width="22" height="588" fill="${p.mark}" opacity=".22"/>
-            <circle cx="430" cy="466" r="112" fill="${p.mark}"/>
-            <path d="M238 806 C248 660 332 604 430 604 C528 604 620 660 630 806 Z" fill="${p.mark}"/>
-            <circle cx="474" cy="456" r="34" fill="${p.point}"/>`,
+            <path d="M270 806 C230 700 270 570 384 530 C342 444 398 330 506 330 C618 330 672 444 628 530 C738 570 780 700 738 806 C620 846 388 846 270 806 Z" fill="${p.mark}"/>
+            <circle cx="464" cy="464" r="42" fill="${p.point}"/>`,
         },
         {
-          id: "cut",
-          name: "Cut",
+          id: "leap",
+          name: "Leap",
+          direction: "symbol",
+          note: "The bet: movement can be one continuous stroke, not a person built from parts. Risk: the arc could read as decoration; the dot has to feel like the thing being chased.",
+          palettes: P(),
+          art: (p) => `
+            <path d="M250 724 C380 780 420 630 500 552 C580 474 636 410 740 390" fill="none" stroke="${p.accent}" stroke-width="96" stroke-linecap="round"/>
+            <circle cx="740" cy="390" r="54" fill="${p.point}"/>`,
+        },
+        {
+          id: "chase",
+          name: "Chase",
           direction: "abstract",
-          note: "The bet: one hard cut makes a silhouette that survives every mask and every size. Risk: it is the least narrative; the lime point and the cut angle have to carry the meaning.",
+          note: "The bet: two opposing curves and one point say pursuit without a figure or a map. Risk: a pair of arcs can look like a loading glyph if the asymmetry is not strong enough.",
           palettes: P(),
           art: (p) => `
-            <path d="M252 252 H772 V772 H252 Z" fill="${p.mark}"/>
-            <path d="M300 850 L724 174" stroke="${p.bg}" stroke-width="96"/>
-            <circle cx="512" cy="512" r="44" fill="${p.point}"/>`,
-        },
-        {
-          id: "flash",
-          name: "Flash",
-          direction: "symbol",
-          note: "The bet: the hunt has a tool; a searchlight is more specific than a torch glyph. Risk: at 16 px the beam can read as an arrow.",
-          palettes: P(),
-          art: (p) => `
-            <g transform="rotate(-36 512 512)">
-              <rect x="166" y="454" width="230" height="116" rx="28" fill="${p.accent}"/>
-              <path d="M396 466 L730 326 L816 402 L816 622 L730 700 L396 558 Z" fill="${p.mark}" opacity=".84"/>
-              <circle cx="764" cy="514" r="34" fill="${p.point}"/>
-            </g>`,
-        },
-        {
-          id: "afterimage",
-          name: "Afterimage",
-          direction: "abstract",
-          note: "The bet: the report age is the product rule; a solid dot with a broken ring says it in one shape. Risk: without the ring it is just a dot.",
-          palettes: P(),
-          art: (p) => `
-            <circle cx="512" cy="512" r="102" fill="${p.accent}"/>
-            <circle cx="512" cy="512" r="220" fill="none" stroke="${p.mark}" stroke-opacity=".34" stroke-width="34" stroke-dasharray="820 220" transform="rotate(-38 512 512)"/>
-            <circle cx="704" cy="300" r="34" fill="${p.point}"/>`,
-          artSmall: (p) => `
-            <circle cx="512" cy="512" r="108" fill="${p.accent}"/>
-            <circle cx="512" cy="512" r="226" fill="none" stroke="${p.mark}" stroke-opacity=".30" stroke-width="34" stroke-dasharray="820 220" transform="rotate(-38 512 512)"/>
-            <circle cx="704" cy="300" r="42" fill="${p.point}"/>`,
-        },
-        {
-          id: "stub",
-          name: "Stub",
-          direction: "symbol",
-          note: "The bet: the invite code is the doorway; a torn ticket owns the shape. Risk: six code characters cannot be literal at 16 px, so the notches and lime seat carry it.",
-          palettes: P(),
-          art: (p) => `
-            <g transform="rotate(-13 512 512)">
-              <rect x="266" y="256" width="492" height="520" rx="26" fill="${p.accent}"/>
-              <circle cx="266" cy="392" r="32" fill="${p.bg}"/>
-              <circle cx="266" cy="512" r="32" fill="${p.bg}"/>
-              <circle cx="266" cy="632" r="32" fill="${p.bg}"/>
-              <path d="M618 270 V778" stroke="${p.bg}" stroke-opacity=".62" stroke-width="16" stroke-dasharray="28 46"/>
-              <circle cx="522" cy="646" r="36" fill="${p.point}"/>
-            </g>`,
+            <path d="M270 720 C180 560 240 330 430 280" fill="none" stroke="${p.accent}" stroke-width="96" stroke-linecap="round"/>
+            <path d="M754 304 C844 464 784 694 594 744" fill="none" stroke="${p.mark}" stroke-width="96" stroke-linecap="round"/>
+            <circle cx="512" cy="512" r="50" fill="${p.point}"/>`,
         },
       ];
 
       renderIconWorkbench({
         title: "ManHunt",
         intro:
-          "Icon round 03, built in the app-icon workbench. Six directions from three families, judged at launcher sizes before the hero. The field is dark camera, blue chat, green map, yellow music, white grid, red play; no real marks.",
+          "Icon round 04, built in the app-icon workbench. Four directions, one continuous shape each: no stacked walls, plates and badges. The field is dark camera, blue chat, green map, yellow music, white grid, red play; no real marks.",
         appName: "ManHunt",
         roles: R,
         concepts,
@@ -151,8 +113,8 @@
           ],
         },
         pageNotes: [
-          ["What this round tests", "Every idea is judged at 60 / 40 / 29 / 16 before the large hero, then in the Android 108/72/66 layers and the dark/light/mono palettes."],
-          ["Constant", "One lime report point. The letter M and Stub are the two most brand-led bets; Peek is the most literal; Afterimage is the most product-true."],
+          ["What changed for round 04", "Round 03 stacked a wall, a head and an eye; this round uses one continuous shape plus the lime point. Judged at 60 / 40 / 29 / 16 before the hero, then Android 108/72/66."],
+          ["Constant", "One lime report point. M is the brand bet; Hide is the human bet; Leap and Chase are the movement bets."],
         ],
       });
     </script>
