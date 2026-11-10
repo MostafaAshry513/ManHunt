@@ -23,9 +23,12 @@ Round 04 invented new marks. Round 05 starts from the approved identity in `desi
 
 The mark is scaled from `design/brand/identity/final/lockup/mark-light-on-dark.svg` onto the 1024 master. Rounded caps replace the old butt caps so the ring feels drawn, not cut. Open Zone and Open Flare were both judged at 60 / 40 / 29 / 16 and through the Android adaptive layers.
 
-### Spacing correction
+### Terminal bead correction
 
-The first pass of Open Zone had a large dot sitting on the ring. That read as two objects overlapping. The corrected mark uses a **205-radius ring**, **84 stroke**, and a **55-radius point** moved into the break with clear space around it. The composition now breathes: the ring is ~48% of the tile and the point never touches it. This is the version in the screenshots and the recommendation.
+The first pass of Open Zone had a large dot sitting on the ring, then a separated dot that collapsed at 16 px. The final mark is one object: a **205-radius ring**, **84 stroke**, with a **64-radius point** attached to the outer rim at the break. The point is the terminal bead, not a second floating object. It keeps the ring hole clear and survives the 16 px strip.
+
+Final master: [open-zone-mark.svg](open-zone-mark.svg)  
+Preview: [open-zone-preview.png](open-zone-preview.png)
 
 ## Evidence
 
@@ -36,4 +39,4 @@ The first pass of Open Zone had a large dot sitting on the ring. That read as tw
 
 ## Status
 
-Open Zone is the recommendation. Nothing is applied to the app yet. After the direction is approved, the workbench exports the Android background/foreground/monochrome layers and replaces the launcher resources; the approved identity already has an Android handoff to compare against.
+Open Zone is the recommendation and is now applied to the Android launcher resources in version **0.17.2 (47)**: foreground, monochrome, legacy and round mipmaps, splash background, site favicon. The workbench remains the source for the next round.

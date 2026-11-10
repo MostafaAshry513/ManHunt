@@ -1,25 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- NIGHT SHIFT mark: two street slashes, one flare and one bone, crossing in the safe zone.
-         The lime dot is the report point: the app's core idea, readable at 48 dp. -->
-    <path
-        android:pathData="M34,29 L74,79"
-        android:strokeColor="#FF5A36"
-        android:strokeWidth="9"
-        android:strokeLineCap="square" />
-    <path
-        android:pathData="M74,29 L34,79"
-        android:strokeColor="#F3EFE6"
-        android:strokeWidth="9"
-        android:strokeLineCap="square" />
-    <path
-        android:fillColor="#B8F04A"
-        android:pathData="M54,49.5 a4.5,4.5 0 1,0 0,9 a4.5,4.5 0 1,0 0,-9" />
-    <path
-        android:fillColor="#08090A"
-        android:pathData="M54,52.2 a1.8,1.8 0 1,0 0,3.6 a1.8,1.8 0 1,0 0,-3.6" />
+    <group android:scaleX="0.10546875" android:scaleY="0.10546875">
+        <path android:pathData="M710,459 A205,205 0 1,1 679.9,394.7" android:strokeColor="#F3EFE6" android:strokeWidth="84" android:strokeLineCap="round" />
+        <path android:fillColor="#B8F04A" android:pathData="M820.7,397.9 a64,64 0 1,0 -128,0 a64,64 0 1,0 128,0" />
+    </group>
 </vector>
