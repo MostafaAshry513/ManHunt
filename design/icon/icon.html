@@ -43,10 +43,30 @@
 
       const concepts = [
         {
+          id: "openzone",
+          name: "Open Zone",
+          direction: "symbol",
+          note: "The approved ManHunt Open Zone mark, adapted to NIGHT SHIFT: the ring is the field, the break is the hunt, the lime point is the report. This is the one that should be instantly ManHunt.",
+          palettes: P(),
+          art: (p) => `
+            <path d="M709.6 440.0 A210.5 210.5 0 1 1 504.6 301.6" fill="none" stroke="${p.mark}" stroke-width="98.6" stroke-linecap="round"/>
+            <circle cx="632.4" cy="319.0" r="81.5" fill="${p.point}"/>`,
+        },
+        {
+          id: "openflare",
+          name: "Open Flare",
+          direction: "symbol",
+          note: "The same approved geometry, field in flare instead of bone. More energy at 16 px, but the mark now competes with its own dot for attention.",
+          palettes: P(),
+          art: (p) => `
+            <path d="M709.6 440.0 A210.5 210.5 0 1 1 504.6 301.6" fill="none" stroke="${p.accent}" stroke-width="98.6" stroke-linecap="round"/>
+            <circle cx="632.4" cy="319.0" r="81.5" fill="${p.point}"/>`,
+        },
+        {
           id: "m",
           name: "M",
           direction: "letterform",
-          note: "The bet: one rounded M can carry the brand and still feel drawn, not constructed. Risk: an M is generic; the live dot in the counter has to make it ours.",
+          note: "The brand initial, rounded and drawn by hand. It is recognisable as ManHunt only after the mark is known; at 16 px it is just an M.",
           palettes: P(),
           art: (p) => `
             <path d="M300 770 C300 520 300 360 344 340 C388 320 450 490 512 620 C574 490 636 320 680 340 C724 360 724 520 724 770" fill="none" stroke="${p.mark}" stroke-width="112" stroke-linecap="round" stroke-linejoin="round"/>
@@ -56,39 +76,18 @@
           id: "hide",
           name: "Hide",
           direction: "symbol",
-          note: "The bet: a single hooded silhouette makes hiding a body, not a wall plus a head plus an eye. Risk: read as a generic avatar; the droop of the hood and the one eye have to carry it.",
+          note: "A single hooded silhouette. The most human option, but the least ManHunt-specific without the mark beside it.",
           palettes: P(),
           art: (p) => `
             <path d="M270 806 C230 700 270 570 384 530 C342 444 398 330 506 330 C618 330 672 444 628 530 C738 570 780 700 738 806 C620 846 388 846 270 806 Z" fill="${p.mark}"/>
             <circle cx="464" cy="464" r="42" fill="${p.point}"/>`,
-        },
-        {
-          id: "leap",
-          name: "Leap",
-          direction: "symbol",
-          note: "The bet: movement can be one continuous stroke, not a person built from parts. Risk: the arc could read as decoration; the dot has to feel like the thing being chased.",
-          palettes: P(),
-          art: (p) => `
-            <path d="M250 724 C380 780 420 630 500 552 C580 474 636 410 740 390" fill="none" stroke="${p.accent}" stroke-width="96" stroke-linecap="round"/>
-            <circle cx="740" cy="390" r="54" fill="${p.point}"/>`,
-        },
-        {
-          id: "chase",
-          name: "Chase",
-          direction: "abstract",
-          note: "The bet: two opposing curves and one point say pursuit without a figure or a map. Risk: a pair of arcs can look like a loading glyph if the asymmetry is not strong enough.",
-          palettes: P(),
-          art: (p) => `
-            <path d="M270 720 C180 560 240 330 430 280" fill="none" stroke="${p.accent}" stroke-width="96" stroke-linecap="round"/>
-            <path d="M754 304 C844 464 784 694 594 744" fill="none" stroke="${p.mark}" stroke-width="96" stroke-linecap="round"/>
-            <circle cx="512" cy="512" r="50" fill="${p.point}"/>`,
         },
       ];
 
       renderIconWorkbench({
         title: "ManHunt",
         intro:
-          "Icon round 04, built in the app-icon workbench. Four directions, one continuous shape each: no stacked walls, plates and badges. The field is dark camera, blue chat, green map, yellow music, white grid, red play; no real marks.",
+          "Icon round 05, built in the app-icon workbench. This round starts from the approved ManHunt Open Zone mark (design/brand/identity) instead of inventing another symbol. Open Zone and Open Flare test the mark; M and Hide are controls.",
         appName: "ManHunt",
         roles: R,
         concepts,
@@ -113,8 +112,8 @@
           ],
         },
         pageNotes: [
-          ["What changed for round 04", "Round 03 stacked a wall, a head and an eye; this round uses one continuous shape plus the lime point. Judged at 60 / 40 / 29 / 16 before the hero, then Android 108/72/66."],
-          ["Constant", "One lime report point. M is the brand bet; Hide is the human bet; Leap and Chase are the movement bets."],
+          ["What changed for round 05", "Round 04 made new marks that were smooth but not ManHunt. Round 05 uses the approved mark geometry so recognition comes from the brand, not a new metaphor. Judged at 60 / 40 / 29 / 16 and Android 108/72/66."],
+          ["Constant", "The approved Open Zone geometry plus one lime report point. Open Zone is the recommendation; Open Flare is the same mark with more heat."],
         ],
       });
     </script>

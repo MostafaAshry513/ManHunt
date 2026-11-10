@@ -1,6 +1,6 @@
 # ManHunt icon workbench
 
-The `app-icon` skill is installed and this is its workbench.
+The `app-icon` skill is installed and this workbench is running the icon round.
 
 - Skill source: https://github.com/euzharkov/app-design-skills (MIT, see `LICENSE-app-design-skills.txt`)
 - Installed at: `.agents/skills/app-icon`
@@ -10,18 +10,18 @@ The `app-icon` skill is installed and this is its workbench.
 
 The workbench renders one SVG master on a 1024 grid into real contexts: 60 / 40 / 29 / 16 px, squint and one-color tests, the competitor shelf, iOS home screen, Android 108/72/66 layers with masks and themed icons, macOS, favicons, and wallpapers. Exports go through `export-icons.sh` only after a concept is chosen.
 
-## Round 04 - smoother, fewer elements
+## Round 05 - use the approved ManHunt mark
 
-Round 03 stacked a wall, a head and an eye. This round is built from one continuous shape plus the lime report point, with rounded joins and no hard corners.
+Round 04 invented new marks. Round 05 starts from the approved identity in `design/brand/identity`: the Open Zone mark. The ring is the field, the break is the hunt, the dot is the report. That is the recognition, not another new metaphor.
 
-| id | Family | Bet | Risk |
-|---|---|---|---|
-| `m` | letterform | A rounded M carries the brand and still feels drawn | An M is generic; the dot in the counter has to make it ours |
-| `hide` | symbol | A single hooded silhouette makes hiding a body, not a wall plus a head | It can become a generic avatar |
-| `leap` | symbol | Movement is one continuous stroke, not a body built from parts | The arc can read as decoration |
-| `chase` | abstract | Two opposing curves and one point say pursuit | A pair of arcs can look like a loading glyph |
+| id | What it is | Why |
+|---|---|---|
+| `openzone` | Approved Open Zone geometry, bone ring, lime report point, bitumen ground | Recommended. The mark people already see in the app header and lockup |
+| `openflare` | Same geometry, flare ring, lime point | More energy at 16 px, but the ring competes with its own point |
+| `m` | Rounded M monogram | The initials route; generic until the brand is known |
+| `hide` | One hooded silhouette | The human route; not ManHunt-specific without the mark |
 
-The M was outlined from Bricolage with `outline-text.py`, so the workbench does not depend on live text for that master. Hound was removed: its silhouette read as a cat/owl at launcher size.
+The mark is scaled from `design/brand/identity/final/lockup/mark-light-on-dark.svg` onto the 1024 master. Rounded caps replace the old butt caps so the ring feels drawn, not cut. Open Zone and Open Flare were both judged at 60 / 40 / 29 / 16 and through the Android adaptive layers.
 
 ## Evidence
 
@@ -32,4 +32,4 @@ The M was outlined from Bricolage with `outline-text.py`, so the workbench does 
 
 ## Status
 
-No winner is marked and nothing is applied to the app. The next decision is a direction, then the workbench exports the Android adaptive background/foreground/monochrome layers and the existing launcher resources get replaced.
+Open Zone is the recommendation. Nothing is applied to the app yet. After the direction is approved, the workbench exports the Android background/foreground/monochrome layers and replaces the launcher resources; the approved identity already has an Android handoff to compare against.
